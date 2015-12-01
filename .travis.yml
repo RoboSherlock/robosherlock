@@ -51,6 +51,6 @@ before_install:
 
 script:
 - cd ~/catkin_ws/src
-- git clone https://github.com/robosherlock/robosherlock.git -y
+- git clone https://github.com/robosherlock/robosherlock.git 
 - cd ~/catkin_ws
 - catkin_make
