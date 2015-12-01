@@ -1,0 +1,48 @@
+sudo: required
+dist: trusty
+
+language: cpp
+
+compiler:
+- gcc
+
+
+before_install:
+- sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
+- wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
+- sudo apt-get update -qq
+- sudo apt-get install -y ros-indigo-desktop-full ros-indigo-openni-camera ros-indigo-openni-launch
+- sudo apt-get install -y git
+- sudo apt-get install -y automake libxerces-c-dev libicu-dev libapr1-dev mongodb scons protobuf-compiler --force-yes
+- sudo apt-get install -y python-rosinstall
+- sudo rosdep init
+- rosdep update
+- source /opt/ros/indigo/setup.bash
+- echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+- echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
+- echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
+- source ~/.bashrc
+- . ~/.bashrc
+- mkdir -p ~/local/src && cd ~/local/src/
+- git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp
+- cd uimacpp
+- ./autogen.sh
+- ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-7-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
+- make
+- sudo make install
+- ls /usr/local/lib
+- cd ~/local/src/
+- git clone https://github.com/mongodb/mongo-cxx-driver.git
+- cd mongo-cxx-driver/
+- git checkout 26compat
+- sudo scons --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
+- ls /usr/local/lib
+- mkdir -p ~/catkin_ws/src
+- cd ~/catkin_ws/src/
+- catkin_init_workspace
+- cd ~/catkin_ws/
+- catkin_make
+
+script:
+- cd ~/catkin_ws/
+- catkin_make
