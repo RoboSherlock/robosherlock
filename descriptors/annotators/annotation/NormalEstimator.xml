@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?><taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_NormalEstimator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>NormalEstimator</name>
+    <description>Produces normal clouds from a point cloud.</description>
+    <version>1.0</version>
+    <vendor/>
+
+    <configurationParameters>
+      <configurationParameter>
+        <name>useThermal</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>useRGB</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>useThermal</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>useRGB</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+    <typeSystemDescription>
+      <imports>
+        <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">rs.pcl.NormalsCloud</type>
+        </outputs>
+        <inputSofas>
+          <sofaName>rs.pcl.PointCloud</sofaName>
+        </inputSofas>
+        <languagesSupported>
+          <language>x-unspecified</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</taeDescription>

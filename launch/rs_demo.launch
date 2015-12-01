@@ -1,0 +1,4 @@
+<launch>
+    <!-- launch robosherlock with the pipeline defined in demo.xml-->
+    <node name="RoboSherlock_demo" pkg="robosherlock" type="run" output="screen" args="demo -visualizer" />
+</launch>

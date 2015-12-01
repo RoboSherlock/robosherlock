@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_ImageSegmentationAnnotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>ImageSegmentationAnnotator</name>
+    <description>2D Image segmentation</description>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>threshold</name>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>hsvThreshold</name>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>minSize</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>minHoleSize</name>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>hsvFilter</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>threshold</name>
+        <value>
+          <float>75</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>hsvThreshold</name>
+        <value>
+          <float>100</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>minSize</name>
+        <value>
+          <integer>3500</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>minHoleSize</name>
+        <value>
+          <integer>40000</integer>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>hsvFilter</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+          <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities/>
+    <fsIndexCollection/>
+    <capabilities>
+         <capability>
+           <inputs/>
+           <outputs>
+             <type allAnnotatorFeatures="true">rs.scene.Cluster</type>
+           </outputs>
+           <inputSofas>
+             <sofaName>rs.pcl.PointCloud</sofaName>
+             <sofaName>rs.annotation.Plane</sofaName>
+             <sofaName>rs.pcl.RegionPointCloud</sofaName>
+           </inputSofas>
+           <languagesSupported>
+             <language>x-unspecified</language>
+           </languagesSupported>
+         </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+  <resourceManagerConfiguration/>
+</analysisEngineDescription>

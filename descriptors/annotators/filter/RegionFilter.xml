@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_RegionFilter</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>RegionFilter</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>border</name>
+        <description>Border for semantic map regions.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>region_to_filter</name>
+        <description>Region entry from the semantic map based on which to filter the cloud (e.g. CounterTop or Drawers etc.) </description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+    </configurationParameters>
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>border</name>
+        <value>
+          <float>0.02</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>region_to_filter</name>
+        <value>
+          <string>CounterTop</string>
+        </value>
+      </nameValuePair>
+
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+            <type allAnnotatorFeatures="true">rs.pcl.RegionPointCloud</type>
+            <type allAnnotatorFeatures="true">rs.annotation.TFLocation</type>
+        </outputs>
+        <inputSofas>
+          <sofaName>rs.pcl.PointCloud</sofaName>
+        </inputSofas>
+        <languagesSupported>
+          <language>x-unspecified</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>

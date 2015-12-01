@@ -1,0 +1,650 @@
+%YAML:1.0
+names:
+   - drawer_sinkblock_upper
+   - drawer_sinkblock_middle
+   - drawer_sinkblock_lower
+   - drawer_sinkblock_trash
+   - drawer_fridge_lower
+   - drawer_oven_right
+   - drawer_oven_middle
+   - drawer_oven_lower
+   - drawer_oven_left
+   - drawer_island_left_upper
+   - drawer_island_left_lower
+   - drawer_island_middle_upper
+   - drawer_island_middle_lower
+   - drawer_island_right_upper
+   - drawer_island_right_lower
+   - kitchen_island_counter_top
+   - kitchen_sink_block_counter_top
+   - kitchen_island
+   - pancake_table
+   - kitchen_sink_block
+   - drawer_sinkblock_upper_handle
+   - drawer_sinkblock_middle_handle
+   - drawer_sinkblock_lower_handle
+   - drawer_sinkblock_dishwasher_handle
+   - drawer_sinkblock_trash_handle
+   - drawer_fridge_upper_handle
+   - drawer_fridge_lower_handle
+   - drawer_oven_right_handle
+   - drawer_oven_upper_handle
+   - drawer_oven_middle_handle
+   - drawer_oven_lower_handle
+   - drawer_oven_left_handle
+   - drawer_island_left_upper_handle
+   - drawer_island_left_lower_handle
+   - drawer_island_middle_upper_handle
+   - drawer_island_middle_lower_handle
+   - drawer_island_right_upper_handle
+   - drawer_island_right_lower_handle
+   - kitchen_wall_north
+   - kitchen_wall_west
+   - kitchen_wall_south
+   - kitchen_wall_east_1
+   - kitchen_wall_east_2
+   - drawer_sinkblock_dishwasher_door
+   - drawer_fridge_upper_door
+   - drawer_oven_upper_door
+   - drawer_fridge_upper
+   - shopping_rack_shelf_1
+   - shopping_rack_shelf_2
+   - chemlab_table
+drawer_sinkblock_upper:
+   type: Drawer
+   width: 8.0000000000000004e-01
+   height: 1.4000000000000001e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 7.5000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_middle:
+   type: Drawer
+   width: 8.0000000000000004e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 5.3000000000000003e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_lower:
+   type: Drawer
+   width: 8.0000000000000004e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 2.3999999999999999e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_trash:
+   type: Drawer
+   width: 5.8999999999999997e-01
+   height: 5.6999999999999995e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          -4.0000000000000002e-01, 0., 0., 1., 3.8000000000000000e-01,
+          0., 0., 0., 1. ]
+drawer_fridge_lower:
+   type: Drawer
+   width: 5.8999999999999997e-01
+   height: 3.5999999999999999e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          -1.0500000000000000e+00, 0., 0., 1., 3.2000000000000001e-01,
+          0., 0., 0., 1. ]
+drawer_oven_right:
+   type: Drawer
+   width: 2.8999999999999998e-01
+   height: 1.3200000000000001e+00
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          1.4600000000000000e+00, 0., 0., 1., 8.1000000000000005e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_middle:
+   type: Drawer
+   width: 5.8999999999999997e-01
+   height: 1.4000000000000001e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          1.8799999999999999e+00, 0., 0., 1., 7.9000000000000004e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_lower:
+   type: Drawer
+   width: 5.8999999999999997e-01
+   height: 5.7999999999999996e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          1.8799999999999999e+00, 0., 0., 1., 4.4000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_left:
+   type: Drawer
+   width: 2.8999999999999998e-01
+   height: 1.3200000000000001e+00
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          2.3599999999999999e+00, 0., 0., 1., 8.1000000000000005e-01, 0.,
+          0., 0., 1. ]
+drawer_island_left_upper:
+   type: Drawer
+   width: 5.9999999999999998e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          9.1000000000000003e-01, 0., 0., 1., 5.4000000000000004e-01, 0.,
+          0., 0., 1. ]
+drawer_island_left_lower:
+   type: Drawer
+   width: 5.9999999999999998e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          9.1000000000000003e-01, 0., 0., 1., 2.5000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_island_middle_upper:
+   type: Drawer
+   width: 9.8999999999999999e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          1.7100000000000000e+00, 0., 0., 1., 5.4000000000000004e-01, 0.,
+          0., 0., 1. ]
+drawer_island_middle_lower:
+   type: Drawer
+   width: 9.8999999999999999e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          1.7100000000000000e+00, 0., 0., 1., 2.5000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_island_right_upper:
+   type: Drawer
+   width: 5.9999999999999998e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          2.5099999999999998e+00, 0., 0., 1., 5.4000000000000004e-01, 0.,
+          0., 0., 1. ]
+drawer_island_right_lower:
+   type: Drawer
+   width: 5.9999999999999998e-01
+   height: 2.8999999999999998e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.1000000000000001e+00, 0., 1., 0.,
+          2.5099999999999998e+00, 0., 0., 1., 2.5000000000000000e-01, 0.,
+          0., 0., 1. ]
+kitchen_island_counter_top:
+   type: CounterTop
+   width: 2.4500000000000002e+00
+   height: 5.0000000000000003e-02
+   depth: 8.0000000000000004e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ -1., 0., 0., -1.0528900000000001e+00, 0., -1., 0.,
+          1.6562440000000000e+00, 0., 0., 1., 8.4999999999999998e-01, 0.,
+          0., 0., 1. ]
+kitchen_sink_block_counter_top:
+   type: CounterTop
+   width: 2.0600000000000001e+00
+   height: 5.0000000000000003e-02
+   depth: 5.7999999999999996e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.5159400000000001e+00, 0., 1., 0.,
+          3.0313000000000001e-01, 0., 0., 1., 8.4999999999999998e-01, 0.,
+          0., 0., 1. ]
+kitchen_island:
+   type: Cupboard
+   width: 2.4500000000000002e+00
+   height: 8.4999999999999998e-01
+   depth: 8.0000000000000004e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ -1., 0., 0., -1.0528900000000001e+00, 0., -1., 0.,
+          1.6562440000000000e+00, 0., 0., 1., 4.2499999999999999e-01, 0.,
+          0., 0., 1. ]
+pancake_table:
+   type: Cupboard
+   width: 1.6000000000000001e+00
+   height: 7.1999999999999997e-01
+   depth: 8.0000000000000004e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ -1., 0., 0., -1.0528900000000001e+00, 0., -1., 0.,
+          -4.5000000000000001e-01, 0., 0., 1., 3.5999999999999999e-01,
+          0., 0., 0., 1. ]
+kitchen_sink_block:
+   type: Cupboard
+   width: 2.0600000000000001e+00
+   height: 8.4999999999999998e-01
+   depth: 5.7999999999999996e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.5159400000000001e+00, 0., 1., 0.,
+          3.0313000000000001e-01, 0., 0., 1., 4.2499999999999999e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_upper_handle:
+   type: Handle
+   width: 6.9999999999999996e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 7.8000000000000003e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_middle_handle:
+   type: Handle
+   width: 6.9999999999999996e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 6.4000000000000001e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_lower_handle:
+   type: Handle
+   width: 6.9999999999999996e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 3.4999999999999998e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_dishwasher_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          2.0000000000000001e-01, 0., 0., 1., 7.8000000000000003e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_trash_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          -4.0000000000000002e-01, 0., 0., 1., 6.3000000000000000e-01,
+          0., 0., 0., 1. ]
+drawer_fridge_upper_handle:
+   type: Handle
+   width: 8.4999999999999998e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 0., -1.,
+          -7.0999999999999996e-01, 0., 1., 0., 9.4999999999999996e-01,
+          0., 0., 0., 1. ]
+drawer_fridge_lower_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          -1.0500000000000000e+00, 0., 0., 1., 4.5000000000000001e-01,
+          0., 0., 0., 1. ]
+drawer_oven_right_handle:
+   type: Handle
+   width: 1.2400000000000000e+00
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 0., -1.,
+          1.4600000000000000e+00, 0., 1., 0., 8.1000000000000005e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_upper_handle:
+   type: Handle
+   width: 2.8000000000000003e-01
+   height: 2.9999999999999999e-02
+   depth: 4.0000000000000001e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1399999999999999e+00, 0., 1., 0.,
+          1.8799999999999999e+00, 0., 0., 1., 1.1100000000000001e+00, 0.,
+          0., 0., 1. ]
+drawer_oven_middle_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          1.8799999999999999e+00, 0., 0., 1., 8.1999999999999995e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_lower_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 1., 0.,
+          1.8799999999999999e+00, 0., 0., 1., 6.7000000000000004e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_left_handle:
+   type: Handle
+   width: 1.2400000000000000e+00
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1200000000000001e+00, 0., 0., -1.,
+          2.3599999999999999e+00, 0., 1., 0., 8.1000000000000005e-01, 0.,
+          0., 0., 1. ]
+drawer_island_left_upper_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          9.1000000000000003e-01, 0., 0., 1., 6.3000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_island_left_lower_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          9.1000000000000003e-01, 0., 0., 1., 3.4000000000000002e-01, 0.,
+          0., 0., 1. ]
+drawer_island_middle_upper_handle:
+   type: Handle
+   width: 9.0000000000000002e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          1.7100000000000000e+00, 0., 0., 1., 6.3000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_island_middle_lower_handle:
+   type: Handle
+   width: 9.0000000000000002e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          1.7100000000000000e+00, 0., 0., 1., 3.4000000000000002e-01, 0.,
+          0., 0., 1. ]
+drawer_island_right_upper_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          2.5099999999999998e+00, 0., 0., 1., 6.3000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_island_right_lower_handle:
+   type: Handle
+   width: 5.0000000000000000e-01
+   height: 1.0000000000000000e-02
+   depth: 7.0000000000000007e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -8.1999999999999995e-01, 0., 1., 0.,
+          2.5099999999999998e+00, 0., 0., 1., 3.4000000000000002e-01, 0.,
+          0., 0., 1. ]
+kitchen_wall_north:
+   type: Wall
+   width: 4.9600000000000000e+00
+   height: 2.
+   depth: 1.0000000000000000e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.8200000000000001e+00, 0., 1., 0.,
+          6.5000000000000002e-01, 0., 0., 1., 1., 0., 0., 0., 1. ]
+kitchen_wall_west:
+   type: Wall
+   width: 6.6600000000000001e+00
+   height: 2.
+   depth: 1.0000000000000000e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 0., -1., 0., -1.5000000000000000e+00, 1., 0., 0.,
+          3.1699999999999999e+00, 0., 0., 1., 1., 0., 0., 0., 1. ]
+kitchen_wall_south:
+   type: Wall
+   width: 4.0499999999999998e+00
+   height: 7.3999999999999999e-01
+   depth: 1.0000000000000000e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -4.8200000000000003e+00, 0., 1., 0.,
+          1.1299999999999999e+00, 0., 0., 1., 3.7000000000000000e-01, 0.,
+          0., 0., 1. ]
+kitchen_wall_east_1:
+   type: Wall
+   width: 1.
+   height: 2.
+   depth: 1.0000000000000000e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 0., -1., 0., 1.3000000000000000e+00, 1., 0., 0.,
+          -1.8200000000000001e+00, 0., 0., 1., 1., 0., 0., 0., 1. ]
+kitchen_wall_east_2:
+   type: Wall
+   width: 4.8099999999999996e+00
+   height: 7.3999999999999999e-01
+   depth: 1.0000000000000000e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 0., -1., 0., -2.3999999999999999e+00, 1., 0., 0.,
+          -1.8500000000000001e+00, 0., 0., 1., 3.7000000000000000e-01,
+          0., 0., 0., 1. ]
+drawer_sinkblock_dishwasher_door:
+   type: Door
+   width: 5.8999999999999997e-01
+   height: 7.1999999999999997e-01
+   depth: 5.0000000000000003e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1250000000000000e+00, 0., 1., 0.,
+          2.0000000000000001e-01, 0., 0., 1., 4.6000000000000002e-01, 0.,
+          0., 0., 1. ]
+drawer_fridge_upper_door:
+   type: Door
+   width: 5.8999999999999997e-01
+   height: 7.1999999999999997e-01
+   depth: 5.0000000000000003e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1250000000000000e+00, 0., 1., 0.,
+          2.0000000000000001e-01, 0., 0., 1., 4.6000000000000002e-01, 0.,
+          0., 0., 1. ]
+drawer_oven_upper_door:
+   type: Door
+   width: 5.8999999999999997e-01
+   height: 7.1999999999999997e-01
+   depth: 5.0000000000000003e-02
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.1250000000000000e+00, 0., 1., 0.,
+          2.0000000000000001e-01, 0., 0., 1., 4.6000000000000002e-01, 0.,
+          0., 0., 1. ]
+drawer_fridge_upper:
+   type: Refrigerator
+   width: 5.8999999999999997e-01
+   height: 9.6999999999999997e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          -1.0500000000000000e+00, 0., 0., 1., 9.8999999999999999e-01,
+          0., 0., 0., 1. ]
+shopping_rack_shelf_1:
+   type: Shelf
+   width:  12.800000000000000e-01
+   height: 3.5999999999999997e-02
+   depth: 4.899999999999997e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.20499999999999999e+00, 0., 1., 0.,
+          0.2140000000000000e+00, 0., 0., 1., 1.1549999999999999999e-00,
+          0., 0., 0., 1. ]
+shopping_rack_shelf_2:
+   type: Shelf
+   width:  12.800000000000000e-01
+   height: 3.5999999999999997e-02
+   depth: 4.899999999999997e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.20499999999999999e+00, 0., 1., 0.,
+          0.2140000000000000e+00, 0., 0., 1., 0.6749999999999999999e-00,
+          0., 0., 0., 1. ]
+
+chemlab_table:
+   type: Table 
+   width:  13.50000000000000e-01
+   height: 6.5999999999999997e-02
+   depth: 5.99999999999997e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.90499999999999999e+00, 0., 1., 0.,
+          1.1240000000000000e+00, 0., 0., 1., 0.6749999999999999999e-00,
+          0., 0., 0., 1. ]

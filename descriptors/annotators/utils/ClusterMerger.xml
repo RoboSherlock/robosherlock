@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_ClusterMerger</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>ClusterMerger</name>
+    <description>extracts clusters found on planes in point clouds</description>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+    </configurationParameters>
+    <configurationParameterSettings>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <typePriorities/>
+    <capabilities>
+          <capability>
+            <inputs/>
+            <outputs>
+              <type allAnnotatorFeatures="true">rs.scene.MergedCluster</type>
+            </outputs>
+            <inputSofas>
+              <sofaName>rs.scene.Cluster</sofaName>
+            </inputSofas>
+            <languagesSupported/>
+          </capability>
+        </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>
