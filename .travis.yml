@@ -37,12 +37,20 @@ before_install:
 - git checkout 26compat
 - sudo scons --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
 - ls /usr/local/lib
+- echo "export APR_HOME=/usr" >> ~/.bashrc
+- echo "export ICU_HOME=/usr" >> ~/.bashrc
+- echo "export XERCES_HOME=/usr" >> ~/.bashrc
+- echo "export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}" >> ~/.bashrc
+- . ~/.bashrc
 - mkdir -p ~/catkin_ws/src
 - cd ~/catkin_ws/src/
 - catkin_init_workspace
 - cd ~/catkin_ws/
 - catkin_make
+- source devel/setup.bash
 
 script:
-- cd ~/catkin_ws/
+- cd ~/catkin_ws/src
+- git clone https://github.com/robosherlock/robosherlock.git -y
+- cd ~/catkin_ws
 - catkin_make
