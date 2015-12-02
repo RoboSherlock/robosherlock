@@ -75,9 +75,16 @@ private:
     MASK
   } displayMode;
 
+
+  enum
+  {
+    BINARY=0,
+    INVBINARY
+  }segmMode;
+
 public:
   ImageSegmentationAnnotator() : DrawingAnnotator(__func__), threshold(100), hsvThreshold(150)
-    , hsvFilter(false), minHoleSize(50), hbins(64), sbins(64), foundPlane(false), displayMode(SEGMENTS)
+    , hsvFilter(false), minHoleSize(50), hbins(64), sbins(64), foundPlane(false), displayMode(SEGMENTS),segmMode(INVBINARY)
   {
     cameraMatrix = cv::Mat(3, 3, CV_64F);
     distCoefficients = cv::Mat(1, 8, CV_64F);
@@ -110,6 +117,20 @@ public:
     {
       ctx.extractValue("hsvFilter", hsvFilter);
     }
+    if(ctx.isParameterDefined("segmMode"))
+    {
+      std::string segmentationMode;
+      ctx.extractValue("segmMode", segmentationMode);
+      if (segmentationMode == "BINARY")
+      {
+        segmMode = BINARY;
+      }
+      else if(segmentationMode =="INVBINARY")
+      {
+        segmMode = INVBINARY;
+      }
+    }
+
 
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     hdivide = 180 / hbins;
@@ -265,7 +286,8 @@ private:
       planeRoiHires.height *= 2;
 
 
-      ImageSegmentation::thresholding(grey, bin, threshold, cv::THRESH_BINARY);
+
+      ImageSegmentation::thresholding(grey, bin, threshold, segmMode);
       bin.setTo(0, mask);
       ImageSegmentation::segment(bin, segments, minSize, minHoleSize, planeRoiHires);
       ImageSegmentation::computePose(segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);

@@ -42,6 +42,14 @@
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
       </configurationParameter>
+
+      <configurationParameter>
+        <name>segmMode</name>
+        <description>switch between Inverse binary and binary thresholding</description>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
     </configurationParameters>
 
     <configurationParameterSettings>
@@ -75,7 +83,14 @@
       <nameValuePair>
         <name>hsvFilter</name>
         <value>
-          <boolean>true</boolean>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>segmMode</name>
+        <value>
+          <string>BINARY</string>
         </value>
       </nameValuePair>
 
