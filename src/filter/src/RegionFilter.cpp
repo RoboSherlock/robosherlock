@@ -79,6 +79,8 @@ public:
   {
     nameMapping["DRAWER"] = "Drawer";
     nameMapping["COUNTERTOP"] = "CounterTop";
+    nameMapping["TABLE"] = "Table";
+
     nameMapping[""] = "CounterTop";
   }
 

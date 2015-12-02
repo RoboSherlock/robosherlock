@@ -48,6 +48,8 @@ names:
    - drawer_oven_upper_door
    - drawer_fridge_upper
    - shopping_rack_shelf_1
+   - shopping_rack_shelf_2
+   - chemlab_table
 drawer_sinkblock_upper:
    type: Drawer
    width: 7.0000000000000004e-01
@@ -620,4 +622,28 @@ shopping_rack_shelf_1:
       dt: d
       data: [ 1., 0., 0., 1.20499999999999999e+00, 0., 1., 0.,
           0.2140000000000000e+00, 0., 0., 1., 1.1049999999999999999e-00,
+          0., 0., 0., 1. ]
+shopping_rack_shelf_2:
+   type: Shelf
+   width:  12.800000000000000e-01
+   height: 3.5999999999999997e-02
+   depth: 4.899999999999997e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.20499999999999999e+00, 0., 1., 0.,
+          0.2140000000000000e+00, 0., 0., 1., 0.6749999999999999999e-00,
+          0., 0., 0., 1. ]
+chemlab_table:
+   type: Table
+   width:  13.50000000000000e-01
+   height: 6.5999999999999997e-02
+   depth: 5.99999999999997e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.90499999999999999e+00, 0., 1., 0.,
+          1.1240000000000000e+00, 0., 0., 1., 0.6749999999999999999e-00,
           0., 0., 0., 1. ]
