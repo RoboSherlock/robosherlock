@@ -117,7 +117,7 @@ def create_cpp_source(pathToPackage,annotatorName):
            "  }\n"
            "};\n\n"
            "// This macro exports an entry point that is used to create the annotator.\n"
-           "MAKE_AE(MyFirstAnnotator)");
+           "MAKE_AE("+annotatorName+")");
     f.write(txt)
     f.close()
     
