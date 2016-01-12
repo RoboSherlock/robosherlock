@@ -248,61 +248,45 @@ public:
  */
 void help()
 {
-  std::cout << "Usage: runAECppLoop [options] analysisEngine.xml [...]" << std::endl
+  std::cout << "Usage: run [options]" << std::endl
             << "Options:" << std::endl
-            << "  -visualizer  Enable visualization" << std::endl
-            << "  -save PATH   Path for storing images" << std::endl;
+            << "  analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
+            << "     visualization:=true|false     Enable/disable visualization" << std::endl
+            << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl;
 }
 
 int main(int argc, char *argv[])
 {
+  ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
+
   /* Access the command line arguments to get the name of the input text. */
-  if(argc < 2)
+  if(argc > 1)
   {
     help();
-    return 1;
+    return 0;
   }
 
-  ros::init(argc,argv, std::string("RoboSherlock_") + getenv("USER"));
+  std::string analysisEnginesArg;
+  std::string savePath;
+  std::vector<std::string> analysisEngines;
+  bool visualization;
 
-  std::vector<std::string> args;
-  args.resize(argc - 1);
-  for(int argI = 1; argI < argc; ++argI)
+  ros::NodeHandle priv_nh = ros::NodeHandle("~");
+
+  priv_nh.param("analysis_engines", analysisEnginesArg, std::string("demo"));
+  priv_nh.param("visualization", visualization, false);
+  priv_nh.param("save_path", savePath, std::string(getenv("HOME")));
+
+  for(size_t start = 0, end = 0; end != analysisEnginesArg.npos; start = end + 1)
   {
-    args[argI - 1] = argv[argI];
+    end = analysisEnginesArg.find(',', start);
+    analysisEngines.push_back(analysisEnginesArg.substr(start, end));
   }
 
-  bool useVisualizer = false;
-  std::string savePath = getenv("HOME");
-
-  size_t argO = 0;
-  for(size_t argI = 0; argI < args.size(); ++argI)
+  if(savePath.empty())
   {
-    const std::string &arg = args[argI];
-
-    if(arg == "-visualizer")
-    {
-      useVisualizer = true;
-    }
-    else if(arg == "-save")
-    {
-      if(++argI < args.size())
-      {
-        savePath = args[argI];
-      }
-      else
-      {
-        outError("No save path defined!");
-        return -1;
-      }
-    }
-    else
-    {
-      args[argO] = args[argI];
-      ++argO;
-    }
+    savePath = getenv("HOME");
   }
-  args.resize(argO);
 
   struct stat fileStat;
   if(stat(savePath.c_str(), &fileStat) || !S_ISDIR(fileStat.st_mode))
@@ -329,39 +313,46 @@ int main(int argc, char *argv[])
     searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(SEARCHPATH));
   }
 
-  analysisEngineFiles.resize(args.size(), "");
-  for(int argI = 0; argI < args.size(); ++argI)
+  std::ostringstream engineList;
+  analysisEngineFiles.resize(analysisEngines.size(), "");
+  for(int i = 0; i < analysisEngines.size(); ++i)
   {
-    const std::string &arg = args[argI];
+    const std::string &engine = analysisEngines[i];
     struct stat fileStat;
 
-    for(size_t i = 0; i < searchPaths.size(); ++i)
+    for(size_t j = 0; j < searchPaths.size(); ++j)
     {
-      const std::string file = searchPaths[i] + arg;
+      const std::string file = searchPaths[j] + engine;
       const std::string fileXML = file + ".xml";
 
       if(!stat(file.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
       {
-        analysisEngineFiles[argI] = file;
+        analysisEngineFiles[i] = file;
         break;
       }
       else if(!stat(fileXML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
       {
-        analysisEngineFiles[argI] = fileXML;
+        analysisEngineFiles[i] = fileXML;
         break;
       }
     }
 
-    if(analysisEngineFiles[argI].empty())
+    if(analysisEngineFiles[i].empty())
     {
-      outError("analysis engine \"" << arg << "\" not found.");
+      outError("analysis engine \"" << engine << "\" not found.");
       return -1;
     }
+    engineList << FG_CYAN << engine << (i + 1 < analysisEngines.size() ? NO_COLOR ", " : NO_COLOR);
   }
+
+  outInfo("startup parameters:" << std::endl
+          << "   visualization: " FG_CYAN << (visualization ? "enabled" : "disabled") << NO_COLOR << std::endl
+          << "       save_path: " FG_CYAN << savePath << NO_COLOR << std::endl
+          << "analysis_engines: " << engineList.str());
 
   try
   {
-    RSAnalysisEngineManager manager(useVisualizer, savePath);
+    RSAnalysisEngineManager manager(visualization, savePath);
 
     manager.init(analysisEngineFiles);
 

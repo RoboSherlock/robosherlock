@@ -1,0 +1,23 @@
+<launch>
+  <!-- Analysis engines to execute, comma separated list: eninge1,engine2,... -->
+  <arg name="analysis_engines" default="demo"/>
+  <!-- Enable / disable visualization -->
+  <arg name="visualization"    default="true"/>
+  <!-- Path to where images and point clouds should be stored -->
+  <arg name="save_path"        default=""/>
+
+  <!-- Machine on with the nodes should run. -->
+  <arg name="machine"          default="localhost"/>
+  <!-- Whether the machine for localhost should be defined our not. Disable this if the launch file is included somewhere where machines are already defined. -->
+  <arg name="define_machine"   default="true"/>
+
+  <!-- Default machine definition. -->
+  <machine name="localhost" address="localhost" if="$(arg define_machine)"/>
+
+  <!-- launch robosherlock with the pipeline defined in demo.xml-->
+  <node name="RoboSherlock" pkg="robosherlock"  machine="$(arg machine)" type="run" output="screen">
+    <param name="analysis_engines" type="str"  value="$(arg analysis_engines)"/>
+    <param name="visualization"    type="bool" value="$(arg visualization)"/>
+    <param name="save_path"        type="str"  value="$(arg save_path)"/>
+  </node>
+</launch>
