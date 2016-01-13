@@ -289,7 +289,7 @@ int main(int argc, char *argv[])
   priv_nh.param("ae", analysisEnginesArg, std::string(""));
   priv_nh.param("analysis_engines", analysisEnginesArg, analysisEnginesArg);
 
-  priv_nh.param("vis", visualization, false);
+  priv_nh.param("vis", visualization, true);
   priv_nh.param("visualization", visualization, visualization);
 
   priv_nh.param("save_path", savePath, std::string(getenv("HOME")));
