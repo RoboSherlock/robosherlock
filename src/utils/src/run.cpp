@@ -266,18 +266,28 @@ int main(int argc, char *argv[])
     return 0;
   }
 
-  std::string analysisEnginesArg;
-  std::string savePath;
+  std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;
   bool visualization;
 
   ros::NodeHandle priv_nh = ros::NodeHandle("~");
 
-  priv_nh.param("analysis_engines", analysisEnginesArg, std::string("demo"));
-  priv_nh.param("visualization", visualization, false);
+  priv_nh.param("ae", analysisEnginesArg, std::string("demo"));
+  priv_nh.param("analysis_engines", analysisEnginesArg, analysisEnginesArg);
+
+  priv_nh.param("vis", visualization, false);
+  priv_nh.param("visualization", visualization, visualization);
+
   priv_nh.param("save_path", savePath, std::string(getenv("HOME")));
 
-  for(size_t start = 0, end = 0; end != analysisEnginesArg.npos; start = end + 1)
+  // Do not cache parameters to prevent false behaviour with short parameter versions.
+  priv_nh.deleteParam("ae");
+  priv_nh.deleteParam("analysis_engines");
+  priv_nh.deleteParam("vis");
+  priv_nh.deleteParam("visualization");
+  priv_nh.deleteParam("save_path");
+
+  for(size_t start = 0, end = 0; end != analysisEnginesArg.npos && start < analysisEnginesArg.length(); start = end + 1)
   {
     end = analysisEnginesArg.find(',', start);
     analysisEngines.push_back(analysisEnginesArg.substr(start, end));
