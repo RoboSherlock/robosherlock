@@ -248,10 +248,20 @@ public:
  */
 void help()
 {
-  std::cout << "Usage: run [options]" << std::endl
+  std::cout << "Usage: rosrun robosherlock run [options] [analysis_engines]" << std::endl
+            << "Options:" << std::endl
+            << " _analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
+            << "               _ae:=engine1[,...]  shorter version for _analysis_engines" << std::endl
+            << "    _visualization:=true|false     Enable/disable visualization" << std::endl
+            << "              _vis:=true|false     shorter version for _vis" << std::endl
+            << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
+            << std::endl
+            << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
             << "Options:" << std::endl
             << "  analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
+            << "               _ae:=engine1[,...]  shorter version for analysis_engines" << std::endl
             << "     visualization:=true|false     Enable/disable visualization" << std::endl
+            << "              _vis:=true|false     shorter version for vis" << std::endl
             << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl;
 }
 
@@ -259,20 +269,24 @@ int main(int argc, char *argv[])
 {
   ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
 
-  /* Access the command line arguments to get the name of the input text. */
-  if(argc > 1)
-  {
-    help();
-    return 0;
-  }
-
   std::string analysisEnginesArg, savePath;
-  std::vector<std::string> analysisEngines;
+  std::vector<std::string> analysisEngines, analysisEnginesCL;
   bool visualization;
 
   ros::NodeHandle priv_nh = ros::NodeHandle("~");
 
-  priv_nh.param("ae", analysisEnginesArg, std::string("demo"));
+  for(int argI = 1; argI < argc; ++argI)
+  {
+    const std::string arg = argv[argI];
+    if(arg == "-?" || arg == "-h" || arg == "--help")
+    {
+      help();
+      return 0;
+    }
+    analysisEnginesCL.push_back(arg);
+  }
+
+  priv_nh.param("ae", analysisEnginesArg, std::string(""));
   priv_nh.param("analysis_engines", analysisEnginesArg, analysisEnginesArg);
 
   priv_nh.param("vis", visualization, false);
@@ -287,10 +301,17 @@ int main(int argc, char *argv[])
   priv_nh.deleteParam("visualization");
   priv_nh.deleteParam("save_path");
 
-  for(size_t start = 0, end = 0; end != analysisEnginesArg.npos && start < analysisEnginesArg.length(); start = end + 1)
+  if(analysisEnginesArg.empty())
   {
-    end = analysisEnginesArg.find(',', start);
-    analysisEngines.push_back(analysisEnginesArg.substr(start, end));
+    analysisEngines.swap(analysisEnginesCL);
+  }
+  else
+  {
+    for(size_t start = 0, end = 0; end != analysisEnginesArg.npos && start < analysisEnginesArg.length(); start = end + 1)
+    {
+      end = analysisEnginesArg.find(',', start);
+      analysisEngines.push_back(analysisEnginesArg.substr(start, end));
+    }
   }
 
   if(savePath.empty())
@@ -353,6 +374,13 @@ int main(int argc, char *argv[])
       return -1;
     }
     engineList << FG_CYAN << engine << (i + 1 < analysisEngines.size() ? NO_COLOR ", " : NO_COLOR);
+  }
+
+  if(analysisEngineFiles.empty())
+  {
+    outError("no analysis engine specified.");
+    help();
+    return -1;
   }
 
   outInfo("startup parameters:" << std::endl
