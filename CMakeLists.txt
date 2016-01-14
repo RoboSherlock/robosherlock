@@ -66,7 +66,7 @@ find_library(LIBPRACMLN pracmln QUIET)
 if(LIBPRACMLN)
   message(STATUS "libpracmln FOUND = " ${LIBPRACMLN})
 else()
-  message(WARNING "libpracmln NOT FOUND. Related annotators will not be build!")
+  message(STATUS "libpracmln NOT FOUND. Related annotators will not be build!")
 endif()
 
 
