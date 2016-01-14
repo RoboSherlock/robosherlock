@@ -253,15 +253,15 @@ void help()
             << " _analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
             << "               _ae:=engine1[,...]  shorter version for _analysis_engines" << std::endl
             << "    _visualization:=true|false     Enable/disable visualization" << std::endl
-            << "              _vis:=true|false     shorter version for _vis" << std::endl
+            << "              _vis:=true|false     shorter version for _visualization" << std::endl
             << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
             << std::endl
             << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
             << "Options:" << std::endl
             << "  analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
-            << "               _ae:=engine1[,...]  shorter version for analysis_engines" << std::endl
+            << "                ae:=engine1[,...]  shorter version for analysis_engines" << std::endl
             << "     visualization:=true|false     Enable/disable visualization" << std::endl
-            << "              _vis:=true|false     shorter version for vis" << std::endl
+            << "               vis:=true|false     shorter version for visualization" << std::endl
             << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl;
 }
 
