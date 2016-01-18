@@ -74,7 +74,6 @@ endif()
 ## CMake variables                                                            ##
 ################################################################################
 
-add_definitions(-DCAMERA_CONFIG_PATH="${PROJECT_SOURCE_DIR}/config/")
 add_definitions(-DDB_SCRIPTS_DIR="${PROJECT_SOURCE_DIR}/scripts/mongodb/")
 add_definitions(${PCL_DEFINITIONS})
 
