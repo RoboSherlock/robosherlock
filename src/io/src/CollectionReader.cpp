@@ -29,11 +29,15 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+// STD
+#include <sys/stat.h>
+
 // UIMA
 #include <uima/api.hpp>
 
 // ROS
 #include <ros/ros.h>
+#include <ros/package.h>
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
@@ -55,6 +59,7 @@ class CollectionReader : public Annotator
 {
 
 private:
+
   struct SemanticMapItem
   {
     std::string name, type;
@@ -70,19 +75,56 @@ private:
     return std::stoll(s);
   }
 
+  std::string getFilePath(const std::string &file)
+  {
+    const std::string configDir = "/config/";
+    //generate a vector of possible paths for the analysis engine
+    std::vector<std::string> searchPaths;
+
+    //empty path for full path given as argument
+    searchPaths.push_back("");
+    //add core package path
+    searchPaths.push_back(ros::package::getPath("robosherlock") + configDir);
+
+    //look for packages dependent on core and find their full path
+    std::vector<std::string> child_packages;
+    ros::package::command("depends-on robosherlock", child_packages);
+    for(int i = 0; i < child_packages.size(); ++i)
+    {
+      searchPaths.push_back(ros::package::getPath(child_packages[i]) + configDir);
+    }
+
+    struct stat fileStat;
+    for(size_t i = 0; i < searchPaths.size(); ++i)
+    {
+      const std::string filePath = searchPaths[i] + file;
+
+      if(!stat(filePath.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
+      {
+        return filePath;
+      }
+    }
+    return "";
+  }
+
   void readConfig(const std::string &file)
   {
-    std::string path_to_config_file = CAMERA_CONFIG_PATH + file;
-    outInfo("Path to config file: " FG_BLUE << file);
+    const std::string &configFile = getFilePath(file);
+    if(configFile.empty())
+    {
+      throw_exception_message("Camera config file not found: " + file);
+    }
+
+    outInfo("Path to config file: " FG_BLUE << configFile);
     boost::property_tree::ptree pt;
     try
     {
-      boost::property_tree::ini_parser::read_ini(path_to_config_file, pt);
+      boost::property_tree::ini_parser::read_ini(configFile, pt);
 
       boost::optional<std::string> semanticMapFile = pt.get_optional<std::string>("tf.semanticMap");
       if(semanticMapFile)
       {
-        readSemanticMap(CAMERA_CONFIG_PATH + semanticMapFile.get());
+        readSemanticMap(semanticMapFile.get());
       }
 
       const std::string &interface = pt.get<std::string>("camera.interface");
@@ -110,13 +152,20 @@ private:
     }
     catch(boost::property_tree::ini_parser::ini_parser_error &e)
     {
-      throw_exception_message("Error opening config file: " + path_to_config_file);
+      throw_exception_message("Error opening config file: " + configFile);
     }
   }
 
   void readSemanticMap(const std::string &file)
   {
-    cv::FileStorage fs(file, cv::FileStorage::READ);
+    const std::string &mapFile = getFilePath(file);
+    if(mapFile.empty())
+    {
+      throw_exception_message("Semantic map file not found: " + file);
+    }
+
+    outInfo("Path to semantic map file: " FG_BLUE << mapFile);
+    cv::FileStorage fs(mapFile, cv::FileStorage::READ);
 
     std::vector<std::string> names;
     fs["names"] >> names;
