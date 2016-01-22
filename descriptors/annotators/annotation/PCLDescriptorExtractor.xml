@@ -9,14 +9,12 @@
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
-
       <configurationParameter>
         <name>descriptorType</name>
         <type>String</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
-
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
