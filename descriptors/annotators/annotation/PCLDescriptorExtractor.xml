@@ -14,7 +14,7 @@
         <name>descriptorType</name>
         <type>String</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
 
     </configurationParameters>
@@ -22,7 +22,7 @@
       <nameValuePair>
         <name>descriptorType</name>
         <value>
-          <string>VFH</string>
+          <string>CVFH</string>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
