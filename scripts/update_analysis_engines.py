@@ -119,7 +119,7 @@ def updateAnalysisEngines(engines, xmlAnnotators):
 def main():
   if(len(sys.argv) < 3):
     sys.stderr.write("Error: Not enought arguments!\n")
-    sys.stderr.write("Run Instructions: ")
+    sys.stderr.write("Run instructions:\n")
     sys.stderr.write("  updateAnalysisEngines [pathEngines] [pathAnnotators]\n")
     exit()
 
@@ -133,11 +133,14 @@ def main():
       if os.path.exists(pathAnnotators) and os.path.isdir(pathAnnotators):
           files += getFiles(pathAnnotators)
       else:
-        sys.stderr.write("Error: Script must be called inside descriptors folder!")
+        sys.stderr.write("Error: incorrect annotator path: {}\n".format(pathAnnotators))
         return -1
     print("found %d annotator..." % (len(files)))
 
     print("searching for analysis engines...")
+    if not os.path.exists(pathEngines) or not os.path.isdir(pathEngines):
+      sys.stderr.write("Error: incorrect analysis engines path: {}\n".format(pathEngines))
+      return -1
     engines = getAnalysisEngines(pathEngines)
     print("found %d analysis engines..." % (len(engines)))
 
@@ -153,12 +156,12 @@ def main():
     print("found %d annotators..." % (len(annotators)))
     print("creating xml for annotators...")
     xmlAnnotators = createAnnotatorsXML(pathEngines, annotators)
-    print("Updating analysis engines...")
+    print("updating analysis engines...")
     updated = updateAnalysisEngines(engines, xmlAnnotators)
     print("%d updated, %d already up to date." % (updated, len(engines) - updated))
-    print("Update finished!")
+    print("update finished!")
   except Exception as e:
-    sys.stderr.write("Error: {}".format(e.message))
+    sys.stderr.write("Error: {}\n".format(e.message))
     return -1
   return 0
 
