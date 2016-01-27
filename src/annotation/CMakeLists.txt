@@ -34,7 +34,16 @@ target_link_libraries(rs_pclDescriptorExtractor rs_core)
 #build the web annotations (Goggles only atm)
 
 find_package(Protobuf QUIET)
-if(Protobuf_FOUND)
+
+if(PROTOBUF_FOUND)
+  message(STATUS "Found Protobuf.")
+endif()
+if(PROTOBUF_PROTOC_EXECUTABLE)
+  message(STATUS "Found Protobuf executeable.")
+endif()
+
+
+if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
 
   message("Found Protobuf. Building Goggles")
   find_package(PythonLibs)
