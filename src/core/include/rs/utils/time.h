@@ -58,7 +58,7 @@ public:
 
   inline ~ScopeTime()
   {
-    OUT_AUX_INT(FG_BLUE, NO_COLOR, OUT_LEVEL_DEBUG, OUT_STD_STREAM, this->getTime() << " ms.", file, line, function);
+    OUT_AUX_INT(FG_GREEN, FG_BLUE, OUT_LEVEL_INFO, OUT_STD_STREAM, this->getTime() << " ms.", file, line, function);
   }
 };
 
