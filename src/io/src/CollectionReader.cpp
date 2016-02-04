@@ -267,8 +267,6 @@ public:
       timestamp = qs.timestamp();
     }
 
-
-
     outInfo("waiting for all cameras to have new data...");
     double t1 = clock.getTime();
     for(size_t i = 0; i < cameras.size(); ++i)

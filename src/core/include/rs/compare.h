@@ -186,4 +186,26 @@ double compare(Features &a, Features &b)
   return std::min(dist, 1.0);
 }
 
+template<>
+double compare(PclFeature &a, PclFeature &b)
+{
+  if(a.feat_type() != b.feat_type() && a.feature.size() != b.feature.size())
+  {
+    outInfo("Features do not match.");
+    return 1;
+  }
+  const std::vector<float> &valuesA = a.feature();
+  const std::vector<float> &valuesB = b.feature();
+
+  cv::Mat featA(valuesA.size(), 1, CV_32F), featB(valuesB.size(), 1, CV_32F);
+  std::memcpy(featA.data, &valuesA[0], valuesA.size() * sizeof(float));
+  std::memcpy(featB.data, &valuesB[0], valuesB.size() * sizeof(float));
+
+  featA = featA / std::sqrt(featA.dot(featA));
+  featB = featB / std::sqrt(featB.dot(featB));
+
+  cv::Mat res = featA - featB;
+  return std::sqrt(res.dot(res)) / 2.0f;
+}
+
 }
