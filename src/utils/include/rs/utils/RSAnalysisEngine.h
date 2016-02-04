@@ -9,9 +9,10 @@
 
 class RSAnalysisEngine
 {
-private:
+public:
   std::string name;
 
+protected:
   uima::AnalysisEngine *engine;
   uima::CAS *cas;
 
@@ -21,11 +22,11 @@ public:
 
   ~RSAnalysisEngine();
 
-  void init(const std::string &file);
+  virtual void init(const std::string &file);
 
   void stop();
 
-  void process();
+  virtual void process();
 
 };
 #endif // RSANALYSISENGINE_H
