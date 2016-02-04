@@ -18,20 +18,11 @@
 #include <pcl/point_types.h>
 #include <pcl/filters/extract_indices.h>
 
-#include <pcl/features/esf.h>
 #include <pcl/features/vfh.h>
 #include <pcl/features/cvfh.h>
-#include <pcl/features/gfpfh.h>
-
-#ifdef PCL_FROM_SOURCE
 #include <pcl/features/our_cvfh.h>
-#include <pcl/features/grsd.h>
-#endif
-
-typedef pcl::PointXYZRGBA PointT;
-typedef pcl::Histogram<135> ROPS135;
-typedef pcl::Histogram<153> SpinImage;
-typedef pcl::Histogram<32> RIFT32;
+#include <pcl/features/esf.h>
+#include <pcl/features/gfpfh.h>
 
 using namespace uima;
 
@@ -62,12 +53,9 @@ enum GlobalDescriptor
 {
   VFH = 0,
   CVFH,
+  OURCVFH,
   ESF,
   GFPFH,
-#ifdef PCL_FROM_SOURCE
-  OURCVFH,
-  GRSD,
-#endif
   NIL
 };
 
@@ -75,19 +63,21 @@ const std::string globalDescriptorNames[] =
 {
   "VFH",
   "CVFH",
+  "OUR-CVFH",
   "ESF",
   "GFPFH",
-  #ifdef PCL_FROM_SOURCE
-  "OUR-CVFH",
-  "GRSD",
-  #endif
   "NIL"
 };
 
 
 class PCLDescriptorExtractor : public DrawingAnnotator
 {
-private:
+private:  
+  typedef pcl::PointXYZ PointT;
+  typedef pcl::Histogram<135> ROPS135;
+  typedef pcl::Histogram<153> SpinImage;
+  typedef pcl::Histogram<32> RIFT32;
+
   const cv::Size diagramSize;
   const uint32_t legendHeight;
   double pointSize;
@@ -97,9 +87,8 @@ private:
   cv::Mat color;
   std::vector<cv::Rect> clusterRois;
 
-  pcl::PointCloud<PointT>::Ptr cloud;
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
   pcl::PointCloud<pcl::Normal>::Ptr normals;
-  pcl::search::KdTree<PointT>::Ptr kdtree;
 
   std::vector<pcl::PointCloud<PointT>::Ptr> extractedClusters;
   std::vector<pcl::PointCloud<pcl::Normal>::Ptr> extractedNormals;
@@ -107,9 +96,6 @@ private:
   std::vector<pcl::ESFSignature640> descriptorsESF;
   std::vector<pcl::VFHSignature308> descriptorsVFH;
   std::vector<pcl::GFPFHSignature16> descriptorsGFPFH;
-#ifdef PCL_FROM_SOURCE
-  std::vector<pcl::GRSDSignature21> descriptorsGRSD;
-#endif
 
 public:
   PCLDescriptorExtractor() : DrawingAnnotator(__func__), diagramSize(1600, 600), legendHeight(300), pointSize(1),
@@ -133,11 +119,7 @@ public:
     /**
      * Global Descriptors:
      */
-    if(descType == "ESF")
-    {
-      descriptorType = GlobalDescriptor::ESF;
-    }
-    else if(descType == "VFH")
+    if(descType == "VFH")
     {
       descriptorType = GlobalDescriptor::VFH;
     }
@@ -145,16 +127,14 @@ public:
     {
       descriptorType = GlobalDescriptor::CVFH;
     }
-#ifdef PCL_FROM_SOURCE
     else if(descType == "OUR-CVFH")
     {
       descriptorType = GlobalDescriptor::OURCVFH;
     }
-    else if(descType == "GRSD")
+    else if(descType == "ESF")
     {
-      descriptorType = GlobalDescriptor::GRSD;
+      descriptorType = GlobalDescriptor::ESF;
     }
-#endif
     else if(descType == "GFPFH")
     {
       descriptorType = GlobalDescriptor::GFPFH;
@@ -182,16 +162,11 @@ public:
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
 
-    //retrieve the point cloud to be processed:
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_NORMALS, *normals);
     cas.get(VIEW_COLOR_IMAGE, color);
 
-    //2.filter out clusters into array
     scene.identifiables.filter(clusters);
-    outInfo("Number of clusters:" << clusters.size());
-
-    //extract clusters into a vector
     extractClustersAndNormals(clusters);
 
     switch(descriptorType)
@@ -204,16 +179,10 @@ public:
       computeCVFH();
       storeDescriptors(descriptorsVFH, clusters, tcas);
       break;
-#ifdef PCL_FROM_SOURCE
     case GlobalDescriptor::OURCVFH:
       computeOURCVFH();
       storeDescriptors(descriptorsVFH, clusters, tcas);
       break;
-    case GlobalDescriptor::GRSD:
-      computeGRSD();
-      storeDescriptors(descriptorsGRSD, clusters, tcas);
-      break;
-#endif
     case GlobalDescriptor::ESF:
       computeESF();
       storeDescriptors(descriptorsESF, clusters, tcas);
@@ -239,14 +208,9 @@ public:
     case GlobalDescriptor::CVFH:
       drawHistograms(disp, descriptorsVFH, "Clustered Viewpoint Feature Histogram (CVFH)");
       break;
-#ifdef PCL_FROM_SOURCE
     case GlobalDescriptor::OURCVFH:
       drawHistograms(disp, descriptorsVFH, "Oriented, Unique and Repeatable Clustered Viewpoint Feature Histogram (OUR-CVFH)");
       break;
-    case GlobalDescriptor::GRSD:
-      drawHistograms(disp, descriptorsGRSD, "Radius-based Surface Descriptor (GRSD)");
-      break;
-#endif
     case GlobalDescriptor::ESF:
       drawHistograms(disp, descriptorsESF, "Ensemble of Shape Functions (ESF)");
       break;
@@ -299,10 +263,7 @@ public:
       rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *indices);
       pcl::PointCloud<PointT>::Ptr cluster_cloud(new pcl::PointCloud<PointT>());
       pcl::PointCloud<pcl::Normal>::Ptr clusterNormals(new pcl::PointCloud<pcl::Normal>);
-      pcl::ExtractIndices<PointT> ei;
-      ei.setInputCloud(cloud);
-      ei.setIndices(indices);
-      ei.filter(*cluster_cloud);
+      pcl::copyPointCloud(*cloud, *indices, *cluster_cloud);
       extractedClusters.push_back(cluster_cloud);
 
       pcl::ExtractIndices<pcl::Normal> eiNormal;
@@ -324,16 +285,15 @@ public:
   */
   void computeESF()
   {
-    descriptorsESF.clear();
+    descriptorsESF.resize(extractedClusters.size());
+    #pragma omp parallel for
     for(size_t i = 0; i < extractedClusters.size(); ++i)
     {
-      //Object for storing the ESF descriptor
       pcl::PointCloud<pcl::ESFSignature640>::Ptr descriptor(new pcl::PointCloud<pcl::ESFSignature640>);
-      //ESF estimation object
-      pcl::ESFEstimation<pcl::PointXYZRGBA, pcl::ESFSignature640> esf;
+      pcl::ESFEstimation<PointT, pcl::ESFSignature640> esf;
       esf.setInputCloud(extractedClusters[i]);
       esf.compute(*descriptor);
-      descriptorsESF.push_back(descriptor->points[0]);
+      descriptorsESF[i] = descriptor->points[0];
     }
   }
 
@@ -344,24 +304,18 @@ public:
   */
   void computeVFH()
   {
-    descriptorsVFH.clear();
-    //Object for storing the VFH descriptor
-    pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
+    descriptorsVFH.resize(extractedClusters.size());
+    #pragma omp parallel for
     for(size_t i = 0; i < extractedClusters.size(); ++i)
     {
-      // VFH estimation object.
+      pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
       pcl::VFHEstimation<PointT, pcl::Normal, pcl::VFHSignature308> vfh;
       vfh.setInputCloud(extractedClusters[i]);
       vfh.setInputNormals(extractedNormals[i]);
-      vfh.setSearchMethod(kdtree);
-      // Optionally, we can normalize the bins of the resulting histogram,
-      // using the total number of points.
       vfh.setNormalizeBins(true);
-      // Also, we can normalize the SDC with the maximum size found between
-      // the centroid and any of the cluster's points.
       vfh.setNormalizeDistance(true);
       vfh.compute(*descriptor);
-      descriptorsVFH.push_back(descriptor->points[0]);
+      descriptorsVFH[i] = descriptor->points[0];
     }
   }
 
@@ -372,68 +326,40 @@ public:
   */
   void computeCVFH()
   {
-    descriptorsVFH.clear();
-    //Object for storing the VFH descriptor
-    pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
+    descriptorsVFH.resize(extractedClusters.size());
+    #pragma omp parallel for
     for(size_t i = 0; i < extractedClusters.size(); ++i)
     {
-      //CVFH estimation object.
+      pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
       pcl::CVFHEstimation<PointT, pcl::Normal, pcl::VFHSignature308> cvfh;
       cvfh.setInputCloud(extractedClusters[i]);
       cvfh.setInputNormals(extractedNormals[i]);
-      cvfh.setSearchMethod(kdtree);
-      //set maximum allowable derivation of the normals,
-      //for the region segmentation step.
       cvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); //5 deg
-      //Set the curvature threshol (maximum disparity between curvatures),
-      //for the region segmentation step.
       cvfh.setCurvatureThreshold(1.0);
-      //Set to true to normalize the bins of the resulting hist,
-      //using the total number of points. Note:enabling it will make
-      //CVFH invariant to scale, just like VFH, but the authors encourage
-      //the opposite.
       cvfh.setNormalizeBins(true);
       cvfh.compute(*descriptor);
-      descriptorsVFH.push_back(descriptor->points[0]);
+      descriptorsVFH[i] = descriptor->points[0];
     }
   }
 
-#ifdef PCL_FROM_SOURCE
   void computeOURCVFH()
   {
-    descriptorsVFH.clear();
-    pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
+    descriptorsVFH.resize(extractedClusters.size());
+    #pragma omp parallel for
     for(size_t i = 0; i < extractedClusters.size(); ++i)
     {
+      pcl::PointCloud<pcl::VFHSignature308>::Ptr descriptor(new pcl::PointCloud<pcl::VFHSignature308>);
       pcl::OURCVFHEstimation<PointT, pcl::Normal, pcl::VFHSignature308> ourcvfh;
       ourcvfh.setInputCloud(extractedClusters[i]);
       ourcvfh.setInputNormals(extractedNormals[i]);
-      ourcvfh.setSearchMethod(kdtree);
-      ourcvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); //5 deg
-      ourcvfh.setCurvatureThreshold(1.0);
-      ourcvfh.setAxisRatio(0.8);
+      //ourcvfh.setEPSAngleThreshold(5.0 / 180.0 * M_PI); //5 deg
+      //ourcvfh.setCurvatureThreshold(1.0);
+      //ourcvfh.setAxisRatio(0.8);
       ourcvfh.setNormalizeBins(true);
       ourcvfh.compute(*descriptor);
-      descriptorsVFH.push_back(descriptor->points[0]);
+      descriptorsVFH[i] = descriptor->points[0];
     }
   }
-
-  void computeGRSD()
-  {
-    descriptorsGRSD.clear();
-    pcl::PointCloud<pcl::GRSDSignature21>::Ptr descriptor(new pcl::PointCloud<pcl::GRSDSignature21>);
-    for(size_t i = 0; i < extractedClusters.size(); ++i)
-    {
-      pcl::GRSDEstimation<PointT, pcl::Normal, pcl::GRSDSignature21> grsd;
-      grsd.setInputCloud(extractedClusters[i]);
-      grsd.setInputNormals(extractedNormals[i]);
-      grsd.setSearchMethod(kdtree);
-      grsd.setRadiusSearch(0.05);
-      grsd.compute(*descriptor);
-      descriptorsGRSD.push_back(descriptor->points[0]);
-    }
-  }
-#endif
 
   /**
   * @brief computeGFPFH
@@ -442,39 +368,25 @@ public:
   */
   void computeGFPFH()
   {
-    descriptorsGFPFH.clear();
+    descriptorsGFPFH.resize(extractedClusters.size());
+    #pragma omp parallel for
     for(size_t i = 0; i < extractedClusters.size(); ++i)
     {
-      //Object for storing the GFPFH descriptor.
       pcl::PointCloud<pcl::GFPFHSignature16>::Ptr descriptor(new pcl::PointCloud<pcl::GFPFHSignature16>);
-      //Note: you should have performed preprocessing to cluster out the object
-      //from the cloud, and save it to an individual file.
-
-      // Cloud for storing the object.
       pcl::PointCloud<pcl::PointXYZL>::Ptr object(new pcl::PointCloud<pcl::PointXYZL>);
-      // Note: you should now perform classification on the cloud's points. See the
-      // original paper for more details. For this example, we will now consider 4
-      // different classes, and randomly label each point as one of them.
-
       pcl::copyPointCloud(*(extractedClusters[i]), *object);
 
       for(size_t j = 0; j < object->points.size(); ++j)
       {
         object->points[j].label = 1 + j % 4;
       }
-      //ESF estimation object;
       pcl::GFPFHEstimation<pcl::PointXYZL, pcl::PointXYZL, pcl::GFPFHSignature16> gfpfh;
       gfpfh.setInputCloud(object);
-      //Set the object that contains the labels for each point. Thanks to the
-      //PointXYZL type, we can use the same object we store the cloud in.
       gfpfh.setInputLabels(object);
-      //Set the size of the octree leaves to 1cm(cubic)
       gfpfh.setOctreeLeafSize(0.01);
-      //Set the number of classes the cloud has been labeled with
-      //(default is 16)
-      gfpfh.setNumberOfClasses(4);
+      gfpfh.setNumberOfClasses(16);
       gfpfh.compute(*descriptor);
-      descriptorsGFPFH.push_back(descriptor->points[0]);
+      descriptorsGFPFH[i] = descriptor->points[0];
     }
   }
 

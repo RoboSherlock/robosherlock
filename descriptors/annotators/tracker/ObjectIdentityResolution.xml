@@ -16,6 +16,12 @@
         <mandatory>false</mandatory>
       </configurationParameter>
       <configurationParameter>
+        <name>fastmatching</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
         <name>host</name>
         <type>String</type>
         <multiValued>false</multiValued>
@@ -41,8 +47,14 @@
       </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+    <nameValuePair>
+      <name>removeObjects</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
       <nameValuePair>
-        <name>removeObjects</name>
+        <name>fastmatching</name>
         <value>
           <boolean>true</boolean>
         </value>

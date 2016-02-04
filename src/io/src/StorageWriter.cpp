@@ -83,8 +83,12 @@ public:
     {
       storage.updateScene(*tcas.getBaseCas(), timestamp);
     }
-    outDebug("store persistent objects");
-    storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
+
+    if(cas.has(VIEW_OBJECTS))
+    {
+      outDebug("store persistent objects");
+      storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
+    }
 
     return UIMA_ERR_NONE;
   }
