@@ -49,6 +49,9 @@
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
 
+//ROS
+#include <ros/package.h>
+
 #define DEBUG_OUTPUT 0
 
 using namespace uima;
@@ -60,7 +63,8 @@ private:
   {
     PCL,
     BOARD,
-    MPS
+    MPS,
+    FILE
   } mode;
 
   // BOARD
@@ -83,7 +87,7 @@ private:
   std::vector<pcl::PointIndices> inlierIndices;
 
   //Drawing
-  bool foundPlane;
+  bool foundPlane, saveToFile;
   cv::Mat image;
   double pointSize;
 
@@ -94,21 +98,23 @@ private:
         max_curvature,
         angular_threshold_deg;
 
+  std::string pathToModelFile;
 
 public:
   PlaneAnnotator() : DrawingAnnotator(__func__), mode(BOARD), display(new pcl::PointCloud<pcl::PointXYZRGBA>()),
-    pointSize(1)
+    pointSize(1), saveToFile(false)
   {
+    pathToModelFile = ros::package::getPath("robosherlock") + "/config/plane_model.xml";
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
 
-    if(ctx.isParameterDefined("mode"))
+    if(ctx.isParameterDefined("plane_estimateion_mode"))
     {
       std::string sMode;
-      ctx.extractValue("mode", sMode);
+      ctx.extractValue("plane_estimateion_mode", sMode);
       outInfo("mode set to: " << sMode);
       if(sMode == "BOARD")
       {
@@ -122,28 +128,37 @@ public:
       {
         mode = MPS;
       }
-      if(ctx.isParameterDefined("min_plane_inliers"))
+      else if(sMode == "FILE")
       {
-        ctx.extractValue("min_plane_inliers", min_plane_inliers);
+        mode = FILE;
       }
-      if(ctx.isParameterDefined("max_iterations"))
-      {
-        ctx.extractValue("max_iterations", max_iterations);
-      }
-      if(ctx.isParameterDefined("distance_threshold"))
-      {
-        ctx.extractValue("distance_threshold", distance_threshold);
-      }
-      if(ctx.isParameterDefined("max_curvature"))
-      {
-        ctx.extractValue("max_curvature", max_curvature);
-      }
-      if(ctx.isParameterDefined("angular_threshold_deg"))
-      {
-        ctx.extractValue("angular_threshold_deg", angular_threshold_deg);
-      }
-
     }
+    if(ctx.isParameterDefined("min_plane_inliers"))
+    {
+      ctx.extractValue("min_plane_inliers", min_plane_inliers);
+    }
+    if(ctx.isParameterDefined("max_iterations"))
+    {
+      ctx.extractValue("max_iterations", max_iterations);
+    }
+    if(ctx.isParameterDefined("distance_threshold"))
+    {
+      ctx.extractValue("distance_threshold", distance_threshold);
+    }
+    if(ctx.isParameterDefined("max_curvature"))
+    {
+      ctx.extractValue("max_curvature", max_curvature);
+    }
+    if(ctx.isParameterDefined("angular_threshold_deg"))
+    {
+      ctx.extractValue("angular_threshold_deg", angular_threshold_deg);
+    }
+    if(ctx.isParameterDefined("saveToFile"))
+    {
+      ctx.extractValue("save_to_file", saveToFile);
+    }
+
+
 
     return UIMA_ERR_NONE;
   }
@@ -179,6 +194,9 @@ private:
       outInfo("Estimating form MPS");
       estimateFromMPS(tcas, scene);
       break;
+    case FILE:
+      outInfo("Loading from File");
+      loadPlaneModel(tcas, scene);
     }
 
     return UIMA_ERR_NONE;
@@ -362,6 +380,19 @@ private:
       planeModel[2] = plane_coefficients->values[2];
       planeModel[3] = plane_coefficients->values[3];
 
+      if(saveToFile)
+      {
+        cv::Mat coeffs = cv::Mat_<float>(4, 1);
+        for(uint8_t i = 0; i < planeModel.size(); ++i)
+        {
+          coeffs.at<float>(i) = planeModel[i];
+        }
+        cv::FileStorage fs;
+        fs.open(pathToModelFile, cv::FileStorage::WRITE);
+        fs << "PlaneModel" << coeffs;
+        fs.release();
+      }
+
       pcl::PointIndices::Ptr temp(new pcl::PointIndices());
       temp->indices.resize(plane_inliers->indices.size());
       for(size_t i = 0; i < plane_inliers->indices.size(); ++i)
@@ -385,6 +416,72 @@ private:
     {
       outInfo("No plane found in the cloud");
     }
+  }
+
+  void loadPlaneModel(CAS &tcas, rs::Scene &scene)
+  {
+    outInfo("loading plane from model file");
+    rs::SceneCas cas(tcas);
+    plane_inliers = pcl::PointIndices::Ptr(new pcl::PointIndices);
+    cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
+    pcl::PointCloud <pcl::PointXYZRGBA>::Ptr cloudFiltered(new pcl::PointCloud<pcl::PointXYZRGBA>());
+    cas.get(VIEW_CLOUD,*cloud);
+
+    cv::Mat planeCoeffs;
+    cv::FileStorage fs;
+
+    if(fs.open(pathToModelFile, cv::FileStorage::READ))
+    {
+      outInfo("plane model file found");
+    }
+    else
+    {
+      outWarn("Could not load plane model. Are you sure you want to load a plane from model file?");
+      outWarn("Have You saved a plane_model file in the config folder?");
+      exit(1);
+    }
+    fs["PlaneModel"] >> planeCoeffs;
+    std::vector<float> planeModel(4);
+    foundPlane = true;
+
+    planeModel[0] = planeCoeffs.at<float>(0);
+    planeModel[1] = planeCoeffs.at<float>(1);
+    planeModel[2] = planeCoeffs.at<float>(2);
+    planeModel[3] = planeCoeffs.at<float>(3);
+
+    //TODO find inliers for plane;
+    std::vector<int> mappingIndices;
+    pcl::removeNaNFromPointCloud(*cloud, *cloudFiltered, mappingIndices);
+
+    for(size_t i = 0; i < cloudFiltered->points.size(); ++i)
+    {
+      float num =
+        fabs(planeModel[0] * cloudFiltered->points[i].x +
+             planeModel[1] * cloudFiltered->points[i].y +
+             planeModel[2] * cloudFiltered->points[i].z +
+             planeModel[3]);
+      float denum =
+        std::sqrt(std::pow(planeModel[0], 2) +
+                  std::pow(planeModel[1], 2) +
+                  std::pow(planeModel[2], 2));
+
+      float dist = num / denum;
+      if(fabs(dist) < 0.015)
+      {
+        plane_inliers->indices.push_back(mappingIndices[i]);
+      }
+    }
+    outInfo("No. of inliers found: " << plane_inliers->indices.size());
+
+    cv::Mat mask;
+    cv::Rect roi;
+    getMask(*plane_inliers, cv::Size(cloud->width, cloud->height), mask, roi);
+    rs::Plane plane = rs::create<rs::Plane>(tcas);
+    plane.model(planeModel);
+    plane.inliers(plane_inliers->indices);
+    plane.roi(rs::conversion::to(tcas, roi));
+    plane.mask(rs::conversion::to(tcas, mask));
+    scene.annotations.append(plane);
   }
 
   bool process_cloud(pcl::ModelCoefficients::Ptr &plane_coefficients)
@@ -502,7 +599,7 @@ private:
   {
     const std::string &cloudname = this->name;
     pcl::ExtractIndices<pcl::PointXYZRGBA> ei;
-//    uint32_t colors[6] = {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF};
+    //    uint32_t colors[6] = {0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00, 0xFFFF00FF, 0xFF00FFFF};
     const pcl::PointCloud<pcl::PointXYZRGBA>::VectorType &origPoints = this->cloud->points;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr output;
