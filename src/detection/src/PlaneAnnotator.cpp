@@ -111,10 +111,10 @@ public:
   {
     outInfo("initialize");
 
-    if(ctx.isParameterDefined("plane_estimateion_mode"))
+    if(ctx.isParameterDefined("plane_estimation_mode"))
     {
       std::string sMode;
-      ctx.extractValue("plane_estimateion_mode", sMode);
+      ctx.extractValue("plane_estimation_mode", sMode);
       outInfo("mode set to: " << sMode);
       if(sMode == "BOARD")
       {
@@ -153,7 +153,7 @@ public:
     {
       ctx.extractValue("angular_threshold_deg", angular_threshold_deg);
     }
-    if(ctx.isParameterDefined("saveToFile"))
+    if(ctx.isParameterDefined("save_to_file"))
     {
       ctx.extractValue("save_to_file", saveToFile);
     }
@@ -197,6 +197,7 @@ private:
     case FILE:
       outInfo("Loading from File");
       loadPlaneModel(tcas, scene);
+      break;
     }
 
     return UIMA_ERR_NONE;
@@ -362,7 +363,7 @@ private:
 
   void estimateFromPCL(CAS &tcas, rs::Scene &scene)
   {
-    outInfo("estimating plane form Point Cloud data");
+    outInfo("Estimating plane form Point Cloud data");
     rs::SceneCas cas(tcas);
 
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
@@ -382,6 +383,7 @@ private:
 
       if(saveToFile)
       {
+        outInfo("Saving Plane to file: "<<pathToModelFile);
         cv::Mat coeffs = cv::Mat_<float>(4, 1);
         for(uint8_t i = 0; i < planeModel.size(); ++i)
         {
@@ -608,6 +610,7 @@ private:
     case BOARD:
       output = cloud;
       break;
+    case FILE:
     case PCL:
       output.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
       ei.setInputCloud(cloud);
@@ -635,7 +638,7 @@ private:
       output->width = output->points.size();
       output->height = 1;
       output->is_dense = 1;
-      break;
+      break;    
     }
 
     if(firstRun)

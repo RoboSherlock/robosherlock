@@ -10,7 +10,7 @@
     <vendor/>
     <configurationParameters>
       <configurationParameter>
-        <name>plane_estimateion_mode</name>
+        <name>plane_estimation_mode</name>
         <description>BOARD or PCL or MPS or from FILE</description>
         <type>String</type>
         <multiValued>false</multiValued>
@@ -66,7 +66,7 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
-        <name>plane_estimateion_mode</name>
+        <name>plane_estimation_mode</name>
         <value>
           <string>PCL</string>
         </value>
