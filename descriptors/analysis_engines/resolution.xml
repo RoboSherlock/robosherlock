@@ -121,38 +121,36 @@
           <parameter>CollectionReader/camera_config_files</parameter>
         </overrides>
       </configurationParameter>
-      <configurationParameter>
-        <name>mode</name>
-        <description>Use "Cluster" or "Object".</description>
-        <type>String</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-        <overrides>
-          <parameter>ResultAdvertiser/mode</parameter>
-        </overrides>
-      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_mongodb_continual.ini</string>
+            <string>config_mongodb_playback.ini</string>
           </array>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>mode</name>
-        <value>
-          <string>Object</string>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
+<!--        <node>Trigger</node>-->
         <node>CollectionReader</node>
+        <node>ImagePreprocessor</node>
+        <node>PointCloudFilter</node>
+        <node>NormalEstimator</node>
+        <node>PlaneAnnotator</node>
+        <node>PointCloudClusterExtractor</node>
+        <!--<node>ImageSegmentationAnnotator</node>-->
+        <!--<node>ClusterMerger</node>-->
+        <node>Cluster3DGeometryAnnotator</node>
+        <node>ClusterColorHistogramCalculator</node>
+        <node>ClusterTFLocationAnnotator</node>
+        <node>FeatureAnnotator</node>
+<!--        <node>PCLLocalFeatrueExtractor</node>-->
+        <node>PCLDescriptorExtractor</node>
         <node>ObjectIdentityResolution</node>
-        <node>ResultAdvertiser</node>
+        <!--<node>StorageWriter</node>-->
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

@@ -64,7 +64,7 @@ private:
 
   const cv::Rect invalid;
   std::vector<cv::Rect> objectRois;
-  bool removeObjects;
+  bool removeObjects, enableFastMatching;
   double maxDist;
   uint64_t lastTimestamp;
   sensor_msgs::CameraInfo camInfo;
@@ -84,13 +84,13 @@ private:
     {
       outDebug("cluster has no " << TypeTrait<T>::name() << " annotation");
       factor = 0;
-      return 0;
+      return 1.0;
     }
     if(annotationsO.empty())
     {
       outDebug("object has no " << TypeTrait<T>::name() << " annotation");
       factor = 0;
-      return 0;
+      return 1.0;
     }
 
     double dist = rs::compare(annotationsC[0], annotationsO[0]);
@@ -104,11 +104,12 @@ public:
   {
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
-    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          0.5));
+    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Geometry>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::SemanticColor>,  1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::ColorHistogram>, 1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Features>,       1.0));
+    vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
   }
 
   /*
@@ -121,6 +122,10 @@ public:
     {
       ctx.extractValue("removeObjects", removeObjects);
     }
+    if(ctx.isParameterDefined("fastmatching"))
+    {
+      ctx.extractValue("fastmatching", enableFastMatching);
+    }
     if(ctx.isParameterDefined("host"))
     {
       ctx.extractValue("host", host);
@@ -129,13 +134,17 @@ public:
     {
       ctx.extractValue("identitydb", db);
     }
-    storage = rs::Storage(host, db, removeObjects);
-
     if(ctx.isParameterDefined("maxDist"))
     {
       float tmp = maxDist;
       ctx.extractValue("maxDist", tmp);
       maxDist = tmp;
+    }
+
+    storage = rs::Storage(host, db, false);
+    if(removeObjects)
+    {
+      storage.removeCollection("persistent_objects");
     }
     return UIMA_ERR_NONE;
   }
@@ -162,6 +171,9 @@ private:
 
     outDebug("process clusters");
     processClusters(tcas);
+
+    outDebug("store persistent objects");
+    storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
 
     return UIMA_ERR_NONE;
   }
@@ -215,8 +227,11 @@ private:
     }
     else
     {
-      std::vector<int> clustersToObject, objectsToCluster;
-      matchFast(objects, clusters, clustersToObject, objectsToCluster);
+      std::vector<int> clustersToObject(clusters.size(), -1), objectsToCluster(objects.size(), -1);
+      if(enableFastMatching)
+      {
+        matchFast(objects, clusters, clustersToObject, objectsToCluster);
+      }
 
       resolveRemaining(objects, clusters, clustersToObject, objectsToCluster);
 
@@ -258,8 +273,6 @@ private:
   void matchFast(std::vector<rs::Object> &objects, std::vector<rs::Cluster> &clusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
   {
     std::vector<double> bestDists(clusters.size(), 0);
-    clustersToObject.resize(clusters.size(), -1);
-    objectsToCluster.resize(objects.size(), -1);
 
     outDebug("running fast matching");
 
@@ -273,7 +286,7 @@ private:
       }
 
       double bestDist = 0;
-      uint32_t bestMatch = 0;
+      int32_t bestMatch = 0;
 
       for(size_t j = 0; j < clusters.size(); ++j)
       {
@@ -447,10 +460,14 @@ private:
     for(size_t i = 0; i < vecMatch.size(); ++i)
     {
       matchFunction f;
-      double factor;
+      double factor, dist;
       std::tie(f, factor) = vecMatch[i];
-      sum += (*f)(cluster, object, factor);
-      count += factor;
+      dist = (*f)(cluster, object, factor);
+      if(factor > 0)
+      {
+        sum += dist;
+        count += factor;
+      }
     }
 
     return 1.0 - (sum / count);

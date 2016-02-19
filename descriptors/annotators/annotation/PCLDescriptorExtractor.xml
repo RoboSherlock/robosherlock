@@ -9,20 +9,18 @@
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
-
       <configurationParameter>
         <name>descriptorType</name>
         <type>String</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
-
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
         <name>descriptorType</name>
         <value>
-          <string>VFH</string>
+          <string>OUR-CVFH</string>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
