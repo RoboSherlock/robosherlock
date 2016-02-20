@@ -106,10 +106,12 @@ public:
     pass.filter(*cloud_filtered);
 
     pass.setFilterLimits(minY, maxY);
+    pass.setInputCloud(cloud_filtered);
     pass.setFilterFieldName("y");
     pass.filter(*cloud_filtered);
 
     pass.setFilterLimits(minZ, maxZ);
+    pass.setInputCloud(cloud_filtered);
     pass.setFilterFieldName("z");
     pass.filter(*cloud_filtered);
 

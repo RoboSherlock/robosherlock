@@ -70,7 +70,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
 //  static int frame = 0;
 //  outWarn("got image: " << frame++);
   cv::Mat color, depth;
-  bool isHDColor;
+//  bool isHDColor;
   sensor_msgs::CameraInfo cameraInfo, cameraInfoHD;
 
   cv_bridge::CvImageConstPtr orig_rgb_img;
@@ -103,7 +103,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   color = orig_rgb_img->image.clone();
   if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
   {
-    isHDColor = true;
+//    isHDColor = true;
     if(color.cols == 1280)
     {
       color = color(cv::Rect(0, depthOffset, 1280, 960));
@@ -129,7 +129,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
   else if(color.cols == 640)
   {
-    isHDColor = false;
+//    isHDColor = false;
     cameraInfoHD = cameraInfo;
     cameraInfoHD.height *= 2.0;
     cameraInfoHD.width *= 2.0;
@@ -145,6 +145,25 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
     cameraInfoHD.P[2] *= 2.0;
     cameraInfoHD.P[5] *= 2.0;
     cameraInfoHD.P[6] *= 2.0;
+  }
+  else if(color.cols == 512)//512*424
+  {
+//    isHDColor = false;
+    cameraInfoHD = cameraInfo;
+    cameraInfoHD.height *= 3.75;
+    cameraInfoHD.width *= 3.75;
+    cameraInfoHD.roi.height *= 3.75;
+    cameraInfoHD.roi.width *= 3.75;
+    cameraInfoHD.roi.x_offset *= 3.75;
+    cameraInfoHD.roi.y_offset *= 3.75;
+    cameraInfoHD.K[0] *= 3.75;
+    cameraInfoHD.K[2] *= 3.75;
+    cameraInfoHD.K[4] *= 3.75;
+    cameraInfoHD.K[5] *= 3.75;
+    cameraInfoHD.P[0] *= 3.75;
+    cameraInfoHD.P[2] *= 3.75;
+    cameraInfoHD.P[5] *= 3.75;
+    cameraInfoHD.P[6] *= 3.75;
   }
   else
   {
