@@ -194,14 +194,14 @@ public:
       std::vector<rs::SemanticColor> color;
       std::vector<rs::Goggles> goggles;
       std::vector<rs::Detection> instances;
-      std::vector<rs::GroundTruth> ground_truth;
+
 
       it->annotations.filter(geom);
       it->annotations.filter(shape);
       it->annotations.filter(color);
       it->annotations.filter(goggles);
       it->annotations.filter(instances);
-      it->annotations.filter(ground_truth);
+
 
       if(shape.size() > 0)
       {
@@ -268,16 +268,6 @@ public:
         {
           std::stringstream atom;
           atom << "instance(c" << index << "," << instances[i].name() << ")";
-          atoms.push_back(atom.str());
-          mlnDatabase << atom.str() << std::endl;
-        }
-      }
-      if(ground_truth.size() > 0)
-      {
-        for(int i = 0; i < ground_truth.size(); ++i)
-        {
-          std::stringstream atom;
-          atom << "object(c" << index << "," << ground_truth[i].global_gt() << ")";
           atoms.push_back(atom.str());
           mlnDatabase << atom.str() << std::endl;
         }
