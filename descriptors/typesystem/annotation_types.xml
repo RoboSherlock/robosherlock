@@ -537,21 +537,6 @@
     </typeDescription>
 
     <typeDescription>
-    <!-- this can be extended to hol various ground truths for different agorithms-->
-      <name>rs.annotation.GroundTruth</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>global_gt</name>
-          <description>The ground truth as an instance name of the cluster</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-
-    <typeDescription>
       <name>rs.annotation.GraspAnnotation</name>
       <description>Poses for Grasping</description>
       <supertypeName>rs.core.Annotation</supertypeName>
