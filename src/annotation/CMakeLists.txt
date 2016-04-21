@@ -45,7 +45,7 @@ endif()
 
 if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
 
-  message("Found Protobuf. Building Goggles")
+  message(STATUS "Found Protobuf. Building Goggles")
   find_package(PythonLibs)
 
   include_directories(

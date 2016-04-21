@@ -103,6 +103,7 @@ void Visualizer::callbackMouseHandler(const int event, const int x, const int y)
   {
     bool needupdate_img = annotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
     updateImage = needupdate_img | updateImage;
+    updateCloud = needupdate_img | updateCloud;
   }
   catch(...)
   {
@@ -125,6 +126,7 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
   {
     bool needupdate_img = annotator->callbackKey(key, source);
     updateImage = needupdate_img | updateImage;
+    updateCloud = needupdate_img | updateCloud;
   }
   catch(...)
   {
