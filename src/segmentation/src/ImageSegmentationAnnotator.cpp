@@ -47,11 +47,11 @@ class ImageSegmentationAnnotator : public DrawingAnnotator
 {
 
 private:
-  cv::Mat color, hsv, grey, bin, mask, maskPlane;
+  cv::Mat color, hsv, grey, bin, mask, maskPlane, dilatedCanny;
   std::vector<ImageSegmentation::Segment> segments;
   float threshold;
   float hsvThreshold;
-  bool hsvFilter;
+  bool hsvFilter, cannyEdgeSegmentation;
   size_t minSize, minHoleSize;
   int hbins, sbins, hdivide, sdivide;
 
@@ -78,13 +78,13 @@ private:
 
   enum
   {
-    BINARY=0,
+    BINARY = 0,
     INVBINARY
-  }segmMode;
+  } segmMode;
 
 public:
   ImageSegmentationAnnotator() : DrawingAnnotator(__func__), threshold(100), hsvThreshold(150)
-    , hsvFilter(false), minHoleSize(50), hbins(64), sbins(64), foundPlane(false), displayMode(SEGMENTS),segmMode(INVBINARY)
+    , hsvFilter(false), cannyEdgeSegmentation(false), minHoleSize(50), hbins(64), sbins(64), foundPlane(false), displayMode(SEGMENTS), segmMode(INVBINARY)
   {
     cameraMatrix = cv::Mat(3, 3, CV_64F);
     distCoefficients = cv::Mat(1, 8, CV_64F);
@@ -117,15 +117,19 @@ public:
     {
       ctx.extractValue("hsvFilter", hsvFilter);
     }
+    if(ctx.isParameterDefined("cannyEdgeSegmentation"))
+    {
+      ctx.extractValue("cannyEdgeSegmentation", cannyEdgeSegmentation);
+    }
     if(ctx.isParameterDefined("segmMode"))
     {
       std::string segmentationMode;
       ctx.extractValue("segmMode", segmentationMode);
-      if (segmentationMode == "BINARY")
+      if(segmentationMode == "BINARY")
       {
         segmMode = BINARY;
       }
-      else if(segmentationMode =="INVBINARY")
+      else if(segmentationMode == "INVBINARY")
       {
         segmMode = INVBINARY;
       }
@@ -286,22 +290,38 @@ private:
       planeRoiHires.height *= 2;
 
 
-
-      ImageSegmentation::thresholding(grey, bin, threshold, segmMode);
-      bin.setTo(0, mask);
-      ImageSegmentation::segment(bin, segments, minSize, minHoleSize, planeRoiHires);
-      ImageSegmentation::computePose(segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
-      std::vector<ImageSegmentation::Segment> additional_segments;
-
-      if(hsvFilter)
+      if(cannyEdgeSegmentation)
       {
-        std::vector<cv::Mat> channels;
-        cv::split(hsv, channels);
-        ImageSegmentation::thresholding(channels[1], bin, hsvThreshold, cv::THRESH_BINARY);
+        cv::Mat edge, blurred, dilated;
+        cv::medianBlur(grey, blurred, 7);
+        cv::Canny(blurred, edge, 30, 90);
+        edge.setTo(0, mask);
+        cv::Mat element = getStructuringElement(cv::MORPH_CROSS,
+                                                cv::Size(5, 5),
+                                                cv::Point(2, 2));
+        cv::dilate(edge, dilatedCanny, element);
+
+        ImageSegmentation::segment(dilatedCanny, segments, minSize, minHoleSize, planeRoiHires);
+        ImageSegmentation::computePose(segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
+      }
+      else
+      {
+        ImageSegmentation::thresholding(grey, bin, threshold, segmMode);
         bin.setTo(0, mask);
-        ImageSegmentation::segment(bin, additional_segments, minSize, minHoleSize, planeRoiHires);
-        ImageSegmentation::computePose(additional_segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
-        segments.insert(segments.end(), additional_segments.begin(), additional_segments.end());
+        ImageSegmentation::segment(bin, segments, minSize, minHoleSize, planeRoiHires);
+        ImageSegmentation::computePose(segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
+
+        if(hsvFilter)
+        {
+          std::vector<cv::Mat> channels;
+          std::vector<ImageSegmentation::Segment> additional_segments;
+          cv::split(hsv, channels);
+          ImageSegmentation::thresholding(channels[1], bin, hsvThreshold, cv::THRESH_BINARY);
+          bin.setTo(0, mask);
+          ImageSegmentation::segment(bin, additional_segments, minSize, minHoleSize, planeRoiHires);
+          ImageSegmentation::computePose(additional_segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
+          segments.insert(segments.end(), additional_segments.begin(), additional_segments.end());
+        }
       }
       addClusters(tcas, scene);
     }
@@ -314,11 +334,21 @@ private:
     switch(displayMode)
     {
     case BIN:
-      cv::cvtColor(bin, disp, CV_GRAY2BGR);
+      if(cannyEdgeSegmentation)
+      {
+        cv::cvtColor(dilatedCanny, disp, CV_GRAY2BGR);
+      }
+      else
+      {
+
+        cv::cvtColor(bin, disp, CV_GRAY2BGR);
+      }
       break;
     case GREY:
-      cv::cvtColor(grey, disp, CV_GRAY2BGR);
-      break;
+      {
+        cv::cvtColor(grey, disp, CV_GRAY2BGR);
+        break;
+      }
     case POSE:
       disp = color.clone();
       if(foundPlane)
