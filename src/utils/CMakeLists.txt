@@ -21,7 +21,12 @@ target_link_libraries(rs_ImagePreprocessor rs_core rs_utils)
 rs_add_library(rs_Trigger src/Trigger.cpp)
 target_link_libraries(rs_Trigger rs_core)
 
+rs_add_library(rs_analysisEngineManager 
+    src/RSAnalysisEngine.cpp 
+    src/RSAnalysisEngineManager.cpp 
+    src/RSPipelineManager.cpp)
+target_link_libraries(rs_analysisEngineManager rs_core rs_io)
+
 rs_add_executable(run src/run.cpp)
-#set_target_properties(rs_runAE PROPERTIES COMPILE_DEFINITIONS RS_PATH="${${RS_CMAKE_PROJECT_NAME}_SOURCE_DIR}")
-target_link_libraries(run rs_core rs_io)
+target_link_libraries(run rs_analysisEngineManager)
 
