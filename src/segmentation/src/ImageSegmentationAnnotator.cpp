@@ -292,7 +292,7 @@ private:
 
       if(cannyEdgeSegmentation)
       {
-        cv::Mat edge, blurred, dilated;
+        cv::Mat edge, blurred;
         cv::medianBlur(grey, blurred, 7);
         cv::Canny(blurred, edge, 30, 90);
         edge.setTo(0, mask);

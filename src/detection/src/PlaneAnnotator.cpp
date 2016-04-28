@@ -376,10 +376,20 @@ private:
     {
       foundPlane = true;
 
-      planeModel[0] = plane_coefficients->values[0];
-      planeModel[1] = plane_coefficients->values[1];
-      planeModel[2] = plane_coefficients->values[2];
-      planeModel[3] = plane_coefficients->values[3];
+      if(plane_coefficients->values[3] < 0)
+      {
+        planeModel[0] = plane_coefficients->values[0];
+        planeModel[1] = plane_coefficients->values[1];
+        planeModel[2] = plane_coefficients->values[2];
+        planeModel[3] = plane_coefficients->values[3];
+      }
+      else
+      {
+          planeModel[0] = -plane_coefficients->values[0];
+          planeModel[1] = -plane_coefficients->values[1];
+          planeModel[2] = -plane_coefficients->values[2];
+          planeModel[3] = -plane_coefficients->values[3];
+      }
 
       if(saveToFile)
       {
