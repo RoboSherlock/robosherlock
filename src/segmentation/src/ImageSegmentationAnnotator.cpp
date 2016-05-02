@@ -565,7 +565,7 @@ private:
     transform.setBasis(rot);
 
     tf::Stamped<tf::Pose> camera(transform, camToWorld.stamp_, camToWorld.child_frame_id_);
-    tf::Stamped<tf::Pose> world(transform * camToWorld, camToWorld.stamp_, camToWorld.frame_id_);
+    tf::Stamped<tf::Pose> world(camToWorld*transform, camToWorld.stamp_, camToWorld.frame_id_);
 
     rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
     poseAnnotation.camera.set(rs::conversion::to(tcas, camera));
