@@ -67,10 +67,10 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
                           const sensor_msgs::Image::ConstPtr depth_img_msg,
                           const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
 {
-//  static int frame = 0;
-//  outWarn("got image: " << frame++);
+  //  static int frame = 0;
+  //  outWarn("got image: " << frame++);
   cv::Mat color, depth;
-//  bool isHDColor;
+  //  bool isHDColor;
   sensor_msgs::CameraInfo cameraInfo, cameraInfoHD;
 
   cv_bridge::CvImageConstPtr orig_rgb_img;
@@ -79,10 +79,12 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
 
   if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
   {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
     outWarn("Skipping blurred image!");
     return;
   }
-
   cv_bridge::CvImageConstPtr orig_depth_img;
   orig_depth_img = cv_bridge::toCvShare(depth_img_msg, depth_img_msg->encoding);
 
@@ -103,7 +105,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   color = orig_rgb_img->image.clone();
   if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
   {
-//    isHDColor = true;
+    //    isHDColor = true;
     if(color.cols == 1280)
     {
       color = color(cv::Rect(0, depthOffset, 1280, 960));
@@ -129,7 +131,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
   else if(color.cols == 640)
   {
-//    isHDColor = false;
+    //    isHDColor = false;
     cameraInfoHD = cameraInfo;
     cameraInfoHD.height *= 2.0;
     cameraInfoHD.width *= 2.0;
@@ -148,7 +150,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
   else if(color.cols == 512)//512*424
   {
-//    isHDColor = false;
+    //    isHDColor = false;
     cameraInfoHD = cameraInfo;
     cameraInfoHD.height *= 3.75;
     cameraInfoHD.width *= 3.75;
@@ -172,12 +174,14 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
 
   lock.lock();
+
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
   this->cameraInfoHD = cameraInfoHD;
-//  outWarn("new data");
   _newData = true;
+  //  outWarn("new data");
+
   lock.unlock();
 }
 
@@ -240,8 +244,8 @@ void ROSKinectBridge::lookupTransform(uima::CAS &tcas, const ros::Time &timestam
   try
   {
     outInfo("TIME Before lookup:" << ros::Time::now());
-    listener->waitForTransform(tfTo, tfFrom, ros::Time(0), ros::Duration(10));
-    listener->lookupTransform(tfTo, tfFrom, ros::Time(0), transform);
+    listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(10));
+    listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
     rs::Scene scene = rs::SceneCas(tcas).getScene();
     rs::StampedTransform vp(rs::conversion::to(tcas, transform));
     scene.viewPoint.set(vp);
