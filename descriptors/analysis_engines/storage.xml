@@ -138,6 +138,18 @@
           <parameter>StorageWriter/clearStorageOnStart</parameter>
         </overrides>
       </configurationParameter>
+      
+      <configurationParameter>
+        <name>camera_config_files</name>
+        <description>path to config file that holds info about camera topics and tf frame names</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>true</mandatory>
+	<overrides>
+	  <parameter>CollectionReader/camera_config_files</parameter>
+	</overrides>
+      </configurationParameter>
+
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -154,6 +166,7 @@
             <string>depth_image_hd</string>
             <string>camera_info</string>
             <string>camera_info_hd</string>
+            <string>scene</string>
           </array>
         </value>
       </nameValuePair>
@@ -162,8 +175,16 @@
         <value>
           <boolean>true</boolean>
         </value>
+      </nameValuePair> 
+      <nameValuePair>
+        <name>camera_config_files</name>
+	<value>
+	  <array>
+	    <string>config_kinect2_robot.ini</string>
+	  </array>
+	</value>
       </nameValuePair>
-    </configurationParameterSettings>
+     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
         <node>CollectionReader</node>

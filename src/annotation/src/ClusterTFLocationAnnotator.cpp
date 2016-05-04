@@ -93,12 +93,18 @@ public:
 
       if(idx >= 0)
       {
+        outInfo("adding tflocation annotation");
         rs::TFLocation annotation = rs::create<rs::TFLocation>(tcas);
         annotation.frame_id.set(name);
         annotation.reference_desc.set(relation);
         cluster.annotations.append(annotation);
       }
+      else
+      {
+        outWarn("could not determine relative location");
+      }
     }
+
 
     return UIMA_ERR_NONE;
   }
@@ -128,13 +134,12 @@ private:
     tf::Stamped<tf::Pose> poseW;
     rs::conversion::from(poses[0].world(), poseW);
     const tf::Vector3 &vecW = poseW.getOrigin();
-
     for(size_t i = 0; i < objects.size(); ++i)
     {
       rs::SemanticMapObject &object = objects[i];
       tf::Transform transform;
       rs::conversion::from(object.transform(), transform);
-      const tf::Vector3 &vecT = transform.inverse() * vecW;
+      tf::Vector3 vecT = transform.inverse() * vecW;
 
       const float minX = -(object.width() / 2);
       const float maxX = (object.width() / 2);
@@ -145,7 +150,7 @@ private:
       if(vecT.x() > minX && vecT.x() < maxX && vecT.y() > minY && vecT.y() < maxY && vecT.z() > minZ)
       {
         name = object.name();
-        relation = "on top of";
+        relation = "on";
         return i;
       }
     }

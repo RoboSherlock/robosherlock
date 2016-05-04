@@ -293,8 +293,8 @@ private:
       if(cannyEdgeSegmentation)
       {
         cv::Mat edge, blurred;
-        cv::medianBlur(grey, blurred, 7);
-        cv::Canny(blurred, edge, 30, 90);
+        cv::medianBlur(grey, blurred, 5);
+        cv::Canny(blurred, edge, 25, 75);
         edge.setTo(0, mask);
         cv::Mat element = getStructuringElement(cv::MORPH_CROSS,
                                                 cv::Size(5, 5),
