@@ -88,6 +88,7 @@ set(RS_LIBS
   rs_segmentation
   rs_recognition
   rs_utils
+  rs_analysisEngineManager
 )
 
 catkin_package(

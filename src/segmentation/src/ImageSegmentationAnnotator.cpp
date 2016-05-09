@@ -292,9 +292,9 @@ private:
 
       if(cannyEdgeSegmentation)
       {
-        cv::Mat edge, blurred, dilated;
-        cv::medianBlur(grey, blurred, 7);
-        cv::Canny(blurred, edge, 30, 90);
+        cv::Mat edge, blurred;
+        cv::medianBlur(grey, blurred, 5);
+        cv::Canny(blurred, edge, 25, 75);
         edge.setTo(0, mask);
         cv::Mat element = getStructuringElement(cv::MORPH_CROSS,
                                                 cv::Size(5, 5),
@@ -565,7 +565,7 @@ private:
     transform.setBasis(rot);
 
     tf::Stamped<tf::Pose> camera(transform, camToWorld.stamp_, camToWorld.child_frame_id_);
-    tf::Stamped<tf::Pose> world(transform * camToWorld, camToWorld.stamp_, camToWorld.frame_id_);
+    tf::Stamped<tf::Pose> world(camToWorld*transform, camToWorld.stamp_, camToWorld.frame_id_);
 
     rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
     poseAnnotation.camera.set(rs::conversion::to(tcas, camera));

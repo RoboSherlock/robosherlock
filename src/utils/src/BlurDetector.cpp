@@ -37,7 +37,7 @@
 std::list<double> BlurDetector::results;
 std::list<bool> BlurDetector::isBlurred;
 
-BlurDetector::BlurDetector() : threshold(0.02), maxHist(10), minHist(3), waitBlur(5), maxStatSize(500)
+BlurDetector::BlurDetector() : threshold(0.01), maxHist(10), minHist(3), waitBlur(5), maxStatSize(500)
 {
   sum = 0;
   avg = 0;

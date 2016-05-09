@@ -638,9 +638,9 @@ shopping_rack_shelf_2:
 
 chemlab_table:
    type: Table 
-   width:  16.0000000000000e-01
+   width:  16.5000000000000e-01
    height: 7.999999999999997e-02
-   depth: 7.99999999999997e-01
+   depth: 8.6999999999997e-01
    transform: !!opencv-matrix
       rows: 4
       cols: 4
