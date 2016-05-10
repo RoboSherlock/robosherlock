@@ -34,14 +34,13 @@
 #include <ros/ros.h>
 
 #include <rs/utils/RSAnalysisEngineManager.h>
+#include <rs/utils/common.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
 
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
-
-#define SEARCHPATH "/descriptors/analysis_engines/"
 
 /**
  * Error output if program is called with wrong parameter.
@@ -131,51 +130,20 @@ int main(int argc, char *argv[])
   }
 
   std::vector<std::string> analysisEngineFiles;
-
-  //generate a vector of possible paths for the analysis engine
-  std::vector<std::string> searchPaths;
-
-  //empty path for full path given as argument
-  searchPaths.push_back("");
-  //add core package path
-  searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(SEARCHPATH));
-
-  //look for packages dependent on core and find their full path
-  std::vector<std::string> child_packages;
-  ros::package::command("depends-on robosherlock", child_packages);
-  for(int i = 0; i < child_packages.size(); ++i)
-  {
-    searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(SEARCHPATH));
-  }
-
   std::ostringstream engineList;
-  analysisEngineFiles.resize(analysisEngines.size(), "");
   for(int i = 0; i < analysisEngines.size(); ++i)
   {
     const std::string &engine = analysisEngines[i];
-    struct stat fileStat;
-
-    for(size_t j = 0; j < searchPaths.size(); ++j)
-    {
-      const std::string file = searchPaths[j] + engine;
-      const std::string fileXML = file + ".xml";
-
-      if(!stat(file.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
-      {
-        analysisEngineFiles[i] = file;
-        break;
-      }
-      else if(!stat(fileXML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
-      {
-        analysisEngineFiles[i] = fileXML;
-        break;
-      }
-    }
-
-    if(analysisEngineFiles[i].empty())
+    std::string engineFile;
+    rs::common::getAEPaths(engine,engineFile);
+    if(engineFile.empty())
     {
       outError("analysis engine \"" << engine << "\" not found.");
       return -1;
+    }
+    else
+    {
+      analysisEngineFiles.push_back(engineFile);
     }
     engineList << FG_CYAN << engine << (i + 1 < analysisEngines.size() ? NO_COLOR ", " : NO_COLOR);
   }
