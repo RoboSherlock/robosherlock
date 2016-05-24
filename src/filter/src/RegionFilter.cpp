@@ -81,7 +81,7 @@ public:
     nameMapping["COUNTERTOP"] = "CounterTop";
     nameMapping["TABLE"] = "Table";
 
-    nameMapping[""] = "CounterTop";
+
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -96,6 +96,7 @@ public:
     if(ctx.isParameterDefined("region_to_filter"))
     {
       ctx.extractValue("region_to_filter", regionToLookAt);
+      nameMapping[""] = regionToLookAt;
     }
     return UIMA_ERR_NONE;
   }
@@ -135,7 +136,7 @@ private:
     //message comes from desigantor and is not the same as the entries from the semantic map so we need
     //to transform them
     rs::Query qs = rs::create<rs::Query>(tcas);
-    if(cas.get("QUERY", qs))
+    if(cas.getFS("QUERY", qs))
     {
       if(regionToLookAt != nameMapping[qs.location()])
       {
