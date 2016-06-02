@@ -5,6 +5,8 @@
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
 
+#include <sys/stat.h>
+
 MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterface(pt)
 {
   readConfig(pt);
@@ -49,6 +51,15 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("DB name:   " FG_BLUE << db);
   outInfo("continual: " FG_BLUE << (continual ? "ON" : "OFF"));
   outInfo("looping:   " FG_BLUE << (loop ? "ON" : "OFF"));
+
+  char* host_env = getenv("MONGO_PORT_27017_TCP_ADDR");
+  char* port_env = getenv("MONGO_PORT_27017_TCP_PORT");
+
+  if(host_env!=NULL && port_env!=NULL)
+  {
+    outInfo("Mongo host stet to: "+ std::string(host_env)+ ":"+std::string(port_env));
+    host  = std::string(host_env)+":"+std::string(port_env);
+  }
 }
 
 bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
