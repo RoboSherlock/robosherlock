@@ -158,7 +158,7 @@ public:
       mln.setCWPreds(cwp);
       mln.setGrammar("PRACGrammar");
       mln.setLogic("FirstOrderLogic");
-      mln.setMethod("WCSP (exact MPE with Toulbar2)");
+      mln.setMethod("WCSPInference");
       mln.setMLN(mlnFile);
     }
     return UIMA_ERR_NONE;

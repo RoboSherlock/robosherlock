@@ -70,7 +70,15 @@ void help()
 
 int main(int argc, char *argv[])
 {
-  ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
+  char *userEnv = getenv("USER");
+  if(userEnv!=NULL)
+  {
+    ros::init(argc, argv, std::string("RoboSherlock_") +std::string(userEnv));
+  }
+  else
+  {
+    ros::init(argc, argv, std::string("RoboSherlock"));
+  }
 
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines, analysisEnginesCL;

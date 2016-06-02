@@ -261,7 +261,7 @@ public:
     uint64_t timestamp = 0;
 
     rs::Query qs = rs::create<rs::Query>(tcas);
-    if(cas.get("QUERY", qs))
+    if(cas.getFS("QUERY", qs))
     {
       outWarn("TIMESTAMP SET IN runAE: " << qs.timestamp());
       timestamp = qs.timestamp();
