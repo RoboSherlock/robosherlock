@@ -21,7 +21,7 @@ target_link_libraries(rs_ImagePreprocessor rs_core rs_utils)
 rs_add_library(rs_Trigger src/Trigger.cpp)
 target_link_libraries(rs_Trigger rs_core rs_io)
 
-rs_add_library(rs_analysisEngineManager 
+add_library(rs_analysisEngineManager 
     src/RSAnalysisEngine.cpp 
     src/RSAnalysisEngineManager.cpp 
     src/RSPipelineManager.cpp)
