@@ -74,16 +74,27 @@ public:
   {
     MEASURE_TIME;
     outInfo("process begins");
-    outInfo("whaa");
     rs::SceneCas cas(tcas);
-    outInfo("whaa");
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
     scene.identifiables.filter(clusters);
 
-    outInfo("number of clusters: " << clusters.size());
-
     std::stringstream ss;
+
+//    int idx=0;
+//    for (auto annotation: scene.annotations())
+//    {
+//      ss<<(idx==0?"{\"scene_properties\" : [":"");
+//      mongo::BSONObj bson;
+//      rs::conversion::from(annotation, bson);
+//      ss << bson.jsonString() << (idx++ < scene.annotations.size() - 1 ? "," : "");
+//    }
+
+//    if(idx!=0)
+//    {
+//      ss<<"]},";
+//    }
+
     int i = 0;
     ss << "{\"object_hypotheses:\": [";
     for(auto c : clusters)
