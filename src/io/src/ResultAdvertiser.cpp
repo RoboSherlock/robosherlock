@@ -74,17 +74,35 @@ public:
   {
     MEASURE_TIME;
     outInfo("process begins");
-    mongo::BSONObj bson;
+    outInfo("whaa");
     rs::SceneCas cas(tcas);
+    outInfo("whaa");
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
     scene.identifiables.filter(clusters);
-    rs::conversion::from(clusters[0], bson);
 
+    outInfo("number of clusters: " << clusters.size());
+
+    std::stringstream ss;
+    int i = 0;
+    ss << "{\"object_hypotheses:\": [";
+    for(auto c : clusters)
+    {
+      ss << "{\"cluster\" : " << i << "," << std::endl << "\"annotations\" : [";
+      rs::Cluster &cluster = c;
+      int annotidx = 0;
+      for(auto annotation : cluster.annotations())
+      {
+        mongo::BSONObj bson;
+        rs::conversion::from(annotation, bson);
+        ss << bson.jsonString() << (annotidx++ < cluster.annotations.size() - 1 ? "," : "");
+      }
+      ss << "]}" << (i++ < clusters.size() - 1 ? "," : ""); //end of annotations
+    }
+    ss<<"]}";
     std_msgs::String msg;
-    msg.data = bson.jsonString();
+    msg.data = ss.str();
     resPub.publish(msg);
-
     return UIMA_ERR_NONE;
   }
 };
