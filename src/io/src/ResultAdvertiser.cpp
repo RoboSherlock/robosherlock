@@ -114,7 +114,8 @@ public:
       }
       ss << "]}" << (i++ < clusters.size() - 1 ? "," : ""); //end of annotations
     }
-    ss<<(i!=0? "]}]}":"");
+    ss<<(i!=0? "]}":"");
+    ss<<"]}";
 
 
     std_msgs::String msg;
