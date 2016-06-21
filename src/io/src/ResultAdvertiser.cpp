@@ -38,7 +38,6 @@
 
 #include <rs/conversion/bson.h>
 
-
 //#undef OUT_LEVEL
 //#define OUT_LEVEL OUT_LEVEL_DEBUG
 
@@ -80,25 +79,28 @@ public:
     scene.identifiables.filter(clusters);
 
     std::stringstream ss;
-
-//    int idx=0;
-//    for (auto annotation: scene.annotations())
-//    {
-//      ss<<(idx==0?"{\"scene_properties\" : [":"");
-//      mongo::BSONObj bson;
-//      rs::conversion::from(annotation, bson);
-//      ss << bson.jsonString() << (idx++ < scene.annotations.size() - 1 ? "," : "");
-//    }
-
-//    if(idx!=0)
-//    {
-//      ss<<"]},";
-//    }
+    ss<<"{\"results\" : [";
+    int idx=0;
+    for (auto annotation: scene.annotations())
+    {
+      ss<<(idx==0?"{\"scene_properties\" : [":"");
+      mongo::BSONObj bson;
+      rs::conversion::from(annotation, bson);
+      //fields that just polute the resulting json. if reaally needed comment them out
+      //TODO: recursive function to delete _od and _parent ->fields come from mongo and are not needed here
+      bson = bson.removeField(mongo::StringData("inliers"));
+      bson = bson.removeField(mongo::StringData("mask"));
+      bson = bson.removeField(mongo::StringData("indices"));
+      bson = bson.removeField(mongo::StringData("_id"));
+      bson = bson.removeField(mongo::StringData("_parent"));
+      ss << bson.jsonString(mongo::JsonStringFormat::Strict,1) << (idx++ < scene.annotations.size() - 1 ? "," : "");
+    }
+    ss<<(idx!=0 ? "]},":"");
 
     int i = 0;
-    ss << "{\"object_hypotheses:\": [";
     for(auto c : clusters)
     {
+      ss << (i==0?"{\"object_hypotheses:\": [":"");
       ss << "{\"cluster\" : " << i << "," << std::endl << "\"annotations\" : [";
       rs::Cluster &cluster = c;
       int annotidx = 0;
@@ -106,17 +108,20 @@ public:
       {
         mongo::BSONObj bson;
         rs::conversion::from(annotation, bson);
-        ss << bson.jsonString() << (annotidx++ < cluster.annotations.size() - 1 ? "," : "");
+        bson = bson.removeField(mongo::StringData("_id"));
+        bson = bson.removeField(mongo::StringData("_parent"));
+        ss << bson.jsonString(mongo::JsonStringFormat::Strict,1) << (annotidx++ < cluster.annotations.size() - 1 ? "," : "");
       }
       ss << "]}" << (i++ < clusters.size() - 1 ? "," : ""); //end of annotations
     }
-    ss<<"]}";
+    ss<<(i!=0? "]}]}":"");
+
+
     std_msgs::String msg;
     msg.data = ss.str();
     resPub.publish(msg);
     return UIMA_ERR_NONE;
   }
 };
-
 
 MAKE_AE(ResultAdvertiser)
