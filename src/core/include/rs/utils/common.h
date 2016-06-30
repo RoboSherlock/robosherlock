@@ -30,7 +30,7 @@ static const uint32_t colors[] = {0xFF0000, /*red*/
                                   0x008080  /**/
                                  };
 
-void getAEPaths(const std::string ae, std::string &aePath)
+bool getAEPaths(const std::string ae, std::string &aePath)
 {
   std::vector<std::string> searchPaths;
   searchPaths.push_back("");
@@ -65,6 +65,11 @@ void getAEPaths(const std::string ae, std::string &aePath)
   if(aePath.empty())
   {
     outInfo("no AE found with that name");
+    return false;
+  }
+  else
+  {
+    return true;
   }
 }
 
