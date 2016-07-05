@@ -1,7 +1,8 @@
 #include <rs/utils/RSAnalysisEngineManager.h>
 
 
-RSAnalysisEngineManager::RSAnalysisEngineManager(const bool useVisualizer, const std::string &savePath) : useVisualizer(useVisualizer), visualizer(savePath)
+template <class AEType>
+RSAnalysisEngineManager<AEType>::RSAnalysisEngineManager(const bool useVisualizer, const std::string &savePath) : useVisualizer(useVisualizer), visualizer(savePath)
 {
   // Create/link up to a UIMACPP resource manager instance (singleton)
   outInfo("Creating resource manager"); // TODO: DEBUG
@@ -22,12 +23,14 @@ RSAnalysisEngineManager::RSAnalysisEngineManager(const bool useVisualizer, const
   }
 }
 
-RSAnalysisEngineManager::~RSAnalysisEngineManager()
+template <class AEType>
+RSAnalysisEngineManager<AEType>::~RSAnalysisEngineManager()
 {
   uima::ResourceManager::deleteInstance();
 }
 
-void RSAnalysisEngineManager::init(const std::vector<std::string> &files)
+template <class AEType>
+void RSAnalysisEngineManager<AEType>::init(const std::vector<std::string> &files)
 {
   engines.resize(files.size());
   for(size_t i = 0; i < engines.size(); ++i)
@@ -40,7 +43,8 @@ void RSAnalysisEngineManager::init(const std::vector<std::string> &files)
   }
 }
 
-void RSAnalysisEngineManager::run()
+template <class AEType>
+void RSAnalysisEngineManager<AEType>::run()
 {
   for(; ros::ok();)
   {
@@ -51,7 +55,8 @@ void RSAnalysisEngineManager::run()
   }
 }
 
-void RSAnalysisEngineManager::stop()
+template <class AEType>
+void RSAnalysisEngineManager<AEType>::stop()
 {
   if(useVisualizer)
   {
@@ -62,3 +67,7 @@ void RSAnalysisEngineManager::stop()
     engines[i].stop();
   }
 }
+
+
+
+template class RSAnalysisEngineManager<RSAnalysisEngine>;

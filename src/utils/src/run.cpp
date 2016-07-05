@@ -170,7 +170,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    RSAnalysisEngineManager manager(visualization, savePath);
+    RSAnalysisEngineManager<RSAnalysisEngine> manager(visualization, savePath);
 
     manager.init(analysisEngineFiles);
 

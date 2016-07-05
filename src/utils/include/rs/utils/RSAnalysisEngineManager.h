@@ -4,10 +4,11 @@
 #include <rs/utils/RSAnalysisEngine.h>
 #include <rs/io/visualizer.h>
 
+template <class AEType>
 class RSAnalysisEngineManager
 {
 private:
-  std::vector<RSAnalysisEngine> engines;
+  std::vector<AEType> engines;
 
   const bool useVisualizer;
   rs::Visualizer visualizer;
