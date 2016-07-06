@@ -23,7 +23,6 @@ target_link_libraries(rs_Trigger rs_core rs_io)
 
 add_library(rs_analysisEngineManager 
     src/RSAnalysisEngine.cpp 
-    src/RSAnalysisEngineManager.cpp 
     src/RSPipelineManager.cpp)
 target_link_libraries(rs_analysisEngineManager rs_core rs_io)
 

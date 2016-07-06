@@ -28,5 +28,10 @@ public:
 
   virtual void process();
 
+  inline void resetCas()
+  {
+    cas->reset();
+  }
+
 };
 #endif // RSANALYSISENGINE_H
