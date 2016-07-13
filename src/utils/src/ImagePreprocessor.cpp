@@ -181,23 +181,23 @@ public:
       return true;
     case 't':
     case 'T':
-      displayMode = THERMAL;
+      displayMode = (useThermal ? THERMAL : displayMode);
       return true;
     case 'e':
     case 'E':
-      displayMode = THERMAL_RGB;
+      displayMode = (useThermal ? THERMAL_RGB : displayMode);
       return true;
     case 'w':
     case 'W':
-      displayMode = THERMAL_DEPTH;
+      displayMode = (useThermal ? THERMAL_DEPTH : displayMode);
       return true;
     case 'f':
     case 'F':
-      displayMode = THERMAL_FUSED;
+      displayMode = (useThermal ? THERMAL_FUSED : displayMode);
       return true;
-    case 'r':
-    case 'R':
-      displayMode = DT;
+    case 's':
+    case 'S':
+      displayMode = (useThermal ? DT : displayMode);
       return true;
     }
     return false;
@@ -224,7 +224,7 @@ public:
 
     if(tmpDepth.empty())
     {
-      disp = cv::Mat::zeros(640, 480, CV_16U);
+      disp = cv::Mat::zeros(480, 640, CV_16U);
       return;
     }
 
@@ -260,8 +260,12 @@ public:
     case THERMAL_RGB:
     case THERMAL_FUSED:
     case DT:
-      combineThermalDepth(disp);
-      return;
+      if(useThermal)
+      {
+        combineThermalDepth(disp);
+        return;
+      }
+      break;
     }
     if(tmpColor.empty())
     {
