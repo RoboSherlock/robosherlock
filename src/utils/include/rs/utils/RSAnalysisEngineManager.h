@@ -58,7 +58,6 @@ public:
     {
       for(size_t i = 0; i < engines.size(); ++i)
       {
-        engines[i].resetCas();
         engines[i].process();
       }
     }
@@ -72,6 +71,7 @@ public:
     }
     for(size_t i = 0; i < engines.size(); ++i)
     {
+      engines[i].resetCas();
       engines[i].stop();
     }
   }

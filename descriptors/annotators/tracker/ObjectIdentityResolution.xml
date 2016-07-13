@@ -94,10 +94,17 @@
     <capabilities>
       <capability>
         <inputs/>
-        <outputs/>
-        <languagesSupported>
-          <language>x-unspecified</language>
-        </languagesSupported>
+        <outputs>
+           <type allAnnotatorFeatures="true">rs.scene.Object</type>
+        </outputs>
+        <inputSofas>
+          <sofaName>rs.scene.MergedCluster</sofaName>
+          <sofaName>rs.annotation.Shape</sofaName>
+          <sofaName>rs.annotation.SemanticColor</sofaName>
+          <sofaName>rs.annotation.Geometry</sofaName>
+          <sofaName>rs.annotation.Detection</sofaName>
+        </inputSofas>
+        <languagesSupported/>
       </capability>
     </capabilities>
     <operationalProperties>
