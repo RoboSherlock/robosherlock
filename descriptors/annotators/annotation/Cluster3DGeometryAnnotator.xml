@@ -8,8 +8,25 @@
     <description>Requires Perceive3DDepthCapability</description>
     <version>1.0</version>
     <vendor/>
-    <configurationParameters/>
-    <configurationParameterSettings/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>projectOnPlane</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>projectOnPlane</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+    </configurationParameterSettings>
+
+
     <typeSystemDescription>
       <imports>
         <import location="../../typesystem/all_types.xml"/>
