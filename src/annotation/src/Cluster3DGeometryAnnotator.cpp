@@ -75,16 +75,22 @@ private:
   double pointSize;
   std::vector<OrientedBoundingBox> orientedBoundingBoxes;
   tf::StampedTransform camToWorld, worldToCam;
+  std::vector<float> plane_model;
+  bool projectOnPlane_;
 
 public:
 
-  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1)
+  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1),projectOnPlane_(false)
   {
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
+    if(ctx.isParameterDefined("projectOnPlane"))
+    {
+      ctx.extractValue("projectOnPlane", projectOnPlane_);
+    }
     return UIMA_ERR_NONE;
   }
 
@@ -104,10 +110,22 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
+    std::vector<rs::Plane> planes;
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     dispCloud = cloud_ptr;
     cas.get(VIEW_COLOR_IMAGE_HD, disp);
+
+    scene.annotations.filter(planes);
+    if(planes.empty())
+    {
+      return UIMA_ERR_ANNOTATOR_MISSING_INFO;
+    }
+
+    tf::StampedTransform head_to_map;
+    rs::conversion::from(scene.viewPoint.get(),head_to_map);
+    plane_model = planes[0].model();
+
     scene.identifiables.filter(clusters);
 
     orientedBoundingBoxes.resize(clusters.size());
@@ -181,6 +199,11 @@ public:
       if(poses.empty())
       {
         rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
+        if(projectOnPlane_)
+        {
+            projectPointOnPlane(box.poseCam);
+            //TODO do the same for map pose (needs plane transform before that)
+        }
         poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
         poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
         cluster.annotations.append(poseAnnotation);
@@ -383,6 +406,18 @@ public:
     //compute camera and world pose
     box.poseCam = tf::Stamped<tf::Pose>(worldToCam * box.objectToWorld, camToWorld.stamp_, camToWorld.child_frame_id_);
     box.poseWorld = tf::Stamped<tf::Pose>(box.objectToWorld, camToWorld.stamp_, camToWorld.frame_id_);
+  }
+
+  void projectPointOnPlane(tf::Stamped<tf::Pose> &pose)
+  {
+
+    cv::Point3f normal(plane_model[0], plane_model[1], plane_model[2]);
+    float planeDist = plane_model[3];
+    cv::Point3f point(pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z());
+    float pointDist = point.dot(normal);
+    float t = planeDist + pointDist;
+    cv::Point3f projected = point - normal * t;
+    pose.setOrigin(tf::Vector3(projected.x, projected.y, projected.z));
   }
 
   void drawImageWithLock(cv::Mat &d)

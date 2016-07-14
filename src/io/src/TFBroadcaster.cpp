@@ -185,7 +185,7 @@ public:
           }
 
           std::ostringstream oss;
-          oss << "cluster" << clust_it - uimaClusters.begin() << "_frame";
+          oss << "rs_cluster" << clust_it - uimaClusters.begin() << "_frame";
           stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), cam_info_.header.frame_id, oss.str()));
         }
         broadCasterObject.addTransforms(stamped_transforms);
