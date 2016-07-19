@@ -16,7 +16,6 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
   storage = rs::Storage(host, db);
 
   actualFrame = 0;
-  _newData = true;
 
   storage.getScenes(frames);
 
@@ -33,6 +32,7 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
     }
     outInfo("found " << frames.size() << " frames in database.");
   }
+  _newData = true;
 }
 
 MongoDBBridge::~MongoDBBridge()
@@ -115,5 +115,9 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
   }
 
   ++actualFrame;
+  if(!continual && !loop && actualFrame == frames.size())
+  {
+    _newData = false;
+  }
   return true;
 }
