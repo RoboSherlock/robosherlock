@@ -44,6 +44,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
+#include <rs/utils/exception.h>
 
 using namespace uima;
 
@@ -72,16 +73,24 @@ class RegionFilter : public DrawingAnnotator
   //name mapping for queries
   std::map<std::string, std::string> nameMapping;
 
+  // for change detection
+  bool changeDetection;
+  cv::Mat lastImg, lastMask;
+  float threshold, pixelThreshold;
+  std::vector<int> changes;
+  size_t frames, filtered;
+  ros::Time lastTime;
+  uint32_t timeout;
+
 public:
 
   RegionFilter() : DrawingAnnotator(__func__), pointSize(1), border(0.05), cloud(new pcl::PointCloud<PointT>()),
-    indices(new std::vector<int>()), regionToLookAt("CounterTop")
+    indices(new std::vector<int>()), regionToLookAt("CounterTop"),
+    changeDetection(true), threshold(0.1), pixelThreshold(0.1), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
     nameMapping["DRAWER"] = "Drawer";
     nameMapping["COUNTERTOP"] = "CounterTop";
     nameMapping["TABLE"] = "Table";
-
-
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -97,6 +106,25 @@ public:
     {
       ctx.extractValue("region_to_filter", regionToLookAt);
       nameMapping[""] = regionToLookAt;
+    }
+
+    if(ctx.isParameterDefined("enable_change_detection"))
+    {
+      ctx.extractValue("enable_change_detection", changeDetection);
+    }
+    if(ctx.isParameterDefined("pixel_threshold"))
+    {
+      ctx.extractValue("pixel_threshold", pixelThreshold);
+    }
+    if(ctx.isParameterDefined("global_threshold"))
+    {
+      ctx.extractValue("global_threshold", threshold);
+    }
+    if(ctx.isParameterDefined("change_timeout"))
+    {
+      int tmp = 120;
+      ctx.extractValue("change_timeout", tmp);
+      timeout = tmp;
     }
     return UIMA_ERR_NONE;
   }
@@ -116,7 +144,7 @@ private:
     rs::Scene scene = cas.getScene();
 
     cas.get(VIEW_CLOUD, *cloud);
-    cas.get(VIEW_COLOR_IMAGE_HD, color);
+    cas.get(VIEW_COLOR_IMAGE, color);
 
     indices->clear();
     indices->reserve(cloud->points.size());
@@ -128,7 +156,8 @@ private:
     }
     else
     {
-      outInfo("No camera to world transformation!!!");
+      outWarn("No camera to world transformation, no further processing!");
+      throw rs::FrameFilterException();
     }
     worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
 
@@ -149,7 +178,7 @@ private:
     if(regions.empty())
     {
       std::vector<rs::SemanticMapObject> semanticRegions;
-      outWarn("Region before filtering: " <<regionToLookAt);
+      outWarn("Region before filtering: " << regionToLookAt);
       getSemanticMapEntries(cas, regionToLookAt, semanticRegions);
 
       regions.resize(semanticRegions.size());
@@ -182,7 +211,126 @@ private:
 
     cas.set(VIEW_CLOUD, *cloud);
 
+    if(changeDetection && !indices->empty())
+    {
+      ++frames;
+      if(lastImg.empty())
+      {
+        lastMask = cv::Mat::ones(color.rows, color.cols, CV_8U);
+        lastImg = cv::Mat::zeros(color.rows, color.cols, CV_32FC3);
+      }
+
+      cv::Mat img, mask;
+      uint32_t secondsPassed = camToWorld.stamp_.sec - lastTime.sec;
+      bool change = checkChange(img, mask) || cas.has("QUERY") || secondsPassed > timeout;
+      lastImg = img;
+      lastMask = mask;
+
+      if(!change)
+      {
+        ++filtered;
+      }
+      else
+      {
+         lastTime = camToWorld.stamp_;
+      }
+      outInfo("filtered frames: " << filtered << " / " << frames << "(" << (filtered / (float)frames) * 100 << "%)");
+
+      if(!change)
+      {
+        outWarn("no changes in frame detected, no further processing!");
+        throw rs::FrameFilterException();
+      }
+    }
+
     return UIMA_ERR_NONE;
+  }
+
+  cv::Vec3f invariantColor(const cv::Vec3b &color) const
+  {
+    cv::Vec3f out;
+    const float sum = color.val[0] + color.val[1] + color.val[2];
+    out.val[0] = color.val[0] / sum;
+    out.val[1] = color.val[1] / sum;
+    out.val[2] = color.val[2] / sum;
+    return out;
+  }
+
+  bool checkChange(const cv::Vec3f &v1, const int index) const
+  {
+    if(lastMask.at<uint8_t>(index))
+    {
+      const cv::Vec3f &v2 = lastImg.at<cv::Vec3f>(index);
+      return (std::abs(v1.val[0] - v2.val[0]) + std::abs(v1.val[1] - v2.val[1]) + std::abs(v1.val[2] - v2.val[2])) > pixelThreshold;
+    }
+    return false;
+  }
+
+  bool checkChange(cv::Mat &img, cv::Mat &mask)
+  {
+    size_t changedPixels = 0;
+    mask = cv::Mat::zeros(color.rows, color.cols, CV_8U);
+    img = cv::Mat::zeros(color.rows, color.cols, CV_32FC3);
+    changes.clear();
+
+    for(size_t i = 0; i < indices->size(); ++i)
+    {
+#if USE_HD
+      const int i0 = indices->at(i) * 2;
+      const int i1 = i0 + 1;
+      const int i2 = i0 + color.cols;
+      const int i3 = i1 + color.cols;
+#else
+      const int i0 = indices->at(i);
+#endif
+
+      mask.at<uint8_t>(i0) = 1;
+#if USE_HD
+      mask.at<uint8_t>(i1) = 1;
+      mask.at<uint8_t>(i2) = 1;
+      mask.at<uint8_t>(i3) = 1;
+#endif
+
+      cv::Vec3f v0 = invariantColor(color.at<cv::Vec3b>(i0));
+      img.at<cv::Vec3f>(i0) = v0;
+#if USE_HD
+      cv::Vec3f v1 = invariantColor(color.at<cv::Vec3b>(i1));
+      img.at<cv::Vec3f>(i1) = v1;
+      cv::Vec3f v2 = invariantColor(color.at<cv::Vec3b>(i2));
+      img.at<cv::Vec3f>(i2) = v2;
+      cv::Vec3f v3 = invariantColor(color.at<cv::Vec3b>(i3));
+      img.at<cv::Vec3f>(i3) = v3;
+#endif
+
+      if(checkChange(v0, i0))
+      {
+        changes.push_back(i0);
+        ++changedPixels;
+      }
+#if USE_HD
+      if(checkChange(v1, i1))
+      {
+        ++changedPixels;
+      }
+      if(checkChange(v2, i2))
+      {
+        ++changedPixels;
+      }
+      if(checkChange(v3, i3))
+      {
+        ++changedPixels;
+      }
+#endif
+    }
+
+#if USE_HD
+    const size_t size = indices->size() * 4;
+#else
+    const size_t size = indices->size();
+#endif
+    const float diff = changedPixels / (float)size;
+    outInfo(changedPixels << " from " << size << " pixels changed (" << diff * 100 << "%)");
+    return diff > threshold;
   }
 
   void getSemanticMapEntries(rs::SceneCas &cas, const std::string &name, std::vector<rs::SemanticMapObject> &mapObjects)
@@ -241,14 +389,20 @@ private:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = cv::Mat::zeros(cloud->height, cloud->width, CV_8UC3);
-    cv::Vec3b white;
-    white.val[0] = white.val[1] = white.val[2] = 255;
+    const cv::Vec3b white(255, 255, 255);
+    const cv::Vec3b red(0, 0, 255);
 
     #pragma omp parallel for
     for(size_t i = 0; i < indices->size(); ++i)
     {
-      const size_t &index = indices->at(i);
-      disp.at<cv::Vec3b>(index / disp.cols, index % disp.cols) = white;
+      const int &index = indices->at(i);
+      disp.at<cv::Vec3b>(index) = white;
+    }
+    #pragma omp parallel for
+    for(size_t i = 0; i < changes.size(); ++i)
+    {
+      const int &index = changes.at(i);
+      disp.at<cv::Vec3b>(index) = red;
     }
   }
 

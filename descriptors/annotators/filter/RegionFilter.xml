@@ -25,6 +25,38 @@
         <mandatory>false</mandatory>
       </configurationParameter>
 
+      <configurationParameter>
+        <name>enable_change_detection</name>
+        <description>Enable filtering of frames based on changes</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>pixel_threshold</name>
+        <description>Threshold for difference in pixel value for being a changed pixel (0.0 - 2.0)</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>global_threshold</name>
+        <description>Percentage of pixels that needs to change to not filter the frame (0.0 to 1.0)</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>change_timeout</name>
+        <description>Timeout in seconds after that a frame is processed even without changes.</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -38,6 +70,34 @@
         <name>region_to_filter</name>
         <value>
           <string>CounterTop</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>enable_change_detection</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>pixel_threshold</name>
+        <value>
+          <float>0.1</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>global_threshold</name>
+        <value>
+          <float>0.1</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>change_timeout</name>
+        <value>
+          <integer>120</integer>
         </value>
       </nameValuePair>
 

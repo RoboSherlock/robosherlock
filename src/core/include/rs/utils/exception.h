@@ -32,6 +32,21 @@ public:
   }
 };
 
+class FrameFilterException : public Exception
+{
+protected:
+  const std::string message;
+
+public:
+  FrameFilterException() throw() : Exception("This frame has been filtered, no further processing!")
+  {
+  }
+
+  virtual ~FrameFilterException() throw()
+  {
+  }
+};
+
 }
 
 #define EXCEPTION_FILENAME (strrchr(__FILE__, '/') ? strrchr(__FILE__, '/') + 1 : __FILE__)
