@@ -52,6 +52,7 @@ public:
       visualizer.start();
     }
   }
+
   virtual void run()
   {
     for(; ros::ok();)

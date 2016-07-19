@@ -1,4 +1,5 @@
 #include <rs/DrawingAnnotator.h>
+#include <rs/utils/exception.h>
 
 std::map<std::string, DrawingAnnotator *> DrawingAnnotator::annotators;
 
@@ -57,6 +58,19 @@ uima::TyErrorId DrawingAnnotator::process(uima::CAS &tcas, uima::ResultSpecifica
   catch(const uima::Exception &e)
   {
     outError("Exception in " << name << ": " << e);
+    drawLock.unlock();
+    throw e;
+  }
+  catch(const rs::FrameFilterException &e)
+  {
+    update = true;
+    hasRun = true;
+    drawLock.unlock();
+    throw e;
+  }
+  catch(const rs::Exception &e)
+  {
+    outError("Exception in " << name << ": " << e.what());
     drawLock.unlock();
     throw e;
   }

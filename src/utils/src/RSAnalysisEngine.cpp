@@ -72,15 +72,21 @@ void RSAnalysisEngine::process()
 
     rs::StopWatch clock;
     outInfo("processing CAS");
-    uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-
-    for(int i = 0; casIter.hasNext(); ++i)
+    try
     {
-      uima::CAS &outCas = casIter.next();
+      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
 
-      // release CAS
-      outInfo("release CAS " << i);
-      engine->getAnnotatorContext().releaseCAS(outCas);
+      for(int i = 0; casIter.hasNext(); ++i)
+      {
+        uima::CAS &outCas = casIter.next();
+
+        // release CAS
+        outInfo("release CAS " << i);
+        engine->getAnnotatorContext().releaseCAS(outCas);
+      }
+    }
+    catch(const rs::FrameFilterException &)
+    {
     }
 
     outInfo("processing finished");
