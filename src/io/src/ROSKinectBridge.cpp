@@ -41,8 +41,10 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   boost::optional<std::string> color_hints = pt.get_optional<std::string>("camera_topics.colorHints");
   std::string cam_info_topic = pt.get<std::string>("camera_topics.camInfo");
   filterBlurredImages = pt.get<bool>("camera.filterBlurredImages");
-
   depthOffset = pt.get<int>("camera.depthOffset");
+
+  boost::optional<bool> hdInfo = pt.get_optional<bool>("camera.useHD");
+  useHD = hdInfo ? hdInfo.get() : true;
 
   image_transport::TransportHints hintsColor(color_hints ? color_hints.get() : "raw");
   image_transport::TransportHints hintsDepth(depth_hints ? depth_hints.get() : "raw");
@@ -103,74 +105,77 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
 
   color = orig_rgb_img->image.clone();
-  if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
+  if(useHD)
   {
-    //    isHDColor = true;
-    if(color.cols == 1280)
+    if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
     {
-      color = color(cv::Rect(0, depthOffset, 1280, 960));
-      cameraInfo.K[5] -= depthOffset;
-      cameraInfo.height = 960;
-    }
+      //    isHDColor = true;
+      if(color.cols == 1280)
+      {
+        color = color(cv::Rect(0, depthOffset, 1280, 960));
+        cameraInfo.K[5] -= depthOffset;
+        cameraInfo.height = 960;
+      }
 
-    cameraInfoHD = cameraInfo;
-    cameraInfo.height /= 2.0;
-    cameraInfo.width /= 2.0;
-    cameraInfo.roi.height /= 2.0;
-    cameraInfo.roi.width /= 2.0;
-    cameraInfo.roi.x_offset /= 2.0;
-    cameraInfo.roi.y_offset /= 2.0;
-    cameraInfo.K[0] /= 2.0;
-    cameraInfo.K[2] /= 2.0;
-    cameraInfo.K[4] /= 2.0;
-    cameraInfo.K[5] /= 2.0;
-    cameraInfo.P[0] /= 2.0;
-    cameraInfo.P[2] /= 2.0;
-    cameraInfo.P[5] /= 2.0;
-    cameraInfo.P[6] /= 2.0;
-  }
-  else if(color.cols == 640)
-  {
-    //    isHDColor = false;
-    cameraInfoHD = cameraInfo;
-    cameraInfoHD.height *= 2.0;
-    cameraInfoHD.width *= 2.0;
-    cameraInfoHD.roi.height *= 2.0;
-    cameraInfoHD.roi.width *= 2.0;
-    cameraInfoHD.roi.x_offset *= 2.0;
-    cameraInfoHD.roi.y_offset *= 2.0;
-    cameraInfoHD.K[0] *= 2.0;
-    cameraInfoHD.K[2] *= 2.0;
-    cameraInfoHD.K[4] *= 2.0;
-    cameraInfoHD.K[5] *= 2.0;
-    cameraInfoHD.P[0] *= 2.0;
-    cameraInfoHD.P[2] *= 2.0;
-    cameraInfoHD.P[5] *= 2.0;
-    cameraInfoHD.P[6] *= 2.0;
-  }
-  else if(color.cols == 512)//512*424
-  {
-    //    isHDColor = false;
-    cameraInfoHD = cameraInfo;
-    cameraInfoHD.height *= 3.75;
-    cameraInfoHD.width *= 3.75;
-    cameraInfoHD.roi.height *= 3.75;
-    cameraInfoHD.roi.width *= 3.75;
-    cameraInfoHD.roi.x_offset *= 3.75;
-    cameraInfoHD.roi.y_offset *= 3.75;
-    cameraInfoHD.K[0] *= 3.75;
-    cameraInfoHD.K[2] *= 3.75;
-    cameraInfoHD.K[4] *= 3.75;
-    cameraInfoHD.K[5] *= 3.75;
-    cameraInfoHD.P[0] *= 3.75;
-    cameraInfoHD.P[2] *= 3.75;
-    cameraInfoHD.P[5] *= 3.75;
-    cameraInfoHD.P[6] *= 3.75;
-  }
-  else
-  {
-    outError("Unknown color image size!");
-    return;
+      cameraInfoHD = cameraInfo;
+      cameraInfo.height /= 2.0;
+      cameraInfo.width /= 2.0;
+      cameraInfo.roi.height /= 2.0;
+      cameraInfo.roi.width /= 2.0;
+      cameraInfo.roi.x_offset /= 2.0;
+      cameraInfo.roi.y_offset /= 2.0;
+      cameraInfo.K[0] /= 2.0;
+      cameraInfo.K[2] /= 2.0;
+      cameraInfo.K[4] /= 2.0;
+      cameraInfo.K[5] /= 2.0;
+      cameraInfo.P[0] /= 2.0;
+      cameraInfo.P[2] /= 2.0;
+      cameraInfo.P[5] /= 2.0;
+      cameraInfo.P[6] /= 2.0;
+    }
+    else if(color.cols == 640)
+    {
+      //    isHDColor = false;
+      cameraInfoHD = cameraInfo;
+      cameraInfoHD.height *= 2.0;
+      cameraInfoHD.width *= 2.0;
+      cameraInfoHD.roi.height *= 2.0;
+      cameraInfoHD.roi.width *= 2.0;
+      cameraInfoHD.roi.x_offset *= 2.0;
+      cameraInfoHD.roi.y_offset *= 2.0;
+      cameraInfoHD.K[0] *= 2.0;
+      cameraInfoHD.K[2] *= 2.0;
+      cameraInfoHD.K[4] *= 2.0;
+      cameraInfoHD.K[5] *= 2.0;
+      cameraInfoHD.P[0] *= 2.0;
+      cameraInfoHD.P[2] *= 2.0;
+      cameraInfoHD.P[5] *= 2.0;
+      cameraInfoHD.P[6] *= 2.0;
+    }
+    else if(color.cols == 512)//512*424
+    {
+      //    isHDColor = false;
+      cameraInfoHD = cameraInfo;
+      cameraInfoHD.height *= 3.75;
+      cameraInfoHD.width *= 3.75;
+      cameraInfoHD.roi.height *= 3.75;
+      cameraInfoHD.roi.width *= 3.75;
+      cameraInfoHD.roi.x_offset *= 3.75;
+      cameraInfoHD.roi.y_offset *= 3.75;
+      cameraInfoHD.K[0] *= 3.75;
+      cameraInfoHD.K[2] *= 3.75;
+      cameraInfoHD.K[4] *= 3.75;
+      cameraInfoHD.K[5] *= 3.75;
+      cameraInfoHD.P[0] *= 3.75;
+      cameraInfoHD.P[2] *= 3.75;
+      cameraInfoHD.P[5] *= 3.75;
+      cameraInfoHD.P[6] *= 3.75;
+    }
+    else
+    {
+      outError("Unknown color image size!");
+      return;
+    }
   }
 
   lock.lock();
@@ -178,7 +183,10 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
-  this->cameraInfoHD = cameraInfoHD;
+  if(useHD)
+  {
+    this->cameraInfoHD = cameraInfoHD;
+  }
   _newData = true;
   //  outWarn("new data");
 
