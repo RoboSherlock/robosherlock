@@ -23,7 +23,7 @@ class ROSKinectBridge : public ROSCamInterface
 {
 private:
   bool filterBlurredImages;
-  bool useHD;
+  bool scale;
   BlurDetector detector;
 
   void initSpinner();
