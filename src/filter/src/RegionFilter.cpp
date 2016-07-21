@@ -36,6 +36,7 @@
 #include <pcl/point_types.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/visualization/common/common.h>
 
 #include <tf_conversions/tf_eigen.h>
 #include <tf/tf.h>
@@ -81,6 +82,11 @@ class RegionFilter : public DrawingAnnotator
   size_t frames, filtered;
   ros::Time lastTime;
   uint32_t timeout;
+
+  // for frustum culling
+  sensor_msgs::CameraInfo cameraInfo;
+  pcl::visualization::Camera camera;
+  double frustum[24];
 
 public:
 
@@ -144,7 +150,13 @@ private:
     rs::Scene scene = cas.getScene();
 
     cas.get(VIEW_CLOUD, *cloud);
+#if USE_HD
+    cas.get(VIEW_COLOR_IMAGE_HD, color);
+    cas.get(VIEW_CAMERA_INFO_HD, cameraInfo);
+#else
     cas.get(VIEW_COLOR_IMAGE, color);
+    cas.get(VIEW_CAMERA_INFO, cameraInfo);
+#endif
 
     indices->clear();
     indices->reserve(cloud->points.size());
@@ -160,6 +172,7 @@ private:
       throw rs::FrameFilterException();
     }
     worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
+    computeFrustum();
 
     //default place to look for objects is counter tops except if we got queried for some different place
     //message comes from desigantor and is not the same as the entries from the semantic map so we need
@@ -201,7 +214,15 @@ private:
 
     for(size_t i = 0; i < regions.size(); ++i)
     {
-      filterRegion(regions[i]);
+      if(frustumCulling(regions[i]))
+      {
+        outInfo("region inside frustum: " << regions[i].name);
+        filterRegion(regions[i]);
+      }
+      else
+      {
+        outInfo("region outside frustum: " << regions[i].name);
+      }
     }
 
     pcl::ExtractIndices<PointT> ei;
@@ -232,7 +253,7 @@ private:
       }
       else
       {
-         lastTime = camToWorld.stamp_;
+        lastTime = camToWorld.stamp_;
       }
       outInfo("filtered frames: " << filtered << " / " << frames << "(" << (filtered / (float)frames) * 100 << "%)");
 
@@ -244,6 +265,69 @@ private:
     }
 
     return UIMA_ERR_NONE;
+  }
+
+  void computeFrustum()
+  {
+    // compute frustum based on camera info and tf
+    const double alphaY = cameraInfo.K[4];
+    const double fovY = 2 * atan(cameraInfo.height / (2 * alphaY));
+    tf::Vector3 up(0, 1, 0), focal(1, 0, 0);
+    up = camToWorld * up;
+    focal = camToWorld * focal;
+
+    camera.fovy = fovY;
+    camera.clip[0] = 0.001;
+    camera.clip[1] = 12.0;
+    camera.window_size[0] = cameraInfo.width;
+    camera.window_size[1] = cameraInfo.height;
+    camera.window_pos[0] = 0;
+    camera.window_pos[1] = 0;
+    camera.pos[0] = worldToCam.getOrigin().x();
+    camera.pos[1] = worldToCam.getOrigin().y();
+    camera.pos[2] = worldToCam.getOrigin().z();
+    camera.view[0] = up.x();
+    camera.view[1] = up.y();
+    camera.view[2] = up.z();
+    camera.focal[0] = focal.x();
+    camera.focal[1] = focal.y();
+    camera.focal[2] = focal.z();
+
+    Eigen::Matrix4d viewMatrix;
+    Eigen::Matrix4d projectionMatrix;
+    Eigen::Matrix4d viewProjectionMatrix;
+    camera.computeViewMatrix(viewMatrix);
+    camera.computeProjectionMatrix(projectionMatrix);
+    viewProjectionMatrix = projectionMatrix * viewMatrix;
+    pcl::visualization::getViewFrustum(viewProjectionMatrix, frustum);
+  }
+
+  bool frustumCulling(const Region &region)
+  {
+    double tFrustum[24];
+
+    // transform frustum planes to region
+    for(size_t i = 0; i < 6; ++i)
+    {
+      tf::Vector3 normal(frustum[i * 4 + 0], frustum[i * 4 + 1], frustum[i * 4 + 2]);
+      double d = frustum[i * 4 + 3];
+      tf::Vector3 point = normal * d;
+
+      normal = region.transform * normal;
+      point = region.transform * point;
+      d = normal.dot(point);
+
+      tFrustum[i * 4 + 0] = normal.x();
+      tFrustum[i * 4 + 1] = normal.y();
+      tFrustum[i * 4 + 2] = normal.z();
+      tFrustum[i * 4 + 3] = d;
+    }
+
+    // check region bounding box
+    Eigen::Vector3d bbMin(-(region.width / 2), -(region.height / 2), -(region.depth / 2));
+    Eigen::Vector3d bbMax((region.width / 2), (region.height / 2), 0.5);
+    pcl::visualization::FrustumCull res = (pcl::visualization::FrustumCull)pcl::visualization::cullFrustum(tFrustum, bbMin, bbMax);
+    return res != pcl::visualization::PCL_OUTSIDE_FRUSTUM;
   }
 
   cv::Vec3f invariantColor(const cv::Vec3b &color) const
