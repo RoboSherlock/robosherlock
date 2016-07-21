@@ -43,8 +43,8 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   filterBlurredImages = pt.get<bool>("camera.filterBlurredImages");
   depthOffset = pt.get<int>("camera.depthOffset");
 
-  boost::optional<bool> hdInfo = pt.get_optional<bool>("camera.useHD");
-  useHD = hdInfo ? hdInfo.get() : true;
+  boost::optional<bool> scaleInfo = pt.get_optional<bool>("camera.scale");
+  scale = scaleInfo ? scaleInfo.get() : true;
 
   image_transport::TransportHints hintsColor(color_hints ? color_hints.get() : "raw");
   image_transport::TransportHints hintsDepth(depth_hints ? depth_hints.get() : "raw");
@@ -63,6 +63,7 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   }
   outInfo("DepthOffset:   " FG_BLUE << depthOffset);
   outInfo("Blur filter:   " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
+  outInfo("Scale Input:   " FG_BLUE << (scale ? "ON" : "OFF"));
 }
 
 void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
@@ -105,7 +106,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   }
 
   color = orig_rgb_img->image.clone();
-  if(useHD)
+  if(scale)
   {
     if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
     {
@@ -183,7 +184,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
-  if(useHD)
+  if(scale)
   {
     this->cameraInfoHD = cameraInfoHD;
   }
@@ -208,23 +209,27 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
   color = this->color;
   depth = this->depth;
   cameraInfo = this->cameraInfo;
-  cameraInfoHD = this->cameraInfoHD;
+  if(scale)
+  {
+    cameraInfoHD = this->cameraInfoHD;
+  }
   _newData = false;
   lock.unlock();
 
   rs::SceneCas cas(tcas);
   lookupTransform(tcas, cameraInfo.header.stamp);
 
-  if(color.cols >= 1280)
+  if(scale && color.cols >= 1280)
   {
     cas.set(VIEW_COLOR_IMAGE_HD, color);
+    cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
   }
   else
   {
     cas.set(VIEW_COLOR_IMAGE, color);
   }
 
-  if(depth.cols >= 1280)
+  if(scale && depth.cols >= 1280)
   {
     cas.set(VIEW_DEPTH_IMAGE_HD, depth);
   }
@@ -234,7 +239,6 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
   }
 
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
-  cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
 
   cas.getScene().timestamp.set(cameraInfo.header.stamp.toNSec());
 
