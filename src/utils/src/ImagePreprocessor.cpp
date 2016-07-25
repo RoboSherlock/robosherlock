@@ -45,6 +45,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/DepthImageProcessing.h>
 #include <rs/DrawingAnnotator.h>
+#include <rs/segmentation/ImageSegmentation.h>
 
 using namespace uima;
 
@@ -52,7 +53,7 @@ class ImagePreprocessor : public DrawingAnnotator
 {
 private:
   bool hasDepth, hasDepthHD, hasColor, hasColorHD, forceNewCloud, hasThermal, useKinect, useThermal;
-  cv::Mat depth, depthHD, color, colorHD, alpha;
+  cv::Mat depth, depthHD, color, colorHD, alpha, depthMask;
   cv::Mat thermal, thermalColor, thermalDepth, thermalFused;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, thermalCloud;
 
@@ -72,7 +73,8 @@ private:
     THERMAL_DEPTH,
     THERMAL_FUSED,
     RGBD,
-    DT
+    DT,
+    MASK
   } displayMode;
 
   enum
@@ -82,7 +84,7 @@ private:
   } pclDispMode;
 
 public:
-  ImagePreprocessor() : DrawingAnnotator(__func__), pointSize(1), displayMode(RGBD), pclDispMode(PCL_RGBD)
+  ImagePreprocessor() : DrawingAnnotator(__func__), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -199,6 +201,10 @@ public:
     case 'S':
       displayMode = (useThermal ? DT : displayMode);
       return true;
+    case 'm':
+    case 'M':
+      displayMode = MASK;
+      return true;
     }
     return false;
   }
@@ -208,6 +214,7 @@ public:
     cv::Mat tmpDepth;
     switch(displayMode)
     {
+    case MASK:
     case COLOR:
     case DEPTH:
     case RGBD:
@@ -250,6 +257,7 @@ public:
     cv::Mat tmpColor;
     switch(displayMode)
     {
+    case MASK:
     case COLOR:
     case DEPTH:
     case RGBD:
@@ -365,6 +373,9 @@ public:
     case DT:
       combine(disp);
       break;
+    case MASK:
+      depthMask.convertTo(disp, CV_GRAY2BGR);
+      break;
     }
   }
 
@@ -470,6 +481,9 @@ private:
       cas.set(VIEW_DEPTH_IMAGE_HD, depthHD);
       hasDepthHD = true;
     }
+
+    getDepthMask();
+    cas.set(VIEW_MASK, depthMask);
   }
 
   void filterDepth(cv::Mat &depth)
@@ -483,6 +497,34 @@ private:
     {
       rs::DepthImageProcessing::fillHoles(depth);
     }
+  }
+
+  void getDepthMask()
+  {
+    depthMask.create(depth.rows, depth.cols, CV_8U);
+
+    const size_t size = depth.rows * depth.cols;
+    const uint16_t *itD = depth.ptr<uint16_t>();
+    uint8_t *itM = depthMask.ptr();
+
+    for(size_t i = 0; i < size; ++i, ++itD, ++itM)
+    {
+      *itM = *itD > 0 ? 0 : 255;
+    }
+
+    const cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,  cv::Size(3,3));
+    cv::erode(depthMask, depthMask, kernel, cv::Point(-1, -1), 5, cv::BORDER_CONSTANT, 255);
+
+    const cv::Rect roi(0, 0, depth.cols, depth.rows);
+    std::vector<ImageSegmentation::Segment> segments;
+    ImageSegmentation::segment(depthMask, segments, 10000, 1000, roi);
+
+    depthMask = cv::Mat::zeros(depth.rows, depth.cols, CV_8U);
+    for(size_t i = 0; i < segments.size(); ++i)
+    {
+      ImageSegmentation::drawSegment(depthMask, CV_RGB(255, 255, 255), CV_RGB(0, 0, 0), segments[i]);
+    }
+    cv::dilate(depthMask, depthMask, kernel, cv::Point(-1, -1), 12, cv::BORDER_CONSTANT, 255);
   }
 
   /*******************************************************************************
