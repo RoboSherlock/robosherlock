@@ -61,7 +61,7 @@ public:
     std::stringstream pkgPath;
     pkgPath << ros::package::getPath("robosherlock") << "/scripts";
 
-    PyObject *sysPath = PySys_GetObject("path");
+    PyObject *sysPath = PySys_GetObject((char*)"path");
     PyList_Insert(sysPath, 0, PyString_FromString(pkgPath.str().c_str()));
     boost::python::object pyClModule =  boost::python::import("goggles_http_client");
     boost::python::dict pyClModuleDict = boost::python::extract<boost::python::dict>(pyClModule.attr("__dict__"));
