@@ -41,7 +41,7 @@
       </configurationParameter>
       <configurationParameter>
         <name>mode</name>
-        <description>swtich between organized euclidean clustering and conventional one (PCL, OEC,OEC_prism)</description>
+        <description>swtich between organized euclidean clustering and conventional one (EC, OEC,OEC_prism)</description>
         <type>String</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
@@ -53,7 +53,7 @@
       <nameValuePair>
         <name>mode</name>
         <value>
-          <string>OEC_prism</string>
+          <string>OEC</string>
         </value>
       </nameValuePair>
 
