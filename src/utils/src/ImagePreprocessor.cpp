@@ -60,7 +60,7 @@ private:
   cv::Mat lookupX, lookupY, lookupXThermal, lookupYThermal;
 
   bool enableDepthSmoothing, enableHoleFilling, thresholdThermalImages;
-  int thermalImageThreshold;
+  int thermalImageThreshold, borderErosion, borderDilation;
 
   double pointSize;
 
@@ -84,7 +84,7 @@ private:
   } pclDispMode;
 
 public:
-  ImagePreprocessor() : DrawingAnnotator(__func__), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
+  ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(5), borderDilation(12), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -119,6 +119,14 @@ public:
           ctx.extractValue("thermalImageThreshold", thermalImageThreshold);
         }
       }
+    }
+    if(ctx.isParameterDefined("borderErosion"))
+    {
+      ctx.extractValue("borderErosion", borderErosion);
+    }
+    if(ctx.isParameterDefined("borderDilation"))
+    {
+      ctx.extractValue("borderDilation", borderDilation);
     }
 
     // Force rewriting of cloud
@@ -513,7 +521,7 @@ private:
     }
 
     const cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,  cv::Size(3,3));
-    cv::erode(depthMask, depthMask, kernel, cv::Point(-1, -1), 5, cv::BORDER_CONSTANT, 255);
+    cv::erode(depthMask, depthMask, kernel, cv::Point(-1, -1), borderErosion, cv::BORDER_CONSTANT, 255);
 
     const cv::Rect roi(0, 0, depth.cols, depth.rows);
     std::vector<ImageSegmentation::Segment> segments;
@@ -524,7 +532,7 @@ private:
     {
       ImageSegmentation::drawSegment(depthMask, CV_RGB(255, 255, 255), CV_RGB(0, 0, 0), segments[i]);
     }
-    cv::dilate(depthMask, depthMask, kernel, cv::Point(-1, -1), 12, cv::BORDER_CONSTANT, 255);
+    cv::dilate(depthMask, depthMask, kernel, cv::Point(-1, -1), borderDilation, cv::BORDER_CONSTANT, 255);
   }
 
   /*******************************************************************************

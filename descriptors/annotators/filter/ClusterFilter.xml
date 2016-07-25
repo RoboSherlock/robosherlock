@@ -9,8 +9,21 @@
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
+      <configurationParameter>
+        <name>max_allowed_overlap</name>
+        <description>How many points are allowed to lie on the border before the cluster is filtered.</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+      <nameValuePair>
+        <name>max_allowed_overlap</name>
+        <value>
+          <float>0.055</float>
+        </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <typeSystemDescription>
       <imports>

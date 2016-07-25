@@ -46,18 +46,24 @@ private:
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
   cv::Mat color, mask;
-  double pointSize;
+  double pointSize, maxOverlap;
 
   std::vector<std::vector<int> > clusterIndices;
 public:
 
-  ClusterFilter(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0)
+  ClusterFilter(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0), maxOverlap(0.055)
   {
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
+    if(ctx.isParameterDefined("max_allowed_overlap"))
+    {
+      float tmp = (float)maxOverlap;
+      ctx.extractValue("max_allowed_overlap", tmp);
+      maxOverlap = tmp;
+    }
     return UIMA_ERR_NONE;
   }
 
@@ -111,7 +117,7 @@ public:
       }
 
       const double ratio = countBorder / (double)clusterIndices->indices.size();
-      if(ratio > 0.055)
+      if(ratio > maxOverlap)
       {
         outInfo("cluster filtered: " << i << " ratio: " << ratio << " (" << countBorder << "/" << clusterIndices->indices.size() << ")");
       }
