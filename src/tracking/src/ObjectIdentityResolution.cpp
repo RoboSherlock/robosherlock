@@ -45,6 +45,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/compare.h>
 #include <rs/io/Storage.h>
+#include <rs/utils/common.h>
 
 //#undef OUT_LEVEL
 //#define OUT_LEVEL OUT_LEVEL_DEBUG
@@ -599,25 +600,6 @@ private:
       return;
     }
 
-    const std::vector<cv::Scalar> colors = { CV_RGB(255, 0, 0),
-                                             CV_RGB(0, 255, 0),
-                                             CV_RGB(0, 0, 255),
-                                             CV_RGB(255, 255, 0),
-                                             CV_RGB(255, 0, 255),
-                                             CV_RGB(0, 255, 255),
-                                             CV_RGB(127, 0, 0),
-                                             CV_RGB(0, 127, 0),
-                                             CV_RGB(0, 0, 127),
-                                             CV_RGB(127, 127, 0),
-                                             CV_RGB(127, 0, 127),
-                                             CV_RGB(0, 127, 127),
-                                             CV_RGB(255, 127, 0),
-                                             CV_RGB(255, 0, 127),
-                                             CV_RGB(0, 255, 127),
-                                             CV_RGB(127, 255, 0),
-                                             CV_RGB(127, 0, 255),
-                                             CV_RGB(0, 127, 255)
-                                           };
     disp = color.clone();
 
     for(size_t i = 0; i < objectRois.size(); ++i)
@@ -632,8 +614,8 @@ private:
       std::ostringstream oss;
       oss << "Object: " << i;
 
-      cv::rectangle(disp, roi, colors[i % colors.size()]);
-      cv::putText(disp, oss.str(), roi.tl() + cv::Point(5, -15), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, colors[i % colors.size()], 1, CV_AA);
+      cv::rectangle(disp, roi, rs::common::colors[i % rs::common::numberOfColors]);
+      cv::putText(disp, oss.str(), roi.tl() + cv::Point(5, -15), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, rs::common::colors[i % rs::common::numberOfColors], 1, CV_AA);
     }
   }
 

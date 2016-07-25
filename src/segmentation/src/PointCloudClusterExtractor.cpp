@@ -267,8 +267,7 @@ private:
     disp = color.clone();
     for(size_t i = 0; i < cluster_rois.size(); ++i)
     {
-      uint32_t rgb = rs::common::colors[i % COLOR_SIZE];
-      cv::rectangle(disp, cluster_rois[i], CV_RGB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 0) & 0xFF));
+      cv::rectangle(disp, cluster_rois[i], rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
   }
 
@@ -281,7 +280,7 @@ private:
       for(size_t j = 0; j < indices.indices.size(); ++j)
       {
         size_t index = indices.indices[j];
-        cloud_ptr->points[index].rgba = rs::common::colors[i % COLOR_SIZE];
+        cloud_ptr->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
       }
     }
 

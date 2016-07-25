@@ -102,7 +102,7 @@ private:
 
 public:
   PlaneAnnotator() : DrawingAnnotator(__func__), mode(BOARD), display(new pcl::PointCloud<pcl::PointXYZRGBA>()),
-    pointSize(1), saveToFile(false)
+    saveToFile(false), pointSize(1)
   {
     pathToModelFile = ros::package::getPath("robosherlock") + "/config/plane_model.xml";
   }
@@ -395,7 +395,7 @@ private:
       {
         outInfo("Saving Plane to file: "<<pathToModelFile);
         cv::Mat coeffs = cv::Mat_<float>(4, 1);
-        for(uint8_t i = 0; i < planeModel.size(); ++i)
+        for(size_t i = 0; i < planeModel.size(); ++i)
         {
           coeffs.at<float>(i) = planeModel[i];
         }
@@ -592,6 +592,7 @@ private:
       cv::line(disp, pointsImage[0], pointsImage[3], CV_RGB(0, 0, 255), 2, CV_AA);
       break;
     case PCL:
+    case FILE:
     case MPS:
       disp = cv::Mat::zeros(cloud->height, cloud->width, CV_8UC3);
       #pragma omp parallel for
@@ -635,7 +636,7 @@ private:
         const pcl::PointIndices &indices = this->inlierIndices[i];
         const size_t outIndex = output->points.size();
         output->points.resize(outIndex + indices.indices.size());
-        uint32_t rgba = rs::common::colors[i % COLOR_SIZE];
+        uint32_t rgba = rs::common::colors[i % rs::common::numberOfColors];
 
         #pragma omp parallel for
         for(size_t j = 0; j < indices.indices.size(); ++j)

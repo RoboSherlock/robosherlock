@@ -13,54 +13,81 @@
 namespace rs
 {
 
-#define COLOR_SIZE 12
 #define SEARCHPATH "/descriptors/analysis_engines/"
 
 namespace common
 {
 
+#define COLOR_TO_SCALAR(i) CV_RGB((colors[i] >> 16) & 0xFF, (colors[i] >> 8) & 0xFF, colors[i] & 0xFF)
+#define COLOR_TO_VEC3B(i) cv::Vec3b(colors[i] & 0xFF, (colors[i] >> 8) & 0xFF, (colors[i] >> 16) & 0xFF)
+
 static const uint32_t colors[] =
 {
-  0xFF0000, /*red*/
-  0x00FF00, /*lime*/
-  0x0000FF, /*blue*/
-  0xFFFF00, /*yellow*/
-  0xFF00FF, /*pink*/
-  0x00FFFF, /*aqua*/
-  0x800000, /*maroon*/
-  0x008000, /*green*/
-  0x000080, /**/
-  0x808000, /*olive*/
-  0x800080,  /**/
-  0x008080  /**/
+  0xFF0000,
+  0x00FF00,
+  0x0000FF,
+  0xFFFF00,
+  0xFF00FF,
+  0x00FFFF,
+  0xC00000,
+  0x00C000,
+  0x0000C0,
+  0xC0C000,
+  0xC000C0,
+  0x00C0C0,
+  0x800000,
+  0x008000,
+  0x000080,
+  0x808000,
+  0x800080,
+  0x008080
 };
 
-static const std::vector<cv::Scalar> cvScalarColorsVec =
+static const cv::Scalar cvScalarColors[] =
 {
-  CV_RGB(255, 0, 0),
-  CV_RGB(255, 255, 0),
-  CV_RGB(0, 255, 0),
-  CV_RGB(0, 255, 255),
-  CV_RGB(0, 0, 255),
-  CV_RGB(255, 0, 255),
-  CV_RGB(255, 255, 255),
-  CV_RGB(0, 0, 0),
-  CV_RGB(127, 127, 127)
+  COLOR_TO_SCALAR(0),
+  COLOR_TO_SCALAR(1),
+  COLOR_TO_SCALAR(2),
+  COLOR_TO_SCALAR(3),
+  COLOR_TO_SCALAR(4),
+  COLOR_TO_SCALAR(5),
+  COLOR_TO_SCALAR(6),
+  COLOR_TO_SCALAR(7),
+  COLOR_TO_SCALAR(8),
+  COLOR_TO_SCALAR(9),
+  COLOR_TO_SCALAR(10),
+  COLOR_TO_SCALAR(11),
+  COLOR_TO_SCALAR(12),
+  COLOR_TO_SCALAR(13),
+  COLOR_TO_SCALAR(14),
+  COLOR_TO_SCALAR(15),
+  COLOR_TO_SCALAR(16),
+  COLOR_TO_SCALAR(17)
 };
 
-static const std::vector<cv::Vec3b> cvVec3bcolorsVec =
+static const cv::Vec3b cvVec3bColors[] =
 {
-  cv::Vec3b(255, 0, 0),
-  cv::Vec3b(255, 255, 0),
-  cv::Vec3b(0, 255, 0),
-  cv::Vec3b(0, 255, 255),
-  cv::Vec3b(0, 0, 255),
-  cv::Vec3b(255, 0, 255),
-  cv::Vec3b(255, 255, 255),
-  cv::Vec3b(0, 0, 0),
-  cv::Vec3b(127, 127, 127)
+  COLOR_TO_VEC3B(0),
+  COLOR_TO_VEC3B(1),
+  COLOR_TO_VEC3B(2),
+  COLOR_TO_VEC3B(3),
+  COLOR_TO_VEC3B(4),
+  COLOR_TO_VEC3B(5),
+  COLOR_TO_VEC3B(6),
+  COLOR_TO_VEC3B(7),
+  COLOR_TO_VEC3B(8),
+  COLOR_TO_VEC3B(9),
+  COLOR_TO_VEC3B(10),
+  COLOR_TO_VEC3B(11),
+  COLOR_TO_VEC3B(12),
+  COLOR_TO_VEC3B(13),
+  COLOR_TO_VEC3B(14),
+  COLOR_TO_VEC3B(15),
+  COLOR_TO_VEC3B(16),
+  COLOR_TO_VEC3B(17)
 };
 
+static const size_t numberOfColors = sizeof(colors) / sizeof(colors[0]);
 
 static const std::string base64_chars =
              "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
