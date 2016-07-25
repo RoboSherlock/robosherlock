@@ -19,6 +19,9 @@
     <delegateAnalysisEngine key="ClusterColorHistogramCalculator">
       <import location="../annotators/annotation/ClusterColorHistogramCalculator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="ClusterFilter">
+      <import location="../annotators/filter/ClusterFilter.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="ClusterMerger">
       <import location="../annotators/utils/ClusterMerger.xml"/>
     </delegateAnalysisEngine>
