@@ -71,10 +71,11 @@ endif()
 
 find_package(Caffe QUIET)
 if(Caffe_FOUND)
-  message(STATUS "OPTIONAL MODULE Caffe FOUND")
+  message(STATUS "Caffe FOUND")
   set(OPTIONAL_Caffe Caffe)
   add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
-  set(RS_CAFFE_LIB rs_caffeProxy)  
+  set(RS_CAFFE_LIB rs_caffeProxy)
+  include_directories(${Caffe_INCLUDE_DIRS})
 endif(Caffe_FOUND)
 
 

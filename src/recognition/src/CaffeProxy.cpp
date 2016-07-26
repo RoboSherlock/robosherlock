@@ -16,11 +16,11 @@ CaffeProxy::CaffeProxy(const string &model_file,
                        const string &mean_file,
                        const string &label_file)
 {
-  #ifdef CPU_ONLY
-    Caffe::set_mode(Caffe::CPU);
-  #else
-    Caffe::set_mode(Caffe::GPU);
-  #endif
+#ifdef CPU_ONLY
+  Caffe::set_mode(Caffe::CPU);
+#else
+  Caffe::set_mode(Caffe::GPU);
+#endif
 
   /* Load the network. */
   net_.reset(new Net<float>(model_file, TEST));
@@ -68,7 +68,6 @@ std::vector<Prediction> CaffeProxy::Classify(const cv::Mat &img, int N)
   return predictions;
 }
 
-
 /* Load the mean file in binaryproto format. */
 void CaffeProxy::SetMean(const string &mean_file)
 {
@@ -101,6 +100,7 @@ void CaffeProxy::SetMean(const string &mean_file)
   cv::Scalar channel_mean = cv::mean(mean);
   mean_ = cv::Mat(input_geometry_, mean.type(), channel_mean);
 }
+
 std::vector<float> CaffeProxy::extractFeature(const cv::Mat &img, std::string layer)
 {
   if(net_->has_blob(layer))
@@ -125,8 +125,10 @@ std::vector<float> CaffeProxy::extractFeature(const cv::Mat &img, std::string la
   else
   {
     std::cerr << "Layer has no blob named: " << layer << std::cerr;
+    return std::vector<float>();
   }
 }
+
 std::vector<float> CaffeProxy::Predict(const cv::Mat &img)
 {
   Blob<float> *input_layer = net_->input_blobs()[0];
