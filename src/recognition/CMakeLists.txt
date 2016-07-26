@@ -20,6 +20,6 @@ if(LIBPRACMLN)
 endif(LIBPRACMLN)
 
 if(Caffe_FOUND)
-    rs_add_library(rs_caffeProxy src/CaffeProxy.cpp)
-    target_link_libraries(rs_caffeProxy ${catkin_LIBRARIES} ${Caffe_LIBRARIES})
+  add_library(rs_caffeProxy src/CaffeProxy.cpp)
+  target_link_libraries(rs_caffeProxy ${catkin_LIBRARIES} ${Caffe_LIBRARIES})
 endif(Caffe_FOUND)
