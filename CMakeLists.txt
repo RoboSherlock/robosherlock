@@ -69,6 +69,14 @@ else()
   message(STATUS "libpracmln NOT FOUND. Related annotators will not be build!")
 endif()
 
+find_package(Caffe QUIET)
+if(Caffe_FOUND)
+  message(STATUS "OPTIONAL MODULE Caffe FOUND")
+  set(OPTIONAL_Caffe Caffe)
+  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
+  set(RS_CAFFE_LIB rs_caffeProxy)  
+endif(Caffe_FOUND)
+
 
 ################################################################################
 ## CMake variables                                                            ##
@@ -89,11 +97,13 @@ set(RS_LIBS
   rs_recognition
   rs_utils
   rs_analysisEngineManager
+  ${RS_CAFFE_LIB}
 )
+
 
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS}
-  LIBRARIES ${RS_LIBS}
+  LIBRARIES ${RS_LIBS} 
   CATKIN_DEPENDS pcl_ros cv_bridge
   DEPENDS Boost OpenCV APR PCL Eigen UIMA ICUUC MongoClientLibrary
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
