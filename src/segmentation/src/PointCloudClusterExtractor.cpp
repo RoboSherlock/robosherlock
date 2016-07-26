@@ -86,7 +86,6 @@ private:
   float plane_distance_threshold;
   pcl::PointCloud<PointT>::Ptr cloud_ptr;
   std::vector<pcl::PointIndices> cluster_indices;
-  std::vector<cv::Rect> cluster_rois;
   std::vector<Cluster> clusters;
   double pointSize;
 
@@ -176,7 +175,6 @@ private:
     pcl::PointIndices::Ptr plane_inliers(new pcl::PointIndices());
     pcl::PointIndices::Ptr prism_inliers(new pcl::PointIndices());
     cluster_indices.clear();
-    cluster_rois.clear();
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_NORMALS, *cloud_normals);
@@ -265,10 +263,9 @@ private:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = color.clone();
-    for(size_t i = 0; i < cluster_rois.size(); ++i)
+    for(size_t i = 0; i < clusters.size(); ++i)
     {
-      uint32_t rgb = rs::common::colors[i % COLOR_SIZE];
-      cv::rectangle(disp, cluster_rois[i], CV_RGB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, (rgb >> 0) & 0xFF));
+      cv::rectangle(disp, clusters[i].roiHires, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
   }
 
@@ -281,7 +278,7 @@ private:
       for(size_t j = 0; j < indices.indices.size(); ++j)
       {
         size_t index = indices.indices[j];
-        cloud_ptr->points[index].rgba = rs::common::colors[i % COLOR_SIZE];
+        cloud_ptr->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
       }
     }
 

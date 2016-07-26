@@ -7,6 +7,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
+#include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 
 //STD
@@ -25,29 +26,6 @@
 #include <pcl/features/gfpfh.h>
 
 using namespace uima;
-
-static const cv::Scalar colors[] =
-{
-  cv::Scalar(255, 0, 0),
-  cv::Scalar(0, 255, 0),
-  cv::Scalar(0, 0, 255),
-  cv::Scalar(255, 255, 0),
-  cv::Scalar(255, 0, 255),
-  cv::Scalar(0, 255, 255),
-  cv::Scalar(191, 0, 0),
-  cv::Scalar(0, 191, 0),
-  cv::Scalar(0, 0, 191),
-  cv::Scalar(191, 191, 0),
-  cv::Scalar(191, 0, 191),
-  cv::Scalar(0, 191, 191),
-  cv::Scalar(127, 0, 0),
-  cv::Scalar(0, 127, 0),
-  cv::Scalar(0, 0, 127),
-  cv::Scalar(127, 127, 0),
-  cv::Scalar(127, 0, 127),
-  cv::Scalar(0, 127, 127)
-};
-static const size_t numberOfColors = sizeof(colors) / sizeof(colors[0]);
 
 enum GlobalDescriptor
 {
@@ -455,7 +433,7 @@ public:
         p.x = sideBorder + step * j;
         p.y = (topBorder + diagramSize.height) - diagramSize.height * (descriptor.histogram[j] / maxValue);
       }
-      cv::polylines(disp, points, false, colors[i % numberOfColors], 1, CV_AA);
+      cv::polylines(disp, points, false, rs::common::cvScalarColors[i % rs::common::numberOfColors], 1, CV_AA);
     }
 
     // thumbnails for clusters
@@ -482,7 +460,7 @@ public:
       const cv::Point topLeftBorder = topLeft - cv::Point(clusterBorder, clusterBorder);
 
       const cv::Rect border(topLeftBorder, cv::Size(thumbnail.cols + 2 * clusterBorder, thumbnail.rows + 2 * clusterBorder));
-      cv::rectangle(disp, border, colors[i % numberOfColors], CV_FILLED);
+      cv::rectangle(disp, border, rs::common::cvScalarColors[i % rs::common::numberOfColors], CV_FILLED);
 
       cv::Rect roiCpy(topLeft, thumbnail.size());
       thumbnail.copyTo(disp(roiCpy));

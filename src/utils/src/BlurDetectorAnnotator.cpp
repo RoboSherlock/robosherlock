@@ -42,6 +42,7 @@
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/BlurDetector.h>
+#include <rs/utils/common.h>
 
 using namespace uima;
 
@@ -186,26 +187,6 @@ private:
       return;
     }
 
-    const std::vector<cv::Scalar> colors = { CV_RGB(255, 0, 0),
-                                             CV_RGB(0, 255, 0),
-                                             CV_RGB(0, 0, 255),
-                                             CV_RGB(255, 255, 0),
-                                             CV_RGB(255, 0, 255),
-                                             CV_RGB(0, 255, 255),
-                                             CV_RGB(127, 0, 0),
-                                             CV_RGB(0, 127, 0),
-                                             CV_RGB(0, 0, 127),
-                                             CV_RGB(127, 127, 0),
-                                             CV_RGB(127, 0, 127),
-                                             CV_RGB(0, 127, 127),
-                                             CV_RGB(255, 127, 0),
-                                             CV_RGB(255, 0, 127),
-                                             CV_RGB(0, 255, 127),
-                                             CV_RGB(127, 255, 0),
-                                             CV_RGB(127, 0, 255),
-                                             CV_RGB(0, 127, 255)
-                                           };
-
     std::vector<std::vector<cv::Point>> lines(algorithms, std::vector<cv::Point>(frames));
 
     for(size_t i = 0; i < algorithms; ++i)
@@ -233,7 +214,7 @@ private:
       std::ostringstream oss;
       oss << name << " (" << timing[i] / frames << " ms)";
       cv::Point pos(5, height + text * (i + 1) - 5);
-      cv::putText(disp, oss.str(), pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, colors[i % colors.size()], 1, CV_AA);
+      cv::putText(disp, oss.str(), pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, rs::common::colors[i % rs::common::numberOfColors], 1, CV_AA);
     }
 
     for(size_t i = 0; i < frames; ++i)
@@ -261,7 +242,7 @@ private:
       for(size_t j = 1; j < frames; ++j)
       {
         p1 = line[j];
-        cv::line(disp, p0, p1, colors[i % colors.size()], 1, CV_AA);
+        cv::line(disp, p0, p1, rs::common::cvScalarColors[i % rs::common::numberOfColors], 1, CV_AA);
         p0 = p1;
       }
     }

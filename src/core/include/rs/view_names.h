@@ -18,6 +18,8 @@
 #define VIEW_CLOUD_SUPERVOXEL    "cloud_supervoxel"
 #define VIEW_NORMALS             "normals"
 
+#define VIEW_MASK                "mask"
+
 #define VIEW_THERMAL_CAMERA_INFO "camera_info_thermal"
 
 #define VIEW_THERMAL_IMAGE       "thermal_image"

@@ -40,23 +40,30 @@
 
 using namespace uima;
 
-class ClusterMerger : public DrawingAnnotator
+class ClusterFilter : public DrawingAnnotator
 {
 private:
+
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
-  cv::Mat color;
-  double pointSize;
+  cv::Mat color, mask;
+  double pointSize, maxOverlap;
 
   std::vector<std::vector<int> > clusterIndices;
 public:
 
-  ClusterMerger(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0)
+  ClusterFilter(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0), maxOverlap(0.055)
   {
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
+    if(ctx.isParameterDefined("max_allowed_overlap"))
+    {
+      float tmp = (float)maxOverlap;
+      ctx.extractValue("max_allowed_overlap", tmp);
+      maxOverlap = tmp;
+    }
     return UIMA_ERR_NONE;
   }
 
@@ -75,76 +82,55 @@ public:
 
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_COLOR_IMAGE, color);
+    cas.get(VIEW_MASK, mask);
 
     std::vector<rs::Cluster> clusters;
-    std::vector<rs::Identifiable> mergedClusters;
+    std::vector<rs::Identifiable> filteredClusters;
     scene.identifiables.filter(clusters);
-    std::vector<bool> duplicates(clusters.size(), false);
 
     clusterIndices.clear();
     clusterIndices.reserve(clusters.size());
 
-    outInfo("Scene has " << clusters.size() << " clusters");
+    // Filter clusters that are touching the borders of the depth camera
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster1 = clusters[i];
-      if(cluster1.rois.has())
+      rs::Cluster &cluster = clusters[i];
+
+      if(!cluster.points.has())
       {
-        rs::ImageROI image_roisc1 = cluster1.rois.get();
-        cv::Rect cluster1Roi;
-        rs::conversion::from(image_roisc1.roi_hires(), cluster1Roi);
-        for(size_t j = i + 1; j < clusters.size(); ++j)
+        outWarn("cluster has no points!");
+        this->clusterIndices.push_back(std::vector<int>());
+        continue;
+      }
+
+      pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
+      rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *clusterIndices);
+      int countBorder = 0;
+
+      for(int j = 0; j < clusterIndices->indices.size(); ++j)
+      {
+        const int index = clusterIndices->indices[j];
+        if(mask.at<uint8_t>(index))
         {
-          rs::Cluster &cluster2 = clusters[j];
-          if(cluster2.rois.has())
-          {
-            rs::ImageROI image_roisc2 = cluster2.rois.get();
-            cv::Rect cluster2Roi;
-            rs::conversion::from(image_roisc2.roi_hires(), cluster2Roi);
-            cv::Rect intersection = cluster1Roi & cluster2Roi;
-            if(intersection.area() > cluster1Roi.area() / 10)
-            {
-              if(cluster1Roi.area() > cluster2Roi.area())
-              {
-                duplicates[j] = true;
-              }
-              else
-              {
-                duplicates[i] = true;
-              }
-            }
-          }
+          ++countBorder;
         }
       }
-    }
 
-    for(size_t i = 0; i < duplicates.size(); ++i)
-    {
-      if(!duplicates[i])
+      const double ratio = countBorder / (double)clusterIndices->indices.size();
+      if(ratio > maxOverlap)
       {
-        rs::Cluster &cluster = clusters[i];
-        mergedClusters.push_back(cluster);
-
-        if(!cluster.points.has())
-        {
-          this->clusterIndices.push_back(std::vector<int>());
-        }
-        else
-        {
-          pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
-          rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *clusterIndices);
-          this->clusterIndices.push_back(clusterIndices->indices);
-        }
+        outInfo("cluster filtered: " << i << " ratio: " << ratio << " (" << countBorder << "/" << clusterIndices->indices.size() << ")");
       }
       else
       {
-        outInfo("Cluster " << i << " exists twice");
+        filteredClusters.push_back(clusters[i]);
       }
+
+      this->clusterIndices.push_back(clusterIndices->indices);
     }
 
-    scene.identifiables.set(mergedClusters);
+    scene.identifiables.set(filteredClusters);
 
-    outDebug("BEGIN: After adding new clusters scene has " << scene.identifiables.size() << " identifiables");
     return UIMA_ERR_NONE;
   }
 
@@ -152,13 +138,31 @@ public:
   {
     disp = color.clone();
 
+    const size_t size = mask.rows * mask.cols;
+    const uint8_t *itM = mask.ptr();
+    cv::Vec3b *itD = disp.ptr<cv::Vec3b>();
+
+    for(size_t i = 0; i < size; ++i, ++itD, ++itM)
+    {
+      if(*itM > 0)
+      {
+        itD->val[2] = 255;
+      }
+    }
     for(size_t i = 0; i < clusterIndices.size(); ++i)
     {
       const std::vector<int> &indices = clusterIndices[i];
       for(size_t j = 0; j < indices.size(); ++j)
       {
         const int index = indices[j];
-        disp.at<cv::Vec3b>(index) = rs::common::cvVec3bColors[i % rs::common::numberOfColors];
+        if(mask.at<uint8_t>(index) > 0)
+        {
+          disp.at<cv::Vec3b>(index) = cv::Vec3b(255, 255, 255);
+        }
+        else
+        {
+          disp.at<cv::Vec3b>(index) = rs::common::cvVec3bColors[i % rs::common::numberOfColors];
+        }
       }
     }
   }
@@ -167,13 +171,31 @@ public:
   {
     const std::string cloudname = this->name;
 
+    const size_t size = mask.rows * mask.cols;
+    const uint8_t *itM = mask.ptr();
+    pcl::PointXYZRGBA *itC = &cloud->points[0];
+
+    for(size_t i = 0; i < size; ++i, ++itC, ++itM)
+    {
+      if(*itM > 0)
+      {
+        itC->r = 255;
+      }
+    }
     for(size_t i = 0; i < clusterIndices.size(); ++i)
     {
       const std::vector<int> &indices = clusterIndices[i];
       for(size_t j = 0; j < indices.size(); ++j)
       {
         const int index = indices[j];
-        cloud->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
+        if(mask.at<uint8_t>(index) > 0)
+        {
+          cloud->points[index].rgba = 0xFFFFFF;
+        }
+        else
+        {
+          cloud->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
+        }
       }
     }
 
@@ -190,4 +212,4 @@ public:
   }
 };
 
-MAKE_AE(ClusterMerger)
+MAKE_AE(ClusterFilter)
