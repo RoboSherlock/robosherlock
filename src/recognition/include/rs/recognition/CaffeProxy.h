@@ -1,3 +1,8 @@
+/*
+ * based on the caffe cpp tutorial from 
+ * http://caffe.berkeleyvision.org/gathered/examples/cpp_classification.html
+ */
+
 #ifndef CAFFE_CLASSIFIER_HEADER
 #define CAFFE_CLASSIFIER_HEADER
 
