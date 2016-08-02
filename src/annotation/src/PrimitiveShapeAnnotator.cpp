@@ -126,17 +126,31 @@ public:
     int circles_found = 0;
     int boxes_found = 0;
 
-    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+    for(auto cluster: clusters)
     {
+      std::vector<rs::Geometry> geom;
+      cluster.annotations.filter(geom);
+      if(!geom.empty())
+      {
+        rs::BoundingBox3D box = geom[0].boundingBox();
+
+        float max_edge = std::max(box.width(), std::max(box.depth(), box.height()));
+        float min_edge = std::min(box.width(), std::min(box.depth(), box.height()));
+        if(min_edge / max_edge <= 0.25)
+        {
+          rs::Shape shape = rs::create<rs::Shape>(tcas);
+          shape.shape.set("flat");
+          cluster.annotations.append(shape);
+        }
+      }
 
       pcl::PointIndices::Ptr cluster_indices(new pcl::PointIndices);
-      rs::ReferenceClusterPoints clusterpoints(it->points());
+      rs::ReferenceClusterPoints clusterpoints(cluster.points());
       rs::conversion::from(clusterpoints.indices(), *cluster_indices);
 
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cluster_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cluster_projected(new pcl::PointCloud<pcl::PointXYZRGBA>());
       pcl::PointCloud<pcl::Normal>::Ptr cluster_normal(new pcl::PointCloud<pcl::Normal>());
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cluster_boundaries(new pcl::PointCloud<pcl::PointXYZRGBA>());
       for(std::vector<int>::const_iterator pit = cluster_indices->indices.begin();
           pit != cluster_indices->indices.end(); pit++)
       {
@@ -259,7 +273,7 @@ public:
 #endif
 
       }
-      it->annotations.append(shape_annot);
+      cluster.annotations.append(shape_annot);
     }
     return UIMA_ERR_NONE;
   }

@@ -202,19 +202,12 @@ public:
         if(projectOnPlane_)
         {
             projectPointOnPlane(box.poseCam);
-            //TODO do the same for map pose (needs plane transform before that)
+            tf::Transform transfObjToCam (box.poseCam.getRotation() ,box.poseCam.getOrigin());
+            box.poseWorld = tf::Stamped<tf::Pose>(transfObjToCam * camToWorld, camToWorld.stamp_, camToWorld.child_frame_id_);
         }
         poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
         poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
         cluster.annotations.append(poseAnnotation);
-      }
-      float max_edge = std::max(box.width, std::max(box.depth, box.height));
-      float min_edge = std::min(box.width, std::min(box.depth, box.height));
-      if(min_edge / max_edge <= 0.25)
-      {
-        rs::Shape shape = rs::create<rs::Shape>(tcas);
-        shape.shape.set("flat");
-        cluster.annotations.append(shape);
       }
     }
     return UIMA_ERR_NONE;
