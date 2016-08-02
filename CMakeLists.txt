@@ -78,6 +78,16 @@ if(Caffe_FOUND)
   include_directories(${Caffe_INCLUDE_DIRS})
 endif(Caffe_FOUND)
 
+find_package(Protobuf QUIET)
+if(PROTOBUF_FOUND)
+  message(STATUS "Found Protobuf.")
+endif()
+if(PROTOBUF_PROTOC_EXECUTABLE)
+  message(STATUS "Found Protobuf executeable.")
+endif()
+if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
+  set(RS_WEB_LIB rs_web)
+endif()
 
 ################################################################################
 ## CMake variables                                                            ##
@@ -99,8 +109,8 @@ set(RS_LIBS
   rs_utils
   rs_analysisEngineManager
   ${RS_CAFFE_LIB}
+  ${RS_WEB_LIB}
 )
-
 
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS}

@@ -1,108 +1,102 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<analysisEngineDescription xmlns="http://uima.apache.org/resourceSpecifier">
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
   <primitive>true</primitive>
-  <annotatorImplementationName>rs_ObjectIdentityResolution</annotatorImplementationName>
+  <annotatorImplementationName>rs_CaffeAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
-    <name>ObjectIdentityResolution</name>
-    <description>Object Identity Resolution.</description>
+    <name>CaffeAnnotator</name>
+    <description/>
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
+
       <configurationParameter>
-        <name>removeObjects</name>
+        <name>caffe_annotator_model_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_trained_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_mean_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_label_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_normalize</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
       </configurationParameter>
-      <configurationParameter>
-        <name>fastmatching</name>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>host</name>
-        <type>String</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>identitydb</name>
-        <type>String</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>maxDifference</name>
-        <type>Float</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>mln</name>
-        <type>String</type>
-        <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-      </configurationParameter>
+
     </configurationParameters>
     <configurationParameterSettings>
-    <nameValuePair>
-      <name>removeObjects</name>
-        <value>
-          <boolean>true</boolean>
-        </value>
-      </nameValuePair>
+
       <nameValuePair>
-        <name>fastmatching</name>
+        <name>caffe_annotator_model_file</name>
         <value>
-          <boolean>true</boolean>
+          <string>/caffe/models/bvlc_reference_caffenet/deploy.prototxt</string>
         </value>
       </nameValuePair>
+
       <nameValuePair>
-        <name>host</name>
+        <name>caffe_annotator_trained_file</name>
         <value>
-          <string>localhost</string>
+          <string>/caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel</string>
         </value>
       </nameValuePair>
+
       <nameValuePair>
-        <name>identitydb</name>
+        <name>caffe_annotator_mean_file</name>
         <value>
-          <string>Scenes</string>
+          <string>/caffe/data/imagenet_mean.binaryproto</string>
         </value>
       </nameValuePair>
+
       <nameValuePair>
-        <name>maxDifference</name>
+        <name>caffe_annotator_label_file</name>
         <value>
-          <float>0.2</float>
+          <string>/caffe/data/synset_words.txt</string>
         </value>
       </nameValuePair>
+
       <nameValuePair>
-        <name>mln</name>
+        <name>caffe_annotator_normalize</name>
         <value>
-          <string>src/iai_robosherlock/rs.cpp/data/rs_resources/mln/entres/er-persists-actions.mln</string>
+           <boolean>true</boolean>
         </value>
       </nameValuePair>
+
     </configurationParameterSettings>
     <typeSystemDescription>
       <imports>
         <import location="../../typesystem/all_types.xml"/>
       </imports>
     </typeSystemDescription>
-    <typePriorities/>
-    <fsIndexCollection/>
     <capabilities>
       <capability>
         <inputs/>
         <outputs>
-           <type allAnnotatorFeatures="true">rs.scene.Object</type>
+          <type allAnnotatorFeatures="true">rs.annotation.Detection</type>
         </outputs>
         <inputSofas>
           <sofaName>rs.scene.MergedCluster</sofaName>
-          <sofaName>rs.annotation.Shape</sofaName>
-          <sofaName>rs.annotation.SemanticColor</sofaName>
-          <sofaName>rs.annotation.Geometry</sofaName>
-          <sofaName>rs.annotation.Detection</sofaName>
         </inputSofas>
         <languagesSupported/>
       </capability>
@@ -113,5 +107,4 @@
       <outputsNewCASes>false</outputsNewCASes>
     </operationalProperties>
   </analysisEngineMetaData>
-  <resourceManagerConfiguration/>
-</analysisEngineDescription>
+</taeDescription>
