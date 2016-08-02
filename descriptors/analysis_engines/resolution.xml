@@ -10,6 +10,9 @@
     <delegateAnalysisEngine key="BoardDetector">
       <import location="../annotators/detection/BoardDetector.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="CaffeAnnotator">
+      <import location="../annotators/annotation/CaffeAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="ClassifierDetection">
       <import location="../annotators/recognition/ClassifierDetection.xml"/>
     </delegateAnalysisEngine>

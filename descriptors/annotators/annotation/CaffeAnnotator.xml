@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_CaffeAnnotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>CaffeAnnotator</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+
+      <configurationParameter>
+        <name>caffe_annotator_model_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_trained_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_mean_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_label_file</name>
+        <type>String</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>caffe_annotator_normalize</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+    </configurationParameters>
+    <configurationParameterSettings>
+
+      <nameValuePair>
+        <name>caffe_annotator_model_file</name>
+        <value>
+          <string>/caffe/models/bvlc_reference_caffenet/deploy.prototxt</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>caffe_annotator_trained_file</name>
+        <value>
+          <string>/caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>caffe_annotator_mean_file</name>
+        <value>
+          <string>/caffe/data/imagenet_mean.binaryproto</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>caffe_annotator_label_file</name>
+        <value>
+          <string>/caffe/data/synset_words.txt</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>caffe_annotator_normalize</name>
+        <value>
+           <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+
+    </configurationParameterSettings>
+    <typeSystemDescription>
+      <imports>
+        <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">rs.annotation.Detection</type>
+        </outputs>
+        <inputSofas>
+          <sofaName>rs.scene.MergedCluster</sofaName>
+        </inputSofas>
+        <languagesSupported/>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>

@@ -30,22 +30,13 @@ target_link_libraries(rs_SuperVoxelAnnotator rs_core)
 rs_add_library(rs_pclDescriptorExtractor src/PCLDescriptorExtractor.cpp)
 target_link_libraries(rs_pclDescriptorExtractor rs_core)
 
+if(Caffe_FOUND)
+  rs_add_library(rs_CaffeAnnotator src/CaffeAnnotator.cpp)
+  target_link_libraries(rs_CaffeAnnotator rs_core rs_caffeProxy)
+endif()
 
 #build the web annotations (Goggles only atm)
-
-find_package(Protobuf QUIET)
-
-if(PROTOBUF_FOUND)
-  message(STATUS "Found Protobuf.")
-endif()
-if(PROTOBUF_PROTOC_EXECUTABLE)
-  message(STATUS "Found Protobuf executeable.")
-endif()
-
-
 if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
-
-  message(STATUS "Found Protobuf. Building Goggles")
   find_package(PythonLibs)
 
   include_directories(
