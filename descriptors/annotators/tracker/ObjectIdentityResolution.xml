@@ -34,7 +34,7 @@
         <mandatory>false</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>maxDist</name>
+        <name>maxDifference</name>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
@@ -72,9 +72,9 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>maxDist</name>
+        <name>maxDifference</name>
         <value>
-          <float>0.35</float>
+          <float>0.2</float>
         </value>
       </nameValuePair>
       <nameValuePair>

@@ -66,10 +66,11 @@ private:
   const cv::Rect invalid;
   std::vector<cv::Rect> objectRois;
   bool removeObjects, enableFastMatching;
-  double maxDist;
+  double maxDifference;
   uint64_t lastTimestamp;
   sensor_msgs::CameraInfo camInfo;
   tf::Transform viewpoint;
+  uint64_t timestamp;
 
   cv::Mat color;
 
@@ -101,7 +102,7 @@ private:
   }
 
 public:
-  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME), invalid(-1, -1, -1, -1), removeObjects(true), maxDist(0.2), lastTimestamp(0)
+  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME), invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2), lastTimestamp(0)
   {
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
@@ -137,9 +138,9 @@ public:
     }
     if(ctx.isParameterDefined("maxDist"))
     {
-      float tmp = maxDist;
-      ctx.extractValue("maxDist", tmp);
-      maxDist = tmp;
+      float tmp = maxDifference;
+      ctx.extractValue("maxDifference", tmp);
+      maxDifference = tmp;
     }
 
     storage = rs::Storage(host, db, false);
@@ -187,7 +188,7 @@ private:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    const uint64_t &timestamp = scene.timestamp();
+    timestamp = scene.timestamp();
 
     tf::StampedTransform vp;
     rs::conversion::from(scene.viewPoint(), vp);
@@ -221,7 +222,7 @@ private:
       for(size_t i = 0; i < clusters.size(); ++i)
       {
         outDebug("new object for cluster " << i);
-        rs::Object object = newObject(clusters[i], tcas, timestamp);
+        rs::Object object = newObject(clusters[i], tcas);
         objects.push_back(object);
         objectRois.push_back(clusterRois[i]);
       }
@@ -261,7 +262,7 @@ private:
         else
         {
           outDebug("new object for cluster " << i);
-          rs::Object object = newObject(cluster, tcas, timestamp);
+          rs::Object object = newObject(cluster, tcas);
           objects.push_back(object);
           objectRois.push_back(clusterRois[i]);
         }
@@ -358,31 +359,17 @@ private:
     std::vector<size_t> bestObject(clusters.size(), 0);
     std::vector<double> distO(clusters.size(), 0);
     std::vector<size_t> bestCluster(objects.size(), 0);
-    uint64_t now = ros::Time::now().toNSec();
 
     outDebug("compute similarity and distance");
     for(size_t i = 0; i < objects.size(); ++i)
     {
       rs::Object &object = objects[i];
 
-      double lastSeen = (now - (uint64_t)object.lastSeen()) / 1000000000.0;
-      double factorD = 0.5;
-      double factorS = 0.5;
-      if(lastSeen > 600)
-      {
-        factorD = 0.0;
-        factorS = 1.0;
-      }
-      else if(lastSeen > 300)
-      {
-        factorD = 0.2;
-        factorS = 0.8;
-      }
-      else if(lastSeen > 120)
-      {
-        factorD = 0.4;
-        factorS = 0.6;
-      }
+      const double lastSeen = (timestamp - (uint64_t)object.lastSeen()) / 1000000000.0;
+      const double timeFactor = std::min(lastSeen / 600.0, 1.0);
+      const double factorD = 0.8 - 0.6 * timeFactor;
+      const double factorS = 1.0 - factorD;
+      outDebug("last seen: " << (int)lastSeen << " time factor: " << timeFactor << " dist: " << factorD << " sim: " << factorS);
 
       double *it = similarity.ptr<double>(i);
       double distC = 0;
@@ -396,7 +383,7 @@ private:
         double dist = distanceClusterToObjects(cluster, object);
         double combined = dist * factorD + sim * factorS;
 
-        outDebug("object " << i << " to cluster " << j << ": dist: " << dist << " sim: " << sim << " combined: " << combined);
+        outDebug("object " << toAllObject[i] << " to cluster " << toAllCluster[j] << ": dist: " << dist << " sim: " << sim << " combined: " << combined);
         *it = combined;
 
         if(combined > distC)
@@ -415,7 +402,7 @@ private:
     outDebug("updating identity resolution");
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      if(bestCluster[bestObject[i]] == i && distO[i] > 0.2)
+      if(bestCluster[bestObject[i]] == i && distO[i] > maxDifference)
       {
         clustersToObject[toAllCluster[i]] = toAllObject[bestObject[i]];
         outDebug("object: " << toAllObject[bestObject[i]] << " to cluster: " << toAllCluster[i]);
@@ -427,7 +414,7 @@ private:
     }
   }
 
-  rs::Object newObject(rs::Cluster &cluster, CAS &tcas, const uint64_t timestamp)
+  rs::Object newObject(rs::Cluster &cluster, CAS &tcas)
   {
     rs::Object object = rs::create<rs::Object>(tcas);
     outDebug("Object: " << object.id() << " Cluster: " << cluster.id());
@@ -614,8 +601,8 @@ private:
       std::ostringstream oss;
       oss << "Object: " << i;
 
-      cv::rectangle(disp, roi, rs::common::colors[i % rs::common::numberOfColors]);
-      cv::putText(disp, oss.str(), roi.tl() + cv::Point(5, -15), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, rs::common::colors[i % rs::common::numberOfColors], 1, CV_AA);
+      cv::rectangle(disp, roi, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
+      cv::putText(disp, oss.str(), roi.tl() + cv::Point(5, -15), cv::FONT_HERSHEY_COMPLEX_SMALL, 1.0, rs::common::cvScalarColors[i % rs::common::numberOfColors], 1, CV_AA);
     }
   }
 

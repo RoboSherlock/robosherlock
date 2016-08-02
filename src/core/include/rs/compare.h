@@ -53,7 +53,7 @@ double compare(PoseAnnotation &a, PoseAnnotation &b)
   aTrans = aPose.getOrigin();
   bTrans = bPose.getOrigin();
 
-  return std::min(1.0, aTrans.distance(bTrans));
+  return std::min(1.0, aTrans.distance(bTrans) * 4.0); // everything further away than 25 cm is 1.0
 }
 
 template<>
@@ -142,7 +142,7 @@ double compare(Features &a, Features &b)
 {
   if(a.extractor() != b.extractor() || a.descriptorType() != b.descriptorType())
   {
-    outInfo("Features do not match.");
+    outDebug("Features do not match.");
     return 1;
   }
 
@@ -151,7 +151,7 @@ double compare(Features &a, Features &b)
   rs::conversion::from(b.descriptors(), descB);
   if(descA.rows == 0 || descB.rows == 0)
   {
-    outInfo("one of the features is empty.");
+    outDebug("one of the features is empty.");
     return 1;
   }
 
@@ -160,20 +160,20 @@ double compare(Features &a, Features &b)
   if(a.descriptorType() == "binary")
   {
     matcher = cv::BFMatcher(cv::NORM_HAMMING, true);
-    maxDist = (double)((descA.cols * descA.elemSize() * 8) >> 1);
+    maxDist = (double)((descA.cols * descA.elemSize() * 8) >> 1); // theoretical maxium is number of bits, but the half is used as max
   }
   else
   {
     matcher = cv::BFMatcher(cv::NORM_L2, false);
-    maxDist = sqrt((double)(descA.cols * 255 * 255)) / 2.0;
+    maxDist = 1.0; // theoretical max is 2 for normalized vectors, but the half is used as max
   }
 
   std::vector<cv::DMatch> matches;
   matcher.match(descA, descB, matches);
   if(matches.empty())
   {
-    outInfo("no matches found.");
-    return 1;
+    outDebug("no matches found.");
+    return 1.0;
   }
 
   double dist = 0;
@@ -191,7 +191,7 @@ double compare(PclFeature &a, PclFeature &b)
 {
   if(a.feat_type() != b.feat_type() && a.feature.size() != b.feature.size())
   {
-    outInfo("Features do not match.");
+    outDebug("Features do not match.");
     return 1;
   }
   const std::vector<float> &valuesA = a.feature();
