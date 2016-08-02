@@ -214,7 +214,7 @@ private:
       std::ostringstream oss;
       oss << name << " (" << timing[i] / frames << " ms)";
       cv::Point pos(5, height + text * (i + 1) - 5);
-      cv::putText(disp, oss.str(), pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, rs::common::colors[i % rs::common::numberOfColors], 1, CV_AA);
+      cv::putText(disp, oss.str(), pos, cv::FONT_HERSHEY_SIMPLEX, 0.5, rs::common::cvScalarColors[i % rs::common::numberOfColors], 1, CV_AA);
     }
 
     for(size_t i = 0; i < frames; ++i)
