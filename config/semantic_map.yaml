@@ -244,7 +244,7 @@ kitchen_island_counter_top:
           0., 0., 1. ]
 kitchen_sink_block_counter_top:
    type: CounterTop
-   width: 2.0600000000000001e+00
+   width: 2.0500000000000001e+00
    height: 5.0000000000000003e-02
    depth: 5.7999999999999996e-01
    transform: !!opencv-matrix
@@ -252,7 +252,7 @@ kitchen_sink_block_counter_top:
       cols: 4
       dt: d
       data: [ 1., 0., 0., 1.5159400000000001e+00, 0., 1., 0.,
-          3.0313000000000001e-01, 0., 0., 1., 8.4999999999999998e-01, 0.,
+          2.5013000000000001e-01, 0., 0., 1., 8.4999999999999998e-01, 0.,
           0., 0., 1. ]
 kitchen_island:
    type: Cupboard

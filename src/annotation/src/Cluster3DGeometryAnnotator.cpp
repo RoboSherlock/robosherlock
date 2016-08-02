@@ -202,8 +202,8 @@ public:
         if(projectOnPlane_)
         {
             projectPointOnPlane(box.poseCam);
-            tf::Transform transfObjToCam (box.poseCam.getRotation() ,box.poseCam.getOrigin());
-            box.poseWorld = tf::Stamped<tf::Pose>(transfObjToCam * camToWorld, camToWorld.stamp_, camToWorld.child_frame_id_);
+            tf::Transform transform( box.poseCam.getRotation(), box.poseCam.getOrigin());
+            box.poseWorld = tf::Stamped<tf::Pose>(camToWorld*transform, camToWorld.stamp_, camToWorld.frame_id_);
         }
         poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
         poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
