@@ -94,9 +94,9 @@ public:
     indices(new std::vector<int>()), regionToLookAt("CounterTop"),
     changeDetection(true), threshold(0.1), pixelThreshold(0.1), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
-    nameMapping["DRAWER"] = "Drawer";
-    nameMapping["COUNTERTOP"] = "CounterTop";
-    nameMapping["TABLE"] = "Table";
+    nameMapping["drawer"] = "Drawer";
+    nameMapping["countertop"] = "CounterTop";
+    nameMapping["table"] = "Table";
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
