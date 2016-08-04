@@ -25,6 +25,7 @@
         </outputs>
         <inputSofas>
           <sofaName>rs.scene.MergedCluster</sofaName>
+          <sofaName>rs.annotation.Geometry</sofaName>
           <sofaName>rs.annotation.Plane</sofaName>
           <sofaName>rs.pcl.NormalsCloud</sofaName>
         </inputSofas>

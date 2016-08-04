@@ -21,6 +21,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.core.Identifiable</name>
       <description/>
@@ -58,6 +59,19 @@
           <name>ingredient</name>
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+
+    <typeDescription>
+      <name>rs.core.CWAssumption</name>
+      <description/>
+      <supertypeName>uima.cas.TOP</supertypeName>
+      <features>
+        <featureDescription>
+          <name>cwObjects</name>
+          <description/>
+          <rangeTypeName>uima.cas.StringArray</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>

@@ -156,17 +156,17 @@ public:
     cas.get(VIEW_CAMERA_INFO, cam_info_);
 
 
-    std::vector<rs::Cluster> uimaClusters;
+    std::vector<rs::Cluster> clusters;
 
     if(!scene.identifiables.empty())
     {
-      scene.identifiables.filter(uimaClusters);
-      if(!uimaClusters.empty())
+      scene.identifiables.filter(clusters);
+      if(!clusters.empty())
       {
-        outInfo("Processing " << uimaClusters.size() << " clusters");
+        outInfo("Processing " << clusters.size() << " clusters");
         std::vector<tf::StampedTransform> stamped_transforms;
 
-        for(std::vector<rs::Cluster>::iterator clust_it = uimaClusters.begin(); clust_it != uimaClusters.end();
+        for(std::vector<rs::Cluster>::iterator clust_it = clusters.begin(); clust_it != clusters.end();
             ++clust_it)
         {
 
@@ -177,7 +177,7 @@ public:
           tf::Stamped<tf::Pose> tf_stamped_pose;
           if(!pose.empty())
           {
-            rs::conversion::from(pose[0].camera(), tf_stamped_pose);
+            rs::conversion::from(pose[0].world(), tf_stamped_pose);
           }
           else
           {
@@ -185,8 +185,8 @@ public:
           }
 
           std::ostringstream oss;
-          oss << "rs_cluster" << clust_it - uimaClusters.begin() << "_frame";
-          stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), cam_info_.header.frame_id, oss.str()));
+          oss << "test_rs_cluster" << clust_it - clusters.begin() << "_frame";
+          stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, oss.str()));
         }
         broadCasterObject.addTransforms(stamped_transforms);
       }
