@@ -9,21 +9,39 @@
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
+
       <configurationParameter>
         <name>projectOnPlane</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
       </configurationParameter>
+
+      <configurationParameter>
+        <name>overwrite2DEstimates</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
     </configurationParameters>
 
     <configurationParameterSettings>
+
       <nameValuePair>
         <name>projectOnPlane</name>
         <value>
           <boolean>false</boolean>
         </value>
       </nameValuePair>
+
+      <nameValuePair>
+        <name>overwrite2DEstimates</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
     </configurationParameterSettings>
 
 

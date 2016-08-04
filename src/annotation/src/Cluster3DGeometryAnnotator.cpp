@@ -76,11 +76,11 @@ private:
   std::vector<OrientedBoundingBox> orientedBoundingBoxes;
   tf::StampedTransform camToWorld, worldToCam;
   std::vector<float> plane_model;
-  bool projectOnPlane_;
+  bool projectOnPlane_, overwrite2DEstimates_;
 
 public:
 
-  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1),projectOnPlane_(false)
+  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1), projectOnPlane_(false), overwrite2DEstimates_(false)
   {
   }
 
@@ -90,6 +90,10 @@ public:
     if(ctx.isParameterDefined("projectOnPlane"))
     {
       ctx.extractValue("projectOnPlane", projectOnPlane_);
+    }
+    if(ctx.isParameterDefined("estimateAll"))
+    {
+      ctx.extractValue("overwrite2DEstimates", overwrite2DEstimates_);
     }
     return UIMA_ERR_NONE;
   }
@@ -123,7 +127,7 @@ public:
     }
 
     tf::StampedTransform head_to_map;
-    rs::conversion::from(scene.viewPoint.get(),head_to_map);
+    rs::conversion::from(scene.viewPoint.get(), head_to_map);
     plane_model = planes[0].model();
 
     scene.identifiables.filter(clusters);
@@ -196,18 +200,24 @@ public:
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
 
+      rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
+      if(projectOnPlane_)
+      {
+        projectPointOnPlane(box.poseCam);
+        tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
+        box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
+      }
+
       if(poses.empty())
       {
-        rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
-        if(projectOnPlane_)
-        {
-            projectPointOnPlane(box.poseCam);
-            tf::Transform transform( box.poseCam.getRotation(), box.poseCam.getOrigin());
-            box.poseWorld = tf::Stamped<tf::Pose>(camToWorld*transform, camToWorld.stamp_, camToWorld.frame_id_);
-        }
         poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
         poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
         cluster.annotations.append(poseAnnotation);
+      }
+      else if(overwrite2DEstimates_)
+      {
+        poses[0].camera.set(rs::conversion::to(tcas, box.poseCam));
+        poses[0].world.set(rs::conversion::to(tcas, box.poseWorld));
       }
     }
     return UIMA_ERR_NONE;
