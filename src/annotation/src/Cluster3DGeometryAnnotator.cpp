@@ -201,24 +201,17 @@ public:
       cluster.annotations.filter(poses);
 
       rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
+      
+      poseAnnotation.source.set("BoundingBox");
       if(projectOnPlane_)
       {
         projectPointOnPlane(box.poseCam);
         tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
         box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
-
-      if(poses.empty())
-      {
-        poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
-        poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
-        cluster.annotations.append(poseAnnotation);
-      }
-      else if(overwrite2DEstimates_)
-      {
-        poses[0].camera.set(rs::conversion::to(tcas, box.poseCam));
-        poses[0].world.set(rs::conversion::to(tcas, box.poseWorld));
-      }
+      poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
+      poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
+      cluster.annotations.append(poseAnnotation);
     }
     return UIMA_ERR_NONE;
   }
