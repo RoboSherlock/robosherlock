@@ -24,6 +24,13 @@
         <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
+        <name>fuzzy</name>
+        <description>flag for generating atoms for fuzzy mln</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
         <name>mlnFile</name>
         <description>mln model file if doing inferencing, relative to the project home folder</description>
         <type>String</type>
@@ -49,6 +56,12 @@
         <name>query_mln</name>
         <value>
           <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>fuzzy</name>
+        <value>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
       <nameValuePair>

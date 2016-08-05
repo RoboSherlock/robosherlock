@@ -70,7 +70,7 @@ private:
 
   std::stringstream filenameMLN, filenameMLNAnnot;
   std::string mlnFile;
-  bool save, wordnetGrounded, queryMLN;
+  bool save, wordnetGrounded, queryMLN, fuzzy_;
   std::map<std::string, std::string> locationMapping;
   std::map<std::string, std::string> wordnetMapping;
   MLN mln;
@@ -80,7 +80,7 @@ private:
 
 public:
 
-  MLNInferencer(): DrawingAnnotator(__func__), save(false), wordnetGrounded(false), queryMLN(false)
+  MLNInferencer(): DrawingAnnotator(__func__), save(false), wordnetGrounded(false), queryMLN(false), fuzzy_(false)
   {
     locationMapping["kitchen_counter_island_top"] = "table";
     //    location_mapping["/iai_kitchen/counter_top_island_link"] = "table";
@@ -140,6 +140,11 @@ public:
     if(ctx.isParameterDefined("query_mln"))
     {
       ctx.extractValue("query_mln", queryMLN);
+    }
+    
+    if(ctx.isParameterDefined("fuzzy"))
+    {
+      ctx.extractValue("fuzzy", fuzzy_);
     }
 
     //init MLN
