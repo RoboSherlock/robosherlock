@@ -213,8 +213,8 @@ public:
         outDebug("No. of Shape Annotations :" << shape.size());
         for(int i = 0; i < shape.size(); ++i)
         {
-          mlnDatabase << generateAtom("shape", index, shape[i].shape(), wordnetGrounded) << std::endl;
-          atoms.push_back(generateAtom("shape", index, shape[i].shape(), wordnetGrounded));
+          mlnDatabase << generateAtom("shape", index, shape[i].shape()) << std::endl;
+          atoms.push_back(generateAtom("shape", index, shape[i].shape()));
         }
       }
       if(geom.size() > 0)
@@ -222,8 +222,8 @@ public:
         outDebug("No. of Geometric Annotations :" << geom.size());
         for(int i = 0; i < geom.size(); ++i)
         {
-          mlnDatabase << generateAtom("size", index, geom[i].size(), wordnetGrounded) << std::endl;
-          atoms.push_back(generateAtom("size", index, geom[i].size(), wordnetGrounded));
+          mlnDatabase << generateAtom("size", index, geom[i].size()) << std::endl;
+          atoms.push_back(generateAtom("size", index, geom[i].size()));
         }
       }
       if(color.size() > 0)
@@ -238,8 +238,8 @@ public:
           {
             if(ratio[j] > 0.30)
             {
-              mlnDatabase << generateAtom("color", index, temp[j], wordnetGrounded) << std::endl;
-              atoms.push_back(generateAtom("color", index, temp[j], wordnetGrounded));
+              mlnDatabase << generateAtom("color", index, temp[j]) << std::endl;
+              atoms.push_back(generateAtom("color", index, temp[j]));
             }
 
           }
@@ -360,17 +360,12 @@ public:
 
 private:
 
-  std::string generateAtom(std::string type, int index, std::string evidence, bool forwordnet)
+  std::string generateAtom(std::string type, int index, std::string evidence, float confidence = 0.0)
   {
     std::stringstream atom;
-    if(forwordnet)
-    {
-      atom << type << "(c" << index << "," << wordnetMapping[evidence] << ")";
-    }
-    else
-    {
-      atom << type << "(c" << index << "," << evidence  << ")";
-    }
+    std::stringstream conf;
+    conf<<confidence<<" ";
+    atom << (fuzzy_ ? conf.str():"")<<type << "(c" << index << "," << (wordnetGrounded ? wordnetMapping[evidence]:evidence) << ")";
     return atom.str();
   }
 
