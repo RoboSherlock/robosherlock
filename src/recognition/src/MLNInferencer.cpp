@@ -184,35 +184,34 @@ public:
 
       outDebug("========Cluster " << it - clusters.begin() << "=========");
       std::vector<rs::Shape> shape;
-      std::vector<rs::Geometry> geom;
       std::vector<rs::SemanticColor> color;
       std::vector<rs::Goggles> goggles;
-      std::vector<rs::Detection> instances;
+      std::vector<rs::Detection> detections;
 
+      std::vector<rs::SemanticSize> semSize;
 
-      it->annotations.filter(geom);
       it->annotations.filter(shape);
       it->annotations.filter(color);
       it->annotations.filter(goggles);
-      it->annotations.filter(instances);
-
+      it->annotations.filter(detections);
+      it->annotations.filter(semSize);
 
       if(shape.size() > 0)
       {
         outDebug("No. of Shape Annotations :" << shape.size());
         for(int i = 0; i < shape.size(); ++i)
         {
-          mlnDatabase << generateAtom("shape", index, shape[i].shape()) << std::endl;
-          atoms.push_back(generateAtom("shape", index, shape[i].shape()));
+          mlnDatabase << generateAtom("shape", index, shape[i].shape(), shape[i].confidence()) << std::endl;
+          atoms.push_back(generateAtom("shape", index, shape[i].shape(),shape[i].confidence()));
         }
       }
-      if(geom.size() > 0)
+      if(semSize.size() > 0)
       {
-        outDebug("No. of Geometric Annotations :" << geom.size());
-        for(int i = 0; i < geom.size(); ++i)
+        outDebug("No. of SemanticSize Annotations :" << shape.size());
+        for(int i = 0; i < semSize.size(); ++i)
         {
-          mlnDatabase << generateAtom("size", index, geom[i].size()) << std::endl;
-          atoms.push_back(generateAtom("size", index, geom[i].size()));
+          mlnDatabase << generateAtom("size", index, semSize[i].size(), semSize[i].confidence()) << std::endl;
+          atoms.push_back(generateAtom("size", index, semSize[i].size(), semSize[i].confidence()));
         }
       }
       if(color.size() > 0)
@@ -227,8 +226,8 @@ public:
           {
             if(ratio[j] > 0.30)
             {
-              mlnDatabase << generateAtom("color", index, temp[j]) << std::endl;
-              atoms.push_back(generateAtom("color", index, temp[j]));
+              mlnDatabase << generateAtom("color", index, temp[j],ratio[j]) << std::endl;
+              atoms.push_back(generateAtom("color", index, temp[j],ratio[j]));
             }
 
           }
@@ -239,31 +238,31 @@ public:
         outDebug("No. of Goggles Annotations :" << goggles.size());
         for(int i = 0; i < goggles.size(); ++i)
         {
-          std::stringstream atom;
+          std::stringstream predicate;
           if(goggles[i].category() != "")
           {
-            atom << "goggles_" << goggles[i].category();
+            predicate << "goggles_" << goggles[i].category();
           }
           else
           {
-            atom << "goggles";
+            predicate << "goggles";
           }
+
           std::string title = goggles[i].title();
-          title.erase(std::remove_if(title.begin(), title.end(), my_predicate), title.end());
-          atom << "(c" << index << "," << title << ")";
-          atoms.push_back(atom.str());
-          mlnDatabase << atom.str() << std::endl;
+          title.erase(std::remove_if(title.begin(), title.end(), my_predicate), title.end());          
+
+          atoms.push_back(generateAtom(predicate.str(), index, title));
+          mlnDatabase << generateAtom(predicate.str(), index, title) << std::endl;
         }
       }
-      if(instances.size() > 0)
+      if(detections.size() > 0)
       {
-        outDebug("No. of Detection annotations :" << instances.size());
-        for(int i = 0; i < instances.size(); ++i)
+        outDebug("No. of Detection annotations :" << detections.size());
+        for(int i = 0; i < detections.size(); ++i)
         {
-          std::stringstream atom;
-          atom << "instance(c" << index << "," << instances[i].name() << ")";
-          atoms.push_back(atom.str());
-          mlnDatabase << atom.str() << std::endl;
+//          atom << "instance(c" << index << "," << detections[i].name() << ")";
+          atoms.push_back(generateAtom("detection",index,detections[i].name() ,detections[i].confidence()));
+          mlnDatabase << generateAtom("detection",index,detections[i].name() ,detections[i].confidence()) << std::endl;
         }
       }
       mln_atoms.atoms.append(atoms);
