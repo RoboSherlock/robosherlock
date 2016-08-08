@@ -195,17 +195,17 @@ public:
       if(box.volume < lowerThreshold)
       {
         semSize.size.set("small");
-        semSize.confidence.set(fabs(lowerThreshold/2-box.volume)/(lowerThreshold/2));
+        semSize.confidence.set(std::abs(lowerThreshold/2-box.volume)/(lowerThreshold/2));
       }
       else if(box.volume < middleThreshold)
       {
         semSize.size.set("medium");
-        semSize.confidence.set( fabs((middleThreshold-lowerThreshold)/2 - box.volume ) / (middleThreshold-lowerThreshold)/2);
+        semSize.confidence.set( std::abs((middleThreshold-lowerThreshold)/2 - box.volume ) / (middleThreshold-lowerThreshold)/2);
       }
       else //if(box.volume < 0.02)
       {
         semSize.size.set("large");
-        semSize.confidence.set(fabs((largestObjVolume - middleThreshold)/2 - box.volume ) / (largestObjVolume-middleThreshold)/2);
+        semSize.confidence.set(std::abs((largestObjVolume - middleThreshold)/2 - box.volume ) / (largestObjVolume-middleThreshold)/2);
       }
       cluster.annotations.append(semSize);
 

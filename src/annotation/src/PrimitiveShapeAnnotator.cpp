@@ -42,7 +42,7 @@
 
 #define DEBUG_OUTPUT 0
 #undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
+#define OUT_LEVEL OUT_LEVEL_DEBUG
 
 using namespace uima;
 
@@ -126,6 +126,7 @@ public:
         {
           rs::Shape shape = rs::create<rs::Shape>(tcas);
           shape.shape.set("flat");
+          shape.confidence.set(std::abs(0.25/2-min_edge/max_edge)/0.125);
           cluster.annotations.append(shape);
         }
       }
@@ -219,7 +220,7 @@ public:
       outDebug("Number of plane inliers found " << plane_inliers->indices.size());
       pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
 
-      rs::Shape shape_annot = rs::create<rs::Shape>(tcas);
+      rs::Shape shapeAnnot = rs::create<rs::Shape>(tcas);
       if(circle_inliers->indices.size() > 0)
         /*&& (plane_inliers->indices.size() == 0 || plane_inliers->indices.size() < 1100)*/
       {
@@ -232,7 +233,8 @@ public:
         extract.setIndices(circle_inliers);
         extract.setNegative(false);
         extract.filter(*circle);
-        shape_annot.shape.set(std::string("round"));
+        shapeAnnot.shape.set("round");
+        shapeAnnot.confidence.set((float)circle_inliers->indices.size()/cluster_projected->points.size());
 
 #if DEBUG_OUTPUT
         ss.str(std::string());
@@ -240,7 +242,6 @@ public:
         ss << "circle_cloud" << it - clusters.begin() << ".pcd";
         writer.write<pcl::PointXYZRGBA>(ss.str(), *circle);
 #endif
-
       }
       else
       {
@@ -249,7 +250,8 @@ public:
         extract.setIndices(plane_inliers);
         extract.setNegative(false);
         extract.filter(*plane);
-        shape_annot.shape.set(std::string("box"));
+        shapeAnnot.shape.set(std::string("box"));
+        shapeAnnot.confidence.set(std::abs(plane_inliers->indices.size()/cluster_cloud->points.size()));
 
 #if DEBUG_OUTPUT
         ss.str(std::string());
@@ -259,7 +261,7 @@ public:
 #endif
 
       }
-      cluster.annotations.append(shape_annot);
+      cluster.annotations.append(shapeAnnot);
     }
     return UIMA_ERR_NONE;
   }
