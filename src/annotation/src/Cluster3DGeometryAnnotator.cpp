@@ -164,7 +164,6 @@ public:
       //computeBoundingBoxMoments(cluster_transformed, box);
 
       computeSemnaticSize(box);
-
       computePose(box);
     }
 
@@ -185,6 +184,30 @@ public:
       geometry.boundingBox(box3d);
       geometry.size(box.semanticSize);
       cluster.annotations.append(geometry);
+
+      rs::SemanticSize semSize =rs::create<rs::SemanticSize>(tcas);;
+
+      float lowerThreshold = 0.0012,
+            middleThreshold = 0.004,
+            largestObjVolume = 0.125;
+
+
+      if(box.volume < lowerThreshold)
+      {
+        semSize.size.set("small");
+        semSize.confidence.set(fabs(lowerThreshold/2-box.volume)/(lowerThreshold/2));
+      }
+      else if(box.volume < middleThreshold)
+      {
+        semSize.size.set("medium");
+        semSize.confidence.set( fabs((middleThreshold-lowerThreshold)/2 - box.volume ) / (middleThreshold-lowerThreshold)/2);
+      }
+      else //if(box.volume < 0.02)
+      {
+        semSize.size.set("large");
+        semSize.confidence.set(fabs((largestObjVolume - middleThreshold)/2 - box.volume ) / (largestObjVolume-middleThreshold)/2);
+      }
+      cluster.annotations.append(semSize);
 
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
