@@ -1,32 +1,21 @@
-/* Copyright (c) 2011, Ferenc Balint-Benczedi <balintbe@tzi.de>
- * All rights reserved.
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Intelligent Autonomous Systems Group/
- *       Technische Universitaet Muenchen nor the names of its contributors
- *       may be used to endorse or promote products derived from this software
- *       without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 #include <uima/api.hpp>
 
 #include <iostream>
@@ -70,7 +59,7 @@ private:
 
   std::stringstream filenameMLN, filenameMLNAnnot;
   std::string mlnFile;
-  bool save, wordnetGrounded, queryMLN;
+  bool save, wordnetGrounded, queryMLN, fuzzy_;
   std::map<std::string, std::string> locationMapping;
   std::map<std::string, std::string> wordnetMapping;
   MLN mln;
@@ -80,7 +69,7 @@ private:
 
 public:
 
-  MLNInferencer(): DrawingAnnotator(__func__), save(false), wordnetGrounded(false), queryMLN(false)
+  MLNInferencer(): DrawingAnnotator(__func__), save(false), wordnetGrounded(false), queryMLN(false), fuzzy_(false)
   {
     locationMapping["kitchen_counter_island_top"] = "table";
     //    location_mapping["/iai_kitchen/counter_top_island_link"] = "table";
@@ -141,6 +130,11 @@ public:
     {
       ctx.extractValue("query_mln", queryMLN);
     }
+    
+    if(ctx.isParameterDefined("fuzzy"))
+    {
+      ctx.extractValue("fuzzy", fuzzy_);
+    }
 
     //init MLN
     outAssert(mln.initialize(), "could not initialize mln");
@@ -190,35 +184,34 @@ public:
 
       outDebug("========Cluster " << it - clusters.begin() << "=========");
       std::vector<rs::Shape> shape;
-      std::vector<rs::Geometry> geom;
       std::vector<rs::SemanticColor> color;
       std::vector<rs::Goggles> goggles;
-      std::vector<rs::Detection> instances;
+      std::vector<rs::Detection> detections;
 
+      std::vector<rs::SemanticSize> semSize;
 
-      it->annotations.filter(geom);
       it->annotations.filter(shape);
       it->annotations.filter(color);
       it->annotations.filter(goggles);
-      it->annotations.filter(instances);
-
+      it->annotations.filter(detections);
+      it->annotations.filter(semSize);
 
       if(shape.size() > 0)
       {
         outDebug("No. of Shape Annotations :" << shape.size());
         for(int i = 0; i < shape.size(); ++i)
         {
-          mlnDatabase << generateAtom("shape", index, shape[i].shape(), wordnetGrounded) << std::endl;
-          atoms.push_back(generateAtom("shape", index, shape[i].shape(), wordnetGrounded));
+          mlnDatabase << generateAtom("shape", index, shape[i].shape(), shape[i].confidence()) << std::endl;
+          atoms.push_back(generateAtom("shape", index, shape[i].shape(),shape[i].confidence()));
         }
       }
-      if(geom.size() > 0)
+      if(semSize.size() > 0)
       {
-        outDebug("No. of Geometric Annotations :" << geom.size());
-        for(int i = 0; i < geom.size(); ++i)
+        outDebug("No. of SemanticSize Annotations :" << shape.size());
+        for(int i = 0; i < semSize.size(); ++i)
         {
-          mlnDatabase << generateAtom("size", index, geom[i].size(), wordnetGrounded) << std::endl;
-          atoms.push_back(generateAtom("size", index, geom[i].size(), wordnetGrounded));
+          mlnDatabase << generateAtom("size", index, semSize[i].size(), semSize[i].confidence()) << std::endl;
+          atoms.push_back(generateAtom("size", index, semSize[i].size(), semSize[i].confidence()));
         }
       }
       if(color.size() > 0)
@@ -233,8 +226,8 @@ public:
           {
             if(ratio[j] > 0.30)
             {
-              mlnDatabase << generateAtom("color", index, temp[j], wordnetGrounded) << std::endl;
-              atoms.push_back(generateAtom("color", index, temp[j], wordnetGrounded));
+              mlnDatabase << generateAtom("color", index, temp[j],ratio[j]) << std::endl;
+              atoms.push_back(generateAtom("color", index, temp[j],ratio[j]));
             }
 
           }
@@ -245,31 +238,31 @@ public:
         outDebug("No. of Goggles Annotations :" << goggles.size());
         for(int i = 0; i < goggles.size(); ++i)
         {
-          std::stringstream atom;
+          std::stringstream predicate;
           if(goggles[i].category() != "")
           {
-            atom << "goggles_" << goggles[i].category();
+            predicate << "goggles_" << goggles[i].category();
           }
           else
           {
-            atom << "goggles";
+            predicate << "goggles";
           }
+
           std::string title = goggles[i].title();
-          title.erase(std::remove_if(title.begin(), title.end(), my_predicate), title.end());
-          atom << "(c" << index << "," << title << ")";
-          atoms.push_back(atom.str());
-          mlnDatabase << atom.str() << std::endl;
+          title.erase(std::remove_if(title.begin(), title.end(), my_predicate), title.end());          
+
+          atoms.push_back(generateAtom(predicate.str(), index, title));
+          mlnDatabase << generateAtom(predicate.str(), index, title) << std::endl;
         }
       }
-      if(instances.size() > 0)
+      if(detections.size() > 0)
       {
-        outDebug("No. of Detection annotations :" << instances.size());
-        for(int i = 0; i < instances.size(); ++i)
+        outDebug("No. of Detection annotations :" << detections.size());
+        for(int i = 0; i < detections.size(); ++i)
         {
-          std::stringstream atom;
-          atom << "instance(c" << index << "," << instances[i].name() << ")";
-          atoms.push_back(atom.str());
-          mlnDatabase << atom.str() << std::endl;
+//          atom << "instance(c" << index << "," << detections[i].name() << ")";
+          atoms.push_back(generateAtom("detection",index,detections[i].name() ,detections[i].confidence()));
+          mlnDatabase << generateAtom("detection",index,detections[i].name() ,detections[i].confidence()) << std::endl;
         }
       }
       mln_atoms.atoms.append(atoms);
@@ -355,17 +348,12 @@ public:
 
 private:
 
-  std::string generateAtom(std::string type, int index, std::string evidence, bool forwordnet)
+  std::string generateAtom(std::string type, int index, std::string evidence, float confidence = 0.0)
   {
     std::stringstream atom;
-    if(forwordnet)
-    {
-      atom << type << "(c" << index << "," << wordnetMapping[evidence] << ")";
-    }
-    else
-    {
-      atom << type << "(c" << index << "," << evidence  << ")";
-    }
+    std::stringstream conf;
+    conf<<confidence<<" ";
+    atom << (fuzzy_ ? conf.str():"")<<type << "(c" << index << "," << (wordnetGrounded ? wordnetMapping[evidence]:evidence) << ")";
     return atom.str();
   }
 

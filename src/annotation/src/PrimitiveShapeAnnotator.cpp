@@ -1,33 +1,19 @@
-/*
- * Copyright (c) 2011, Ferenc Balint-Benczedi <balintbe@tzi.de>
- * All rights reserved.
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Intelligent Autonomous Systems Group/
- *       Technische Universitaet Muenchen nor the names of its contributors
- *       may be used to endorse or promote products derived from this software
- *       without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
-
 #include <uima/api.hpp>
 
 #include <Eigen/Sparse>
@@ -56,7 +42,7 @@
 
 #define DEBUG_OUTPUT 0
 #undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
+#define OUT_LEVEL OUT_LEVEL_DEBUG
 
 using namespace uima;
 
@@ -140,6 +126,7 @@ public:
         {
           rs::Shape shape = rs::create<rs::Shape>(tcas);
           shape.shape.set("flat");
+          shape.confidence.set(std::abs(0.25/2-min_edge/max_edge)/0.125);
           cluster.annotations.append(shape);
         }
       }
@@ -233,7 +220,7 @@ public:
       outDebug("Number of plane inliers found " << plane_inliers->indices.size());
       pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
 
-      rs::Shape shape_annot = rs::create<rs::Shape>(tcas);
+      rs::Shape shapeAnnot = rs::create<rs::Shape>(tcas);
       if(circle_inliers->indices.size() > 0)
         /*&& (plane_inliers->indices.size() == 0 || plane_inliers->indices.size() < 1100)*/
       {
@@ -246,7 +233,8 @@ public:
         extract.setIndices(circle_inliers);
         extract.setNegative(false);
         extract.filter(*circle);
-        shape_annot.shape.set(std::string("round"));
+        shapeAnnot.shape.set("round");
+        shapeAnnot.confidence.set((float)circle_inliers->indices.size()/cluster_projected->points.size());
 
 #if DEBUG_OUTPUT
         ss.str(std::string());
@@ -254,7 +242,6 @@ public:
         ss << "circle_cloud" << it - clusters.begin() << ".pcd";
         writer.write<pcl::PointXYZRGBA>(ss.str(), *circle);
 #endif
-
       }
       else
       {
@@ -263,7 +250,8 @@ public:
         extract.setIndices(plane_inliers);
         extract.setNegative(false);
         extract.filter(*plane);
-        shape_annot.shape.set(std::string("box"));
+        shapeAnnot.shape.set(std::string("box"));
+        shapeAnnot.confidence.set(std::abs(plane_inliers->indices.size()/cluster_cloud->points.size()));
 
 #if DEBUG_OUTPUT
         ss.str(std::string());
@@ -273,7 +261,7 @@ public:
 #endif
 
       }
-      cluster.annotations.append(shape_annot);
+      cluster.annotations.append(shapeAnnot);
     }
     return UIMA_ERR_NONE;
   }

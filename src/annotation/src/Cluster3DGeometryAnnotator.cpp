@@ -1,31 +1,20 @@
-/*
- * Copyright (c) 2012, Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
- * All rights reserved.
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- *       notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above copyright
- *       notice, this list of conditions and the following disclaimer in the
- *       documentation and/or other materials provided with the distribution.
- *     * Neither the name of the Intelligent Autonomous Systems Group/
- *       Technische Universitaet Muenchen nor the names of its contributors
- *       may be used to endorse or promote products derived from this software
- *       without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- * POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 /*Annotator for geting basic attributes of PointClouds. Currently:
@@ -76,11 +65,11 @@ private:
   std::vector<OrientedBoundingBox> orientedBoundingBoxes;
   tf::StampedTransform camToWorld, worldToCam;
   std::vector<float> plane_model;
-  bool projectOnPlane_;
+  bool projectOnPlane_, overwrite2DEstimates_;
 
 public:
 
-  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1),projectOnPlane_(false)
+  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1), projectOnPlane_(false), overwrite2DEstimates_(false)
   {
   }
 
@@ -90,6 +79,10 @@ public:
     if(ctx.isParameterDefined("projectOnPlane"))
     {
       ctx.extractValue("projectOnPlane", projectOnPlane_);
+    }
+    if(ctx.isParameterDefined("estimateAll"))
+    {
+      ctx.extractValue("overwrite2DEstimates", overwrite2DEstimates_);
     }
     return UIMA_ERR_NONE;
   }
@@ -123,7 +116,7 @@ public:
     }
 
     tf::StampedTransform head_to_map;
-    rs::conversion::from(scene.viewPoint.get(),head_to_map);
+    rs::conversion::from(scene.viewPoint.get(), head_to_map);
     plane_model = planes[0].model();
 
     scene.identifiables.filter(clusters);
@@ -171,7 +164,6 @@ public:
       //computeBoundingBoxMoments(cluster_transformed, box);
 
       computeSemnaticSize(box);
-
       computePose(box);
     }
 
@@ -193,22 +185,45 @@ public:
       geometry.size(box.semanticSize);
       cluster.annotations.append(geometry);
 
+      rs::SemanticSize semSize =rs::create<rs::SemanticSize>(tcas);;
+
+      float lowerThreshold = 0.0012,
+            middleThreshold = 0.004,
+            largestObjVolume = 0.125;
+
+
+      if(box.volume < lowerThreshold)
+      {
+        semSize.size.set("small");
+        semSize.confidence.set(std::abs(lowerThreshold/2-box.volume)/(lowerThreshold/2));
+      }
+      else if(box.volume < middleThreshold)
+      {
+        semSize.size.set("medium");
+        semSize.confidence.set( std::abs((middleThreshold-lowerThreshold)/2 - box.volume ) / (middleThreshold-lowerThreshold)/2);
+      }
+      else //if(box.volume < 0.02)
+      {
+        semSize.size.set("large");
+        semSize.confidence.set(std::abs((largestObjVolume - middleThreshold)/2 - box.volume ) / (largestObjVolume-middleThreshold)/2);
+      }
+      cluster.annotations.append(semSize);
+
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
 
-      if(poses.empty())
+      rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
+      
+      poseAnnotation.source.set("BoundingBox");
+      if(projectOnPlane_)
       {
-        rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
-        if(projectOnPlane_)
-        {
-            projectPointOnPlane(box.poseCam);
-            tf::Transform transform( box.poseCam.getRotation(), box.poseCam.getOrigin());
-            box.poseWorld = tf::Stamped<tf::Pose>(camToWorld*transform, camToWorld.stamp_, camToWorld.frame_id_);
-        }
-        poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
-        poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
-        cluster.annotations.append(poseAnnotation);
+        projectPointOnPlane(box.poseCam);
+        tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
+        box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
+      poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
+      poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
+      cluster.annotations.append(poseAnnotation);
     }
     return UIMA_ERR_NONE;
   }
