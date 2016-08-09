@@ -18,6 +18,15 @@
       </configurationParameter>
 
       <configurationParameter>
+        <name>sor_filter</name>
+        <description>Statistical Outlier removal filter. Recomended to use with Kinect 2.
+        Removes spurious points, making bb estimation more stable</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
         <name>overwrite2DEstimates</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
@@ -30,6 +39,13 @@
 
       <nameValuePair>
         <name>projectOnPlane</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>sor_filter</name>
         <value>
           <boolean>false</boolean>
         </value>
