@@ -242,6 +242,7 @@ private:
 
       uimaCluster.points.set(rcp);
       uimaCluster.rois.set(imageRoi);
+      uimaCluster.source.set("EuclideanClustering");
       scene.identifiables.append(uimaCluster);
     }
     outDebug("adding clusters took: " << clock.getTime() - t << " ms.");

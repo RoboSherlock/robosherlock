@@ -440,6 +440,7 @@ private:
       rs::Cluster cluster = rs::create<rs::Cluster>(tcas);
       cluster.rois(roi);
       cluster.points(points);
+      cluster.source.set("ImageSegmentation");
       cluster.annotations.append(rs::conversion::to(tcas, seg));
       cluster.annotations.append(getPose(tcas, seg, scene.timestamp()));
       cluster.annotations.append(buildDesciptor(tcas, seg));

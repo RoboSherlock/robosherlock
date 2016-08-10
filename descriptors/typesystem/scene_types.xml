@@ -39,8 +39,14 @@
           <description/>
           <rangeTypeName>rs.cv.ImageROI</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>source</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.scene.MergedCluster</name>
       <description/>
