@@ -27,7 +27,7 @@
       </configurationParameter>
 
       <configurationParameter>
-        <name>overwrite2DEstimates</name>
+        <name>overwriteExistingPoseEstimate</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
@@ -52,7 +52,7 @@
       </nameValuePair>
 
       <nameValuePair>
-        <name>overwrite2DEstimates</name>
+        <name>overwriteExistingPoseEstimate</name>
         <value>
           <boolean>false</boolean>
         </value>
