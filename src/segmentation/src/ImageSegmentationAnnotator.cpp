@@ -440,6 +440,7 @@ private:
       rs::Cluster cluster = rs::create<rs::Cluster>(tcas);
       cluster.rois(roi);
       cluster.points(points);
+      cluster.source.set("ImageSegmentation");
       cluster.annotations.append(rs::conversion::to(tcas, seg));
       cluster.annotations.append(getPose(tcas, seg, scene.timestamp()));
       cluster.annotations.append(buildDesciptor(tcas, seg));
@@ -560,7 +561,7 @@ private:
     rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
     poseAnnotation.camera.set(rs::conversion::to(tcas, camera));
     poseAnnotation.world.set(rs::conversion::to(tcas, world));
-    poseAnnotation.source.set("2DImageMoments");
+    poseAnnotation.source.set("2DEsimate");
     return poseAnnotation;
   }
 };

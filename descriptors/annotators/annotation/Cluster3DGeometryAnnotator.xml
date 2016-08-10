@@ -18,7 +18,16 @@
       </configurationParameter>
 
       <configurationParameter>
-        <name>overwrite2DEstimates</name>
+        <name>sor_filter</name>
+        <description>Statistical Outlier removal filter. Recomended to use with Kinect 2.
+        Removes spurious points, making bb estimation more stable</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
+        <name>overwriteExistingPoseEstimate</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>false</mandatory>
@@ -36,7 +45,14 @@
       </nameValuePair>
 
       <nameValuePair>
-        <name>overwrite2DEstimates</name>
+        <name>sor_filter</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>overwriteExistingPoseEstimate</name>
         <value>
           <boolean>false</boolean>
         </value>

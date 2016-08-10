@@ -31,6 +31,7 @@
 #include <pcl/common/pca.h>
 #include <pcl/common/transforms.h>
 #include <pcl/filters/extract_indices.h>
+#include <pcl/filters/statistical_outlier_removal.h>
 
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
@@ -65,11 +66,11 @@ private:
   std::vector<OrientedBoundingBox> orientedBoundingBoxes;
   tf::StampedTransform camToWorld, worldToCam;
   std::vector<float> plane_model;
-  bool projectOnPlane_, overwrite2DEstimates_;
+  bool projectOnPlane_, overwriteExistingPoseEstimate_, sorFilter_;
 
 public:
 
-  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1), projectOnPlane_(false), overwrite2DEstimates_(false)
+  Cluster3DGeometryAnnotation(): DrawingAnnotator(__func__), pointSize(1), projectOnPlane_(false), overwriteExistingPoseEstimate_(false), sorFilter_(false)
   {
   }
 
@@ -82,8 +83,14 @@ public:
     }
     if(ctx.isParameterDefined("estimateAll"))
     {
-      ctx.extractValue("overwrite2DEstimates", overwrite2DEstimates_);
+      ctx.extractValue("overwriteExistingPoseEstimate", overwriteExistingPoseEstimate_);
     }
+    if(ctx.isParameterDefined("sor_filter"))
+    {
+      ctx.extractValue("sor_filter", sorFilter_);
+    }
+
+
     return UIMA_ERR_NONE;
   }
 
@@ -154,6 +161,17 @@ public:
       ei.setIndices(indices);
       ei.filter(*cluster_cloud);
 
+      if(sorFilter_)
+      {
+        outInfo("Before SOR filter: " << cluster_cloud->points.size());
+        pcl::StatisticalOutlierRemoval<PointT> sor;
+        sor.setInputCloud(cluster_cloud);
+        sor.setMeanK(100);
+        sor.setStddevMulThresh(1.0);
+        sor.filter(*cluster_cloud);
+        outInfo("After SOR filter: " << cluster_cloud->points.size());
+      }
+
       //transform Point Cloud to map coordinates
       pcl::transformPointCloud<PointT>(*cluster_cloud, *cluster_transformed, eigenTransform);
 
@@ -185,7 +203,7 @@ public:
       geometry.size(box.semanticSize);
       cluster.annotations.append(geometry);
 
-      rs::SemanticSize semSize =rs::create<rs::SemanticSize>(tcas);;
+      rs::SemanticSize semSize = rs::create<rs::SemanticSize>(tcas);;
 
       float lowerThreshold = 0.0012,
             middleThreshold = 0.004,
@@ -195,35 +213,45 @@ public:
       if(box.volume < lowerThreshold)
       {
         semSize.size.set("small");
-        semSize.confidence.set(std::abs(lowerThreshold/2-box.volume)/(lowerThreshold/2));
+        semSize.confidence.set(std::abs(lowerThreshold / 2 - box.volume) / (lowerThreshold / 2));
       }
       else if(box.volume < middleThreshold)
       {
         semSize.size.set("medium");
-        semSize.confidence.set( std::abs((middleThreshold-lowerThreshold)/2 - box.volume ) / (middleThreshold-lowerThreshold)/2);
+        semSize.confidence.set(std::abs((middleThreshold - lowerThreshold) / 2 - box.volume) / (middleThreshold - lowerThreshold) / 2);
       }
       else //if(box.volume < 0.02)
       {
         semSize.size.set("large");
-        semSize.confidence.set(std::abs((largestObjVolume - middleThreshold)/2 - box.volume ) / (largestObjVolume-middleThreshold)/2);
+        semSize.confidence.set(std::abs((largestObjVolume - middleThreshold) / 2 - box.volume) / (largestObjVolume - middleThreshold) / 2);
       }
       cluster.annotations.append(semSize);
 
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
 
-      rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
-      
-      poseAnnotation.source.set("BoundingBox");
+
       if(projectOnPlane_)
       {
         projectPointOnPlane(box.poseCam);
         tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
         box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
-      poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
-      poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
-      cluster.annotations.append(poseAnnotation);
+
+      if(poses.empty())
+      {
+        rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
+        poseAnnotation.source.set("3DEstimate");
+        poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
+        poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
+        cluster.annotations.append(poseAnnotation);
+      }
+      else if(overwriteExistingPoseEstimate_)
+      {
+        poses[0].source.set("3DEstimate");
+        poses[0].camera.set(rs::conversion::to(tcas, box.poseCam));
+        poses[0].world.set(rs::conversion::to(tcas, box.poseWorld));
+      }
     }
     return UIMA_ERR_NONE;
   }
@@ -323,7 +351,7 @@ public:
     float cosA = cos(rect.angle / 180.0 * M_PI);
 
     tf::Matrix3x3 rot;
-    rot.setValue(cosA, -sinA, 0, sinA, cosA, 0, 0, 0, 1);
+    rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
 
     tf::Transform objectToWorld;
     objectToWorld.setOrigin(trans);
