@@ -351,15 +351,15 @@ public:
     float cosA = cos(rect.angle / 180.0 * M_PI);
 
     tf::Matrix3x3 rot;
-    rot.setValue(-sinA, -cosA, 0, cosA, -sinA, 0, 0, 0, 1);
+    rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
 
     tf::Transform objectToWorld;
     objectToWorld.setOrigin(trans);
     objectToWorld.setBasis(rot);
 
     box.objectToWorld = objectToWorld;
-    box.width = rect.size.height / 1000.0;
-    box.height = rect.size.width / 1000.0;
+    box.width = rect.size.width / 1000.0;
+    box.height = rect.size.height / 1000.0;
     box.depth = max.z - min.z;
     box.volume = box.width * box.depth * box.height;
   }
