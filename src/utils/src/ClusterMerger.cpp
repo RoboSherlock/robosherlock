@@ -67,7 +67,7 @@ public:
     std::vector<rs::Identifiable> mergedClusters;
     scene.identifiables.filter(clusters);
     std::vector<bool> duplicates(clusters.size(), false);
-
+    std::vector<int>  duplicateWith(clusters.size(),-1);
     clusterIndices.clear();
     clusterIndices.reserve(clusters.size());
 
@@ -99,6 +99,8 @@ public:
               {
                 duplicates[i] = true;
               }
+              duplicateWith[i] = j;
+              duplicateWith[j] = i;
             }
           }
         }
@@ -110,8 +112,32 @@ public:
       if(!duplicates[i])
       {
         rs::Cluster &cluster = clusters[i];
+
+        /*if the duplicate cluster was found using table top segmentation,
+         * delete the pose annotation since if definitely wrong
+         **/
+        if(duplicateWith[i]!=-1)
+        {
+          rs::Cluster &other = clusters[duplicateWith[i]];
+          if(other.source() == "EuclideanClustering")
+          {
+           std::vector<rs::PoseAnnotation> poses;
+           cluster.annotations.filter(poses);
+           outInfo("Poses : "<<poses.size());
+
+           if(!poses.empty())
+           {
+             cluster.annotations.remove(poses[0]);
+           }
+           poses.clear();
+           cluster.annotations.filter(poses);
+           outInfo("Poses : "<<poses.size());
+          }
+        }
+
         mergedClusters.push_back(cluster);
 
+        //for vis purposes
         if(!cluster.points.has())
         {
           this->clusterIndices.push_back(std::vector<int>());
