@@ -560,7 +560,7 @@ private:
     rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
     poseAnnotation.camera.set(rs::conversion::to(tcas, camera));
     poseAnnotation.world.set(rs::conversion::to(tcas, world));
-    poseAnnotation.source.set("2DImageMoments");
+    poseAnnotation.source.set("2DEsimate");
     return poseAnnotation;
   }
 };

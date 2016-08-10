@@ -32,6 +32,7 @@
 #include <pcl/kdtree/kdtree.h>
 #include <pcl/surface/convex_hull.h>
 #include <pcl/surface/concave_hull.h>
+#include <pcl/console/time.h>
 
 #include <ros/ros.h>
 #include <math.h>
@@ -39,22 +40,26 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
+#include <rs/utils/common.h>
+#include <rs/DrawingAnnotator.h>
 
-#define DEBUG_OUTPUT 0
 #undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
+#define OUT_LEVEL OUT_LEVEL_INFO
 
 using namespace uima;
 
-class PrimitiveShapeAnnotator : public Annotator
+class PrimitiveShapeAnnotator : public DrawingAnnotator
 {
 
 private:
 
-  pcl::PCDWriter writer;
+  pcl::PCDWriter writer_;
+
+  typedef pcl::PointXYZRGBA PointT;
+  pcl::PointCloud<PointT>::Ptr dispCloudPtr_;
 
 public:
-  PrimitiveShapeAnnotator()
+  PrimitiveShapeAnnotator(): DrawingAnnotator(__func__)
   {
   }
 
@@ -72,13 +77,16 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  TyErrorId process(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
     MEASURE_TIME;
     // declare variables for kinect data
     outInfo("process start");
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>);
     pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
+
+    dispCloudPtr_.reset(new pcl::PointCloud<PointT>);
+
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
@@ -87,6 +95,7 @@ public:
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_NORMALS, *normal_ptr);
+
     scene.identifiables.filter(clusters);
     scene.annotations.filter(planes);
     if(planes.empty())
@@ -108,11 +117,12 @@ public:
     plane_coefficients->values.push_back(plane_model[2]);
     plane_coefficients->values.push_back(plane_model[3]);
 
-    pcl::ProjectInliers<pcl::PointXYZRGBA> proj;
+    pcl::ProjectInliers<PointT> proj;
     int circles_found = 0;
     int boxes_found = 0;
 
-    for(auto cluster: clusters)
+    int idx = 0;
+    for(auto cluster : clusters)
     {
       std::vector<rs::Geometry> geom;
       cluster.annotations.filter(geom);
@@ -126,7 +136,7 @@ public:
         {
           rs::Shape shape = rs::create<rs::Shape>(tcas);
           shape.shape.set("flat");
-          shape.confidence.set(std::abs(0.25/2-min_edge/max_edge)/0.125);
+          shape.confidence.set(std::abs(0.25 / 2 - min_edge / max_edge) / 0.125);
           cluster.annotations.append(shape);
         }
       }
@@ -135,9 +145,10 @@ public:
       rs::ReferenceClusterPoints clusterpoints(cluster.points());
       rs::conversion::from(clusterpoints.indices(), *cluster_indices);
 
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cluster_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cluster_projected(new pcl::PointCloud<pcl::PointXYZRGBA>());
+      pcl::PointCloud<PointT>::Ptr cluster_cloud(new pcl::PointCloud<PointT>());
+      pcl::PointCloud<PointT>::Ptr cluster_projected(new pcl::PointCloud<PointT>());
       pcl::PointCloud<pcl::Normal>::Ptr cluster_normal(new pcl::PointCloud<pcl::Normal>());
+
       for(std::vector<int>::const_iterator pit = cluster_indices->indices.begin();
           pit != cluster_indices->indices.end(); pit++)
       {
@@ -153,53 +164,52 @@ public:
 
       std::stringstream ss;
 
-#if DEBUG_OUTPUT
-      ss << "cluster" << it - clusters.begin() << ".pcd";
-      writer.write<pcl::PointXYZRGBA>(ss.str(), *cluster_cloud);
-#endif
+      pcl::console::TicToc tt;
+      tt.tic();
+      pcl::BoundaryEstimation<PointT, pcl::Normal, pcl::Boundary> be;
+      be.setInputCloud(cluster_cloud);
+      be.setInputNormals(cluster_normal);
+      be.setSearchMethod(typename pcl::search::KdTree<PointT>::Ptr(new pcl::search::KdTree<PointT>));
+      be.setAngleThreshold(DEG2RAD(70));
+      be.setRadiusSearch(0.03);
 
+      pcl::PointCloud<pcl::Boundary>::Ptr boundaries(new pcl::PointCloud<pcl::Boundary>);
+      pcl::PointCloud<PointT>::Ptr boundaryCloud(new pcl::PointCloud<PointT>);
+      be.compute(*boundaries);
+      assert(boundaries->points.size() == cluster_cloud->points.size());
+      for(int k = 0; k < boundaries->points.size(); ++k)
+      {
+        if((int)boundaries->points[k].boundary_point)
+        {
+          boundaryCloud->points.push_back(cluster_cloud->points[k]);
+        }
+      }
 
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_hull(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      pcl::ConvexHull<pcl::PointXYZRGBA> chull;
-      chull.setInputCloud(cluster_cloud);
-      chull.reconstruct(*cloud_hull);
-
-      outDebug("Convex hull has: " << cloud_hull->points.size() << " data points.");
+      boundaryCloud->width = boundaryCloud->points.size();
+      boundaryCloud->height = 1;
 
       //projecting clusters to the plane
       proj.setModelType(pcl::SACMODEL_PLANE);
-      proj.setInputCloud(cluster_cloud);
+      proj.setInputCloud(boundaryCloud); //cluster_cloud
       proj.setModelCoefficients(plane_coefficients);
       proj.filter(*cluster_projected);
 
-#if DEBUG_OUTPUT
-      ss.str(std::string());
-      ss.clear();
-      ss << "hull" << it - clusters.begin() << ".pcd";
-      writer.write<pcl::PointXYZRGBA>(ss.str(), *cloud_hull);
-
-      ss.str(std::string());
-      ss.clear();
-      ss << "projected_cluster" << it - clusters.begin() << ".pcd";
-      writer.write<pcl::PointXYZRGBA>(ss.str(), *cluster_projected);
-#endif
-
       pcl::PointIndices::Ptr circle_inliers(new pcl::PointIndices());
       pcl::ModelCoefficients::Ptr circle_coefficients(new pcl::ModelCoefficients());
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr circle(new pcl::PointCloud<pcl::PointXYZRGBA>());
+      pcl::PointCloud<PointT>::Ptr circle(new pcl::PointCloud<PointT>());
 
-      pcl::PointIndices::Ptr plane_inliers(new pcl::PointIndices());
-      pcl::ModelCoefficients::Ptr plane_coefficients(new pcl::ModelCoefficients());
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr plane(new pcl::PointCloud<pcl::PointXYZRGBA>());
+      pcl::PointIndices::Ptr line_inliers(new pcl::PointIndices());
+      pcl::ModelCoefficients::Ptr line_coefficients(new pcl::ModelCoefficients());
+      pcl::PointCloud<PointT>::Ptr plane(new pcl::PointCloud<PointT>());
 
-      pcl::SACSegmentation<pcl::PointXYZRGBA> seg;
+      pcl::SACSegmentation<PointT> seg;
       //finding circles in the projected cluster
       seg.setOptimizeCoefficients(true);
       seg.setMethodType(pcl::SAC_RANSAC);
-      seg.setMaxIterations(1000);
-      seg.setModelType(pcl::SACMODEL_CIRCLE2D);
+      seg.setMaxIterations(500);
+      seg.setModelType(pcl::SACMODEL_CIRCLE3D);
       seg.setDistanceThreshold(0.005);
-      seg.setRadiusLimits(0.025, 0.15);
+      seg.setRadiusLimits(0.025, 0.13);
       // Give as input the filtered point cloud
       seg.setInputCloud(cluster_projected);
       // Call the segmenting method
@@ -207,63 +217,113 @@ public:
 
       seg.setOptimizeCoefficients(true);
       seg.setMethodType(pcl::SAC_RANSAC);
-      seg.setMaxIterations(50);
-      seg.setModelType(pcl::SACMODEL_PLANE);
-      seg.setDistanceThreshold(0.001);
+      seg.setMaxIterations(500);
+      seg.setModelType(pcl::SACMODEL_LINE);
+      seg.setDistanceThreshold(0.005);
       // Give as input the filtered point cloud
-      seg.setInputCloud(cluster_cloud);
+      //      seg.setInputCloud(cluster_cloud);
       // Call the segmenting method
-      seg.segment(*plane_inliers, *plane_coefficients);
+      seg.segment(*line_inliers, *line_coefficients);
 
       outDebug("Projected Cloud has " << cluster_projected->points.size() << " data point");
       outDebug("Number of CIRCLE inliers found " << circle_inliers->indices.size());
-      outDebug("Number of plane inliers found " << plane_inliers->indices.size());
-      pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
+      outDebug("Number of line inliers found " << line_inliers->indices.size());
+      pcl::ExtractIndices<PointT> extract;
 
       rs::Shape shapeAnnot = rs::create<rs::Shape>(tcas);
-      if(circle_inliers->indices.size() > 0)
-        /*&& (plane_inliers->indices.size() == 0 || plane_inliers->indices.size() < 1100)*/
+
+      if((float)line_inliers->indices.size() / cluster_projected->points.size() > 0.60)
       {
+        for(unsigned int k = 0; k < line_inliers->indices.size(); ++k)
+        {
+          cluster_projected->points[line_inliers->indices[k]].rgba = rs::common::colors[idx % rs::common::numberOfColors];
+        }
+        *dispCloudPtr_ += *cluster_projected;
+        shapeAnnot.shape.set("box");
+        shapeAnnot.confidence.set((float)line_inliers->indices.size() / cluster_projected->points.size());
+        cluster.annotations.append(shapeAnnot);
+      }
+
+      else if((float)circle_inliers->indices.size() / cluster_projected->points.size() > 0.3)
+      {
+
         circles_found++;
-        outDebug("Circle Model Coefficients:");
-        outDebug("x= " << circle_coefficients->values[0] << " y= " << circle_coefficients->values[1] << " R= "
-                 << circle_coefficients->values[2]);
+        outInfo("Circle Model Coefficients:");
+        outInfo("x= " << circle_coefficients->values[0] << " y= " << circle_coefficients->values[1] << " z= " << circle_coefficients->values[1] << " R= "
+                << circle_coefficients->values[3]);
+        float cx = circle_coefficients->values[0];
+        float cy = circle_coefficients->values[1];
+        float cz = circle_coefficients->values[2];
+
+        float r = circle_coefficients->values[3];
+
+        float nx = circle_coefficients->values[4];
+        float ny = circle_coefficients->values[5];
+        float nz = circle_coefficients->values[6];
+
+        float s = 1.0f / (nx * nx + ny * ny + nz * nz);
+        float v3x = s * nx;
+        float v3y = s * ny;
+        float v3z = s * nz;
+
+        s = 1.0f / (v3x * v3x + v3z * v3z);
+        float v1x = s * v3z;
+        float v1y = 0.0f;
+        float v1z = s * -v3x;
+
+        float v2x = v3y * v1z - v3z * v1y;
+        float v2y = v3z * v1x - v3x * v1z;
+        float v2z = v3x * v1y - v3y * v1x;
+
+        for(int theta = 0; theta < 360; theta += 5)
+        {
+          pcl::PointXYZRGBA point;
+          point.rgba = rs::common::colors[idx % rs::common::numberOfColors];
+
+          point.x = cx + r * (v1x * cos(theta) + v2x * sin(theta));
+          point.y = cy + r * (v1y * cos(theta) + v2y * sin(theta));
+          point.z = cz + r * (v1z * cos(theta) + v2z * sin(theta));
+          dispCloudPtr_->points.push_back(point);
+        }
+
+        for(unsigned int k = 0; k < circle_inliers->indices.size(); ++k)
+        {
+          cluster_projected->points[line_inliers->indices[k]].rgba = rs::common::colors[idx % rs::common::numberOfColors];
+        }
+        *dispCloudPtr_ += *cluster_projected;
 
         extract.setInputCloud(cluster_projected);
         extract.setIndices(circle_inliers);
         extract.setNegative(false);
         extract.filter(*circle);
         shapeAnnot.shape.set("round");
-        shapeAnnot.confidence.set((float)circle_inliers->indices.size()/cluster_projected->points.size());
-
-#if DEBUG_OUTPUT
-        ss.str(std::string());
-        ss.clear();
-        ss << "circle_cloud" << it - clusters.begin() << ".pcd";
-        writer.write<pcl::PointXYZRGBA>(ss.str(), *circle);
-#endif
+        shapeAnnot.confidence.set((float)circle_inliers->indices.size() / cluster_projected->points.size());
+        cluster.annotations.append(shapeAnnot);
       }
-      else
-      {
-        boxes_found++;
-        extract.setInputCloud(cluster_cloud);
-        extract.setIndices(plane_inliers);
-        extract.setNegative(false);
-        extract.filter(*plane);
-        shapeAnnot.shape.set(std::string("box"));
-        shapeAnnot.confidence.set(std::abs(plane_inliers->indices.size()/cluster_cloud->points.size()));
 
-#if DEBUG_OUTPUT
-        ss.str(std::string());
-        ss.clear();
-        ss << "plane_cloud" << it - clusters.begin() << ".pcd";
-        writer.write<pcl::PointXYZRGBA>(ss.str(), *plane);
-#endif
 
-      }
-      cluster.annotations.append(shapeAnnot);
+      idx++;
     }
     return UIMA_ERR_NONE;
+  }
+  void drawImageWithLock(cv::Mat)
+  {
+
+  }
+
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
+  {
+    double pointSize = 1.0;
+    if(firstRun)
+    {
+      visualizer.addPointCloud(dispCloudPtr_, std::string("stuff"));
+      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, std::string("stuff"));
+    }
+    else
+    {
+      visualizer.updatePointCloud(dispCloudPtr_, std::string("stuff"));
+      visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, std::string("stuff"));
+    }
   }
 };
 

@@ -232,7 +232,7 @@ public:
 
       rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
 
-      poseAnnotation.source.set("BoundingBox");
+      poseAnnotation.source.set("3DEstimate");
       if(projectOnPlane_)
       {
         projectPointOnPlane(box.poseCam);
