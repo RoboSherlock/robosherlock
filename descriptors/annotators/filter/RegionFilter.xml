@@ -42,6 +42,14 @@
       </configurationParameter>
 
       <configurationParameter>
+        <name>depth_threshold</name>
+        <description>Threshold for difference in meter between depth values for being a changed pixel</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
         <name>global_threshold</name>
         <description>Percentage of pixels that needs to change to not filter the frame (0.0 to 1.0)</description>
         <type>Float</type>
@@ -88,9 +96,16 @@
       </nameValuePair>
 
       <nameValuePair>
+        <name>depth_threshold</name>
+        <value>
+          <float>0.01</float>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
         <name>global_threshold</name>
         <value>
-          <float>0.1</float>
+          <float>0.12</float>
         </value>
       </nameValuePair>
 

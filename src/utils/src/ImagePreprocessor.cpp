@@ -41,7 +41,7 @@ class ImagePreprocessor : public DrawingAnnotator
 {
 private:
   bool hasDepth, hasDepthHD, hasColor, hasColorHD, forceNewCloud, hasThermal, useKinect, useThermal;
-  cv::Mat depth, depthHD, color, colorHD, alpha, depthMask;
+  cv::Mat depth, depthHD, color, colorHD, alpha, mask, maskHD;
   cv::Mat thermal, thermalColor, thermalDepth, thermalFused;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, thermalCloud;
 
@@ -72,7 +72,7 @@ private:
   } pclDispMode;
 
 public:
-  ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(5), borderDilation(12), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
+  ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(6), borderDilation(12), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -370,7 +370,7 @@ public:
       combine(disp);
       break;
     case MASK:
-      depthMask.convertTo(disp, CV_GRAY2BGR);
+      mask.convertTo(disp, CV_GRAY2BGR);
       break;
     }
   }
@@ -450,6 +450,27 @@ private:
       //throw rs::Exception("No depth image in CAS!");
     }
 
+    if(hasDepthHD)
+    {
+      getDepthMask(depthHD, maskHD);
+      cas.set(VIEW_MASK_HD, maskHD);
+      if(!hasDepth)
+      {
+        cv::resize(maskHD, mask, cv::Size(0, 0), 0.5, 0.5, cv::INTER_NEAREST);
+        cas.set(VIEW_MASK, mask);
+      }
+    }
+    if(hasDepth)
+    {
+      getDepthMask(depth, mask);
+      cas.set(VIEW_MASK, mask);
+      if(!hasDepthHD)
+      {
+        cv::resize(mask, maskHD, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
+        cas.set(VIEW_MASK_HD, maskHD);
+      }
+    }
+
     if((enableDepthSmoothing || enableHoleFilling) && hasDepthHD)
     {
       filterDepth(depthHD);
@@ -477,9 +498,6 @@ private:
       cas.set(VIEW_DEPTH_IMAGE_HD, depthHD);
       hasDepthHD = true;
     }
-
-    getDepthMask();
-    cas.set(VIEW_MASK, depthMask);
   }
 
   void filterDepth(cv::Mat &depth)
@@ -495,32 +513,62 @@ private:
     }
   }
 
-  void getDepthMask()
+  void getDepthMask(cv::Mat &depth, cv::Mat &mask)
   {
-    depthMask.create(depth.rows, depth.cols, CV_8U);
+    mask.create(depth.rows, depth.cols, CV_8U);
+    cv::Mat maskBorder = cv::Mat(depth.rows, depth.cols, CV_8U);
 
     const size_t size = depth.rows * depth.cols;
-    const uint16_t *itD = depth.ptr<uint16_t>();
-    uint8_t *itM = depthMask.ptr();
+    uint16_t *itD = depth.ptr<uint16_t>();
+    uint8_t *itM = mask.ptr<uint8_t>();
+    uint8_t *itB = maskBorder.ptr<uint8_t>();
 
-    for(size_t i = 0; i < size; ++i, ++itD, ++itM)
+    for(size_t i = 0; i < size; ++i, ++itD, ++itM, ++itB)
     {
-      *itM = *itD > 0 ? 0 : 255;
+      if(*itD == 0)
+      {
+        *itB = 255;
+        *itM = 0;
+      }
+      else if(*itD >= 20000)
+      {
+        *itM = 255;
+        *itB = 0;
+        *itD = 0;
+      }
+      else
+      {
+        *itM = 0;
+        *itB = 0;
+      }
     }
 
-    const cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,  cv::Size(3,3));
-    cv::erode(depthMask, depthMask, kernel, cv::Point(-1, -1), borderErosion, cv::BORDER_CONSTANT, 255);
+    const cv::Mat kernel = cv::getStructuringElement(cv::MORPH_RECT,  cv::Size(3, 3));
+    cv::erode(maskBorder, maskBorder, kernel, cv::Point(-1, -1), borderErosion, cv::BORDER_CONSTANT, 255);
 
     const cv::Rect roi(0, 0, depth.cols, depth.rows);
     std::vector<ImageSegmentation::Segment> segments;
-    ImageSegmentation::segment(depthMask, segments, 10000, 1000, roi);
+    ImageSegmentation::segment(maskBorder, segments, 40000, 10000, roi);
 
-    depthMask = cv::Mat::zeros(depth.rows, depth.cols, CV_8U);
+    maskBorder = cv::Mat::zeros(depth.rows, depth.cols, CV_8U);
     for(size_t i = 0; i < segments.size(); ++i)
     {
-      ImageSegmentation::drawSegment(depthMask, CV_RGB(255, 255, 255), CV_RGB(0, 0, 0), segments[i]);
+      ImageSegmentation::drawSegment(maskBorder, CV_RGB(255, 255, 255), CV_RGB(0, 0, 0), segments[i]);
     }
-    cv::dilate(depthMask, depthMask, kernel, cv::Point(-1, -1), borderDilation, cv::BORDER_CONSTANT, 255);
+
+    cv::dilate(maskBorder, maskBorder, kernel, cv::Point(-1, -1), borderDilation, cv::BORDER_CONSTANT, 255);
+    cv::dilate(mask, mask, kernel, cv::Point(-1, -1), borderDilation / 2, cv::BORDER_CONSTANT, 0);
+
+    itM = mask.ptr<uint8_t>();
+    itB = maskBorder.ptr<uint8_t>();
+
+    for(size_t i = 0; i < size; ++i, ++itM, ++itB)
+    {
+      if(*itB)
+      {
+        *itM = 255;
+      }
+    }
   }
 
   /*******************************************************************************

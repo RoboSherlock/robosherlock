@@ -34,6 +34,7 @@
 #define VIEW_NORMALS             "normals"
 
 #define VIEW_MASK                "mask"
+#define VIEW_MASK_HD             "mask_hd"
 
 #define VIEW_THERMAL_CAMERA_INFO "camera_info_thermal"
 
