@@ -100,6 +100,7 @@ public:
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::ColorHistogram>, 1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Features>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
+    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Detection>,      1.0));
   }
 
   /*

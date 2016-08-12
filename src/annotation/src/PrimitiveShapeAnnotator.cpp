@@ -119,7 +119,6 @@ public:
 
     pcl::ProjectInliers<PointT> proj;
     int circles_found = 0;
-    int boxes_found = 0;
 
     int idx = 0;
     for(auto cluster : clusters)
