@@ -198,4 +198,19 @@ double compare(PclFeature &a, PclFeature &b)
   return std::sqrt(res.dot(res)) / 2.0f;
 }
 
+template<>
+double compare(Detection &a, Detection &b)
+{
+  if(a.source() != b.source())
+  {
+    outDebug("Features do not match.");
+    return 1;
+  }
+  if(a.name() == b.name())
+  {
+    return 0.0;
+  }
+  return 1.0;
+}
+
 }
