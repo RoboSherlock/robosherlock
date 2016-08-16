@@ -91,7 +91,7 @@
       <nameValuePair>
         <name>pixel_threshold</name>
         <value>
-          <float>0.1</float>
+          <float>0.15</float>
         </value>
       </nameValuePair>
 
