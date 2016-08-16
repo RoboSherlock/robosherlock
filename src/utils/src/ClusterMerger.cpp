@@ -53,6 +53,16 @@ public:
     return UIMA_ERR_NONE;
   }
 
+  std::vector<int> intersection(std::vector<int> &v1, std::vector<int> &v2)
+  {
+    std::vector<int> v3;
+    std::sort(v1.begin(), v1.end());
+    std::sort(v2.begin(), v2.end());
+    std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(), back_inserter(v3));
+
+    return v3;
+  }
+
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
     MEASURE_TIME;
@@ -68,6 +78,10 @@ public:
     scene.identifiables.filter(clusters);
     std::vector<bool> duplicates(clusters.size(), false);
     std::vector<int>  duplicateWith(clusters.size(), -1);
+
+    std::vector<bool> keepCluster(clusters.size(), true);
+
+
     clusterIndices.clear();
     clusterIndices.reserve(clusters.size());
 
@@ -75,92 +89,129 @@ public:
     for(size_t i = 0; i < clusters.size(); ++i)
     {
       rs::Cluster &cluster1 = clusters[i];
-      if(cluster1.rois.has())
+
+      pcl::PointIndicesPtr cluster1Indices(new pcl::PointIndices());
+      rs::conversion::from(((rs::ReferenceClusterPoints)cluster1.points.get()).indices.get(), *cluster1Indices);
+      if(!cluster1Indices->indices.empty())
       {
-        rs::ImageROI image_roisc1 = cluster1.rois.get();
-        cv::Rect cluster1Roi;
-        rs::conversion::from(image_roisc1.roi_hires(), cluster1Roi);
         for(size_t j = i + 1; j < clusters.size(); ++j)
         {
           rs::Cluster &cluster2 = clusters[j];
-          if(cluster2.rois.has())
+          pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
+          rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
+          if(!cluster2Indices->indices.empty())
           {
-            rs::ImageROI image_roisc2 = cluster2.rois.get();
-            cv::Rect cluster2Roi;
-            rs::conversion::from(image_roisc2.roi_hires(), cluster2Roi);
-            cv::Rect intersection = cluster1Roi & cluster2Roi;
-            if(intersection.area() > cluster1Roi.area() / 10)
+            int common3DPoints = intersection(cluster1Indices->indices, cluster2Indices->indices).size();
+            if(common3DPoints != 0)
             {
-              if(cluster1Roi.area() > cluster2Roi.area())
+              outInfo("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
+              outInfo("That is " << (double)common3DPoints / cluster1Indices->indices.size() * 100 << " % of Cluster " << i << "s total points");
+              outInfo("That is " << (double)common3DPoints / cluster2Indices->indices.size() * 100 << " % of Cluster " << j << "s total points");
+
+              if(((double)common3DPoints / cluster1Indices->indices.size()) < ((double)common3DPoints / cluster2Indices->indices.size()))
               {
-                duplicates[j] = true;
+                outInfo("Keeping Cluster: " << i);
+                keepCluster[j] = false;
+                duplicateWith[i] = j;
               }
               else
               {
-                duplicates[i] = true;
+                outInfo("Keeping Cluster: " << j);
+                keepCluster[i] = false;
+                duplicateWith[j] = i;
               }
-              duplicateWith[i] = j;
-              duplicateWith[j] = i;
             }
           }
         }
       }
     }
-
-    for(size_t i = 0; i < duplicates.size(); ++i)
+    for(size_t i = 0; i < keepCluster.size(); ++i)
     {
-      outInfo("++++++++++Cluster " << i << " BEGIN+++++++++++++++");
-      if(!duplicates[i])
+      if(keepCluster[i])
       {
-        rs::Cluster &cluster = clusters[i];
-
-        /*if the duplicate cluster was found using table top segmentation,
-         * delete the pose annotation since if definitely wrong
-         **/
         if(duplicateWith[i] != -1)
         {
-          outInfo("Cluster " <<  i << " has a duplicate");
-          outInfo("other cluster is: Cluster " << duplicateWith[i]);
           rs::Cluster &other = clusters[duplicateWith[i]];
-
-          outInfo("This cluster was found using: " << cluster.source());
-          outInfo("Other cluster was found using: " << other.source());
-
-          if(other.source() != cluster.source())
+          if(other.source() != clusters[i].source())
           {
             std::vector<rs::PoseAnnotation> poses;
-            cluster.annotations.filter(poses);
-            outInfo("This cluster has " << poses.size() << " pose annotations");
+            clusters[i].annotations.filter(poses);
             if(!poses.empty())
             {
-              cluster.annotations.remove(poses[0]);
+              clusters[i].annotations.remove(poses[0]);
             }
           }
         }
 
-        std::vector<rs::PoseAnnotation> poses;
-        cluster.annotations.filter(poses);
-        outInfo("Adding object with " << poses.size() << "pose annotations");
-        mergedClusters.push_back(cluster);
+        mergedClusters.push_back(clusters[i]);
 
-        //for vis purposes
-        if(!cluster.points.has())
+        //for visualization if cluster has no 3D points add empty vector
+        if(!clusters[i].points.has())
         {
           this->clusterIndices.push_back(std::vector<int>());
         }
         else
         {
           pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
-          rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *clusterIndices);
+          rs::conversion::from(((rs::ReferenceClusterPoints)clusters[i].points.get()).indices.get(), *clusterIndices);
           this->clusterIndices.push_back(clusterIndices->indices);
         }
       }
-      else
-      {
-        outInfo("Cluster " << i << " exists twice");
-      }
-      outInfo("++++++++++Cluster " << i << " END+++++++++++++++");
     }
+    //    for(size_t i = 0; i < duplicates.size(); ++i)
+    //    {
+    //      outInfo("++++++++++Cluster " << i << " BEGIN+++++++++++++++");
+    //      if(!duplicates[i])
+    //      {
+    //        rs::Cluster &cluster = clusters[i];
+
+    //        /*if the duplicate cluster was found using table top segmentation,
+    //         * delete the pose annotation since if definitely wrong
+    //         **/
+    //        if(duplicateWith[i] != -1)
+    //        {
+    //          outInfo("Cluster " <<  i << " has a duplicate");
+    //          outInfo("other cluster is: Cluster " << duplicateWith[i]);
+    //          rs::Cluster &other = clusters[duplicateWith[i]];
+
+    //          outInfo("This cluster was found using: " << cluster.source());
+    //          outInfo("Other cluster was found using: " << other.source());
+
+    //          if(other.source() != cluster.source())
+    //          {
+    //            std::vector<rs::PoseAnnotation> poses;
+    //            cluster.annotations.filter(poses);
+    //            outInfo("This cluster has " << poses.size() << " pose annotations");
+    //            if(!poses.empty())
+    //            {
+    //              cluster.annotations.remove(poses[0]);
+    //            }
+    //          }
+    //        }
+
+    //        std::vector<rs::PoseAnnotation> poses;
+    //        cluster.annotations.filter(poses);
+    //        outInfo("Adding object with " << poses.size() << "pose annotations");
+    //        mergedClusters.push_back(cluster);
+
+    //        //for vis purposes
+    //        if(!cluster.points.has())
+    //        {
+    //          this->clusterIndices.push_back(std::vector<int>());
+    //        }
+    //        else
+    //        {
+    //          pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
+    //          rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *clusterIndices);
+    //          this->clusterIndices.push_back(clusterIndices->indices);
+    //        }
+    //      }
+    //      else
+    //      {
+    //        outInfo("Cluster " << i << " exists twice");
+    //      }
+    //      outInfo("++++++++++Cluster " << i << " END+++++++++++++++");
+    //    }
 
     scene.identifiables.set(mergedClusters);
 
