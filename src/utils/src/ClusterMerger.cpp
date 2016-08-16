@@ -142,7 +142,6 @@ public:
             }
           }
         }
-
         mergedClusters.push_back(clusters[i]);
 
         //for visualization if cluster has no 3D points add empty vector
@@ -158,61 +157,6 @@ public:
         }
       }
     }
-    //    for(size_t i = 0; i < duplicates.size(); ++i)
-    //    {
-    //      outInfo("++++++++++Cluster " << i << " BEGIN+++++++++++++++");
-    //      if(!duplicates[i])
-    //      {
-    //        rs::Cluster &cluster = clusters[i];
-
-    //        /*if the duplicate cluster was found using table top segmentation,
-    //         * delete the pose annotation since if definitely wrong
-    //         **/
-    //        if(duplicateWith[i] != -1)
-    //        {
-    //          outInfo("Cluster " <<  i << " has a duplicate");
-    //          outInfo("other cluster is: Cluster " << duplicateWith[i]);
-    //          rs::Cluster &other = clusters[duplicateWith[i]];
-
-    //          outInfo("This cluster was found using: " << cluster.source());
-    //          outInfo("Other cluster was found using: " << other.source());
-
-    //          if(other.source() != cluster.source())
-    //          {
-    //            std::vector<rs::PoseAnnotation> poses;
-    //            cluster.annotations.filter(poses);
-    //            outInfo("This cluster has " << poses.size() << " pose annotations");
-    //            if(!poses.empty())
-    //            {
-    //              cluster.annotations.remove(poses[0]);
-    //            }
-    //          }
-    //        }
-
-    //        std::vector<rs::PoseAnnotation> poses;
-    //        cluster.annotations.filter(poses);
-    //        outInfo("Adding object with " << poses.size() << "pose annotations");
-    //        mergedClusters.push_back(cluster);
-
-    //        //for vis purposes
-    //        if(!cluster.points.has())
-    //        {
-    //          this->clusterIndices.push_back(std::vector<int>());
-    //        }
-    //        else
-    //        {
-    //          pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
-    //          rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *clusterIndices);
-    //          this->clusterIndices.push_back(clusterIndices->indices);
-    //        }
-    //      }
-    //      else
-    //      {
-    //        outInfo("Cluster " << i << " exists twice");
-    //      }
-    //      outInfo("++++++++++Cluster " << i << " END+++++++++++++++");
-    //    }
-
     scene.identifiables.set(mergedClusters);
 
     outDebug("BEGIN: After adding new clusters scene has " << scene.identifiables.size() << " identifiables");
