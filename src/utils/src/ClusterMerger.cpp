@@ -132,6 +132,13 @@ public:
         if(duplicateWith[i] != -1)
         {
           rs::Cluster &other = clusters[duplicateWith[i]];
+
+          std::vector<rs::Annotation> annotations;
+          other.annotations.filter(annotations);
+          if(!annotations.empty())
+          {
+            clusters[i].annotations.append(annotations);
+          }
           if(other.source() != clusters[i].source())
           {
             std::vector<rs::PoseAnnotation> poses;
@@ -141,6 +148,7 @@ public:
               clusters[i].annotations.remove(poses[0]);
             }
           }
+
         }
         mergedClusters.push_back(clusters[i]);
 
