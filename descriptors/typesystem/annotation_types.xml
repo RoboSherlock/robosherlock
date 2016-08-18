@@ -715,6 +715,18 @@
           <description/>
           <rangeTypeName>rs.pcl.PointIndices</rangeTypeName>
         </featureDescription>
+
+        <featureDescription>
+          <name>name</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+
+        <featureDescription>
+          <name>pose</name>
+          <description></description>
+          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
 
