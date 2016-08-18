@@ -412,7 +412,7 @@ private:
     }
     else if(region.name == "kitchen_island_counter_top")
     {
-      minY += 0.8; //same for the hot plate
+      minY += 0.7; //same for the hot plate
     }
 
     tf::Transform transform;
