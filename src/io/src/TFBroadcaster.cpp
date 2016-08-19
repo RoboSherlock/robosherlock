@@ -159,22 +159,31 @@ public:
         {
 
           std::vector<rs::PoseAnnotation> pose;
-
+          std::vector<rs::ClusterPart> clusterParts;
           clust_it->annotations.filter(pose);
+          clust_it->annotations.filter(clusterParts);
+
           //skip cluster if it has no pose
-          tf::Stamped<tf::Pose> tf_stamped_pose;
+
           if(!pose.empty())
           {
+            tf::Stamped<tf::Pose> tf_stamped_pose;
             rs::conversion::from(pose[0].world(), tf_stamped_pose);
+            std::ostringstream oss;
+            oss << "rs_cluster" << clust_it - clusters.begin() << "_frame";
+            stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, oss.str()));
           }
-          else
+          int idx = 0;
+          for(rs::ClusterPart clPart : clusterParts)
           {
-            continue;
+            tf::Stamped<tf::Pose> tf_stamped_pose;
+            rs::conversion::from(clPart.pose(), tf_stamped_pose);
+            std::stringstream ss;
+            ss<<"cluster_part_"<<clust_it - clusters.begin()<<"_"<<idx<<"_frame";
+            stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, ss.str()));
+            idx++;
           }
 
-          std::ostringstream oss;
-          oss << "test_rs_cluster" << clust_it - clusters.begin() << "_frame";
-          stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, oss.str()));
         }
         broadCasterObject.addTransforms(stamped_transforms);
       }
