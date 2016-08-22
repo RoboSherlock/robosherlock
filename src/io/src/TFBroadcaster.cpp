@@ -179,7 +179,7 @@ public:
             tf::Stamped<tf::Pose> tf_stamped_pose;
             rs::conversion::from(clPart.pose(), tf_stamped_pose);
             std::stringstream ss;
-            ss<<"cluster_part_"<<clust_it - clusters.begin()<<"_"<<idx<<"_frame";
+            ss<<"rs_cluster_part_"<<clust_it - clusters.begin()<<"_"<<idx<<"_frame";
             stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, ss.str()));
             idx++;
           }

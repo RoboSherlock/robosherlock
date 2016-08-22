@@ -526,7 +526,7 @@ private:
 
     object.annotations.allocate();
     std::vector<std::string> clusters = object.clusters();
-
+    std::vector<bool> addedClusterAnnotations(annotationsC.size(), false);
     for(size_t i = 0; i < annotationsO.size(); ++i)
     {
       rs::Annotation &annotationO = annotationsO[i];
@@ -542,12 +542,21 @@ private:
         {
           object.annotations.append(annotationC);
           merged = true;
+          addedClusterAnnotations[j] = true;
           break;
         }
       }
       if(!merged)
       {
         object.annotations.append(annotationO);
+      }
+    }
+    //add annotaation of matched Cluster that are new and not in object
+    for(size_t i = 0; i < addedClusterAnnotations.size(); ++i)
+    {
+      if(!addedClusterAnnotations[i])
+      {
+        object.annotations.append(annotationsC[i]);
       }
     }
 
