@@ -179,7 +179,7 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
-  cv::namedWindow(windowImage, CV_WINDOW_OPENGL | CV_WINDOW_AUTOSIZE| CV_WINDOW_KEEPRATIO);
+  cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE| CV_WINDOW_KEEPRATIO);
   //cv::moveWindow(windowImage, 0, 0);
   cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
 
