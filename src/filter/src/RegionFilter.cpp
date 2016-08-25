@@ -83,9 +83,6 @@ public:
     indices(new std::vector<int>()),
     changeDetection(true), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
-    //    nameMapping["drawer"] = "Drawer";
-    //    nameMapping["countertop"] = "CounterTop";
-    //    nameMapping["table"] = "Table";
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -104,7 +101,6 @@ public:
       {
         defaultRegions.push_back(*s);
       }
-      //      nameMapping[""] = defaultRegion;
     }
 
     if(ctx.isParameterDefined("enable_change_detection"))
