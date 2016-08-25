@@ -59,7 +59,7 @@ class RegionFilter : public DrawingAnnotator
   tf::StampedTransform camToWorld, worldToCam;
   std::vector<Region> regions;
 
-  std::string regionToLookAt;
+  std::vector<std::string> defaultRegions;
   //name mapping for queries
   std::map<std::string, std::string> nameMapping;
 
@@ -80,12 +80,12 @@ class RegionFilter : public DrawingAnnotator
 public:
 
   RegionFilter() : DrawingAnnotator(__func__), pointSize(1), border(0.05), cloud(new pcl::PointCloud<PointT>()),
-    indices(new std::vector<int>()), regionToLookAt("CounterTop"),
+    indices(new std::vector<int>()),
     changeDetection(true), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
-    nameMapping["drawer"] = "Drawer";
-    nameMapping["countertop"] = "CounterTop";
-    nameMapping["table"] = "Table";
+    //    nameMapping["drawer"] = "Drawer";
+    //    nameMapping["countertop"] = "CounterTop";
+    //    nameMapping["table"] = "Table";
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -96,11 +96,15 @@ public:
     {
       ctx.extractValue("border", border);
     }
-
-    if(ctx.isParameterDefined("region_to_filter"))
+    std::vector<std::string *> temp;
+    if(ctx.isParameterDefined("defaultRegions"))
     {
-      ctx.extractValue("region_to_filter", regionToLookAt);
-      nameMapping[""] = regionToLookAt;
+      ctx.extractValue("defaultRegions", temp);
+      for(auto s : temp)
+      {
+        defaultRegions.push_back(*s);
+      }
+      //      nameMapping[""] = defaultRegion;
     }
 
     if(ctx.isParameterDefined("enable_change_detection"))
@@ -169,30 +173,26 @@ private:
     rs::Query qs = rs::create<rs::Query>(tcas);
     if(cas.getFS("QUERY", qs))
     {
-      if(regionToLookAt != nameMapping[qs.location()])
+      if(std::find(defaultRegions.begin(), defaultRegions.end(), qs.location()) == std::end(defaultRegions) && qs.location()!="")
       {
         regions.clear();
+        defaultRegions.clear();
         outWarn("loaction set in query: " << qs.location());
-        regionToLookAt = nameMapping[qs.location()];
+
+        defaultRegions.push_back(qs.location());
       }
     }
 
     if(regions.empty())
     {
       std::vector<rs::SemanticMapObject> semanticRegions;
-      outWarn("Region before filtering: " << regionToLookAt);
-      getSemanticMapEntries(cas, regionToLookAt, semanticRegions);
+      getSemanticMapEntries(cas, defaultRegions, semanticRegions);
 
       regions.resize(semanticRegions.size());
       for(size_t i = 0; i < semanticRegions.size(); ++i)
       {
-        std::size_t found = semanticRegions[i].name().find("drawer_sinkblock_upper");
-        if(regionToLookAt == "Drawer" && found == std::string::npos)
-        {
-          continue;
-        }
-        Region &region = regions[i];
 
+        Region &region = regions[i];
         region.width = semanticRegions[i].width();
         region.depth = semanticRegions[i].depth();
         region.height = semanticRegions[i].height();
@@ -382,16 +382,18 @@ private:
     return diff > threshold;
   }
 
-  void getSemanticMapEntries(rs::SceneCas &cas, const std::string &name, std::vector<rs::SemanticMapObject> &mapObjects)
+  void getSemanticMapEntries(rs::SceneCas &cas, const std::vector<std::string> &name, std::vector<rs::SemanticMapObject> &mapObjects)
   {
     std::vector<rs::SemanticMapObject> objects;
     cas.get(VIEW_SEMANTIC_MAP, objects);
-
-    for(size_t i = 0; i < objects.size(); ++i)
+    for(auto n : name)
     {
-      if(objects[i].typeName() == name)
+      for(size_t i = 0; i < objects.size(); ++i)
       {
-        mapObjects.push_back(objects[i]);
+        if(objects[i].name() == n)
+        {
+          mapObjects.push_back(objects[i]);
+        }
       }
     }
   }

@@ -18,10 +18,10 @@
       </configurationParameter>
 
       <configurationParameter>
-        <name>region_to_filter</name>
+        <name>defaultRegions</name>
         <description>Region entry from the semantic map based on which to filter the cloud (e.g. CounterTop or Drawers etc.) </description>
         <type>String</type>
-        <multiValued>false</multiValued>
+        <multiValued>true</multiValued>
         <mandatory>false</mandatory>
       </configurationParameter>
 
@@ -75,9 +75,12 @@
       </nameValuePair>
 
       <nameValuePair>
-        <name>region_to_filter</name>
+        <name>defaultRegions</name>
         <value>
-          <string>CounterTop</string>
+        <array>
+          <string>kitchen_sink_block_counter_top</string>
+<!--          <string>kitchen_island_counter_top</string>-->
+        </array>
         </value>
       </nameValuePair>
 
