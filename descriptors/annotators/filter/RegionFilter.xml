@@ -34,6 +34,14 @@
       </configurationParameter>
 
       <configurationParameter>
+        <name>enable_frustum_culling</name>
+        <description>Enable Frustum culling</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
         <name>pixel_threshold</name>
         <description>Threshold for difference in pixel value for being a changed pixel (0.0 - 2.0)</description>
         <type>Float</type>
@@ -79,13 +87,20 @@
         <value>
         <array>
           <string>kitchen_sink_block_counter_top</string>
-<!--          <string>kitchen_island_counter_top</string>-->
+          <string>kitchen_island_counter_top</string>
         </array>
         </value>
       </nameValuePair>
 
       <nameValuePair>
         <name>enable_change_detection</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>enable_frustum_culling</name>
         <value>
           <boolean>false</boolean>
         </value>

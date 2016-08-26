@@ -64,7 +64,7 @@ class RegionFilter : public DrawingAnnotator
   std::map<std::string, std::string> nameMapping;
 
   // for change detection
-  bool changeDetection;
+  bool changeDetection, frustumCulling_;
   cv::Mat lastImg, lastMask;
   float threshold, pixelThreshold, depthThreshold;
   std::vector<int> changes, lastIndices;
@@ -81,7 +81,7 @@ public:
 
   RegionFilter() : DrawingAnnotator(__func__), pointSize(1), border(0.05), cloud(new pcl::PointCloud<PointT>()),
     indices(new std::vector<int>()),
-    changeDetection(true), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
+    changeDetection(true),frustumCulling_(false), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
   }
 
@@ -99,6 +99,7 @@ public:
       ctx.extractValue("defaultRegions", temp);
       for(auto s : temp)
       {
+        outInfo(*s);
         defaultRegions.push_back(*s);
       }
     }
@@ -106,6 +107,10 @@ public:
     if(ctx.isParameterDefined("enable_change_detection"))
     {
       ctx.extractValue("enable_change_detection", changeDetection);
+    }
+    if(ctx.isParameterDefined("enable_frustum_culling"))
+    {
+      ctx.extractValue("enable_frustum_culling", frustumCulling_);
     }
     if(ctx.isParameterDefined("pixel_threshold"))
     {
@@ -199,7 +204,7 @@ private:
 
     for(size_t i = 0; i < regions.size(); ++i)
     {
-      if(frustumCulling(regions[i]))
+      if(frustumCulling(regions[i]) || !frustumCulling_)
       {
         outInfo("region inside frustum: " << regions[i].name);
         filterRegion(regions[i]);
