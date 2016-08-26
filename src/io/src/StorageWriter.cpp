@@ -45,6 +45,7 @@ public:
     outInfo("initialize");
     std::vector<std::string *> enableViews;
     bool clearStorageOnStart = false;
+    bool unique = false;
 
     if(ctx.isParameterDefined("enableViews"))
     {
@@ -57,14 +58,26 @@ public:
     if(ctx.isParameterDefined("storagedb"))
     {
       ctx.extractValue("storagedb", db);
-      outInfo("Setting db to: "<<db);
     }
     if(ctx.isParameterDefined("clearStorageOnStart"))
     {
       ctx.extractValue("clearStorageOnStart", clearStorageOnStart);
     }
+    if(ctx.isParameterDefined("newUniqueDB"))
+    {
+      ctx.extractValue("newUniqueDB", unique);
+    }
+
+    if(unique)
+    {
+      std::ostringstream oss;
+      oss << db << '_' << ros::Time::now().toNSec();
+      db = oss.str();
+    }
+
     storage = rs::Storage(host, db, clearStorageOnStart);
 
+    outInfo("Setting db to: " << db);
     outInfo("Views stored:");
     for(size_t i = 0; i < enableViews.size(); ++i)
     {
