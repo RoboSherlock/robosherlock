@@ -17,6 +17,7 @@ names:
    - drawer_island_right_lower
    - kitchen_island_counter_top
    - kitchen_sink_block_counter_top
+   - kitchen_meal_table_counter_top
    - kitchen_island
    - pancake_table
    - kitchen_sink_block
@@ -253,6 +254,18 @@ kitchen_sink_block_counter_top:
       dt: d
       data: [ 1., 0., 0., 1.5159400000000001e+00, 0., 1., 0.,
           2.5013000000000001e-01, 0., 0., 1., 8.4999999999999998e-01, 0.,
+          0., 0., 1. ]
+kitchen_meal_table_counter_top:
+   type: CounterTop
+   width: 0.9000000000000001e+00
+   height: 0.0200000000000003e+00
+   depth: 1.5999999999999996e+00
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., -1.475000000000001e+00, 0., 1., 0.,
+          -1.2800000000000001e+00, 0., 0., 1., 7.4999999999999998e-01, 0.,
           0., 0., 1. ]
 kitchen_island:
    type: Cupboard
