@@ -27,6 +27,7 @@
 #include <errno.h>
 #include <opencv/highgui.h>
 
+#include <tf/tf.h>
 #include <rs/utils/output.h>
 
 namespace rs
@@ -205,6 +206,18 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
   {
     return true;
   }
+}
+
+inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> plane_model)
+{
+  assert(plane_model.size()==4);
+  cv::Point3f normal(plane_model[0], plane_model[1], plane_model[2]);
+  float planeDist = plane_model[3];
+  cv::Point3f point(pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z());
+  float pointDist = point.dot(normal);
+  float t = planeDist + pointDist;
+  cv::Point3f projected = point - normal * t;
+  pose.setOrigin(tf::Vector3(projected.x, projected.y, projected.z));
 }
 
 }//end common namespace
