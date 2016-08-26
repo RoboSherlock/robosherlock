@@ -519,49 +519,49 @@ private:
     return db.str();
   }
 
+  std::string getTypeName(rs::Annotation &annotation)
+  {
+    FeatureStructure &fs = (FeatureStructure &)annotation;
+    Type fsType = fs.getType();
+    const std::string &typeName = fsType.getName().asUTF8();
+
+    Feature feat = fsType.getFeatureByBaseName("source");
+    if(fsType.isAppropriateFeature(feat))
+    {
+      const std::string &source = fs.getStringValue(feat).asUTF8();
+      return typeName + '_' + source;
+    }
+    else
+    {
+      return typeName;
+    }
+  }
+
   void mergeClusterWithObjects(rs::Cluster &cluster, rs::Object &object)
   {
+    std::set<std::string> newAnnotations;
     std::vector<rs::Annotation> annotationsC = cluster.annotations();
     std::vector<rs::Annotation> annotationsO = object.annotations();
-
     object.annotations.allocate();
-    std::vector<std::string> clusters = object.clusters();
-    std::vector<bool> addedClusterAnnotations(annotationsC.size(), false);
+
+    for(size_t i = 0; i < annotationsC.size(); ++i)
+    {
+      const std::string &name = getTypeName(annotationsC[i]);
+      newAnnotations.insert(name);
+      object.annotations.append(annotationsC[i]);
+    }
+
     for(size_t i = 0; i < annotationsO.size(); ++i)
     {
-      rs::Annotation &annotationO = annotationsO[i];
-      const std::string &typeNameO = ((FeatureStructure)annotationO).getType().getName().asUTF8();
-      bool merged = false;
-
-      for(size_t j = 0; j < annotationsC.size(); ++j)
+      const std::string &name = getTypeName(annotationsO[i]);
+      if(newAnnotations.find(name) == newAnnotations.end())
       {
-        rs::Annotation &annotationC = annotationsC[j];
-        const std::string &typeNameC = ((FeatureStructure)annotationC).getType().getName().asUTF8();
-
-        if(typeNameC == typeNameO)
-        {
-          object.annotations.append(annotationC);
-          merged = true;
-          addedClusterAnnotations[j] = true;
-          break;
-        }
-      }
-      if(!merged)
-      {
-        object.annotations.append(annotationO);
-      }
-    }
-    //add annotaation of matched Cluster that are new and not in object
-    for(size_t i = 0; i < addedClusterAnnotations.size(); ++i)
-    {
-      if(!addedClusterAnnotations[i])
-      {
-        object.annotations.append(annotationsC[i]);
+        object.annotations.append(annotationsO[i]);
       }
     }
 
+    std::vector<std::string> clusters = object.clusters();
     clusters.push_back(cluster.id());
-
     object.clusters(clusters);
 
     if(cluster.points.has())
