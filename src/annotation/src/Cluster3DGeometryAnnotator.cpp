@@ -164,13 +164,13 @@ public:
 
       if(sorFilter_)
       {
-        outInfo("Before SOR filter: " << cluster_cloud->points.size());
+        outDebug("Before SOR filter: " << cluster_cloud->points.size());
         pcl::StatisticalOutlierRemoval<PointT> sor;
         sor.setInputCloud(cluster_cloud);
         sor.setMeanK(100);
         sor.setStddevMulThresh(1.0);
         sor.filter(*cluster_cloud);
-        outInfo("After SOR filter: " << cluster_cloud->points.size());
+        outDebug("After SOR filter: " << cluster_cloud->points.size());
       }
 
       //transform Point Cloud to map coordinates
