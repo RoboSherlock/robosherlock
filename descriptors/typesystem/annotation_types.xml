@@ -183,9 +183,7 @@
       <name>rs.annotation.CylindricalShape</name>
       <description/>
       <supertypeName>rs.annotation.Shape</supertypeName>
-      <features>
-      </features>
-    </typeDescription>
+      </typeDescription>
     <typeDescription>
       <name>rs.annotation.TFLocation</name>
       <description>This is a Location in a TF frame. Also stores the TF to fixed link.</description>
@@ -420,7 +418,7 @@
     </typeDescription>
     <typeDescription>
         <name>rs.annotation.SemanticSize</name>
-        <description> Relative size of an object</description>
+        <description>Relative size of an object</description>
         <supertypeName>rs.core.Annotation</supertypeName>
         <features>
         <featureDescription>
@@ -577,124 +575,18 @@
       </features>
     </typeDescription>
   <typeDescription>
-      <name>rs.annotation.Superpixel</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>density</name>
-          <description/>
-          <rangeTypeName>uima.cas.Float</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>num</name>
-          <description/>
-          <rangeTypeName>uima.cas.Float</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>position</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>radius</name>
-          <description/>
-          <rangeTypeName>uima.cas.Float</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>color</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-        <featureDescription>
-          <name>depth</name>
-          <description/>
-          <rangeTypeName>uima.cas.Float</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>world</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-        <featureDescription>
-          <name>normal</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-      </features>
-    </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.DASP</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>image</name>
-          <description/>
-          <rangeTypeName>uima.cas.ByteArray</rangeTypeName>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-      <featureDescription>
-          <name>superpixels</name>
-          <description/>
-          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
-          <elementType>rs.annotation.Superpixel</elementType>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-        <featureDescription>
-          <name>indices</name>
-          <description/>
-          <rangeTypeName>rs.cv.Mat</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>weights</name>
-          <description/>
-          <rangeTypeName>rs.cv.Mat</rangeTypeName>
-        </featureDescription>
-      <featureDescription>
-          <name>origin</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-  <typeDescription>
-      <name>rs.annotation.AdjacencyGraph</name>
-      <description>An adjacency graph (usually converted from boost adjacency list)</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>adjacencyEdges</name>
-          <description>List of points representing edges between vertices
- - p.x VertexOutID
- - p.y VertexInID</description>
-          <rangeTypeName>uima.cas.FSList</rangeTypeName>
-          <elementType>rs.cv.Point</elementType>
-        </featureDescription>
-        <featureDescription>
-          <name>origin</name>
-          <description>Origin of the neighbourhood graph, i.e. superpixels or supervoxels</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
       <name>rs.annotation.HandleAnnotation</name>
       <description>Handles</description>
       <supertypeName>rs.core.Annotation</supertypeName>
       <features>
         <featureDescription>
           <name>pose</name>
-          <description></description>
+          <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>name</name>
-          <description></description>
+          <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -724,7 +616,7 @@
 
         <featureDescription>
           <name>pose</name>
-          <description></description>
+          <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
         </featureDescription>
       </features>
@@ -737,12 +629,12 @@
       <features>
         <featureDescription>
           <name>pose</name>
-          <description></description>
+          <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>name</name>
-          <description></description>
+          <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>

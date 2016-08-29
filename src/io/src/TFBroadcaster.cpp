@@ -165,12 +165,12 @@ public:
 
           //skip cluster if it has no pose
 
-          if(!pose.empty())
+          for(rs::PoseAnnotation p : pose)
           {
             tf::Stamped<tf::Pose> tf_stamped_pose;
-            rs::conversion::from(pose[0].world(), tf_stamped_pose);
+            rs::conversion::from(p.world(), tf_stamped_pose);
             std::ostringstream oss;
-            oss << "rs_cluster" << clust_it - clusters.begin() << "_frame";
+            oss << "rs_cluster" << clust_it - clusters.begin() << "_" << p.source() << "_frame";
             stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, oss.str()));
           }
           int idx = 0;
@@ -179,7 +179,7 @@ public:
             tf::Stamped<tf::Pose> tf_stamped_pose;
             rs::conversion::from(clPart.pose(), tf_stamped_pose);
             std::stringstream ss;
-            ss<<"rs_cluster_part_"<<clust_it - clusters.begin()<<"_"<<idx<<"_frame";
+            ss << "rs_cluster_part_" << clust_it - clusters.begin() << "_" << idx << "_frame";
             stamped_transforms.push_back(tf::StampedTransform(tf_stamped_pose, ros::Time::now(), tf_stamped_pose.frame_id_, ss.str()));
             idx++;
           }

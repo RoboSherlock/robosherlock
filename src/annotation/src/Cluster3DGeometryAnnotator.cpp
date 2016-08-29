@@ -36,6 +36,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
+#include <rs/utils/common.h>
 #include <rs/DrawingAnnotator.h>
 
 #include <tf/transform_datatypes.h>
@@ -163,13 +164,13 @@ public:
 
       if(sorFilter_)
       {
-        outInfo("Before SOR filter: " << cluster_cloud->points.size());
+        outDebug("Before SOR filter: " << cluster_cloud->points.size());
         pcl::StatisticalOutlierRemoval<PointT> sor;
         sor.setInputCloud(cluster_cloud);
         sor.setMeanK(100);
         sor.setStddevMulThresh(1.0);
         sor.filter(*cluster_cloud);
-        outInfo("After SOR filter: " << cluster_cloud->points.size());
+        outDebug("After SOR filter: " << cluster_cloud->points.size());
       }
 
       //transform Point Cloud to map coordinates
@@ -233,7 +234,7 @@ public:
 
       if(projectOnPlane_)
       {
-        projectPointOnPlane(box.poseCam);
+        rs::common::projectPointOnPlane(box.poseCam,plane_model);
         tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
         box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
@@ -442,18 +443,6 @@ public:
     //compute camera and world pose
     box.poseCam = tf::Stamped<tf::Pose>(worldToCam * box.objectToWorld, camToWorld.stamp_, camToWorld.child_frame_id_);
     box.poseWorld = tf::Stamped<tf::Pose>(box.objectToWorld, camToWorld.stamp_, camToWorld.frame_id_);
-  }
-
-  void projectPointOnPlane(tf::Stamped<tf::Pose> &pose)
-  {
-
-    cv::Point3f normal(plane_model[0], plane_model[1], plane_model[2]);
-    float planeDist = plane_model[3];
-    cv::Point3f point(pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z());
-    float pointDist = point.dot(normal);
-    float t = planeDist + pointDist;
-    cv::Point3f projected = point - normal * t;
-    pose.setOrigin(tf::Vector3(projected.x, projected.y, projected.z));
   }
 
   void drawImageWithLock(cv::Mat &d)
