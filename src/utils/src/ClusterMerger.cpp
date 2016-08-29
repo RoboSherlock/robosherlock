@@ -104,19 +104,19 @@ public:
             int common3DPoints = intersection(cluster1Indices->indices, cluster2Indices->indices).size();
             if(common3DPoints != 0)
             {
-              outInfo("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
-              outInfo("That is " << (double)common3DPoints / cluster1Indices->indices.size() * 100 << " % of Cluster " << i << "s total points");
-              outInfo("That is " << (double)common3DPoints / cluster2Indices->indices.size() * 100 << " % of Cluster " << j << "s total points");
+              outDebug("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
+              outDebug("That is " << (double)common3DPoints / cluster1Indices->indices.size() * 100 << " % of Cluster " << i << "s total points");
+              outDebug("That is " << (double)common3DPoints / cluster2Indices->indices.size() * 100 << " % of Cluster " << j << "s total points");
 
               if(((double)common3DPoints / cluster1Indices->indices.size()) < ((double)common3DPoints / cluster2Indices->indices.size()))
               {
-                outInfo("Keeping Cluster: " << i);
+                outDebug("Keeping Cluster: " << i);
                 keepCluster[j] = false;
                 duplicateWith[i] = j;
               }
               else
               {
-                outInfo("Keeping Cluster: " << j);
+                outDebug("Keeping Cluster: " << j);
                 keepCluster[i] = false;
                 duplicateWith[j] = i;
               }

@@ -615,6 +615,13 @@
         </featureDescription>
 
         <featureDescription>
+          <name>clID</name>
+          <description/>
+          <rangeTypeName>uima.cas.Integer</rangeTypeName>
+        </featureDescription>
+
+
+        <featureDescription>
           <name>pose</name>
           <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>

@@ -93,7 +93,7 @@
       <capability>
         <inputs/>
         <outputs>
-          <type allAnnotatorFeatures="true">rs.annotation.Detection</type>
+          <type allAnnotatorFeatures="true">rs.annotation.Features</type>
         </outputs>
         <inputSofas>
           <sofaName>rs.scene.MergedCluster</sofaName>
