@@ -48,7 +48,9 @@ echo '##########################################################################
 echo '## Find all include directories                                               ##'>> $CMakefile
 echo '################################################################################'>> $CMakefile
 echo 'find_include_dirs(RS_INCLUDE_DIRS_LIST)'>> $CMakefile
-echo 'catkin_package()'>> $CMakefile
+echo 'catkin_package('>> $CMakefile
+echo '   CFG_EXTRAS ${PROJECT_NAME}_config.cmake'>> $CMakefile
+echo '   )'>> $CMakefile
 echo '################################################################################'>> $CMakefile
 echo '## Package dependencies                                                       ##'>> $CMakefile
 echo '################################################################################'>> $CMakefile
