@@ -414,11 +414,6 @@
             <description/>
             <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
-      <featureDescription>
-          <name>distanceToPlane</name>
-          <description/>
-          <rangeTypeName>uima.cas.Double</rangeTypeName>
-        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
@@ -463,6 +458,11 @@
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+            <name>distanceToPlane</name>
+            <description/>
+            <rangeTypeName>uima.cas.Double</rangeTypeName>
+         </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>

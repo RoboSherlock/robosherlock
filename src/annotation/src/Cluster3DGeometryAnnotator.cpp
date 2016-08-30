@@ -203,6 +203,9 @@ public:
       geometry.world.set(rs::conversion::to(tcas, box.poseWorld));
       geometry.boundingBox(box3d);
       geometry.size(box.semanticSize);
+
+      double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(box.poseCam.getOrigin().x(), box.poseCam.getOrigin().y(), box.poseCam.getOrigin().z()), plane_model[0], plane_model[1], plane_model[2], plane_model[3]));
+      geometry.distanceToPlane.set(dist);
       cluster.annotations.append(geometry);
 
       rs::SemanticSize semSize = rs::create<rs::SemanticSize>(tcas);;
@@ -231,13 +234,6 @@ public:
 
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
-
-      double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(box.poseCam.getOrigin().x(), box.poseCam.getOrigin().y(), box.poseCam.getOrigin().z()), plane_model[0], plane_model[1], plane_model[2], plane_model[3]));
-
-      for(rs::PoseAnnotation &pose : poses)
-      {
-        pose.distanceToPlane.set(dist);
-      }
 
       if(projectOnPlane_)
       {
