@@ -32,6 +32,7 @@
 #include <pcl/common/transforms.h>
 #include <pcl/filters/extract_indices.h>
 #include <pcl/filters/statistical_outlier_removal.h>
+#include <pcl/sample_consensus/sac_model_plane.h>
 
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
@@ -231,10 +232,16 @@ public:
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
 
+      double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(box.poseCam.getOrigin().x(), box.poseCam.getOrigin().y(), box.poseCam.getOrigin().z()), plane_model[0], plane_model[1], plane_model[2], plane_model[3]));
+
+      for(rs::PoseAnnotation &pose : poses)
+      {
+        pose.distanceToPlane.set(dist);
+      }
 
       if(projectOnPlane_)
       {
-        rs::common::projectPointOnPlane(box.poseCam,plane_model);
+        rs::common::projectPointOnPlane(box.poseCam, plane_model);
         tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
         box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
@@ -253,6 +260,8 @@ public:
         poses[0].camera.set(rs::conversion::to(tcas, box.poseCam));
         poses[0].world.set(rs::conversion::to(tcas, box.poseWorld));
       }
+
+
     }
     return UIMA_ERR_NONE;
   }
