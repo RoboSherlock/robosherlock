@@ -118,7 +118,7 @@ def updateAnalysisEngines(engines, xmlAnnotators):
 
 def main():
   if(len(sys.argv) < 3):
-    sys.stderr.write("Error: Not enought arguments!\n")
+    sys.stderr.write("Error: Not enough arguments!\n")
     sys.stderr.write("Run instructions:\n")
     sys.stderr.write("  updateAnalysisEngines [pathEngines] [pathAnnotators]\n")
     exit()

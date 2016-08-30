@@ -141,7 +141,7 @@ include_directories(
 ################################################################################
 
 ## Update xml list of annotators inside analysis engines
-update_analysis_engines(descriptors/analysis_engines)
+update_analysis_engines()
 
 ## generate classes from the typesystem xml files
 generate_type_system()

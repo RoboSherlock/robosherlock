@@ -92,7 +92,11 @@ macro(update_analysis_engines)
   set(engines ${ENGINE_PATH})
 
   foreach(arg ${ARGN}) 
-    set(annotators ${annotators} ${${arg}_ANNOTATOR_PATH})
+    if("${${arg}_ANNOTATOR_PATH}" STREQUAL "")
+      message(WARNING "Tried to get annotator path of " + ${arg} + ". Check your CMakeLists call of update_analysis_engine")
+    else()
+      set(annotators ${annotators} ${${arg}_ANNOTATOR_PATH})
+    endif()
   endforeach()
   
   add_custom_target(${PROJECT_NAME}_update_analysis_engines ALL ${script} ${engines} ${annotators})
