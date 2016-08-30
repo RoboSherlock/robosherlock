@@ -222,9 +222,11 @@ void ImageSegmentation::computePose(std::vector<Segment> &segments, const cv::Ma
     double &aX = axisX3D.at<double>(0);
     double &aY = axisX3D.at<double>(1);
     double &aZ = axisX3D.at<double>(2);
-    const double &nX = planeNormal.at<double>(0);
-    const double &nY = planeNormal.at<double>(1);
-    const double &nZ = planeNormal.at<double>(2);
+
+    //plane normal from PCL points away from camera....for consistency flip this. so that all estimated poses have an up pointing Z
+    const double &nX = -planeNormal.at<double>(0);
+    const double &nY = -planeNormal.at<double>(1);
+    const double &nZ = -planeNormal.at<double>(2);
     if(abs(nX) > abs(nY) && abs(nX) > abs(nZ))
     {
       aX = (-(nY * aY) - (nZ * aZ)) / nX;
@@ -237,7 +239,7 @@ void ImageSegmentation::computePose(std::vector<Segment> &segments, const cv::Ma
     {
       aZ = (-(nX * aX) - (nY * aY)) / nZ;
     }
-    axisY3D = -axisX3D.cross(planeNormal);
+    axisY3D = -axisX3D.cross(-planeNormal);
 
     seg.rotation = cv::Mat(3, 3, CV_64F);
     seg.rotation.at<double>(0, 0) = axisX3D.at<double>(0);
@@ -246,9 +248,9 @@ void ImageSegmentation::computePose(std::vector<Segment> &segments, const cv::Ma
     seg.rotation.at<double>(0, 1) = axisY3D.at<double>(0);
     seg.rotation.at<double>(1, 1) = axisY3D.at<double>(1);
     seg.rotation.at<double>(2, 1) = axisY3D.at<double>(2);
-    seg.rotation.at<double>(0, 2) = planeNormal.at<double>(0);
-    seg.rotation.at<double>(1, 2) = planeNormal.at<double>(1);
-    seg.rotation.at<double>(2, 2) = planeNormal.at<double>(2);
+    seg.rotation.at<double>(0, 2) = -planeNormal.at<double>(0);
+    seg.rotation.at<double>(1, 2) = -planeNormal.at<double>(1);
+    seg.rotation.at<double>(2, 2) = -planeNormal.at<double>(2);
 
   }
 }
