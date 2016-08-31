@@ -66,7 +66,7 @@ public:
   ~ROSThermalCamBridge();
 
   bool setData(uima::CAS &tcas, uint64_t ts = 0);
-  void lookupTransform(uima::CAS &tcas, const ros::Time &timestamp);
+  void setTransform(uima::CAS &tcas);
   void maskImage(cv::Mat &image, int xMin, int yMin, int xMax, int yMax);
 };
 

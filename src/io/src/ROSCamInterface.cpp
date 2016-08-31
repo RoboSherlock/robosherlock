@@ -24,19 +24,72 @@
 // Implementation
 
 ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
-  : CamInterface(pt), lookUpViewpoint(false), spinner(0), nodeHandle("~")
+  : CamInterface(pt), spinner(0), nodeHandle("~")
 {
-  listener = new tf::TransformListener(nodeHandle,ros::Duration(10.0));
+  listener = new tf::TransformListener(nodeHandle, ros::Duration(10.0));
   tfFrom = pt.get<std::string>("tf.from");
   tfTo = pt.get<std::string>("tf.to");
-  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint");
+  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
+  maxViewpointDistance = pt.get<double>("tf.maxViewpointDistance", 0.01);
+  maxViewpointRotation = pt.get<double>("tf.maxViewpointRotation", 1.0);
 
-  outInfo("TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
-  outInfo("TF From:   " FG_BLUE << tfFrom);
-  outInfo("TF To:     " FG_BLUE << tfTo);
+  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
+  outInfo("               TF From: " FG_BLUE << tfFrom);
+  outInfo("                 TF To: " FG_BLUE << tfTo);
+  outInfo("Only Stable Viewpoints: " FG_BLUE << tfTo);
+  outInfo("Max Viewpoint Distance: " FG_BLUE << tfTo);
+  outInfo("Max Viewpoint Rotation: " FG_BLUE << tfTo);
 }
 
 ROSCamInterface::~ROSCamInterface()
 {
   delete listener;
+}
+
+bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
+{
+  this->timestamp = timestamp;
+
+  if(lookUpViewpoint)
+  {
+    try
+    {
+      outInfo("lookup viewpoint: " << timestamp);
+      listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(10));
+      listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
+    }
+    catch(tf::TransformException &ex)
+    {
+      outError(ex.what());
+      return false;
+    }
+
+    if(onlyStableViewpoints)
+    {
+      const double distance = lastTransform.getOrigin().distance(transform.getOrigin());
+      const double angle = lastTransform.getRotation().angleShortestPath(transform.getRotation()) * 180.0 / M_PI;
+      lastTransform = transform;
+
+      outInfo("viewpoint changes: distance: " << distance << " angle: " << angle);
+      if(distance > maxViewpointDistance || angle > maxViewpointRotation)
+      {
+        outWarn("viewpoint changed!");
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+void ROSCamInterface::setTransformAndTime(uima::CAS &tcas)
+{
+  rs::Scene scene = rs::SceneCas(tcas).getScene();
+  if(lookUpViewpoint)
+  {
+    rs::StampedTransform vp(rs::conversion::to(tcas, transform));
+    scene.viewPoint.set(vp);
+    outInfo("added viewpoint to scene");
+  }
+  scene.timestamp.set(timestamp.toNSec());
 }

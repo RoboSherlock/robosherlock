@@ -60,13 +60,13 @@ void ROSThermalCamBridge::readConfig(const boost::property_tree::ptree &pt)
   std::string thermal_depth_topic = pt.get<std::string>("camera_topics.thermal_depth_reg");
   std::string thermal_rgb_topic = pt.get<std::string>("camera_topics.thermal_rgb_reg");
   std::string cam_info_topic = pt.get<std::string>("camera_topics.camInfo");
-  boost::optional<std::string> depth_hints = pt.get_optional<std::string>("camera_topics.depthHints");
-  boost::optional<std::string> color_hints = pt.get_optional<std::string>("camera_topics.colorHints");
-  boost::optional<std::string> thermal_hints = pt.get_optional<std::string>("camera_topics.thermalHints");
+  std::string depth_hints = pt.get<std::string>("camera_topics.depthHints", "raw");
+  std::string color_hints = pt.get<std::string>("camera_topics.colorHints", "raw");
+  std::string thermal_hints = pt.get<std::string>("camera_topics.thermalHints", "raw");
 
-  image_transport::TransportHints hintsThermal(thermal_hints ? thermal_hints.get() : "raw");
-  image_transport::TransportHints hintsColor(color_hints ? color_hints.get() : "raw");
-  image_transport::TransportHints hintsDepth(depth_hints ? depth_hints.get() : "raw");
+  image_transport::TransportHints hintsThermal(thermal_hints);
+  image_transport::TransportHints hintsColor(color_hints);
+  image_transport::TransportHints hintsDepth(depth_hints);
 
   thermalImageSubscriber = new image_transport::SubscriberFilter(it, thermal_topic, 0, hintsThermal);
   thermalDepthImageSubscriber = new image_transport::SubscriberFilter(it, thermal_depth_topic, 0, hintsDepth);
@@ -94,6 +94,16 @@ void ROSThermalCamBridge::cb_(const sensor_msgs::Image::ConstPtr thermal_img_msg
   orig_thermal_img = cv_bridge::toCvShare(thermal_img_msg, sensor_msgs::image_encodings::MONO8);
   orig_thermal_img->image.copyTo(thermalImage);
 
+  cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
+
+  if(!lookupTransform(cameraInfo.header.stamp))
+  {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
+    return;
+  }
+
   //hacked: displaying heat map etc must be disabled in the flir firmware
   if(thermalImage.cols == 320)
   {
@@ -114,8 +124,6 @@ void ROSThermalCamBridge::cb_(const sensor_msgs::Image::ConstPtr thermal_img_msg
     outError("Unsupported Image size");
     return;
   }
-
-  cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
 
   cv_bridge::CvImageConstPtr orig_thermal_depth_img;
   orig_thermal_depth_img = cv_bridge::toCvShare(thermal_depth_img_msg, thermal_depth_img_msg->encoding);
@@ -186,7 +194,7 @@ bool ROSThermalCamBridge::setData(uima::CAS &tcas, uint64_t ts)
   lock.unlock();
 
   rs::SceneCas cas(tcas);
-  lookupTransform(tcas, cameraInfo.header.stamp);
+  setTransform(tcas);
 
   cas.set(VIEW_THERMAL_IMAGE, thermalImage);
   cas.set(VIEW_THERMAL_DEPTH_IMAGE, thermalDepthImage);
@@ -196,26 +204,15 @@ bool ROSThermalCamBridge::setData(uima::CAS &tcas, uint64_t ts)
   return true;
 }
 
-void ROSThermalCamBridge::lookupTransform(uima::CAS &tcas, const ros::Time &timestamp)
+void ROSThermalCamBridge::setTransform(uima::CAS &tcas)
 {
   if(!lookUpViewpoint)
   {
     return;
   }
 
-  tf::StampedTransform transform;
-  try
-  {
-    outInfo("TIME Before lookup:" << ros::Time::now());
-    listener->waitForTransform(tfTo, tfFrom, ros::Time(0), ros::Duration(10));
-    listener->lookupTransform(tfTo, tfFrom, ros::Time(0), transform);
-    rs::Scene scene = rs::SceneCas(tcas).getScene();
-    rs::StampedTransform vp(rs::conversion::to(tcas, transform));
-    scene.thermalViewPoint.set(vp);
-    outInfo("added viewpoint to scene");
-  }
-  catch(tf::TransformException &ex)
-  {
-    outError(ex.what());
-  }
+  rs::Scene scene = rs::SceneCas(tcas).getScene();
+  rs::StampedTransform vp(rs::conversion::to(tcas, transform));
+  scene.thermalViewPoint.set(vp);
+  outInfo("added viewpoint to scene");
 }

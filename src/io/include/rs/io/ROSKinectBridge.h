@@ -81,8 +81,6 @@ public:
   {
     d = this->depth.clone();
   }
-
-  void lookupTransform(uima::CAS &tcas, const ros::Time &timestamp);
 };
 
 #endif // __ROS_KINECT_BRIDGE_H__

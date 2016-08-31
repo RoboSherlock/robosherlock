@@ -40,9 +40,12 @@ private:
 protected:
   tf::TransformListener *listener;
   std::string tfFrom, tfTo;
-  bool lookUpViewpoint;
+  bool lookUpViewpoint, onlyStableViewpoints;
   ros::AsyncSpinner spinner;
   ros::NodeHandle nodeHandle;
+  tf::StampedTransform transform, lastTransform;
+  ros::Time timestamp;
+  double maxViewpointDistance, maxViewpointRotation;
 
   std::mutex lock;
 
@@ -52,7 +55,8 @@ public:
 protected:
   ROSCamInterface(const boost::property_tree::ptree &pt);
 
-  void lookupTransform(uima::CAS &tcas, const ros::Time &timestamp);
+  bool lookupTransform(const ros::Time &timestamp);
+  void setTransformAndTime(uima::CAS &tcas);
 };
 
 #endif // __ROS_CAM_INTERFACE2_H__
