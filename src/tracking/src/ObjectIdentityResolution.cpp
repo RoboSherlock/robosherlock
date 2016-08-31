@@ -125,7 +125,7 @@ public:
     {
       ctx.extractValue("identitydb", db);
     }
-    if(ctx.isParameterDefined("maxDist"))
+    if(ctx.isParameterDefined("maxDifference"))
     {
       float tmp = maxDifference;
       ctx.extractValue("maxDifference", tmp);
@@ -355,10 +355,10 @@ private:
       rs::Object &object = objects[i];
 
       const double lastSeen = (timestamp - (uint64_t)object.lastSeen()) / 1000000000.0;
-      const double timeFactor = std::min(lastSeen / 600.0, 1.0);
+      const double timeFactor = std::min(lastSeen / 60.0, 1.0);
       const double factorD = 0.8 - 0.6 * timeFactor;
       const double factorS = 1.0 - factorD;
-      outDebug("last seen: " << (int)lastSeen << " time factor: " << timeFactor << " dist: " << factorD << " sim: " << factorS);
+      outDebug(FG_YELLOW "last seen: " << (int)lastSeen << " time factor: " << timeFactor << " dist: " << factorD << " sim: " << factorS);
 
       double *it = similarity.ptr<double>(i);
       double distC = 0;
@@ -372,7 +372,7 @@ private:
         double dist = distanceClusterToObjects(cluster, object);
         double combined = dist * factorD + sim * factorS;
 
-        outDebug("object " << toAllObject[i] << " to cluster " << toAllCluster[j] << ": dist: " << dist << " sim: " << sim << " combined: " << combined);
+        outDebug(FG_GREEN "object " << toAllObject[i] << " to cluster " << toAllCluster[j] << ": dist: " << dist << " sim: " << sim << " combined: " << combined);
         *it = combined;
 
         if(combined > distC)
@@ -394,7 +394,7 @@ private:
       if(bestCluster[bestObject[i]] == i && distO[i] > maxDifference)
       {
         clustersToObject[toAllCluster[i]] = toAllObject[bestObject[i]];
-        outDebug("object: " << toAllObject[bestObject[i]] << " to cluster: " << toAllCluster[i]);
+        outDebug(FG_MAGENTA "object: " << toAllObject[bestObject[i]] << " to cluster: " << toAllCluster[i]);
       }
       else
       {
