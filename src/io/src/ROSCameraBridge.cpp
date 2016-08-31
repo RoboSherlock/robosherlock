@@ -63,10 +63,10 @@ void ROSCameraBridge::readConfig(const boost::property_tree::ptree &pt)
 
   cameraInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, cam_info_topic, 1);
 
-  outInfo("Color topic:   " FG_BLUE << color_topic);
+  outInfo("  Color topic: " FG_BLUE << color_topic);
   outInfo("CamInfo topic: " FG_BLUE << cam_info_topic);
-  outInfo("Color Hints:   " FG_BLUE << color_hints);
-  outInfo("Blur filter:   " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
+  outInfo("  Color Hints: " FG_BLUE << color_hints);
+  outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
 }
 
 void ROSCameraBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
@@ -79,8 +79,19 @@ void ROSCameraBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   orig_rgb_img = cv_bridge::toCvShare(rgb_img_msg, sensor_msgs::image_encodings::BGR8);
   cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
 
+  if(!lookupTransform(cameraInfo.header.stamp))
+  {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
+    return;
+  }
+
   if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
   {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
     outWarn("Skipping blurred image!");
     return;
   }
@@ -112,7 +123,7 @@ bool ROSCameraBridge::setData(uima::CAS &tcas, uint64_t ts)
   lock.unlock();
 
   rs::SceneCas cas(tcas);
-  lookupTransform(tcas, cameraInfo.header.stamp);
+  setTransformAndTime(tcas);
 
   cas.set(VIEW_COLOR_IMAGE_HD, color);
   cas.set(VIEW_COLOR_IMAGE, color);
@@ -120,31 +131,5 @@ bool ROSCameraBridge::setData(uima::CAS &tcas, uint64_t ts)
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
   cas.set(VIEW_CAMERA_INFO_HD, cameraInfo);
 
-  cas.getScene().timestamp.set(cameraInfo.header.stamp.toNSec());
-
   return true;
-}
-
-void ROSCameraBridge::lookupTransform(uima::CAS &tcas, const ros::Time &timestamp)
-{
-  if(!lookUpViewpoint)
-  {
-    return;
-  }
-
-  tf::StampedTransform transform;
-  try
-  {
-    outInfo("TIME Before lookup:" << ros::Time::now());
-    listener->waitForTransform(tfTo, tfFrom, ros::Time(0), ros::Duration(10));
-    listener->lookupTransform(tfTo, tfFrom, ros::Time(0), transform);
-    rs::Scene scene = rs::SceneCas(tcas).getScene();
-    rs::StampedTransform vp(rs::conversion::to(tcas, transform));
-    scene.viewPoint.set(vp);
-    outInfo("added viewpoint to scene");
-  }
-  catch(tf::TransformException &ex)
-  {
-    outError(ex.what());
-  }
 }

@@ -75,7 +75,7 @@
       <nameValuePair>
         <name>min_plane_inliers</name>
         <value>
-          <integer>10000</integer>
+          <integer>50000</integer>
         </value>
       </nameValuePair>
 

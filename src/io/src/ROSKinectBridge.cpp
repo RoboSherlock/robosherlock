@@ -56,33 +56,28 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
 {
   std::string depth_topic = pt.get<std::string>("camera_topics.depth");
   std::string color_topic = pt.get<std::string>("camera_topics.color");
-  boost::optional<std::string> depth_hints = pt.get_optional<std::string>("camera_topics.depthHints");
-  boost::optional<std::string> color_hints = pt.get_optional<std::string>("camera_topics.colorHints");
+  std::string depth_hints = pt.get<std::string>("camera_topics.depthHints", "raw");
+  std::string color_hints = pt.get<std::string>("camera_topics.colorHints", "raw");
   std::string cam_info_topic = pt.get<std::string>("camera_topics.camInfo");
-  filterBlurredImages = pt.get<bool>("camera.filterBlurredImages");
-  depthOffset = pt.get<int>("camera.depthOffset");
+  filterBlurredImages = pt.get<bool>("camera.filterBlurredImages", false);
+  depthOffset = pt.get<int>("camera.depthOffset", 0);
+  scale = pt.get<bool>("camera.scale", true);
 
-  boost::optional<bool> scaleInfo = pt.get_optional<bool>("camera.scale");
-  scale = scaleInfo ? scaleInfo.get() : true;
-
-  image_transport::TransportHints hintsColor(color_hints ? color_hints.get() : "raw");
-  image_transport::TransportHints hintsDepth(depth_hints ? depth_hints.get() : "raw");
+  image_transport::TransportHints hintsColor(color_hints);
+  image_transport::TransportHints hintsDepth(depth_hints);
 
   depthImageSubscriber = new image_transport::SubscriberFilter(it, depth_topic, 5, hintsDepth);
   rgbImageSubscriber = new image_transport::SubscriberFilter(it, color_topic, 5, hintsColor);
   cameraInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, cam_info_topic, 5);
 
-  outInfo("Depth topic:   " FG_BLUE << depth_topic);
-  outInfo("Color topic:   " FG_BLUE << color_topic);
+  outInfo("  Depth topic: " FG_BLUE << depth_topic);
+  outInfo("  Color topic: " FG_BLUE << color_topic);
   outInfo("CamInfo topic: " FG_BLUE << cam_info_topic);
-  if(depth_hints && color_hints)
-  {
-    outInfo("Depth Hints:   " FG_BLUE << depth_hints.get());
-    outInfo("Color Hints:   " FG_BLUE << color_hints.get());
-  }
-  outInfo("DepthOffset:   " FG_BLUE << depthOffset);
-  outInfo("Blur filter:   " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
-  outInfo("Scale Input:   " FG_BLUE << (scale ? "ON" : "OFF"));
+  outInfo("  Depth Hints: " FG_BLUE << depth_hints);
+  outInfo("  Color Hints: " FG_BLUE << color_hints);
+  outInfo("  DepthOffset: " FG_BLUE << depthOffset);
+  outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
+  outInfo("  Scale Input: " FG_BLUE << (scale ? "ON" : "OFF"));
 }
 
 void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
@@ -98,6 +93,14 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   cv_bridge::CvImageConstPtr orig_rgb_img;
   orig_rgb_img = cv_bridge::toCvShare(rgb_img_msg, sensor_msgs::image_encodings::BGR8);
   cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
+
+  if(!lookupTransform(cameraInfo.header.stamp))
+  {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
+    return;
+  }
 
   if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
   {
@@ -236,7 +239,7 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
   lock.unlock();
 
   rs::SceneCas cas(tcas);
-  lookupTransform(tcas, cameraInfo.header.stamp);
+  setTransformAndTime(tcas);
 
   if(scale && color.cols >= 1280)
   {
@@ -259,31 +262,5 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
 
-  cas.getScene().timestamp.set(cameraInfo.header.stamp.toNSec());
-
   return true;
-}
-
-void ROSKinectBridge::lookupTransform(uima::CAS &tcas, const ros::Time &timestamp)
-{
-  if(!lookUpViewpoint)
-  {
-    return;
-  }
-
-  tf::StampedTransform transform;
-  try
-  {
-    outInfo("TIME Before lookup:" << ros::Time::now());
-    listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(10));
-    listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
-    rs::Scene scene = rs::SceneCas(tcas).getScene();
-    rs::StampedTransform vp(rs::conversion::to(tcas, transform));
-    scene.viewPoint.set(vp);
-    outInfo("added viewpoint to scene");
-  }
-  catch(tf::TransformException &ex)
-  {
-    outError(ex.what());
-  }
 }

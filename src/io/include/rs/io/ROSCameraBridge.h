@@ -65,7 +65,6 @@ public:
   ~ROSCameraBridge();
 
   bool setData(uima::CAS &tcas, u_int64_t = 0);
-  void lookupTransform(uima::CAS &tcas, const ros::Time &timestamp);
 };
 
 #endif // __ROS_CAMERA_BRIDGE_H__
