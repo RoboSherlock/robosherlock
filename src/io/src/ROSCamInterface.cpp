@@ -37,9 +37,9 @@ ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
   outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
   outInfo("               TF From: " FG_BLUE << tfFrom);
   outInfo("                 TF To: " FG_BLUE << tfTo);
-  outInfo("Only Stable Viewpoints: " FG_BLUE << tfTo);
-  outInfo("Max Viewpoint Distance: " FG_BLUE << tfTo);
-  outInfo("Max Viewpoint Rotation: " FG_BLUE << tfTo);
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
+  outInfo("Max Viewpoint Distance: " FG_BLUE << maxViewpointDistance);
+  outInfo("Max Viewpoint Rotation: " FG_BLUE << maxViewpointRotation);
 }
 
 ROSCamInterface::~ROSCamInterface()
