@@ -89,7 +89,9 @@ public:
     for(size_t i = 0; i < clusters.size(); ++i)
     {
       rs::Cluster &cluster1 = clusters[i];
-
+      rs::ImageROI cluster1ImageRoi = cluster1.rois();
+      cv::Rect roi1;
+      rs::conversion::from(cluster1ImageRoi.roi_hires(), roi1);
       pcl::PointIndicesPtr cluster1Indices(new pcl::PointIndices());
       rs::conversion::from(((rs::ReferenceClusterPoints)cluster1.points.get()).indices.get(), *cluster1Indices);
       if(!cluster1Indices->indices.empty())
@@ -99,10 +101,27 @@ public:
           rs::Cluster &cluster2 = clusters[j];
           pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
           rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
+
+          rs::ImageROI cluster2ImageRoi = cluster2.rois();
+          cv::Rect roi2;
+          rs::conversion::from(cluster2ImageRoi.roi_hires(), roi2);
           if(!cluster2Indices->indices.empty())
           {
             int common3DPoints = intersection(cluster1Indices->indices, cluster2Indices->indices).size();
-            if(common3DPoints != 0)
+
+            cv::Rect intersect = roi1 & roi2;
+            //first handle the case when a hyp is fully inside another hyp;
+            if(intersect.area() == roi1.area())
+            {
+              keepCluster[i] = false;
+              duplicateWith[j] = i;
+            }
+            else if(intersect.area() == roi2.area())
+            {
+              keepCluster[j] = false;
+              duplicateWith[i] = j;
+            }
+            else if(common3DPoints != 0)
             {
               outDebug("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
               outDebug("That is " << (double)common3DPoints / cluster1Indices->indices.size() * 100 << " % of Cluster " << i << "s total points");
