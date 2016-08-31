@@ -38,6 +38,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
+#include <rs/utils/exception.h>
 
 //ROS
 #include <ros/package.h>
@@ -170,6 +171,8 @@ private:
 
     cas.get(VIEW_COLOR_IMAGE_HD, image);
 
+    foundPlane = false;
+
     switch(mode)
     {
     case BOARD:
@@ -188,6 +191,12 @@ private:
       outInfo("Loading from File");
       loadPlaneModel(tcas, scene);
       break;
+    }
+
+    if(!foundPlane)
+    {
+      outWarn("no plane found, no further processing!");
+      throw rs::FrameFilterException();
     }
 
     return UIMA_ERR_NONE;
@@ -506,6 +515,12 @@ private:
     plane_segmentation.setMaxIterations(max_iterations);
     plane_segmentation.setInputCloud(cloud_filtered_no_nan);
     plane_segmentation.segment(*plane_inliers, *plane_coefficients);
+
+    if(plane_inliers->indices.size() < min_plane_inliers)
+    {
+      outWarn("no enough inliers!");
+      return false;
+    }
 
     std::sort(plane_inliers->indices.begin(), plane_inliers->indices.end());
     if(plane_inliers->indices.size() == 0)
