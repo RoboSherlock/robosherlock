@@ -37,9 +37,9 @@ ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
   outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
   outInfo("               TF From: " FG_BLUE << tfFrom);
   outInfo("                 TF To: " FG_BLUE << tfTo);
-  outInfo("Only Stable Viewpoints: " FG_BLUE << tfTo);
-  outInfo("Max Viewpoint Distance: " FG_BLUE << tfTo);
-  outInfo("Max Viewpoint Rotation: " FG_BLUE << tfTo);
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
+  outInfo("Max Viewpoint Distance: " FG_BLUE << maxViewpointDistance);
+  outInfo("Max Viewpoint Rotation: " FG_BLUE << maxViewpointRotation);
 }
 
 ROSCamInterface::~ROSCamInterface()
@@ -55,7 +55,7 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
   {
     try
     {
-      outInfo("lookup viewpoint: " << timestamp);
+      outDebug("lookup viewpoint: " << timestamp);
       listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(10));
       listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
     }
@@ -71,10 +71,10 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
       const double angle = lastTransform.getRotation().angleShortestPath(transform.getRotation()) * 180.0 / M_PI;
       lastTransform = transform;
 
-      outInfo("viewpoint changes: distance: " << distance << " angle: " << angle);
+      outDebug("viewpoint changes: distance: " << distance << " angle: " << angle);
       if(distance > maxViewpointDistance || angle > maxViewpointRotation)
       {
-        outWarn("viewpoint changed!");
+        outDebug("viewpoint changed!");
         return false;
       }
     }
