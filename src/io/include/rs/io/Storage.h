@@ -32,6 +32,8 @@
 
 // RS
 #include <rs/types/core_types.h>
+#include <rs/types/scene_types.h>
+
 
 namespace rs
 {
@@ -93,6 +95,8 @@ public:
   void removeCollection(const std::string &collection);
   void storeCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
   void loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
+
+  std::vector<Cluster> getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids);
 };
 
 } // namespace rs
