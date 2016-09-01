@@ -172,22 +172,23 @@ private:
     //message comes from desigantor and is not the same as the entries from the semantic map so we need
     //to transform them
     rs::Query qs = rs::create<rs::Query>(tcas);
+    std::vector<std::string> regionsToLookAt;
+    regionsToLookAt.assign(defaultRegions.begin(),defaultRegions.end());
+    regions.clear();
     if(cas.getFS("QUERY", qs))
     {
+      outWarn("loaction set in query: " << qs.location());
       if(std::find(defaultRegions.begin(), defaultRegions.end(), qs.location()) == std::end(defaultRegions) && qs.location()!="")
       {
-        regions.clear();
-        defaultRegions.clear();
-        outWarn("loaction set in query: " << qs.location());
-
-        defaultRegions.push_back(qs.location());
+        regionsToLookAt.clear();
+        regionsToLookAt.push_back(qs.location());
       }
     }
 
     if(regions.empty())
     {
       std::vector<rs::SemanticMapObject> semanticRegions;
-      getSemanticMapEntries(cas, defaultRegions, semanticRegions);
+      getSemanticMapEntries(cas, regionsToLookAt, semanticRegions);
 
       regions.resize(semanticRegions.size());
       for(size_t i = 0; i < semanticRegions.size(); ++i)
@@ -406,8 +407,11 @@ private:
     float minY = -(region.height / 2) + border;
     const float maxY = (region.height / 2) - border;
     const float minZ = -(region.depth / 2);
-    const float maxZ = 0.5;
-
+    float maxZ = 0.5;
+    if (region.name == "drawer_sinkblock_middle_open")
+    {
+        maxZ = 0.08;
+    }
     //needed because of crappy sem map
     if(region.name == "kitchen_sink_block_counter_top")
     {

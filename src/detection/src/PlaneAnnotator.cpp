@@ -518,7 +518,7 @@ private:
 
     if(plane_inliers->indices.size() < min_plane_inliers)
     {
-      outWarn("no enough inliers!");
+      outWarn("not enough inliers!");
       return false;
     }
 
