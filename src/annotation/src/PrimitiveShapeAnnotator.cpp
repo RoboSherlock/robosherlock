@@ -123,23 +123,6 @@ public:
     int idx = 0;
     for(auto cluster : clusters)
     {
-      std::vector<rs::Geometry> geom;
-      cluster.annotations.filter(geom);
-      if(!geom.empty())
-      {
-        rs::BoundingBox3D box = geom[0].boundingBox();
-
-        float max_edge = std::max(box.width(), std::max(box.depth(), box.height()));
-        float min_edge = std::min(box.width(), std::min(box.depth(), box.height()));
-        if(min_edge / max_edge <= 0.25)
-        {
-          rs::Shape shape = rs::create<rs::Shape>(tcas);
-          shape.shape.set("flat");
-          shape.confidence.set(std::abs(0.25 / 2 - min_edge / max_edge) / 0.125);
-          cluster.annotations.append(shape);
-        }
-      }
-
       pcl::PointIndices::Ptr cluster_indices(new pcl::PointIndices);
       rs::ReferenceClusterPoints clusterpoints(cluster.points());
       rs::conversion::from(clusterpoints.indices(), *cluster_indices);
@@ -300,6 +283,22 @@ public:
         cluster.annotations.append(shapeAnnot);
       }
 
+      std::vector<rs::Geometry> geom;
+      cluster.annotations.filter(geom);
+      if(!geom.empty())
+      {
+        rs::BoundingBox3D box = geom[0].boundingBox();
+
+        float max_edge = std::max(box.width(), std::max(box.depth(), box.height()));
+        float min_edge = std::min(box.width(), std::min(box.depth(), box.height()));
+        if(min_edge / max_edge <= 0.25)
+        {
+          rs::Shape shape = rs::create<rs::Shape>(tcas);
+          shape.shape.set("flat");
+          shape.confidence.set(std::abs(0.25 / 2 - min_edge / max_edge) / 0.125);
+          cluster.annotations.append(shape);
+        }
+      }
 
       idx++;
     }
