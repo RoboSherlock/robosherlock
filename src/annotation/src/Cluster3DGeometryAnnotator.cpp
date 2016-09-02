@@ -350,14 +350,22 @@ public:
     project2D(cloud, points, min, max);
 
     cv::RotatedRect rect = cv::minAreaRect(points);
+    if(rect.size.width > rect.size.height)
+    {
+      rect.angle += 90;
+      rect.size = cv::Size2f(rect.size.height, rect.size.width);
+    }
+
 
     tf::Vector3 trans = tf::Vector3((max.x + min.x) / 2.0, (max.y + min.y) / 2.0, (max.z + min.z) / 2.0);
+    float sinA, cosA;
 
-    float sinA = sin(rect.angle / 180.0 * M_PI);
-    float cosA = cos(rect.angle / 180.0 * M_PI);
+    sinA = sin(rect.angle / 180.0 * M_PI);
+    cosA = cos(rect.angle / 180.0 * M_PI);
 
     tf::Matrix3x3 rot;
     rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
+
 
     tf::Transform objectToWorld;
     objectToWorld.setOrigin(trans);

@@ -1,6 +1,7 @@
 %YAML:1.0
 names:
    - drawer_sinkblock_upper
+   - drawer_sinkblock_upper_open
    - drawer_sinkblock_middle
    - drawer_sinkblock_lower
    - drawer_sinkblock_trash
@@ -61,6 +62,18 @@ drawer_sinkblock_upper:
       cols: 4
       dt: d
       data: [ 1., 0., 0., 1.3999999999999999e+00, 0., 1., 0.,
+          9.0000000000000002e-01, 0., 0., 1., 7.5000000000000000e-01, 0.,
+          0., 0., 1. ]
+drawer_sinkblock_upper_open:
+   type: Drawer
+   width: 7.0000000000000004e-01
+   height: 1.000000000000001e-01
+   depth: 4.5000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 1.059999999999999e+00, 0., 1., 0.,
           9.0000000000000002e-01, 0., 0., 1., 7.5000000000000000e-01, 0.,
           0., 0., 1. ]
 drawer_sinkblock_middle:
