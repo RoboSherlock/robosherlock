@@ -143,6 +143,16 @@ private:
     std::vector<rs::Cluster> clusters;
 
     cas.get(VIEW_COLOR_IMAGE_HD, color);
+    rs::Query qs = rs::create<rs::Query>(tcas);
+    std::string jsonQuery;
+    if(cas.getFS("QUERY", qs))
+    {
+      jsonQuery = qs.asJson();
+      outWarn("json query: " << qs.asJson());
+    }
+
+    std::size_t found = jsonQuery.find("COLOR");
+
 
     scene.identifiables.filter(clusters);
     clusterRois.resize(clusters.size());
@@ -165,42 +175,41 @@ private:
 
       cv::Mat hsv, hist;
       cv::cvtColor(rgb, hsv, CV_BGR2HSV_FULL);
-
-      //======================= Calculate Semantic Color ==========================
-      rs::SemanticColor color_annotation = rs::create<rs::SemanticColor>(tcas);
-
-      std::vector<int> colorCount;
       size_t sum;
+      std::vector<int> colorCount;
       countColors(hsv, mask, colorCount, sum);
-
-      std::vector<std::tuple<int, int>> colorsVec(COUNT);
-      for(int i = 0; i < COUNT; ++i)
+      //======================= Calculate Semantic Color ==========================
+      if(found != std::string::npos)
       {
-        colorsVec[i] = std::tuple<int, int>(i, colorCount[i]);
+        rs::SemanticColor color_annotation = rs::create<rs::SemanticColor>(tcas);
+        std::vector<std::tuple<int, int>> colorsVec(COUNT);
+        for(int i = 0; i < COUNT; ++i)
+        {
+          colorsVec[i] = std::tuple<int, int>(i, colorCount[i]);
+        }
+        std::sort(colorsVec.begin(), colorsVec.end(), [](const std::tuple<int, int> &a, const std::tuple<int, int> &b)
+        {
+          return std::get<1>(a) > std::get<1>(b);
+        });
+
+        std::vector<int> &ids = colorIds[idx];
+        std::vector<float> &ratios = colorRatios[idx];
+        std::vector<std::string> colors(COUNT);
+
+        for(size_t i = 0; i < COUNT; ++i)
+        {
+          int id, ratio;
+          std::tie(id, ratio) = colorsVec[i];
+          ids[i] = id;
+          colors[i] = colorNames[id];
+          ratios[i] = (float)(ratio / (double)sum);
+        }
+
+        color_annotation.color(colors);
+        color_annotation.ratio(ratios);
+
+        clusters[idx].annotations.append(color_annotation);
       }
-      std::sort(colorsVec.begin(), colorsVec.end(), [](const std::tuple<int, int> &a, const std::tuple<int, int> &b)
-      {
-        return std::get<1>(a) > std::get<1>(b);
-      });
-
-      std::vector<int> &ids = colorIds[idx];
-      std::vector<float> &ratios = colorRatios[idx];
-      std::vector<std::string> colors(COUNT);
-
-      for(size_t i = 0; i < COUNT; ++i)
-      {
-        int id, ratio;
-        std::tie(id, ratio) = colorsVec[i];
-        ids[i] = id;
-        colors[i] = colorNames[id];
-        ratios[i] = (float)(ratio / (double)sum);
-      }
-
-      color_annotation.color(colors);
-      color_annotation.ratio(ratios);
-
-      clusters[idx].annotations.append(color_annotation);
-
       //======================= Calculate Color Histogram ==========================
       //Create the histogram
       int histSize[] = {histogramCols, histogramRows};
