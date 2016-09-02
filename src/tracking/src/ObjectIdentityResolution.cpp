@@ -257,6 +257,10 @@ private:
         }
       }
     }
+    for(rs::Object &object:objects)
+    {
+        object.inView.set(checkInView(object));
+    }
 
     cas.set(VIEW_OBJECTS, objects);
   }

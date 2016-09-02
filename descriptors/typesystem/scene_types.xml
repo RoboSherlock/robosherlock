@@ -68,6 +68,11 @@
         <description>True if the object was seen in the last frame</description>
         <rangeTypeName>uima.cas.Boolean</rangeTypeName>
       </featureDescription>
+      <featureDescription>
+        <name>inView</name>
+        <description>True if the object should be in camera View</description>
+        <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+      </featureDescription>
         <featureDescription>
           <name>clusters</name>
           <description/>

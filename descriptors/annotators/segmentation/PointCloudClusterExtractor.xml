@@ -72,7 +72,7 @@
       <nameValuePair>
         <name>cluster_tolerance</name>
         <value>
-          <float>0.05</float>
+          <float>0.08</float>
         </value>
       </nameValuePair>
       <nameValuePair>
