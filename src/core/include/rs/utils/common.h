@@ -20,15 +20,19 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <ros/package.h>
 #include <iostream>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <errno.h>
+#include <math.h>
+
 #include <opencv/highgui.h>
 
-#include <tf/tf.h>
+#include <ros/package.h>
+
 #include <rs/utils/output.h>
+
+#include <tf/tf.h>
 
 namespace rs
 {
@@ -218,6 +222,19 @@ inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> 
   float t = planeDist + pointDist;
   cv::Point3f projected = point - normal * t;
   pose.setOrigin(tf::Vector3(projected.x, projected.y, projected.z));
+}
+
+inline double pointToPointDistanceSimple(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
+{
+    double xDist = x1 - x2;
+    double yDist = y1 - y2;
+    double zDist = z1 - z2;
+    return xDist * xDist + yDist * yDist + zDist * zDist;
+}
+
+inline double pointToPointDistanceSqr(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
+{
+    return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
 
 }//end common namespace
