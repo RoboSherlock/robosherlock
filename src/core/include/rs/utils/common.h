@@ -232,7 +232,7 @@ inline double pointToPointDistanceSimple(const double x1, const double y1, const
     return xDist * xDist + yDist * yDist + zDist * zDist;
 }
 
-inline double pointToPointDistanceSqr(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
+inline double pointToPointDistanceSqrt(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
 {
     return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
