@@ -224,7 +224,7 @@ inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> 
   pose.setOrigin(tf::Vector3(projected.x, projected.y, projected.z));
 }
 
-inline double pointToPointDistanceSimple(double &x1, double &y1, double &z1, double &x2, double &y2, double &z2)
+inline double pointToPointDistanceSimple(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
 {
     double xDist = x1 - x2;
     double yDist = y1 - y2;
@@ -232,7 +232,7 @@ inline double pointToPointDistanceSimple(double &x1, double &y1, double &z1, dou
     return xDist * xDist + yDist * yDist + zDist * zDist;
 }
 
-inline double pointToPointDistanceSqr(double &x1, double &y1, double &z1, double &x2, double &y2, double &z2)
+inline double pointToPointDistanceSqr(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
 {
     return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
