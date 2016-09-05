@@ -24,6 +24,7 @@
 #include <rs/utils/exception.h>
 
 #include <sys/stat.h>
+#include <thread>
 
 MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterface(pt)
 {
@@ -49,6 +50,7 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
       throw_exception_message("no frames found.")
     }
     outInfo("found " << frames.size() << " frames in database.");
+    lastTimestamp = 0x7FFFFFFFFFFFFFFF;
   }
   _newData = true;
 }
@@ -64,25 +66,27 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
 
   continual = pt.get<bool>("mongodb.continual");
   loop = pt.get<bool>("mongodb.loop");
+  playbackSpeed = pt.get<double>("mongodb.playbackSpeed", 0.0);
 
   outInfo("DB host:   " FG_BLUE << host);
   outInfo("DB name:   " FG_BLUE << db);
   outInfo("continual: " FG_BLUE << (continual ? "ON" : "OFF"));
   outInfo("looping:   " FG_BLUE << (loop ? "ON" : "OFF"));
 
-  char* host_env = getenv("MONGO_PORT_27017_TCP_ADDR");
-  char* port_env = getenv("MONGO_PORT_27017_TCP_PORT");
+  char *host_env = getenv("MONGO_PORT_27017_TCP_ADDR");
+  char *port_env = getenv("MONGO_PORT_27017_TCP_PORT");
 
-  if(host_env!=NULL && port_env!=NULL)
+  if(host_env != NULL && port_env != NULL)
   {
-    outInfo("Mongo host stet to: "+ std::string(host_env)+ ":"+std::string(port_env));
-    host  = std::string(host_env)+":"+std::string(port_env);
+    outInfo("Mongo host stet to: " + std::string(host_env) + ":" + std::string(port_env));
+    host  = std::string(host_env) + ":" + std::string(port_env);
   }
 }
 
 bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 {
   MEASURE_TIME;
+  const bool isNextFrame = timestamp == 0;
 
   if(actualFrame >= frames.size())
   {
@@ -106,7 +110,7 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
       return false;
     }
   }
-  if(timestamp == 0)
+  if(isNextFrame)
   {
     outInfo("default behaviour");
     timestamp = frames[actualFrame];
@@ -131,6 +135,31 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
       return false;
     }
   }
+
+
+  if(playbackSpeed > 0.0 && isNextFrame)
+  {
+    if(lastTimestamp > timestamp)
+    {
+      lastTimestamp = timestamp;
+      simTimeLast = frames[actualFrame];
+      lastRun = ros::Time::now().toNSec();
+    }
+
+    uint64_t now = ros::Time::now().toNSec();
+    uint64_t simTime = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
+    if(simTime <= timestamp)
+    {
+      uint64_t sleepTime = (timestamp - simTime) / playbackSpeed;
+      outDebug("waiting for " << sleepTime / 1000000.0 << " ms.");
+      std::this_thread::sleep_for(std::chrono::nanoseconds(sleepTime));
+    }
+
+    now = ros::Time::now().toNSec();
+    simTimeLast = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
+    lastRun = now;
+  }
+
 
   ++actualFrame;
   if(!continual && !loop && actualFrame == frames.size())

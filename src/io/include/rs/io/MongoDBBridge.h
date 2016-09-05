@@ -35,6 +35,8 @@ private:
   size_t actualFrame;
   bool continual;
   bool loop;
+  double playbackSpeed;
+  uint64_t lastTimestamp, lastRun, simTimeLast;
 
   void readConfig(const boost::property_tree::ptree &pt);
 
