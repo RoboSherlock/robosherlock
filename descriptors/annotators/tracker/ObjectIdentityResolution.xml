@@ -40,6 +40,12 @@
         <mandatory>false</mandatory>
       </configurationParameter>
       <configurationParameter>
+        <name>fastMatchingThreshold</name>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>false</mandatory>
+      </configurationParameter>
+      <configurationParameter>
         <name>mln</name>
         <type>String</type>
         <multiValued>false</multiValued>
@@ -68,13 +74,19 @@
       <nameValuePair>
         <name>identitydb</name>
         <value>
-          <string>Scenes</string>
+          <string>Objects</string>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxDifference</name>
         <value>
           <float>0.35</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>fastMatchingThreshold</name>
+        <value>
+          <float>0.5</float>
         </value>
       </nameValuePair>
       <nameValuePair>

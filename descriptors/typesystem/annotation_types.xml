@@ -183,7 +183,7 @@
       <name>rs.annotation.CylindricalShape</name>
       <description/>
       <supertypeName>rs.annotation.Shape</supertypeName>
-      </typeDescription>
+    </typeDescription>
     <typeDescription>
       <name>rs.annotation.TFLocation</name>
       <description>This is a Location in a TF frame. Also stores the TF to fixed link.</description>
