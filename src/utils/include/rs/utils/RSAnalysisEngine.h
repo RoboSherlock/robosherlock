@@ -30,10 +30,11 @@ class RSAnalysisEngine
 {
 public:
   std::string name;
+  uima::CAS *cas;
 
 protected:
   uima::AnalysisEngine *engine;
-  uima::CAS *cas;
+
 
 public:
 
