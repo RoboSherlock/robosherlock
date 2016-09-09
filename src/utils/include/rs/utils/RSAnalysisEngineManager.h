@@ -79,6 +79,7 @@ public:
       for(size_t i = 0; i < engines.size(); ++i)
       {
         engines[i].process();
+        engines[i].resetCas();
       }
     }
   }
