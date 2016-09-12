@@ -58,21 +58,26 @@
       <description/>
       <supertypeName>rs.scene.Cluster</supertypeName>
       <features>
-      <featureDescription>
-        <name>lastSeen</name>
-        <description/>
-        <rangeTypeName>uima.cas.Long</rangeTypeName>
-      </featureDescription>
-      <featureDescription>
-        <name>wasSeen</name>
-        <description>True if the object was seen in the last frame</description>
-        <rangeTypeName>uima.cas.Boolean</rangeTypeName>
-      </featureDescription>
-      <featureDescription>
-        <name>inView</name>
-        <description>True if the object should be in camera View</description>
-        <rangeTypeName>uima.cas.Boolean</rangeTypeName>
-      </featureDescription>
+        <featureDescription>
+          <name>lastSeen</name>
+          <description/>
+          <rangeTypeName>uima.cas.Long</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>wasSeen</name>
+          <description>True if the object was seen in the last frame</description>
+          <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>inView</name>
+          <description>True if the object should be in camera View</description>
+          <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>disappeared</name>
+          <description>True if the object was not seen while it should have been in view</description>
+          <rangeTypeName>uima.cas.Boolean</rangeTypeName>
+        </featureDescription>
         <featureDescription>
           <name>clusters</name>
           <description/>
