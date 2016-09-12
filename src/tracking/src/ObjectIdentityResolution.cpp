@@ -54,7 +54,7 @@ private:
   const cv::Rect invalid;
   std::vector<cv::Rect> objectRois;
   bool removeObjects, enableFastMatching;
-  double maxDifference;
+  double maxDifference, fastMatchThreshold;
   uint64_t lastTimestamp;
   sensor_msgs::CameraInfo camInfo;
   tf::Transform viewpoint;
@@ -90,13 +90,13 @@ private:
   }
 
 public:
-  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME), invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2), lastTimestamp(0)
+  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME), invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2), fastMatchThreshold(0.4), lastTimestamp(0)
   {
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
-    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          1.0));
+    //vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Geometry>,       1.0));
-    vecMatch.push_back(matchEntry(&matchAnnotation<rs::SemanticColor>,  1.0));
+    //vecMatch.push_back(matchEntry(&matchAnnotation<rs::SemanticColor>,  1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::ColorHistogram>, 1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Features>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
@@ -131,12 +131,25 @@ public:
       ctx.extractValue("maxDifference", tmp);
       maxDifference = tmp;
     }
+    if(ctx.isParameterDefined("fastMatchThreshold"))
+    {
+      float tmp = fastMatchThreshold;
+      ctx.extractValue("fastMatchThreshold", tmp);
+      fastMatchThreshold = tmp;
+    }
 
     storage = rs::Storage(host, db, false);
     if(removeObjects)
     {
       storage.removeCollection("persistent_objects");
     }
+
+    outInfo("host: " << host);
+    outInfo("identitydb: " << db);
+    outInfo("removeObjects: " << std::boolalpha << removeObjects);
+    outInfo("enableFastMatching: " << std::boolalpha << enableFastMatching);
+    outInfo("fastMatchThreshold: " << fastMatchThreshold);
+    outInfo("maxDifference: " << maxDifference);
     return UIMA_ERR_NONE;
   }
 
@@ -177,6 +190,7 @@ private:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
+    lastTimestamp = timestamp;
     timestamp = scene.timestamp();
 
     tf::StampedTransform vp;
@@ -203,7 +217,6 @@ private:
         rs::ImageROI image_rois = cluster.rois.get();
         rs::conversion::from(image_rois.roi_hires(), clusterRois[i]);
       }
-
     }
 
     if(objects.empty())
@@ -218,6 +231,13 @@ private:
     }
     else
     {
+      for(size_t i = 0; i < objects.size(); ++i)
+      {
+        rs::Object &object = objects[i];
+        object.wasSeen(object.lastSeen() == lastTimestamp);
+        object.inView(checkInView(object));
+      }
+
       std::vector<int> clustersToObject(clusters.size(), -1), objectsToCluster(objects.size(), -1);
       if(enableFastMatching)
       {
@@ -225,12 +245,6 @@ private:
       }
 
       resolveRemaining(objects, clusters, clustersToObject, objectsToCluster);
-
-      for(size_t i = 0; i < objects.size(); ++i)
-      {
-        rs::Object &object = objects[i];
-        object.wasSeen(false);
-      }
 
       for(size_t i = 0; i < clustersToObject.size(); ++i)
       {
@@ -244,8 +258,6 @@ private:
           outDebug("Object: " << object.id() << " Cluster: " << cluster.id());
 
           mergeClusterWithObjects(cluster, object);
-          object.lastSeen(timestamp);
-          object.wasSeen(true);
           objectRois[clustersToObject[i]] = clusterRois[i];
         }
         else
@@ -257,9 +269,9 @@ private:
         }
       }
     }
-    for(rs::Object &object:objects)
+    for(rs::Object & object : objects)
     {
-        object.inView.set(checkInView(object));
+      object.disappeared(object.inView() && object.lastSeen() != timestamp);
     }
 
     cas.set(VIEW_OBJECTS, objects);
@@ -274,10 +286,21 @@ private:
     for(size_t i = 0; i < objects.size(); ++i)
     {
       rs::Object &object = objects[i];
-      if(!object.wasSeen())
+      if(!object.disappeared())
       {
-        outDebug("skipping object " << i << " because is was not seen last frame.");
+        outDebug("skipping object " << i << " because its last position is unknown.");
         continue;
+      }
+      // ignore objects that are located not located on planes on inside drawers
+      std::vector<rs::TFLocation> locations;
+      object.annotations.filter(locations);
+      for(rs::TFLocation & location : locations)
+      {
+        if(location.reference_desc() == "on" && !(location.frame_id() == "plane" || location.frame_id() == "drawer"))
+        {
+          outDebug("skipping object " << i << " because it is not located on a plane or inside a drawer.");
+          continue;
+        }
       }
 
       double bestDist = 0;
@@ -295,7 +318,7 @@ private:
           bestMatch = j;
         }
       }
-      if(bestDist > 0.9 && bestDists[bestMatch] < bestDist)
+      if(bestDist > 0.9 && bestDists[bestMatch] < bestDist && distanceClusterToObjects(clusters[bestMatch], object) > fastMatchThreshold)
       {
         outDebug("object " << i << " fast matches cluster " << bestMatch);
         if(clustersToObject[bestMatch] != -1)
@@ -413,7 +436,9 @@ private:
     outDebug("Object: " << object.id() << " Cluster: " << cluster.id());
 
     object.lastSeen(timestamp);
-    object.wasSeen(true);
+    object.wasSeen(false);
+    object.inView(true);
+    object.disappeared(false);
     object.clusters(std::vector<std::string>(1, cluster.id()));
 
     object.annotations(cluster.annotations());
@@ -580,6 +605,10 @@ private:
     {
       object.rois(cluster.rois());
     }
+
+    object.lastSeen(timestamp);
+    object.inView(true);
+    object.disappeared(false);
   }
 
   void drawImageWithLock(cv::Mat &disp)
