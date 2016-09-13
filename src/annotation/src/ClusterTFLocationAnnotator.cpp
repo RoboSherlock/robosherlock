@@ -81,7 +81,7 @@ public:
 
       if(idx >= 0)
       {
-        outInfo("adding tflocation annotation");
+        outInfo("adding tflocation annotation:  "<<relation<<" "<<name);
         rs::TFLocation annotation = rs::create<rs::TFLocation>(tcas);
         annotation.frame_id.set(name);
         annotation.reference_desc.set(relation);

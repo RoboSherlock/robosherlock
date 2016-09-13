@@ -128,5 +128,4 @@ void RSAnalysisEngine::process()
   {
     outError("Unknown exception!");
   }
-  cas->reset();
 }
