@@ -409,11 +409,6 @@
           <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
         </featureDescription>
-        <featureDescription>
-            <name>source</name>
-            <description/>
-            <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
@@ -484,11 +479,6 @@
       <features>
         <featureDescription>
           <name>name</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>source</name>
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
