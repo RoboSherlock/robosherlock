@@ -287,6 +287,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Classification</name>
       <description/>
@@ -331,6 +332,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Tracking</name>
       <description/>
@@ -348,52 +350,7 @@
         </featureDescription>
       </features>
     </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.PlanarSupport</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>parameters</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>inliers</name>
-          <description/>
-          <rangeTypeName>rs.pcl.ClusterPoints</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>method</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.ModelCoefficients</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>coefficients</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.PlanarClassification</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>label</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.PoseAnnotation</name>
       <description/>
@@ -408,11 +365,6 @@
           <name>world</name>
           <description/>
           <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-            <name>source</name>
-            <description/>
-            <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
@@ -484,11 +436,6 @@
       <features>
         <featureDescription>
           <name>name</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>source</name>
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
@@ -646,60 +593,6 @@
         </featureDescription>
         <featureDescription>
           <name>name</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.NamedLink</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>name</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>url</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.Goggles</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>category</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>title</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>bbox</name>
-          <description/>
-          <rangeTypeName>uima.cas.FloatArray</rangeTypeName>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-        <featureDescription>
-          <name>links</name>
-          <description/>
-          <rangeTypeName>uima.cas.FSList</rangeTypeName>
-          <elementType>rs.annotation.NamedLink</elementType>
-          <multipleReferencesAllowed>false</multipleReferencesAllowed>
-        </featureDescription>
-        <featureDescription>
-          <name>preview_link</name>
           <description/>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>

@@ -99,6 +99,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.core.Scene</name>
       <description/>
@@ -138,18 +139,20 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.core.Annotation</name>
       <description/>
       <supertypeName>rs.core.Identifiable</supertypeName>
       <features>
-        <featureDescription>
-          <name>probability</name>
-          <description>Probability, that a certain annotation is correct</description>
-          <rangeTypeName>uima.cas.Float</rangeTypeName>
-        </featureDescription>
+      <featureDescription>
+        <name>source</name>
+        <description/>
+        <rangeTypeName>uima.cas.String</rangeTypeName>
+      </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.core.SemanticMapObject</name>
       <description/>
