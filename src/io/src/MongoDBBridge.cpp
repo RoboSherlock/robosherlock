@@ -86,7 +86,7 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
 bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 {
   MEASURE_TIME;
-  const bool isNextFrame = timestamp == 0;
+  const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
 
   if(actualFrame >= frames.size())
   {
@@ -116,8 +116,9 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
     timestamp = frames[actualFrame];
     outInfo("setting data from frame: " << actualFrame << " (" << timestamp << ")");
   }
-  else
+  else if(timestamp<frames.size())
   {
+    timestamp = frames[timestamp];
     outInfo("setting data from frame with timestamp: (" << timestamp << ")");
   }
 

@@ -64,7 +64,7 @@ public:
   ROSCameraBridge(const boost::property_tree::ptree &pt);
   ~ROSCameraBridge();
 
-  bool setData(uima::CAS &tcas, u_int64_t = 0);
+  bool setData(uima::CAS &tcas, uint64_t = std::numeric_limits<uint64_t>::max());
 };
 
 #endif // __ROS_CAMERA_BRIDGE_H__
