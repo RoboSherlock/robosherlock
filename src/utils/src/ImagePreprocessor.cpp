@@ -35,6 +35,9 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/segmentation/ImageSegmentation.h>
 
+#include <sensor_msgs/image_encodings.h>
+#include <cv_bridge/cv_bridge.h>
+
 using namespace uima;
 
 class ImagePreprocessor : public DrawingAnnotator
@@ -71,8 +74,12 @@ private:
     PCL_RGBDT
   } pclDispMode;
 
+  ros::NodeHandle nh_;
+  ros::Publisher pub_;
+
 public:
-  ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(6), borderDilation(12), pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD)
+  ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(6), borderDilation(12),
+    pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD), nh_("~")
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -80,6 +87,7 @@ public:
     lookupY = cv::Mat();
     lookupXThermal = cv::Mat();
     lookupYThermal = cv::Mat();
+    pub_ = nh_.advertise<sensor_msgs::Image>("input_image", 1, true);
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -432,6 +440,12 @@ private:
       cas.set(VIEW_COLOR_IMAGE, color);
       hasColor = true;
     }
+    sensor_msgs::Image image_msg;
+    cv_bridge::CvImage cv_image;
+    cv_image.image = color;
+    cv_image.encoding = "bgr8";
+    cv_image.toImageMsg(image_msg);
+    pub_.publish(image_msg);
   }
 
   /*******************************************************************************
