@@ -27,6 +27,8 @@
 #define VIEW_COLOR_IMAGE_HD      "color_image_hd"
 #define VIEW_DEPTH_IMAGE         "depth_image"
 #define VIEW_DEPTH_IMAGE_HD      "depth_image_hd"
+#define VIEW_OBJECT_IMAGE        "object_image"
+#define VIEW_OBJECT_IMAGE_HD     "object_image_hd"
 
 #define VIEW_CLOUD               "cloud"
 #define VIEW_CLOUD_DOWNSAMPLED   "cloud_downsampled"
@@ -46,6 +48,7 @@
 #define VIEW_THERMAL_CLOUD       "thermal_cloud"
 #define VIEW_THERMAL_NORMALS     "thermal_normals"
 
+#define VIEW_OBJECT_MAP          "object_map"
 #define VIEW_OBJECTS             "objects"
 #define VIEW_SEMANTIC_MAP        "semantic_map"
 #define VIEW_SCENE               "scene"

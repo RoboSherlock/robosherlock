@@ -371,5 +371,41 @@ uima::FeatureStructure to(uima::CAS &cas, const cv::Moments &input)
   return m;
 }
 
+template<>
+void from(const uima::FeatureStructure &fs, std::map<std::string, cv::Vec3b> &objectMap)
+{
+  rs::ObjectMap map(fs);
+  const std::vector<std::string> &names = map.objectNames.get();
+  const std::vector<int> &colors = map.objectColors.get();
+
+  for(size_t i = 0; i < map.objectNames.size(); ++i)
+  {
+    const int32_t color = colors[i];
+    cv::Vec3b cvColor;
+    cvColor.val[0] = color & 0xFF;
+    cvColor.val[1] = (color & 0xFF00) >> 8;
+    cvColor.val[2] = (color & 0xFF0000) >> 16;
+    objectMap[names[i]] = cvColor;
+  }
+}
+
+template<>
+uima::FeatureStructure to(uima::CAS &cas, const std::map<std::string, cv::Vec3b> &objectMap)
+{
+  rs::ObjectMap map = rs::create<rs::ObjectMap>(cas);
+  std::map<std::string, cv::Vec3b>::const_iterator it = objectMap.begin();
+  std::map<std::string, cv::Vec3b>::const_iterator end = objectMap.end();
+
+  for(; it != end; ++it)
+  {
+    cv::Vec3b cvColor = it->second;
+    const int32_t color = cvColor.val[0] | (cvColor.val[1] << 8) | (cvColor.val[2] << 16);
+
+    map.objectNames.append(it->first);
+    map.objectColors.append(color);
+  }
+  return map;
+}
+
 }
 }
