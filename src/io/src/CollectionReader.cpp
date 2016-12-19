@@ -36,6 +36,7 @@
 #include <rs/io/ROSCameraBridge.h>
 #include <rs/io/ROSThermalCamBridge.h>
 #include <rs/io/MongoDBBridge.h>
+#include <rs/io/UnrealVisionBridge.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
 #include <rs/scene_cas.h>
@@ -132,6 +133,10 @@ private:
       else if(interface == "Camera")
       {
         cameras.push_back(new ROSCameraBridge(pt));
+      }
+      else if(interface == "UnrealVision")
+      {
+        cameras.push_back(new UnrealVisionBridge(pt));
       }
       else
       {
