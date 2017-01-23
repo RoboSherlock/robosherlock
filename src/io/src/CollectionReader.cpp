@@ -251,7 +251,7 @@ public:
     }
     cas.set(VIEW_SEMANTIC_MAP, semanticMap);
 
-    uint64_t timestamp = 0;
+    uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
     rs::Query qs = rs::create<rs::Query>(tcas);
     if(cas.getFS("QUERY", qs))

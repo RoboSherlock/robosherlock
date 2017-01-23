@@ -71,7 +71,7 @@ public:
   ROSKinectBridge(const boost::property_tree::ptree &pt);
   ~ROSKinectBridge();
 
-  bool setData(uima::CAS &tcas, u_int64_t = 0);
+  bool setData(uima::CAS &tcas, u_int64_t = std::numeric_limits<uint64_t>::max());
   inline void getColorImage(cv::Mat& c)
   {
     c = this->color.clone();

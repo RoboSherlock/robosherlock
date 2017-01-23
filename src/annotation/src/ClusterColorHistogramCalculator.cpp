@@ -151,7 +151,7 @@ private:
       outWarn("json query: " << qs.asJson());
     }
 
-    std::size_t found = jsonQuery.find("COLOR");
+    std::size_t found = jsonQuery.find("COLOR") || jsonQuery.find("DETECTION");
 
 
     scene.identifiables.filter(clusters);
@@ -178,6 +178,7 @@ private:
       size_t sum;
       std::vector<int> colorCount;
       countColors(hsv, mask, colorCount, sum);
+
       //======================= Calculate Semantic Color ==========================
       if(found != std::string::npos)
       {
