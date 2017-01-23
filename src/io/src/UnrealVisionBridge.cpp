@@ -36,16 +36,22 @@
 
 UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false)
 {
-  readConfig(pt);
+  #ifdef __F16C__
+    readConfig(pt);
 
-  const size_t bufferSize = 1024 * 1024 * 10;
-  bufferComplete.resize(bufferSize);
-  bufferActive.resize(bufferSize);
-  bufferInUse.resize(bufferSize);
+    const size_t bufferSize = 1024 * 1024 * 10;
+    bufferComplete.resize(bufferSize);
+    bufferActive.resize(bufferSize);
+    bufferInUse.resize(bufferSize);
 
-  outInfo("starting receiver and transmitter threads.");
-  running = true;
-  receiver = std::thread(&UnrealVisionBridge::receive, this);
+    outInfo("starting receiver and transmitter threads.");
+    running = true;
+    receiver = std::thread(&UnrealVisionBridge::receive, this);
+  #else
+    outError("F16C not supported. Use of UnrealBridge is not possible");
+    exit(1); 
+  #endif
+  
 }
 
 UnrealVisionBridge::~UnrealVisionBridge()
