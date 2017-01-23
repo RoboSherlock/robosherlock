@@ -26,7 +26,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include <emmintrin.h>
+#include <immintrin.h>
 
 // RS
 #include <rs/io/UnrealVisionBridge.h>
