@@ -1,6 +1,11 @@
 sudo: required
+dist: trusty
 
 language: cpp
+
+cache: ccache
+  directories:
+    - $HOME/local/src/mongo-cxx-driver/
 
 services:
   - docker
