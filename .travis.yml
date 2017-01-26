@@ -3,9 +3,10 @@ dist: trusty
 
 language: cpp
 
-cache: ccache
+cache:
+  ccache: true
   directories:
-    - $HOME/local/src/mongo-cxx-driver/
+  - $HOME/local/src/mongo-cxx-driver/
 
 services:
   - docker
