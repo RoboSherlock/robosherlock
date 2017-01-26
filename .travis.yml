@@ -4,8 +4,13 @@ dist: trusty
 language: cpp
 
 compiler:
-- gcc
+- g++
 
+addons:
+  apt:
+    packages:
+    - gcc-4.8
+    - g++-4.8
 
 before_install:
 - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
@@ -48,6 +53,9 @@ before_install:
 - cd ~/catkin_ws/
 - catkin_make
 - source devel/setup.bash
+
+install:
+- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8 -std=c++11" CC="gcc-4.8"; fi
 
 script:
 - cd ~/catkin_ws/src
