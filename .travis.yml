@@ -7,10 +7,12 @@ compiler:
 - g++
 
 addons:
-  apt:
-    packages:
-    - gcc-4.8
-    - g++-4.8
+      apt:
+        sources:
+        - ubuntu-toolchain-r-test
+        packages:
+        - gcc-4.8
+        - g++-4.8
 
 before_install:
 - sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
