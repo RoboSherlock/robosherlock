@@ -7,6 +7,7 @@ cache:
   ccache: true
   directories:
   - $HOME/local/src/mongo-cxx-driver/
+  - $HOME/local/src/uimacpp/
   - apt
 
 services:
@@ -28,6 +29,8 @@ env:
     - ROSINSTALL_FILE=$CI_SOURCE_PATH/dependencies.rosinstall
     - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
     - ROS_PARALLEL_JOBS='-j8 -l6'
+    - UIMA_HOME=$HOME/local/src/uimacpp/
+    - MONGO_HOME=$HOME/local/src/mongo-cxx-driver/
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
@@ -55,9 +58,8 @@ before_script:
   - wstool up
   - cd ~/catkin_ws
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-
   - mkdir -p ~/local/src && cd ~/local/src/
-  - git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp
+  - if [ ! -d "$UIMA_HOME" ]; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp fi
   - cd uimacpp
   - ./autogen.sh
   - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-7-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
@@ -65,7 +67,7 @@ before_script:
   - sudo make install
   - ls /usr/local/lib
   - cd ~/local/src/
-  - git clone https://github.com/mongodb/mongo-cxx-driver.git
+  - if [ ! -d "$MONGO_HOME" ]; then git clone git clone https://github.com/mongodb/mongo-cxx-driver.git fi
   - cd mongo-cxx-driver/
   - git checkout 26compat
   - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
