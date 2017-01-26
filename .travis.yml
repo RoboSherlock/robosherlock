@@ -1,35 +1,18 @@
-sudo: false
-dist: trusty
+sudo: required
 
 language: cpp
 
-compiler:
-- g++
+services:
+  - docker
 
-addons:
-      apt:
-        sources:
-        - ubuntu-toolchain-r-test
-        packages:
-        - gcc-4.8
-        - g++-4.8
+env:
+  global:
+    - toolset_branch: master
+    - server_type: travis
+    - used_modules: check_cache,check_build,code_style_check,check_deb_make
+    - remote_shell_script: 'https://raw.githubusercontent.com/shadow-robot/sr-build-tools/$toolset_branch/bin/sr-run-ci-build.sh'
 
-before_install:
-- sudo sh -c 'echo "deb http://packages.ros.org/ros/ubuntu trusty main" > /etc/apt/sources.list.d/ros-latest.list'
-- wget https://raw.githubusercontent.com/ros/rosdistro/master/ros.key -O - | sudo apt-key add -
-- sudo apt-get update -qq
-- sudo apt-get install -y ros-indigo-desktop-full ros-indigo-openni-camera ros-indigo-openni-launch
-- sudo apt-get install -y git
-- sudo apt-get install -y automake libxerces-c-dev libicu-dev libapr1-dev mongodb scons protobuf-compiler --force-yes
-- sudo apt-get install -y python-rosinstall
-- sudo rosdep init
-- rosdep update
-- source /opt/ros/indigo/setup.bash
-- echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
-- echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
-- echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
-- source ~/.bashrc
-- . ~/.bashrc
+before_script:
 - mkdir -p ~/local/src && cd ~/local/src/
 - git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp
 - cd uimacpp
@@ -49,18 +32,6 @@ before_install:
 - echo "export XERCES_HOME=/usr" >> ~/.bashrc
 - echo "export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}" >> ~/.bashrc
 - . ~/.bashrc
-- mkdir -p ~/catkin_ws/src
-- cd ~/catkin_ws/src/
-- catkin_init_workspace
-- cd ~/catkin_ws/
-- catkin_make
-- source devel/setup.bash
-
-install:
-- if [ "$CXX" = "g++" ]; then export CXX="g++-4.8 -std=c++11" CC="gcc-4.8"; fi
 
 script:
-- cd ~/catkin_ws/src
-- git clone https://github.com/robosherlock/robosherlock.git 
-- cd ~/catkin_ws
-- catkin_make
+  - curl -s "$( echo "$remote_shell_script" | sed 's/#/%23/g' )" | bash -x /dev/stdin "$toolset_branch" $server_type $used_modules
