@@ -37,6 +37,10 @@ before_install:
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
+  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+  - echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
+  - echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
+  - source ~/.bashrc
 
 install:
   - mkdir -p ~/catkin_ws/src
