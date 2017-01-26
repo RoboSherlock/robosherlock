@@ -5,6 +5,13 @@ language: cpp
 services:
   - docker
 
+addons:
+  apt:
+    packages:
+    - automake
+    - libicu-dev
+    - scons
+
 env:
   global:
     - toolset_branch: master
@@ -13,6 +20,7 @@ env:
     - remote_shell_script: 'https://raw.githubusercontent.com/shadow-robot/sr-build-tools/$toolset_branch/bin/sr-run-ci-build.sh'
 
 before_script:
+- sudo apt-get install -y libxerces-c-dev libapr1-dev mongodb protobuf-compiler --force-yes
 - mkdir -p ~/local/src && cd ~/local/src/
 - git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp
 - cd uimacpp
