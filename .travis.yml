@@ -17,6 +17,7 @@ addons:
     - automake
     - libicu-dev
     - scons
+    - libboost-all-dev
 
 env:
   global:
@@ -39,7 +40,7 @@ before_script:
 - git clone https://github.com/mongodb/mongo-cxx-driver.git
 - cd mongo-cxx-driver/
 - git checkout 26compat
-- sudo scons --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
+- sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
 - ls /usr/local/lib
 - echo "export APR_HOME=/usr" >> ~/.bashrc
 - echo "export ICU_HOME=/usr" >> ~/.bashrc
