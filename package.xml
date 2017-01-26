@@ -28,6 +28,8 @@
 
   <depend>tf                         </depend>
   <depend>tf_conversions             </depend>
+  <depend>image_transport            </depend>
+  <depend>image_geometry             </depend>
 
   <export>
   </export>
