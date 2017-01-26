@@ -114,7 +114,7 @@ static const cv::Vec3b cvVec3bColors[] =
 static const size_t numberOfColors = sizeof(colors) / sizeof(colors[0]);
 
 static const std::string base64_chars =
-             "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+  "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
 inline std::string base64_encode(unsigned char const *bytes_to_encode, unsigned int in_len)
 {
@@ -214,7 +214,7 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
 
 inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> plane_model)
 {
-  assert(plane_model.size()==4);
+  assert(plane_model.size() == 4);
   cv::Point3f normal(plane_model[0], plane_model[1], plane_model[2]);
   float planeDist = plane_model[3];
   cv::Point3f point(pose.getOrigin().x(), pose.getOrigin().y(), pose.getOrigin().z());
@@ -226,15 +226,21 @@ inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> 
 
 inline double pointToPointDistanceSimple(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
 {
-    double xDist = x1 - x2;
-    double yDist = y1 - y2;
-    double zDist = z1 - z2;
-    return xDist * xDist + yDist * yDist + zDist * zDist;
+  double xDist = x1 - x2;
+  double yDist = y1 - y2;
+  double zDist = z1 - z2;
+  return xDist * xDist + yDist * yDist + zDist * zDist;
 }
+
+inline double pointToPointDistanceSimple(const std::vector<double> p1, const std::vector<double> p2)
+{
+  return pointToPointDistanceSimple(p1.at(0), p1.at(1), p1.at(2), p2.at(0), p2.at(1), p2.at(2));
+}
+
 
 inline double pointToPointDistanceSqrt(const double x1, const double y1, const double z1, const double x2, const double y2, const double z2)
 {
-    return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
+  return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
 
 }//end common namespace
