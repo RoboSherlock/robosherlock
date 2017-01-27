@@ -120,7 +120,7 @@ endmacro(generate_type_system)
 ## Find all include directories for export                                 ##
 #############################################################################
 macro(find_include_dirs result)
-  set(search_pattern -name "include" -type d)
+  set(search_pattern -L -name "include" -type d)
 
   foreach(arg ${ARGN})
     set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
@@ -143,7 +143,7 @@ endmacro(find_include_dirs)
 ## Hack for QT Creator to include all relevant files                       ##
 #############################################################################
 macro(find_additional_files)
-  set(search_pattern -type f)
+  set(search_pattern -L -type f)
 
   foreach(arg ${ARGN}) 
     set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
