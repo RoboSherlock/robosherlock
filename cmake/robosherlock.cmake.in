@@ -129,6 +129,7 @@ macro(find_include_dirs result)
   message(STATUS "find path: ${PROJECT_SOURCE_DIR}/${arg}")
 
   execute_process(COMMAND find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_include_dirs)
+  message(STATUS "executed: find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern}")
 
   message(STATUS "found include path: ${found_include_dirs}")
 
