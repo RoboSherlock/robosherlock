@@ -123,11 +123,16 @@ macro(find_include_dirs result)
   set(search_pattern -name "include" -type d)
 
   foreach(arg ${ARGN})
-    set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*") 
+    set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
   endforeach()
-  
+
+  message(STATUS "find path: ${PROJECT_SOURCE_DIR}/${arg}")
+
   execute_process(COMMAND find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_include_dirs)
-  if(NOT ${found_include_dirs} STREQUAL "")
+
+  message(STATUS "found include path: ${found_include_dirs}")
+
+  if(NOT "${found_include_dirs}" STREQUAL "")
     string(REPLACE "\n" ";" ${result} ${found_include_dirs})
     #message(STATUS "additional include dirs: ${${result}}")
   endif()
