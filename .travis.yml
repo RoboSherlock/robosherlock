@@ -77,5 +77,5 @@ script:
   - cd ~/catkin_ws
   - source devel/setup.bash
   - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
-  - find /home/travis/catkin_ws/src/robosherlock  -name include -type d
+  - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
   - catkin_make
