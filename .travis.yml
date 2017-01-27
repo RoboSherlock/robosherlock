@@ -62,7 +62,7 @@ before_script:
   - sudo make install
   - ls /usr/local/lib
   - cd ~/local/src/
-  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
+  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
   - cd ~/local/src/mongo-cxx-driver/
   - git checkout 26compat
   - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
