@@ -19,4 +19,4 @@ target_link_libraries(rs_core
   ${UIMA_LIBRARY}
   ${MONGO_CLIENT_LIBRARY}
 )
-add_dependencies(rs_core GenerateTypeSystem)
+add_dependencies(rs_core generate_type_system)
