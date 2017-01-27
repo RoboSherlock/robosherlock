@@ -36,22 +36,21 @@
 
 UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false)
 {
-  #ifdef __F16C__
-    readConfig(pt);
+#ifdef __F16C__
+  readConfig(pt);
 
-    const size_t bufferSize = 1024 * 1024 * 10;
-    bufferComplete.resize(bufferSize);
-    bufferActive.resize(bufferSize);
-    bufferInUse.resize(bufferSize);
+  const size_t bufferSize = 1024 * 1024 * 10;
+  bufferComplete.resize(bufferSize);
+  bufferActive.resize(bufferSize);
+  bufferInUse.resize(bufferSize);
 
-    outInfo("starting receiver and transmitter threads.");
-    running = true;
-    receiver = std::thread(&UnrealVisionBridge::receive, this);
-  #else
-    outError("F16C not supported. Use of UnrealBridge is not possible");
-    exit(1); 
-  #endif
-  
+  outInfo("starting receiver and transmitter threads.");
+  running = true;
+  receiver = std::thread(&UnrealVisionBridge::receive, this);
+#else
+  outError("F16C not supported. Use of UnrealBridge is not possible");
+  exit(1);
+#endif
 }
 
 UnrealVisionBridge::~UnrealVisionBridge()
@@ -73,13 +72,13 @@ void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
 
 void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
 {
-  #ifdef __F16C__
+#ifdef __F16C__
   const size_t size = (packet.header.width * packet.header.height) / 4;
   for(size_t i = 0; i < size; ++i, in += 4, ++out)
   {
     *out = _mm_cvtph_ps(_mm_set_epi16(0, 0, 0, 0, *(in + 3), *(in + 2), *(in + 1), *(in + 0)));
   }
-  #endif
+#endif
 }
 
 void UnrealVisionBridge::connectToServer()
@@ -247,7 +246,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cv::Mat object(packet.header.height, packet.header.width, CV_8UC3, packet.pObject);
 
   // converting depth data
-  convertDepth(reinterpret_cast<uint16_t*>(packet.pDepth), depth.ptr<__m128>());
+  convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<__m128>());
 
   // getting object color map
   std::map<std::string, cv::Vec3b> objectMap;
