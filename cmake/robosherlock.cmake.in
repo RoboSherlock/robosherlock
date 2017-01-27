@@ -143,8 +143,10 @@ macro(find_additional_files)
     set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
   endforeach()
   execute_process(COMMAND find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_files)
-  string(REPLACE "\n" ";" found_files_list ${found_files})
+  if(NOT "${found_files}" STREQUAL "")
+    string(REPLACE "\n" ";" found_files_list ${found_files})
   add_custom_target(${PROJECT_NAME}_additional_files SOURCES ${found_files_list})
+  endif()
 endmacro(find_additional_files)
 
 #############################################################################
