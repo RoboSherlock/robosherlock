@@ -408,14 +408,14 @@ private:
     const float maxY = (region.height / 2) - border;
     const float minZ = -(region.depth / 2);
     float maxZ = 0.5;
-    if (region.name == "drawer_sinkblock_middle_open")
+    if (region.name == "drawer_sinkblock_upper_open")
     {
         maxZ = 0.08;
     }
     //needed because of crappy sem map
     if(region.name == "kitchen_sink_block_counter_top")
     {
-      minY += 1;//don't get point for the sink
+      minY += 1;//don't get points for the sink
     }
     else if(region.name == "kitchen_island_counter_top")
     {

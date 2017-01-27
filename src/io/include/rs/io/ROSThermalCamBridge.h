@@ -65,7 +65,7 @@ public:
   ROSThermalCamBridge(const boost::property_tree::ptree &pt);
   ~ROSThermalCamBridge();
 
-  bool setData(uima::CAS &tcas, uint64_t ts = 0);
+  bool setData(uima::CAS &tcas, uint64_t ts = std::numeric_limits<uint64_t>::max());
   void setTransform(uima::CAS &tcas);
   void maskImage(cv::Mat &image, int xMin, int yMin, int xMax, int yMax);
 };

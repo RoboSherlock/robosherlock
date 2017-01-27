@@ -45,7 +45,7 @@ public:
   ~MongoDBBridge();
 
   bool setData(uima::CAS &tcas);
-  bool setData(uima::CAS &tcas, uint64_t ts = 0);
+  bool setData(uima::CAS &tcas, uint64_t ts = std::numeric_limits<uint64_t>::max());
 };
 
 #endif // __MONGODB_BRIDGE_H__
