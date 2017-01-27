@@ -26,6 +26,11 @@
   <depend>sensor_msgs                </depend>
   <depend>std_msgs                   </depend>
 
+  <depend>tf                         </depend>
+  <depend>tf_conversions             </depend>
+  <depend>image_transport            </depend>
+  <depend>image_geometry             </depend>
+
   <export>
   </export>
 </package>

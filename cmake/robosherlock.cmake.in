@@ -123,11 +123,17 @@ macro(find_include_dirs result)
   set(search_pattern -name "include" -type d)
 
   foreach(arg ${ARGN})
-    set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*") 
+    set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
   endforeach()
-  
-  execute_process(COMMAND find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_include_dirs)
-  if(NOT ${found_include_dirs} STREQUAL "")
+
+  message(STATUS "find path: ${PROJECT_SOURCE_DIR}/${arg}")
+
+  execute_process(COMMAND find "-L" ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_include_dirs)
+  message(STATUS "executed: find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern}")
+
+  message(STATUS "found include path: ${found_include_dirs}")
+
+  if(NOT "${found_include_dirs}" STREQUAL "")
     string(REPLACE "\n" ";" ${result} ${found_include_dirs})
     #message(STATUS "additional include dirs: ${${result}}")
   endif()
@@ -142,9 +148,11 @@ macro(find_additional_files)
   foreach(arg ${ARGN}) 
     set(exclude ${exclude} ! -path "${PROJECT_SOURCE_DIR}/${arg}/*")
   endforeach()
-  execute_process(COMMAND find ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_files)
-  string(REPLACE "\n" ";" found_files_list ${found_files})
+  execute_process(COMMAND find "-L" ${PROJECT_SOURCE_DIR} ${exclude} ${search_pattern} OUTPUT_VARIABLE found_files)
+  if(NOT "${found_files}" STREQUAL "")
+    string(REPLACE "\n" ";" found_files_list ${found_files})
   add_custom_target(${PROJECT_NAME}_additional_files SOURCES ${found_files_list})
+  endif()
 endmacro(find_additional_files)
 
 #############################################################################
