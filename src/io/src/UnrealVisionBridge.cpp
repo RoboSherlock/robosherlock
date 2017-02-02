@@ -172,7 +172,7 @@ void UnrealVisionBridge::receive()
     if(header.size != 0 && left == 0)
     {
       uint64_t now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
-      outInfo("package complete. delay: " << (now - header.timestampSent) / 1000000.0 << " ms.");
+      outDebug("package complete. delay: " << (now - header.timestampSent) / 1000000.0 << " ms.");
 
       if(header.sizeHeader != sizeof(PacketHeader))
       {
