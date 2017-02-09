@@ -235,6 +235,9 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   tf::Quaternion rotationCamera;
   rotationCamera.setEuler(90.0 * M_PI / 180.0, 0.0, -90.0 * M_PI / 180.0);
   rotation = rotation * rotationCamera;
+  broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
+
+
 
   rs::StampedTransform vp(rs::conversion::to(tcas, tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom)));
   scene.viewPoint.set(vp);
