@@ -55,10 +55,12 @@ message(STATUS "Ouput level set to: ${OUT_LEVEL}")
 #############################################################################
 ## Adding include dirs defined in CPATH (needed for xstow)                 ##
 #############################################################################
-string(REPLACE ":" ";" paths $ENV{CPATH})
-foreach(path ${paths})
-  include_directories(${path})
-endforeach()
+if($ENV{CPATH})
+  string(REPLACE ":" ";" paths $ENV{CPATH})
+  foreach(path ${paths})
+    include_directories(${path})
+  endforeach()
+endif()
 
 #############################################################################
 ## RS PATHS                                                                ##
