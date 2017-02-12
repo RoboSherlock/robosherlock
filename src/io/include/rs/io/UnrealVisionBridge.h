@@ -86,7 +86,7 @@ private:
 
   std::thread receiver;
   std::mutex lockBuffer;
-  bool running, isConnected;
+  bool running, isConnected, advertiseTf;
 
   std::vector<uint8_t> bufferComplete, bufferActive, bufferInUse;
 

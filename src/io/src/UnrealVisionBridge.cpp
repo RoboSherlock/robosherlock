@@ -34,7 +34,7 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 
-UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false)
+UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false), advertiseTf(false)
 {
 #ifdef __F16C__
   readConfig(pt);
@@ -63,6 +63,7 @@ void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
   port = (uint16_t)pt.get<int>("server.port", 10000);
   tfFrom = pt.get<std::string>("tf.from", "unreal_vision_optical_frame");
   tfTo = pt.get<std::string>("tf.to", "map");
+  advertiseTf = pt.get<bool>("tf.advertise", false);
 
   outInfo("Address: " FG_BLUE << address);
   outInfo("   Port: " FG_BLUE << port);
@@ -235,8 +236,11 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   tf::Quaternion rotationCamera;
   rotationCamera.setEuler(90.0 * M_PI / 180.0, 0.0, -90.0 * M_PI / 180.0);
   rotation = rotation * rotationCamera;
-  broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
-
+  
+  if(advertiseTf)
+  {
+    broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
+  }
 
 
   rs::StampedTransform vp(rs::conversion::to(tcas, tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom)));
