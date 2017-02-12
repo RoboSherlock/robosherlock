@@ -29,6 +29,9 @@
 // RS
 #include <rs/io/CamInterface.h>
 
+//TF
+#include <tf/transform_broadcaster.h>
+
 class UnrealVisionBridge : public CamInterface
 {
 private:
@@ -83,7 +86,7 @@ private:
 
   std::thread receiver;
   std::mutex lockBuffer;
-  bool running, isConnected;
+  bool running, isConnected, advertiseTf;
 
   std::vector<uint8_t> bufferComplete, bufferActive, bufferInUse;
 
@@ -92,6 +95,9 @@ private:
   int connection;
 
   std::string tfFrom, tfTo;
+
+  //total hack for Sherpa so we do not rewrite the unreal bridg to go through ROS
+  tf::TransformBroadcaster broadcaster;
 
   void readConfig(const boost::property_tree::ptree &pt);
   void convertDepth(const uint16_t *in, __m128 *out) const;
