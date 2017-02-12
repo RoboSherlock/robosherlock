@@ -52,7 +52,7 @@ find_package(catkin REQUIRED
  cv_bridge image_transport image_geometry message_filters)
 find_package(cmake_modules QUIET)
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 2.4 REQUIRED)
 find_package(PCL REQUIRED)
 find_package(Eigen REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
