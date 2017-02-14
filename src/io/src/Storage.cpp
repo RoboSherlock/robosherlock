@@ -47,7 +47,7 @@ using namespace rs;
  * Storage
  *****************************************************************************/
 
-Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS)
+Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS), first(true)
 {
 }
 
@@ -337,6 +337,12 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
       continue;
     }
 
+    if((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first)
+    {
+      outInfo("skipping sofa \"" << sofaId << "\".");
+      continue;
+    }
+
     const std::string dbCollection = dbBase + sofaId;
 
     outDebug("converting sofa \"" << sofaId << "\".");
@@ -348,6 +354,10 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
   outDebug("storing CAS information to " << DB_CAS << ".");
   db.insert(dbCAS, builder.obj());
+  if(first)
+  {
+    first = false;
+  }
   return true;
 }
 

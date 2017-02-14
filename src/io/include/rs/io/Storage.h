@@ -63,6 +63,8 @@ private:
   std::unordered_map<std::string, bool> storeViews;
   std::unordered_map<std::string, bool> loadViews;
 
+  bool first;
+
   void setupDBScripts();
 
   bool readArrayFS(uima::FeatureStructure fs, ::mongo::BSONObjBuilder &builderCAS, const ::mongo::OID &casOID, const std::string &sofaId, const std::string &dbCollection);
