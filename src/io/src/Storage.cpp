@@ -183,42 +183,35 @@ bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &buil
 bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCAS, const mongo::OID &casOID, const std::string &sofaId, const std::string &dbCollection)
 {
   mongo::BSONObj object = rs::conversion::fromFeatureStructure(fs, casOID);
-  //rewrite this with a map
-  if(!first)
+
+  if(first)
   {
-    if(sofaId == "camera_info")
+    mongo::BSONElement elem;
+    object.getObjectID(elem);
+    builderCAS.append(sofaId, elem.OID());
+    if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
     {
-      builderCAS.append(sofaId, cam_info_oid);
+      camInfoOIDs[sofaId] = elem.OID();
     }
-    else if(sofaId == "camera_info_hd")
-    {
-      builderCAS.append(sofaId, cam_info_hd_oid);
-    }
-    else
-    {
-      mongo::BSONElement elem;
-      object.getObjectID(elem);
-      builderCAS.append(sofaId, elem.OID());
-      outDebug("storing sofas to " << dbCollection << ".");
-      db.insert(dbCollection, object);
-    }
+    outDebug("storing sofas to " << dbCollection << ".");
+    db.insert(dbCollection, object);
+    return true;
+  }
+
+  if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
+  {
+    builderCAS.append(sofaId, camInfoOIDs[sofaId]);
   }
   else
   {
     mongo::BSONElement elem;
     object.getObjectID(elem);
     builderCAS.append(sofaId, elem.OID());
-    if(sofaId == "camera_info")
-    {
-      cam_info_oid = elem.OID();
-    }
-    if(sofaId == "camera_info_hd")
-    {
-      cam_info_hd_oid = elem.OID();
-    }
     outDebug("storing sofas to " << dbCollection << ".");
     db.insert(dbCollection, object);
   }
+
+
   return true;
 }
 
