@@ -63,6 +63,8 @@ private:
   std::unordered_map<std::string, bool> storeViews;
   std::unordered_map<std::string, bool> loadViews;
 
+  mongo::OID cam_info_oid,cam_info_hd_oid;
+  std::unordered_map<std::string,mongo::OID> camInfoOIDs;
   bool first;
 
   void setupDBScripts();

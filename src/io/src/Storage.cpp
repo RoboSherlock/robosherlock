@@ -183,13 +183,42 @@ bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &buil
 bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCAS, const mongo::OID &casOID, const std::string &sofaId, const std::string &dbCollection)
 {
   mongo::BSONObj object = rs::conversion::fromFeatureStructure(fs, casOID);
-
-  mongo::BSONElement elem;
-  object.getObjectID(elem);
-  builderCAS.append(sofaId, elem.OID());
-
-  outDebug("storing sofas to " << dbCollection << ".");
-  db.insert(dbCollection, object);
+  //rewrite this with a map
+  if(!first)
+  {
+    if(sofaId == "camera_info")
+    {
+      builderCAS.append(sofaId, cam_info_oid);
+    }
+    else if(sofaId == "camera_info_hd")
+    {
+      builderCAS.append(sofaId, cam_info_hd_oid);
+    }
+    else
+    {
+      mongo::BSONElement elem;
+      object.getObjectID(elem);
+      builderCAS.append(sofaId, elem.OID());
+      outDebug("storing sofas to " << dbCollection << ".");
+      db.insert(dbCollection, object);
+    }
+  }
+  else
+  {
+    mongo::BSONElement elem;
+    object.getObjectID(elem);
+    builderCAS.append(sofaId, elem.OID());
+    if(sofaId == "camera_info")
+    {
+      cam_info_oid = elem.OID();
+    }
+    if(sofaId == "camera_info_hd")
+    {
+      cam_info_hd_oid = elem.OID();
+    }
+    outDebug("storing sofas to " << dbCollection << ".");
+    db.insert(dbCollection, object);
+  }
   return true;
 }
 
@@ -331,13 +360,8 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
     const std::string sofaId = sofa.getSofaID().asUTF8();
 
-    if(!storeViews[sofaId])
-    {
-      outDebug("skipping sofa \"" << sofaId << "\".");
-      continue;
-    }
-
-    if((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first)
+    //if sofa should not be stored or it's the cam info and it has already been stored
+    if(!storeViews[sofaId]) //|| ((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first))
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
