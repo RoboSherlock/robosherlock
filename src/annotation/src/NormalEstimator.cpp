@@ -20,6 +20,9 @@
 
 #include <uima/api.hpp>
 
+//this is needed becaus ein 1.8 we get a runtime error
+#include <pcl/search/impl/kdtree.hpp>
+
 #include <pcl/features/integral_image_normal.h>
 #include <pcl/io/pcd_io.h>
 

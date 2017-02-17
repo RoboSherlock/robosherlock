@@ -47,7 +47,7 @@ using namespace rs;
  * Storage
  *****************************************************************************/
 
-Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS)
+Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS), first(true)
 {
 }
 
@@ -184,12 +184,34 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
 {
   mongo::BSONObj object = rs::conversion::fromFeatureStructure(fs, casOID);
 
-  mongo::BSONElement elem;
-  object.getObjectID(elem);
-  builderCAS.append(sofaId, elem.OID());
+  if(first)
+  {
+    mongo::BSONElement elem;
+    object.getObjectID(elem);
+    builderCAS.append(sofaId, elem.OID());
+    if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
+    {
+      camInfoOIDs[sofaId] = elem.OID();
+    }
+    outDebug("storing sofas to " << dbCollection << ".");
+    db.insert(dbCollection, object);
+    return true;
+  }
 
-  outDebug("storing sofas to " << dbCollection << ".");
-  db.insert(dbCollection, object);
+  if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
+  {
+    builderCAS.append(sofaId, camInfoOIDs[sofaId]);
+  }
+  else
+  {
+    mongo::BSONElement elem;
+    object.getObjectID(elem);
+    builderCAS.append(sofaId, elem.OID());
+    outDebug("storing sofas to " << dbCollection << ".");
+    db.insert(dbCollection, object);
+  }
+
+
   return true;
 }
 
@@ -331,9 +353,10 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
     const std::string sofaId = sofa.getSofaID().asUTF8();
 
-    if(!storeViews[sofaId])
+    //if sofa should not be stored or it's the cam info and it has already been stored
+    if(!storeViews[sofaId]) //|| ((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first))
     {
-      outDebug("skipping sofa \"" << sofaId << "\".");
+      outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
     }
 
@@ -348,6 +371,10 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
   outDebug("storing CAS information to " << DB_CAS << ".");
   db.insert(dbCAS, builder.obj());
+  if(first)
+  {
+    first = false;
+  }
   return true;
 }
 
