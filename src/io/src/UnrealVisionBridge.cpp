@@ -311,5 +311,9 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cas.set(VIEW_OBJECT_IMAGE, object);
   cas.set(VIEW_OBJECT_MAP, objectMap);
 
+  //so we can run other annotators on the image
+  cas.set(VIEW_CAMERA_INFO_HD, cameraInfo);
+  cas.set(VIEW_COLOR_IMAGE_HD, color);
+
   return true;
 }
