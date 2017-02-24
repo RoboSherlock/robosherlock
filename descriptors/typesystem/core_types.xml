@@ -116,11 +116,6 @@
           <rangeTypeName>rs.tf.StampedTransform</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>logging</name>
-          <description/>
-          <rangeTypeName>rs.core.Logging</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
           <name>identifiables</name>
           <description/>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
