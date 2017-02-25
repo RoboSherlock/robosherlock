@@ -9,19 +9,7 @@
     <import location="tf_types.xml"/>
   </imports>
   <types>
-    <typeDescription>
-      <name>rs.core.Logging</name>
-      <description/>
-      <supertypeName>uima.cas.TOP</supertypeName>
-      <features>
-        <featureDescription>
-          <name>logging_info_string</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
+    
     <typeDescription>
       <name>rs.core.Identifiable</name>
       <description/>
@@ -83,24 +71,6 @@
 
 
     <typeDescription>
-      <name>rs.core.DBReference</name>
-      <description/>
-      <supertypeName>uima.cas.TOP</supertypeName>
-      <features>
-        <featureDescription>
-          <name>ref</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>id</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
       <name>rs.core.Scene</name>
       <description/>
       <supertypeName>rs.core.Identifiable</supertypeName>
@@ -117,7 +87,7 @@
         </featureDescription>
         <featureDescription>
           <name>identifiables</name>
-          <description/>
+          <description>e.g. clusters(object hypotheses)</desciption>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>rs.core.Identifiable</elementType>
         </featureDescription>
@@ -131,7 +101,7 @@
           <name>thermalViewPoint</name>
           <description/>
           <rangeTypeName>rs.tf.StampedTransform</rangeTypeName>
-        </featureDescription>
+      </featureDescription>
       </features>
     </typeDescription>
 
