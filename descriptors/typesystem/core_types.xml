@@ -87,7 +87,7 @@
         </featureDescription>
         <featureDescription>
           <name>identifiables</name>
-          <description>e.g. clusters(object hypotheses)</desciption>
+          <description>e.g. clusters(object hypotheses)</description>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>rs.core.Identifiable</elementType>
         </featureDescription>
