@@ -469,6 +469,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+    
     <typeDescription>
       <name>rs.annotation.Response</name>
       <description/>
@@ -510,7 +511,8 @@
         </featureDescription>
       </features>
     </typeDescription>
-  <typeDescription>
+    
+    <typeDescription>
       <name>rs.annotation.HandleAnnotation</name>
       <description>Handles</description>
       <supertypeName>rs.core.Annotation</supertypeName>
@@ -582,6 +584,28 @@
         </featureDescription>
       </features>
     </typeDescription>
-
+    
+    <typeDescription>
+      <name>rs.annotation.GroundTruth</name>
+      <description>Type for holding GroundTruth</description>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>pose</name>
+          <description/>
+          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>classificationGT</name>
+          <description/>
+          <rangeTypeName>rs.annotation.Classification</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>planeGT</name>
+          <description/>
+          <rangeTypeName>rs.annotation.Plane</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
   </types>
 </typeSystemDescription>
