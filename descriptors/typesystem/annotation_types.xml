@@ -467,11 +467,6 @@
           <description>Type of the descriptor, e.g. binary, numerical</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
-        <featureDescription>
-          <name>source</name>
-          <description>Type of the descriptor extractor, e.g. SIFT, SURF, FREAK</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
