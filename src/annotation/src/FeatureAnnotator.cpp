@@ -340,7 +340,7 @@ private:
       outDebug("creating features annotation...");
       rs::Features feats = rs::create<rs::Features>(tcas);
       //feats.detector(keypointDetector);
-      feats.extractor(featureExtractor);
+      feats.source(featureExtractor);
       feats.descriptorType(featureType);
       feats.descriptors(rs::conversion::to(tcas, descriptors));
 

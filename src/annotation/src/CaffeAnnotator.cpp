@@ -151,7 +151,7 @@ public:
       rs::Features feat = rs::create<rs::Features>(tcas);
       feat.descriptors(rs::conversion::to(tcas, desc));
       feat.descriptorType("numerical");
-      feat.extractor("Caffe");
+      feat.source("Caffe");
 
       cluster.annotations.append(feat);
     }

@@ -130,7 +130,7 @@ double compare(ColorHistogram &a, ColorHistogram &b)
 template<>
 double compare(Features &a, Features &b)
 {
-  if(a.extractor() != b.extractor() || a.descriptorType() != b.descriptorType())
+  if(a.source() != b.source() || a.descriptorType() != b.descriptorType())
   {
     outDebug("Features do not match.");
     return 1;
