@@ -484,8 +484,7 @@ private:
     rs::Features features = rs::create<rs::Features>(tcas);
     features.descriptors(rs::conversion::to(tcas, descriptor));
     features.descriptorType("numerical");
-    //features.detector("AcatSegmentation");
-    features.extractor("ImageSegmentationAnnotator");
+    features.source("hu moments");
     return features;
   }
   void computeColorHist(const cv::Mat &color, const cv::Mat &mask, cv::Mat &histogram)

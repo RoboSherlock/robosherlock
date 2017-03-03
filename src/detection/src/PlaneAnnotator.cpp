@@ -244,6 +244,7 @@ private:
 
     rs::Plane plane = rs::create<rs::Plane>(tcas);
     plane.model(planeModel);
+    plane.source("CheckerBoard");
     //TODO: add empty?
     //    plane.inliers(plane_inliers->indices);
     //    plane.roi(rs::conversion::to(tcas, roi));
@@ -339,6 +340,7 @@ private:
       plane.inliers(inlierIndices[i].indices);
       plane.roi(rs::conversion::to(tcas, roi));
       plane.mask(rs::conversion::to(tcas, mask));
+      plane.source("MPS");
       scene.annotations.append(plane);
 
       if(region.getCount() > regions[biggest].getCount())
@@ -421,6 +423,7 @@ private:
       plane.inliers(plane_inliers->indices);
       plane.roi(rs::conversion::to(tcas, roi));
       plane.mask(rs::conversion::to(tcas, mask));
+      plane.source("RANSAC");
       scene.annotations.append(plane);
     }
     else
@@ -492,6 +495,7 @@ private:
     plane.inliers(plane_inliers->indices);
     plane.roi(rs::conversion::to(tcas, roi));
     plane.mask(rs::conversion::to(tcas, mask));
+    plane.source("offline estimation");
     scene.annotations.append(plane);
   }
 

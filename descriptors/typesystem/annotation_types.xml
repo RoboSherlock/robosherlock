@@ -300,32 +300,32 @@
         </featureDescription>
         <featureDescription>
           <name>classname</name>
-          <description/>
+          <description>Most probable class/best result</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>featurename</name>
-          <description/>
+          <description>feature used for classification</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>classifier</name>
-          <description/>
+          <description>classifier used(SVM, RF etc)</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>parameters</name>
-          <description/>
+          <description>params used during testing</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>model</name>
-          <description/>
+          <description>name of trained model(dataset/preprocessing/every5th etc.)</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>confidences</name>
-          <description/>
+          <description>probabilities for each class</description>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>rs.annotation.ClassConfidence</elementType>
           <multipleReferencesAllowed>false</multipleReferencesAllowed>
@@ -451,12 +451,6 @@
       <description/>
       <supertypeName>rs.core.Annotation</supertypeName>
       <features>
-<!--        <featureDescription>
-          <name>points</name>
-          <description>Points belonging to the descriptors</description>
-          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
-          <elementType>rs.cv.KeyPoint</elementType>
-        </featureDescription>-->
         <featureDescription>
           <name>descriptors</name>
           <description>Descriptors of the key points</description>
@@ -464,7 +458,7 @@
         </featureDescription>
         <featureDescription>
           <name>response</name>
-          <description>Responses of classifier</description>
+          <description>Responses of classifier(legacy)</description>
           <rangeTypeName>uima.cas.FSList</rangeTypeName>
           <elementType>rs.annotation.Response</elementType>
         </featureDescription>
@@ -473,18 +467,9 @@
           <description>Type of the descriptor, e.g. binary, numerical</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
-<!--        <featureDescription>
-          <name>detector</name>
-          <description>Type of the key point detector, e.g. SIFT, ORB</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>-->
-        <featureDescription>
-          <name>extractor</name>
-          <description>Type of the descriptor extractor, e.g. SIFT, SURF, FREAK</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
       </features>
     </typeDescription>
+    
     <typeDescription>
       <name>rs.annotation.Response</name>
       <description/>
@@ -526,7 +511,8 @@
         </featureDescription>
       </features>
     </typeDescription>
-  <typeDescription>
+    
+    <typeDescription>
       <name>rs.annotation.HandleAnnotation</name>
       <description>Handles</description>
       <supertypeName>rs.core.Annotation</supertypeName>
@@ -598,6 +584,28 @@
         </featureDescription>
       </features>
     </typeDescription>
-
+    
+    <typeDescription>
+      <name>rs.annotation.GroundTruth</name>
+      <description>Type for holding GroundTruth</description>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>pose</name>
+          <description/>
+          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>classificationGT</name>
+          <description/>
+          <rangeTypeName>rs.annotation.Classification</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>planeGT</name>
+          <description/>
+          <rangeTypeName>rs.annotation.Plane</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
   </types>
 </typeSystemDescription>
