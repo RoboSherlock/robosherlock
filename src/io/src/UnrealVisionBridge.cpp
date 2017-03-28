@@ -285,7 +285,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cameraInfo.K.assign(0.0);
   cameraInfo.K[0] = cX / std::tan(halfFOVX);
   cameraInfo.K[2] = cX;
-  cameraInfo.K[4] = cY / std::tan(halfFOVY);
+  cameraInfo.K[4] = cX / std::tan(halfFOVX); //pretty weird that this is true cY / std::tan(halfFOVY);
   cameraInfo.K[5] = cY;
   cameraInfo.K[8] = 1;
 

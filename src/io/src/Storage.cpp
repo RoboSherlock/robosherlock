@@ -105,13 +105,13 @@ void Storage::setupDBScripts()
   DIR *dp;
   struct dirent *dirp;
 
-  if((dp  = opendir(DB_SCRIPTS_DIR)) ==  NULL)
+  if((dp  = opendir(DB_SCRIPTS_DIR)) ==  nullptr)
   {
     outDebug("MongoDB script directory does not exist.");
     return;
   }
 
-  while((dirp = readdir(dp)) != NULL)
+  while((dirp = readdir(dp)) != nullptr)
   {
     if(dirp->d_type != DT_REG)
     {
@@ -218,7 +218,7 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
 void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   const std::string &viewName = elem.fieldName();
-  uima::CAS *view = NULL;
+  uima::CAS *view = nullptr;
   try
   {
     outDebug("try to get view " << viewName);
@@ -486,7 +486,7 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
     ids.push_back(elem.OID());
   }
 
-  uima::CAS *_view = NULL;
+  uima::CAS *_view = nullptr;
   try
   {
     outDebug("try to get view " << view);
