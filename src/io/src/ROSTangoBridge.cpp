@@ -32,7 +32,7 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
 {
   std::string cloud_topic = pt.get<std::string>("/tango/point_cloud");
 
-  cloud_sub = nodeHandle.subscribe(cloud_topic, 1, &ROSTangoBridge::cb_, this);
+  cloud_sub = nodeHandle.subscribe(cloud_topic, 1000, &ROSTangoBridge::cb_, this);
 }
 
 void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2 &input)

@@ -29,7 +29,7 @@ ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
   listener = new tf::TransformListener(nodeHandle, ros::Duration(10.0));
   tfFrom = pt.get<std::string>("tf.from");
   tfTo = pt.get<std::string>("tf.to");
-  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  lookUpViewpoint = pt.get<bool>("tf.ca", false);
   onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
   maxViewpointDistance = pt.get<double>("tf.maxViewpointDistance", 0.01);
   maxViewpointRotation = pt.get<double>("tf.maxViewpointRotation", 1.0);
