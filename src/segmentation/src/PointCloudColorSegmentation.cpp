@@ -21,15 +21,19 @@
 // RS
 #include <rs/DrawingAnnotator.h>
 #include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <rs/HueClusterComparator.h>
+#include <rs/utils/common.h>
 
 // PCL
-#include <pcl/filters/extract_indices.h>
-#include <pcl/filters/passthrough.h>
-#include <pcl/filters/voxel_grid.h>
-#include <pcl/search/kdtree.h>
-#include <pcl/segmentation/region_growing_rgb.h>
+#include <pcl/segmentation/organized_connected_component_segmentation.h>
+#include <pcl/point_types_conversion.h>
+
+typedef pcl::PointXYZRGBA PointR;
+typedef pcl::PointCloud<PointR> PCR;
+typedef pcl::PointXYZHSV PointH;
+typedef pcl::PointCloud<PointH> PCH;
+typedef pcl::Normal PointN;
+typedef pcl::PointCloud<PointN> PCN;
 
 using namespace uima;
 
@@ -37,57 +41,28 @@ class PointCloudColorSegmentation : public DrawingAnnotator
 {
 
 private:
-  typedef pcl::PointXYZRGBA PointT;
-  pcl::PointCloud<PointT>::Ptr cloudPtr;
-  bool useThermal, useSupervoxel, persons, voxelGridFiltering;
-  std::vector<pcl::PointIndices> clusterIndices;
-  int distanceThreshold, pointColorThreshold, regionColorThreshold, minClusterSize;
-  double pointSize;
-  float voxelResolution;
-  pcl::RegionGrowingRGB<PointT> reg;
+	PCR::Ptr temp = PCR::Ptr(new PCR);
+	PCH::Ptr cloud = PCH::Ptr(new PCH);
+	PCN::Ptr normals = PCN::Ptr(new PCN);
+
+	std::vector<pcl::PointIndices> clusters;
+
+	int CLUSTER_LOWER_BOUND, CLUSTER_UPPER_BOUND, HUE_THRESHOLD;
+	float DISTANCE_THRESHOLD;
 
 public:
 
-  PointCloudColorSegmentation(): DrawingAnnotator(__func__), useThermal(true), useSupervoxel(false), persons(true), voxelGridFiltering(true),
-    distanceThreshold(5), pointColorThreshold(6), regionColorThreshold(5), minClusterSize(10), pointSize(2.0), voxelResolution(0.008f) {}
+  PointCloudColorSegmentation(): DrawingAnnotator(__func__) {
+	}
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("Initialize");
 
-    if(ctx.isParameterDefined("useThermal"))
-    {
-      ctx.extractValue("useThermal", useThermal);
-    }
-    if(ctx.isParameterDefined("useSupervoxel"))
-    {
-      ctx.extractValue("useSupervoxel", useSupervoxel);
-    }
-    if(ctx.isParameterDefined("persons"))
-    {
-      ctx.extractValue("persons", persons);
-    }
-    if(ctx.isParameterDefined("distanceThreshold"))
-    {
-      ctx.extractValue("distanceThreshold", distanceThreshold);
-    }
-    if(ctx.isParameterDefined("pointColorThreshold"))
-    {
-      ctx.extractValue("pointColorThreshold", pointColorThreshold);
-    }
-    if(ctx.isParameterDefined("regionColorThreshold"))
-    {
-      ctx.extractValue("regionColorThreshold", regionColorThreshold);
-    }
-    if(ctx.isParameterDefined("minClusterSize"))
-    {
-      ctx.extractValue("minClusterSize", minClusterSize);
-    }
-    if(ctx.isParameterDefined("voxelGridFiltering") && ctx.isParameterDefined("voxelResolution"))
-    {
-      ctx.extractValue("voxelGridFiltering", voxelGridFiltering);
-      ctx.extractValue("voxelResolution", voxelResolution);
-    }
+		ctx.extractValue("minPoints", CLUSTER_LOWER_BOUND);
+		ctx.extractValue("maxPoints", CLUSTER_UPPER_BOUND);
+		ctx.extractValue("hueThreshold", HUE_THRESHOLD);
+		ctx.extractValue("distThreshold", DISTANCE_THRESHOLD);
 
     return UIMA_ERR_NONE;
   }
@@ -103,92 +78,77 @@ private:
 
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
-    MEASURE_TIME;
-    outInfo("Process begins");
-    rs::StopWatch clock;
+		rs::SceneCas cas(tcas);
+		rs::Scene scene = cas.getScene();
 
-    rs::SceneCas cas(tcas);
+    cas.get(VIEW_CLOUD, *temp);
+		pcl::PointCloudXYZRGBAtoXYZHSV(*temp, *cloud);
+		//hack because the method deletes xyz values
+		for (int i = 0; i < cloud->size(); i++) {
+			cloud->points[i].x = temp->points[i].x;
+			cloud->points[i].y = temp->points[i].y;
+			cloud->points[i].z = temp->points[i].z;
+		}
+		cas.get(VIEW_NORMALS, *normals);
 
-    cloudPtr.reset(new pcl::PointCloud<PointT>);
+		pcl::PointCloud<pcl::Label>::Ptr output_labels(new pcl::PointCloud<pcl::Label>);
 
-    clusterIndices.clear();
-    if(useThermal)
-    {
-      cas.get(VIEW_THERMAL_CLOUD, *cloudPtr);
-    }
-    else if(useSupervoxel)
-    {
-      cas.get(VIEW_CLOUD_SUPERVOXEL, *cloudPtr);
-    }
-    else
-    {
-      cas.get(VIEW_CLOUD, *cloudPtr);
-    }
-    pcl::PointCloud<PointT> cloudCopy = *cloudPtr;
+		pcl::HueClusterComparator<PointH, PointN, pcl::Label>::Ptr hcc(new pcl::HueClusterComparator<PointH, PointN, pcl::Label>());
+		hcc->setInputCloud(cloud);
+		hcc->setDistanceThreshold(DISTANCE_THRESHOLD, true);
+		hcc->setInputNormals(normals);
+		hcc->setHueThreshold(HUE_THRESHOLD);
 
-    if(voxelGridFiltering)
-    {
-      pcl::VoxelGrid<PointT> sor;
-      sor.setInputCloud(cloudPtr);
-      sor.setLeafSize(voxelResolution, voxelResolution, voxelResolution);
-      pcl::PointCloud<PointT>::Ptr cloudFiltered(new pcl::PointCloud<PointT> ());
-      sor.filter(*cloudFiltered);
-      cloudPtr = cloudFiltered;
-    }
+		std::vector<pcl::PointIndices> cluster_i;
+		pcl::OrganizedConnectedComponentSegmentation<PointH, pcl::Label> segmenter(hcc);
+		segmenter.setInputCloud(cloud);
+		segmenter.segment(*output_labels, cluster_i);
+		
+		outInfo("Found " << cluster_i.size() << " clusters for " << cloud->size() << " points." );
+		for (size_t i = 0; i < cluster_i.size(); i++) {
+			if (cluster_i.at(i).indices.size() > CLUSTER_LOWER_BOUND && cluster_i.at(i).indices.size() < CLUSTER_UPPER_BOUND) {
+				clusters.push_back(cluster_i.at(i));
+			}
+		}
 
-    pcl::IndicesPtr denseIndices(new std::vector <int>);
-    pcl::PassThrough<PointT> pass;
-    pass.setInputCloud(cloudPtr);
-    pass.setFilterFieldName("z");
-    pass.setFilterLimits(0.0, 100.0);
-    pass.filter(*denseIndices);
+		outInfo("Found " << clusters.size() << " clusters.");
 
-    double t1 = clock.getTime();
-    outInfo("Pass through took: " << t1 << " ms.");
+		for (size_t i = 0; i < clusters.size(); ++i) {
+			const pcl::PointIndices &indices = clusters[i];
 
-    pcl::search::Search <PointT>::Ptr tree = boost::shared_ptr<pcl::search::Search<PointT> > (new pcl::search::KdTree<PointT>);
+			rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
+			rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+			rs::PointIndices uimaIndices = rs::conversion::to(tcas, indices);
 
-    reg.setInputCloud(cloudPtr);
-    reg.setIndices(denseIndices);
-    reg.setSearchMethod(tree);
-    reg.setDistanceThreshold(distanceThreshold);
-    reg.setPointColorThreshold(pointColorThreshold);
-    reg.setRegionColorThreshold(regionColorThreshold);
-    reg.setMinClusterSize(minClusterSize);
-    reg.extract(clusterIndices);
-
-    double t2 = clock.getTime();
-    outInfo("Segmentation took: " << t2 - t1 << " ms.");
-
-    if(persons)
-    {
-      for(pcl::PointIndices indices : clusterIndices)
-      {
-        //        rs::PersonCluster pc = rs::create<rs::PersonCluster>(tcas);
-        //        rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-        //        rs::PointIndices uimaIndices = rs::conversion::to(tcas, indices);
-        //        rcp.indices.set(uimaIndices);
-        //        rs::ImageROI roi = createImageRoi(tcas, cloudCopy, indices);
-        //        pc.indices.set(rcp);
-        //        pc.roi.set(roi);
-        //        scene.identifiables.append(pc);
-      }
-    }
-    else
-    {
-      // TODO: Add object clusters here
-    }
-
-    double t3 = clock.getTime();
-    outInfo("Conversion took: " << t3 - t2 << " ms.");
+			rcp.indices.set(uimaIndices);
+			
+			uimaCluster.points.set(rcp);
+			uimaCluster.rois.set(createImageRoi(tcas, *cloud, indices));
+			uimaCluster.source.set("HueClustering: " + getAverageHue(cloud, indices));
+			scene.identifiables.append(uimaCluster);
+		}
 
     return UIMA_ERR_NONE;
   }
+	
+	std::string getAverageHue(PCH::Ptr cloud, const pcl::PointIndices &indices) {
+		float hue = 0;
+		int size = indices.indices.size();
+
+		for (size_t i = 0; i < size; i++) {
+			hue += cloud->points[indices.indices[i]].h / size;
+		}
+		
+		std::stringstream ss;
+		ss << std::fixed << std::setprecision(2) << hue;
+		return ss.str();
+	}
+
 
   /**
    * given orignal_image and reference cluster points, compute an image containing only the cluster
    */
-  rs::ImageROI createImageRoi(CAS &tcas, const pcl::PointCloud<PointT> &cloud, const pcl::PointIndices &indices)
+  rs::ImageROI createImageRoi(CAS &tcas, const pcl::PointCloud<PointH> &cloud, const pcl::PointIndices &indices)
   {
     size_t width = cloud.width,
            height = cloud.height;
@@ -234,20 +194,27 @@ private:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string &cloudname = this->name;
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloud = reg.getColoredCloud();
+		for (size_t i = 0; i < clusters.size(); ++i) {
+			const pcl::PointIndices &indices = clusters[i];
+			for (size_t j = 0; j < indices.indices.size(); ++j) {
+				size_t index = indices.indices[j];
+				temp->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
+			}
+		}
 
+		double pointSize = 1;
+	
     if(firstRun)
     {
-      visualizer.addPointCloud(cloud, cloudname);
+      visualizer.addPointCloud(temp, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
     else
     {
-      visualizer.updatePointCloud(cloud, cloudname);
+      visualizer.updatePointCloud(temp, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
   }
-
 };
 
 MAKE_AE(PointCloudColorSegmentation)
