@@ -68,7 +68,7 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
 //  cloud_sub = nodeHandle.subscribe(cloud_topic, 1000, &ROSTangoBridge::cb_, this);
 }
 
-void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2::ConstPtr cloud_msg,
+void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2 cloud_msg,
                         const sensor_msgs::Image::ConstPtr color_img_msg,
                         const sensor_msgs::Image::ConstPtr fisheye_img_msg,
                         const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
@@ -100,28 +100,17 @@ void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2::ConstPtr cloud_msg,
     return;
   }
 
+  color = orig_color_img->image.clone();
+  fisheye = orig_fisheye_img->image.clone();
+  pcl::fromROSMsg(cloud_msg, cloud);
 
-  // if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
-  // {
-  //   lock.lock();
-  //   _newData = false;
-  //   lock.unlock();
-  //   outWarn("Skipping blurred image!");
-  //   return;
-  // }
-//Add scale code in here
-//....
-
-lock.lock();
-this->color = color;
-this->fisheye = fisheye;
-this->colorCameraInfo = colorCameraInfo;
-this->fisheyeCameraInfo = fisheyeCameraInfo;
-this->cloud = cloud;
-
-lock.unlock();
-
-//  pcl::fromROSMsg(cloud_msg, cloud);
+  lock.lock();
+  this->color = color;
+  this->fisheye = fisheye;
+  this->colorCameraInfo = colorCameraInfo;
+  this->fisheyeCameraInfo = fisheyeCameraInfo;
+  this->cloud = cloud;
+  lock.unlock();
 }
 
 bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
