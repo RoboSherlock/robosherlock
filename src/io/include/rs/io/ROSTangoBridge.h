@@ -43,11 +43,11 @@ private:
 
   void initSpinner();
   void readConfig(const boost::property_tree::ptree &pt);
-  void cb_(const sensor_msgs::PointCloud2 cloud_msg,
-           const sensor_msgs::Image::ConstPtr color_img_msg,
+  void cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
            const sensor_msgs::Image::ConstPtr fisheye_img_msg,
            const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
            const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg);
+  void cloudCb_(const sensor_msgs::PointCloud2 cloud_msg);
 
 public:
   ROSTangoBridge(const boost::property_tree::ptree &pt);

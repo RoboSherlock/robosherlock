@@ -33,7 +33,7 @@ ROSTangoBridge::~ROSTangoBridge()
 
 void ROSTangoBridge::initSpinner()
 {
-spinner.start();
+  spinner.start();
 }
 
 void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
@@ -45,7 +45,6 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   std::string fisheye_hints = pt.get<std::string>("camera_topics.fisheyeHints", "raw");
   std::string color_info_topic = pt.get<std::string>("camera_topics.colorInfo");
   std::string fisheye_info_topic = pt.get<std::string>("camera_topics.fisheyeInfo");
-  //Should add the scale, depthOffset and filterBlurredImages into the Tango or not???
 
   image_transport::TransportHints hintsColor(color_hints);
   image_transport::TransportHints hintsFisheye(fisheye_hints);
@@ -56,6 +55,8 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   colorInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, color_info_topic, 5);
   fisheyeInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, fisheye_info_topic, 5);
 
+  cloud_sub = nodeHandle.subscribe(cloud_topic, 1000, &ROSTangoBridge::cloudCb_, this);
+
   outInfo("  Cloud topic: " FG_BLUE << cloud_topic);
   outInfo("  Color topic: " FG_BLUE << color_topic);
   outInfo("  Fisheye topic: " FG_BLUE << fisheye_topic);
@@ -64,17 +65,13 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  Color Hints: " FG_BLUE << color_hints);
   outInfo("  Fisheye Hints: " FG_BLUE << fisheye_hints);
   //Adding the depthOffset, filterBlurredImages and scale in here
-
-//  cloud_sub = nodeHandle.subscribe(cloud_topic, 1000, &ROSTangoBridge::cb_, this);
 }
 
-void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2 cloud_msg,
-                        const sensor_msgs::Image::ConstPtr color_img_msg,
-                        const sensor_msgs::Image::ConstPtr fisheye_img_msg,
-                        const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
-                        const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg)
+void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
+                         const sensor_msgs::Image::ConstPtr fisheye_img_msg,
+                         const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
+                         const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg)
 {
-  pcl::PointCloud<pcl::PointXYZ> cloud;
   cv::Mat color, fisheye;
   sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
 
@@ -102,14 +99,23 @@ void ROSTangoBridge::cb_(const sensor_msgs::PointCloud2 cloud_msg,
 
   color = orig_color_img->image.clone();
   fisheye = orig_fisheye_img->image.clone();
-  pcl::fromROSMsg(cloud_msg, cloud);
 
   lock.lock();
   this->color = color;
   this->fisheye = fisheye;
   this->colorCameraInfo = colorCameraInfo;
   this->fisheyeCameraInfo = fisheyeCameraInfo;
+  _newData = true;
+  lock.unlock();
+}
+
+void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
+{
+  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::fromROSMsg(cloud_msg, cloud);
+  lock.lock();
   this->cloud = cloud;
+  _newData = true;
   lock.unlock();
 }
 
@@ -131,16 +137,16 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
   colorCameraInfo = this->colorCameraInfo;
   fisheyeCameraInfo = this->fisheyeCameraInfo;
   cloud = this->cloud;
-
   _newData = false;
   lock.unlock();
 
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
 
-  cas.set(VIEW_COLOR_IMAGE, color);
+  cas.set(VIEW_CLOUD, cloud);
+  cas.set(VIEW_COLOR_IMAGE, color);//??????
   cas.set(VIEW_FISHEYE_IMAGE, fisheye);
-  cas.set(VIEW_COLOR_CAMERA_INFO, colorCameraInfo);
+  cas.set(VIEW_COLOR_CAMERA_INFO, colorCameraInfo);//????ß
   cas.set(VIEW_FISHEYE_CAMERA_INFO, fisheyeCameraInfo);
 
   return true;
