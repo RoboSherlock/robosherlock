@@ -63,10 +63,6 @@ public:
   {
     f = this->fisheye.clone();
   }
-  inline void getCloud(pcl::PointCloud<pcl::PointXYZ> cl)
-  {
-    cl = this->cloud.clone();
-  }
 };
 
 #endif // __ROS_TANGO_BRIDGE_H__
