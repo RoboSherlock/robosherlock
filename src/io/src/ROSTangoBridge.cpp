@@ -46,6 +46,7 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   std::string color_info_topic = pt.get<std::string>("camera_topics.colorInfo");
   std::string fisheye_info_topic = pt.get<std::string>("camera_topics.fisheyeInfo");
 
+  filterBlurredImages = pt.get<bool>("camera.filterBlurredImages", false);
   image_transport::TransportHints hintsColor(color_hints);
   image_transport::TransportHints hintsFisheye(fisheye_hints);
 
@@ -64,7 +65,7 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  FisheyeCamInfo topic: " FG_BLUE << fisheye_info_topic);
   outInfo("  Color Hints: " FG_BLUE << color_hints);
   outInfo("  Fisheye Hints: " FG_BLUE << fisheye_hints);
-  //Adding the depthOffset, filterBlurredImages and scale in here
+  outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
 }
 
 void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
@@ -86,6 +87,15 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
     return;
   }
 
+  if(filterBlurredImages && detector.detectBlur(orig_color_img->image))
+  {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
+    outWarn("Skipping blurred image!");
+    return;
+  }
+
   cv_bridge::CvImageConstPtr orig_fisheye_img;
   orig_fisheye_img = cv_bridge::toCvShare(fisheye_img_msg, sensor_msgs::image_encodings::BGR8);
   fisheyeCameraInfo = sensor_msgs::CameraInfo(*fisheye_info_msg);
@@ -94,6 +104,15 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
     lock.lock();
     _newData = false;
     lock.unlock();
+    return;
+  }
+
+  if(filterBlurredImages && detector.detectBlur(orig_fisheye_img->image))
+  {
+    lock.lock();
+    _newData = false;
+    lock.unlock();
+    outWarn("Skipping blurred image!");
     return;
   }
 

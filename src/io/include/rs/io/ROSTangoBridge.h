@@ -25,6 +25,9 @@
 class ROSTangoBridge : public ROSCamInterface
 {
 private:
+  bool filterBlurredImages;
+  BlurDetector detector;
+
   ros::Subscriber cloud_sub;
   image_transport::ImageTransport it;
   image_transport::SubscriberFilter *colorImageSubscriber;

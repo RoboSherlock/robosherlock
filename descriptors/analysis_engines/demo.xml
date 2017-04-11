@@ -141,13 +141,15 @@
     <flowConstraints>
       <fixedFlow>
       <node>CollectionReader</node>
-      <node>ImagePreprocessor</node>
-      <node>PointCloudFilter</node>
+      <!--<node>ImagePreprocessor</node>
+      <node>RegionFilter</node>-->
       <node>NormalEstimator</node>
       <node>PlaneAnnotator</node>
-      <node>ImageSegmentationAnnotator</node>
+      <!-- <node>ImageSegmentationAnnotator</node>
       <node>PointCloudClusterExtractor</node>
       <node>ClusterMerger</node>
+      <node>Cluster3DGeometryAnnotator</node>
+      <node>ClusterColorHistogramCalculator</node>-->
       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>
