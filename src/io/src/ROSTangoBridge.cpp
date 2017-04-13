@@ -16,6 +16,8 @@
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
 
+#include <iostream>
+
 ROSTangoBridge::ROSTangoBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt), it(nodeHandle)
 {
   readConfig(pt);
@@ -66,6 +68,9 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  Color Hints: " FG_BLUE << color_hints);
   outInfo("  Fisheye Hints: " FG_BLUE << fisheye_hints);
   outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
+
+
+
 }
 
 void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
@@ -130,7 +135,7 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
 
 void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
 {
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
   pcl::fromROSMsg(cloud_msg, cloud);
   lock.lock();
   this->cloud = cloud;
@@ -148,7 +153,7 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   cv::Mat color, fisheye;
   sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
 
   lock.lock();
   color = this->color;
@@ -156,6 +161,14 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
   colorCameraInfo = this->colorCameraInfo;
   fisheyeCameraInfo = this->fisheyeCameraInfo;
   cloud = this->cloud;
+  outInfo("  Fisheye Image Height: " FG_BLUE << fisheye.size().height);
+  outInfo("  Fisheye Image Width: " FG_BLUE << fisheye.size().width);
+  outInfo("  Color Image Height: " FG_BLUE << color.size().height);
+  outInfo("  Color Image Width: " FG_BLUE << color.size().width);
+
+  outInfo("  Cloud Width: " FG_BLUE << cloud.width);
+  outInfo("  Cloud Height: " FG_BLUE << cloud.height);
+  outInfo("  Number of Point Cloud: " FG_BLUE << cloud.size());
   _newData = false;
   lock.unlock();
 
@@ -163,7 +176,7 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
   setTransformAndTime(tcas);
 
   cas.set(VIEW_CLOUD, cloud);
-  cas.set(VIEW_COLOR_IMAGE, color);//??????
+  cas.set(VIEW_COLOR_IMAGE, color);
   cas.set(VIEW_FISHEYE_IMAGE, fisheye);
   cas.set(VIEW_COLOR_CAMERA_INFO, colorCameraInfo);//????ß
   cas.set(VIEW_FISHEYE_CAMERA_INFO, fisheyeCameraInfo);

@@ -133,7 +133,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_kinect_robot.ini</string>
+            <string>config_tango.ini</string>
           </array>
         </value>
       </nameValuePair>
@@ -143,8 +143,8 @@
       <node>CollectionReader</node>
       <!--<node>ImagePreprocessor</node>
       <node>RegionFilter</node>-->
-      <node>NormalEstimator</node>
-      <node>PlaneAnnotator</node>
+      <!--<node>NormalEstimator</node>
+      <node>PlaneAnnotator</node>-->
       <!-- <node>ImageSegmentationAnnotator</node>
       <node>PointCloudClusterExtractor</node>
       <node>ClusterMerger</node>

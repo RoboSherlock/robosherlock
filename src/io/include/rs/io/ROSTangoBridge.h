@@ -39,7 +39,7 @@ private:
   cv::Mat color;
   cv::Mat fisheye;
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
 
   sensor_msgs::CameraInfo colorCameraInfo;
   sensor_msgs::CameraInfo fisheyeCameraInfo;
