@@ -31,20 +31,36 @@ ROSTangoBridge::~ROSTangoBridge()
   delete fisheyeImageSubscriber;
   delete colorInfoSubscriber;
   delete fisheyeInfoSubscriber;
+  delete colorSync;
+  delete fisheyeSync;
+  delete sync;
 }
 
 void ROSTangoBridge::initSpinner()
 {
+  colorSync = new message_filters::Synchronizer<RGBSyncPolicy>
+                  (RGBSyncPolicy(10), *colorImageSubscriber, *colorInfoSubscriber);
+  fisheyeSync = new message_filters::Synchronizer<RGBSyncPolicy>
+                  (RGBSyncPolicy(10), *fisheyeImageSubscriber, *fisheyeInfoSubscriber);
+
+  colorSync->registerCallback(boost::bind(&ROSTangoBridge::colorCb_, this, _1, _2));
+  fisheyeSync->registerCallback(boost::bind(&ROSTangoBridge::fisheyeCb_, this, _1, _2));
+
   spinner.start();
 }
 
 void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
 {
   std::string cloud_topic = pt.get<std::string>("cloud_topic.cloud");
+
   std::string color_topic = pt.get<std::string>("camera_topics.color");
   std::string fisheye_topic = pt.get<std::string>("camera_topics.fisheye");
+
   std::string color_hints = pt.get<std::string>("camera_topics.colorHints", "raw");
   std::string fisheye_hints = pt.get<std::string>("camera_topics.fisheyeHints", "raw");
+  //boost::optional<std::string> color_hints = pt.get_optional<std::string>("camera_topics.colorHints");
+
+
   std::string color_info_topic = pt.get<std::string>("camera_topics.colorInfo");
   std::string fisheye_info_topic = pt.get<std::string>("camera_topics.fisheyeInfo");
 
@@ -68,22 +84,19 @@ void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  Color Hints: " FG_BLUE << color_hints);
   outInfo("  Fisheye Hints: " FG_BLUE << fisheye_hints);
   outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
-
-
-
 }
 
-void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
-                         const sensor_msgs::Image::ConstPtr fisheye_img_msg,
-                         const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
-                         const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg)
+void ROSTangoBridge::colorCb_(const sensor_msgs::Image::ConstPtr color_img_msg,
+                         const sensor_msgs::CameraInfo::ConstPtr color_info_msg)
 {
-  cv::Mat color, fisheye;
-  sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
+  cv::Mat color;
+  sensor_msgs::CameraInfo colorCameraInfo;
 
   cv_bridge::CvImageConstPtr orig_color_img;
+  outWarn("Check the encoding of color image BGR8 or another type???");
   orig_color_img = cv_bridge::toCvShare(color_img_msg, sensor_msgs::image_encodings::BGR8);
   colorCameraInfo = sensor_msgs::CameraInfo(*color_info_msg);
+
   if(!lookupTransform(colorCameraInfo.header.stamp))
   {
     lock.lock();
@@ -101,41 +114,52 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
     return;
   }
 
-  cv_bridge::CvImageConstPtr orig_fisheye_img;
-  orig_fisheye_img = cv_bridge::toCvShare(fisheye_img_msg, sensor_msgs::image_encodings::BGR8);
-  fisheyeCameraInfo = sensor_msgs::CameraInfo(*fisheye_info_msg);
-  if(!lookupTransform(fisheyeCameraInfo.header.stamp))
-  {
-    lock.lock();
-    _newData = false;
-    lock.unlock();
-    return;
-  }
-
-  if(filterBlurredImages && detector.detectBlur(orig_fisheye_img->image))
-  {
-    lock.lock();
-    _newData = false;
-    lock.unlock();
-    outWarn("Skipping blurred image!");
-    return;
-  }
-
   color = orig_color_img->image.clone();
-  fisheye = orig_fisheye_img->image.clone();
 
   lock.lock();
   this->color = color;
-  this->fisheye = fisheye;
   this->colorCameraInfo = colorCameraInfo;
-  this->fisheyeCameraInfo = fisheyeCameraInfo;
   _newData = true;
   lock.unlock();
 }
 
+void ROSTangoBridge::fisheyeCb_(const sensor_msgs::Image::ConstPtr fisheye_img_msg,
+                                const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg)
+{
+cv::Mat fisheye;
+sensor_msgs::CameraInfo fisheyeCameraInfo;
+
+cv_bridge::CvImageConstPtr orig_fisheye_img;
+outWarn("Check the encoding of fisheye image BGR8 or another type???");
+orig_fisheye_img = cv_bridge::toCvShare(fisheye_img_msg, sensor_msgs::image_encodings::BGR8);
+fisheyeCameraInfo = sensor_msgs::CameraInfo(*fisheye_info_msg);
+if(!lookupTransform(fisheyeCameraInfo.header.stamp))
+{
+  lock.lock();
+  _newData = false;
+  lock.unlock();
+  return;
+}
+
+if(filterBlurredImages && detector.detectBlur(orig_fisheye_img->image))
+{
+  lock.lock();
+  _newData = false;
+  lock.unlock();
+  outWarn("Skipping blurred image!");
+  return;
+}
+
+fisheye = orig_fisheye_img->image.clone();
+lock.lock();
+this->fisheye = fisheye;
+this->fisheyeCameraInfo = fisheyeCameraInfo;
+_newData = true;
+lock.unlock();
+}
 void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
 {
-  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
   pcl::fromROSMsg(cloud_msg, cloud);
   lock.lock();
   this->cloud = cloud;
@@ -153,7 +177,7 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   cv::Mat color, fisheye;
   sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
-  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
 
   lock.lock();
   color = this->color;

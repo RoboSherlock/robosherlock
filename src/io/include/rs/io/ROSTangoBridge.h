@@ -10,6 +10,8 @@
 #include <message_filters/synchronizer.h>
 #include <image_transport/subscriber_filter.h>
 #include <image_transport/image_transport.h>
+#include <message_filters/sync_policies/approximate_time.h>
+
 
 //OpenCV
 #include <opencv2/opencv.hpp>
@@ -22,6 +24,9 @@
 #include <rs/io/ROSCamInterface.h>
 #include <rs/utils/BlurDetector.h>
 
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::CameraInfo> RGBSyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::CameraInfo> RGBDSyncPolicy;
+
 class ROSTangoBridge : public ROSCamInterface
 {
 private:
@@ -30,6 +35,11 @@ private:
 
   ros::Subscriber cloud_sub;
   image_transport::ImageTransport it;
+
+  message_filters::Synchronizer<RGBSyncPolicy> *colorSync;
+  message_filters::Synchronizer<RGBSyncPolicy> *fisheyeSync;
+  //message_filters::Synchronizer<RGBDSyncPolicy> *sync;
+
   image_transport::SubscriberFilter *colorImageSubscriber;
   image_transport::SubscriberFilter *fisheyeImageSubscriber;
 
@@ -39,17 +49,20 @@ private:
   cv::Mat color;
   cv::Mat fisheye;
 
-  pcl::PointCloud<pcl::PointXYZRGBA> cloud;
+  pcl::PointCloud<pcl::PointXYZ> cloud;
 
   sensor_msgs::CameraInfo colorCameraInfo;
   sensor_msgs::CameraInfo fisheyeCameraInfo;
 
   void initSpinner();
   void readConfig(const boost::property_tree::ptree &pt);
-  void cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
-           const sensor_msgs::Image::ConstPtr fisheye_img_msg,
-           const sensor_msgs::CameraInfo::ConstPtr color_info_msg,
-           const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg);
+
+  void colorCb_(const sensor_msgs::Image::ConstPtr color_img_msg,
+                const sensor_msgs::CameraInfo::ConstPtr color_info_msg);
+
+  void fisheyeCb_(const sensor_msgs::Image::ConstPtr fisheye_img_msg,
+                  const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg);
+
   void cloudCb_(const sensor_msgs::PointCloud2 cloud_msg);
 
 public:
@@ -58,14 +71,14 @@ public:
 
   bool setData(uima::CAS &tcas, u_int64_t = std::numeric_limits<uint64_t>::max());
 
-  inline void getColorImage(cv::Mat& c)
-  {
-    c = this->color.clone();
-  }
-  inline void getFisheyeImage(cv::Mat& f)
-  {
-    f = this->fisheye.clone();
-  }
+  // inline void getColorImage(cv::Mat& c)
+  // {
+  //   c = this->color.clone();
+  // }
+  // inline void getFisheyeImage(cv::Mat& f)
+  // {
+  //   f = this->fisheye.clone();
+  // }
 };
 
 #endif // __ROS_TANGO_BRIDGE_H__
