@@ -50,6 +50,7 @@ private:
   cv::Mat fisheye;
 
   pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud_color;
 
   sensor_msgs::CameraInfo colorCameraInfo;
   sensor_msgs::CameraInfo fisheyeCameraInfo;
@@ -71,14 +72,14 @@ public:
 
   bool setData(uima::CAS &tcas, u_int64_t = std::numeric_limits<uint64_t>::max());
 
-  // inline void getColorImage(cv::Mat& c)
-  // {
-  //   c = this->color.clone();
-  // }
-  // inline void getFisheyeImage(cv::Mat& f)
-  // {
-  //   f = this->fisheye.clone();
-  // }
+  inline void getColorImage(cv::Mat& c)
+  {
+    c = this->color.clone();
+  }
+  inline void getFisheyeImage(cv::Mat& f)
+  {
+    f = this->fisheye.clone();
+  }
 };
 
 #endif // __ROS_TANGO_BRIDGE_H__
