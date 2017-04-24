@@ -18,7 +18,7 @@
 
 #include <tf_conversions/tf_eigen.h>
 #include <cmath>
-#include <Eigen/Dense>
+#include <Eigen/Core>
 
 ROSTangoBridge::ROSTangoBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt), it(nodeHandle)
 {
@@ -186,10 +186,10 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
 
   for(size_t i = 0; i < cloud.points.size(); i++)
   {
-    Eigen::MatrixXf imageCoords(1,2);
-    imageCoords(0,0) = cloud.points[i].x/cloud.points[i].z;
-    imageCoords(0,1) = cloud.points[i].y/cloud.points[i].z;
-    float r2 = imageCoords.dot(imageCoords);
+    Eigen::Vector2f imageCoords;
+    imageCoords[0] = cloud.points[i].x/cloud.points[i].z;
+    imageCoords[1] = cloud.points[i].y/cloud.points[i].z;
+    float r2 = imageCoords.adjoint()*imageCoords;
     float r4 = r2*r2;
     float r6 = r2*r4;
     for(size_t u = 0; u < this->color.size().width; u++)
@@ -201,9 +201,9 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
         pixelCoords(0,1) = v;
         pixelCoords(0,2) = 1;
         Eigen::MatrixXf imageCoords_temp1 = pixelCoords*inverse_K;
-        Eigen::MatrixXf imageCoords_temp2(1,2);
-        imageCoords_temp2(0,0) = imageCoords_temp1(0,0);
-        imageCoords_temp2(0,1) = imageCoords_temp1(0,1);
+        Eigen::Vector2f imageCoords_temp2;
+        imageCoords_temp2[0] = imageCoords_temp1(0,0);
+        imageCoords_temp2[1] = imageCoords_temp1(0,1);
         imageCoords = imageCoords_temp2/(1.0 + k1*r2 + k2*r4 + k3*r6);
 
       }
