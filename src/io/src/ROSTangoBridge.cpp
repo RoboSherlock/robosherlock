@@ -131,7 +131,6 @@ void ROSTangoBridge::fisheyeCb_(const sensor_msgs::Image::ConstPtr fisheye_img_m
 cv::Mat fisheye;
 sensor_msgs::CameraInfo fisheyeCameraInfo;
 cv_bridge::CvImageConstPtr orig_fisheye_img;
-outWarn("Check the encoding of fisheye image BGR8 or another type???");
 orig_fisheye_img = cv_bridge::toCvShare(fisheye_img_msg, sensor_msgs::image_encodings::BGR8);
 fisheyeCameraInfo = sensor_msgs::CameraInfo(*fisheye_info_msg);
 if(!lookupTransform(fisheyeCameraInfo.header.stamp))
@@ -175,14 +174,10 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
   float k1 = 0.228532999753952f;
   float k2 = -0.663019001483917f;
   float k3 = 0.642908990383148f;
-
   Eigen::Matrix3f K;
   K << fx, 0, cx,
        0, fy, cy,
        0, 0, 1;
-
-  Eigen::Matrix3f inverse_K;
-  inverse_K = K.inverse();
 
   for(size_t i = 0; i < cloud.points.size(); i++)
   {
@@ -192,24 +187,16 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
     float r2 = imageCoords.adjoint()*imageCoords;
     float r4 = r2*r2;
     float r6 = r2*r4;
-    for(size_t u = 0; u < this->color.size().width; u++)
-    {
-      for (size_t v = 0; v < this->color.size().height; v++)
-      {
-        Eigen::MatrixXf pixelCoords(1,3);
-        pixelCoords(0,0) = u;
-        pixelCoords(0,1) = v;
-        pixelCoords(0,2) = 1;
-        Eigen::MatrixXf imageCoords_temp1 = pixelCoords*inverse_K;
-        Eigen::Vector2f imageCoords_temp2;
-        imageCoords_temp2[0] = imageCoords_temp1(0,0);
-        imageCoords_temp2[1] = imageCoords_temp1(0,1);
-        imageCoords = imageCoords_temp2/(1.0 + k1*r2 + k2*r4 + k3*r6);
+    imageCoords = imageCoords*(1.0 + k1*r2 + k2*r4 + k3*r6);
+    Eigen::MatrixXf imageCoords_3(1,3);
+    imageCoords_3(0,0)=imageCoords[0];
+    imageCoords_3(0,1)=imageCoords[1];
+    imageCoords_3(0,2)=1;
 
-      }
-    }
-    cloud_color.points[i].x = imageCoords(0,0)*cloud.points[i].z;
-    cloud_color.points[i].y = imageCoords(0,1)*cloud.points[i].z;
+    Eigen::MatrixXf pixelCoords(1,3);
+    pixelCoords = imageCoords_3*K;
+    cloud_color.points[i].x = pixelCoords(0,0)*cloud.points[i].z;
+    cloud_color.points[i].y = pixelCoords(0,1)*cloud.points[i].z;
     cloud_color.points[i].z = cloud.points[i].z;
   }
 
@@ -229,28 +216,28 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   cv::Mat color, fisheye;
   sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  pcl::PointCloud<pcl::PointXYZRGB> cloud_color;
   lock.lock();
   color = this->color;
   fisheye = this->fisheye;
   colorCameraInfo = this->colorCameraInfo;
   fisheyeCameraInfo = this->fisheyeCameraInfo;
-  cloud = this->cloud;
+  cloud_color = this->cloud_color;
   outInfo("  Fisheye Image Height: " FG_BLUE << fisheye.size().height);
   outInfo("  Fisheye Image Width: " FG_BLUE << fisheye.size().width);
   outInfo("  Color Image Height: " FG_BLUE << color.size().height);
   outInfo("  Color Image Width: " FG_BLUE << color.size().width);
 
-  outInfo("  Cloud Width: " FG_BLUE << cloud.width);
-  outInfo("  Cloud Height: " FG_BLUE << cloud.height);
-  outInfo("  Number of Point Cloud: " FG_BLUE << cloud.size());
+  outInfo("  Cloud Width: " FG_BLUE << cloud_color.width);
+  outInfo("  Cloud Height: " FG_BLUE << cloud_color.height);
+  outInfo("  Number of Point Cloud: " FG_BLUE << cloud_color.size());
   _newData = false;
   lock.unlock();
 
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
 
-  cas.set(VIEW_CLOUD, cloud);
+  cas.set(VIEW_CLOUD, cloud_color);
   cas.set(VIEW_COLOR_IMAGE, color);
   cas.set(VIEW_FISHEYE_IMAGE, fisheye);
   cas.set(VIEW_COLOR_CAMERA_INFO, colorCameraInfo);
