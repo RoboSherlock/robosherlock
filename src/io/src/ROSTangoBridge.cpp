@@ -162,7 +162,7 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
   pcl::PointCloud<pcl::PointXYZ> cloud;
   pcl::fromROSMsg(cloud_msg, cloud);
 
-  pcl::PointCloud<pcl::PointXYZRGB> cloud_color;
+  pcl::PointCloud<pcl::PointXYZRGBA> cloud_color;
   cloud_color.width = cloud.width;
   cloud_color.height = cloud.height;
   cloud_color.points.resize(cloud_color.width*cloud_color.height);
@@ -216,7 +216,7 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   cv::Mat color, fisheye;
   sensor_msgs::CameraInfo colorCameraInfo, fisheyeCameraInfo;
-  pcl::PointCloud<pcl::PointXYZRGB> cloud_color;
+  pcl::PointCloud<pcl::PointXYZRGBA> cloud_color;
   lock.lock();
   color = this->color;
   fisheye = this->fisheye;
