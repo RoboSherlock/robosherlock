@@ -188,19 +188,27 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
     float r4 = r2*r2;
     float r6 = r2*r4;
     imageCoords = imageCoords*(1.0 + k1*r2 + k2*r4 + k3*r6);
-    Eigen::MatrixXf imageCoords_3(1,3);
-    imageCoords_3(0,0)=imageCoords[0];
-    imageCoords_3(0,1)=imageCoords[1];
-    imageCoords_3(0,2)=1;
+    Eigen::Vector3f imageCoords_3;
+    imageCoords_3[0]=imageCoords[0];
+    imageCoords_3[1]=imageCoords[1];
+    imageCoords_3[2]=1;
 
-    Eigen::MatrixXf pixelCoords(1,3);
-    pixelCoords = imageCoords_3*K;
-    cloud_color.points[i].x = pixelCoords(0,0)*cloud.points[i].z;
-    cloud_color.points[i].y = pixelCoords(0,1)*cloud.points[i].z;
+    Eigen::Vector3f pixelCoords;
+    pixelCoords = K*imageCoords_3;
+
+    //Eigen::Vector3i pixelCoords_;//RowVector3i
+    pixelCoords[0] = static_cast<unsigned int>(pixelCoords[0]);
+    pixelCoords[1] = static_cast<unsigned int>(pixelCoords[1]);
+
+    outInfo("  Pixel Coordinate u: " FG_BLUE << pixelCoords[0]);
+    outInfo("  Pixel Coordinate v: " FG_BLUE << pixelCoords[1]);
+
+    cloud_color.points[i].x = pixelCoords[0]*cloud.points[i].z;
+    cloud_color.points[i].y = pixelCoords[1]*cloud.points[i].z;
     cloud_color.points[i].z = cloud.points[i].z;
-    cloud_color.points[i].r = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[0];
-    cloud_color.points[i].g = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[1];
-    cloud_color.points[i].b = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[2];
+    // cloud_color.points[i].r = this->color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[0];
+    // cloud_color.points[i].g = this->color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[1];
+    // cloud_color.points[i].b = this->color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[2];
 
   }
 
