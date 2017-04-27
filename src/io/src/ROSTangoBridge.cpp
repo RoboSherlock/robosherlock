@@ -198,6 +198,10 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
     cloud_color.points[i].x = pixelCoords(0,0)*cloud.points[i].z;
     cloud_color.points[i].y = pixelCoords(0,1)*cloud.points[i].z;
     cloud_color.points[i].z = cloud.points[i].z;
+    cloud_color.points[i].r = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[0];
+    cloud_color.points[i].g = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[1];
+    cloud_color.points[i].b = this->color.at<cv::Vec3b>(pixelCoords(0,1), pixelCoords(0,0))[2];
+
   }
 
   lock.lock();
