@@ -95,7 +95,6 @@ void ROSTangoBridge::colorCb_(const sensor_msgs::Image::ConstPtr color_img_msg,
   sensor_msgs::CameraInfo colorCameraInfo;
 
   cv_bridge::CvImageConstPtr orig_color_img;
-  outWarn("Check the encoding of color image BGR8 or another type???");
   orig_color_img = cv_bridge::toCvShare(color_img_msg, sensor_msgs::image_encodings::BGR8);
   colorCameraInfo = sensor_msgs::CameraInfo(*color_info_msg);
 
@@ -157,29 +156,34 @@ this->fisheyeCameraInfo = fisheyeCameraInfo;
 _newData = true;
 lock.unlock();
 }
+
 void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
 {
   pcl::PointCloud<pcl::PointXYZ> cloud;
   pcl::fromROSMsg(cloud_msg, cloud);
 
   pcl::PointCloud<pcl::PointXYZRGBA> cloud_color;
-  cloud_color.width = cloud.width;
-  cloud_color.height = cloud.height;
-  cloud_color.points.resize(cloud_color.width*cloud_color.height);
+  copyPointCloud(cloud, cloud_color);
 
-  float fx = 1042.73999023438f;
-  float fy = 1042.96997070313f;
-  float cx = 637.273986816406f;
-  float cy = 352.928985595703f;
-  float k1 = 0.228532999753952f;
-  float k2 = -0.663019001483917f;
-  float k3 = 0.642908990383148f;
+
+  // cloud_color.width = cloud.width;
+  // cloud_color.height = cloud.height;
+  // cloud_color.points.resize(cloud_color.width*cloud_color.height);
+
+  //todo: get these from the cam_info
+  float fx = 1042.73999023438;
+  float fy = 1042.96997070313;
+  float cx = 637.273986816406;
+  float cy = 352.928985595703;
+  float k1 = 0.228532999753952;
+  float k2 = -0.663019001483917;
+  float k3 = 0.642908990383148;
   Eigen::Matrix3f K;
   K << fx, 0, cx,
        0, fy, cy,
        0, 0, 1;
 
-  for(size_t i = 0; i < cloud.points.size(); i++)
+  for(size_t i = 0; i < cloud_color.points.size(); i++)
   {
     Eigen::Vector2f imageCoords;
     imageCoords[0] = cloud.points[i].x/cloud.points[i].z;
@@ -200,18 +204,25 @@ void ROSTangoBridge::cloudCb_(const sensor_msgs::PointCloud2 cloud_msg)
     pixelCoords[0] = static_cast<unsigned int>(pixelCoords[0]);
     pixelCoords[1] = static_cast<unsigned int>(pixelCoords[1]);
 
-    outInfo("  Pixel Coordinate u: " FG_BLUE << pixelCoords[0]);
-    outInfo("  Pixel Coordinate v: " FG_BLUE << pixelCoords[1]);
+    // outInfo("  Pixel Coordinate u: " FG_BLUE << pixelCoords[0]);
+    // outInfo("  Pixel Coordinate v: " FG_BLUE << pixelCoords[1]);
 
-    cloud_color.points[i].x = pixelCoords[0]*cloud.points[i].z;
-    cloud_color.points[i].y = pixelCoords[1]*cloud.points[i].z;
-    cloud_color.points[i].z = cloud.points[i].z;
 
-    cv::Vec4b rgba = this->color.at<cv::Vec4b>(pixelCoords[1], pixelCoords[0]);
-    cloud_color.points[i].r = rgba[0];
-    cloud_color.points[i].g = rgba[1];
-    cloud_color.points[i].b = rgba[2];
-    cloud_color.points[i].a = rgba[3];
+    // cloud_color.points[i].r = 0;
+    // cloud_color.points[i].g = 0;
+    // cloud_color.points[i].b = 255;
+
+    // cv::Mat color;
+    // lock.lock();
+    // color = this->color;
+    // _newData = false;
+    // lock.unlock();
+
+    // cv::Vec3b rgba = color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0]);
+    // cloud_color.points[i].r = rgba[0];
+    // cloud_color.points[i].g = rgba[1];
+    // cloud_color.points[i].b = rgba[2];
+    // cloud_color.points[i].a = rgba[3];
   }
 
   lock.lock();

@@ -47,7 +47,7 @@ private:
 
 private:
   bool useThermal, useRGB;
-
+  cv::Mat rgb_;
   enum
   {
     PCL_RGBD,
@@ -109,6 +109,8 @@ public:
     }
     if(useRGB && cas.get(VIEW_CLOUD, *cloud_ptr))
     {
+      outInfo("Cloud Size: "<<cloud_ptr->points.size());
+      pcl::io::savePCDFileASCII("mycloud.pcd",*cloud_ptr);
       if(cloud_ptr->isOrganized())
       {
         compute_normals_pcl(cloud_ptr, normals_ptr);
@@ -120,6 +122,7 @@ public:
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
     }
+    cas.get(VIEW_COLOR_IMAGE,rgb_);
 
     return UIMA_ERR_NONE;
   }
@@ -192,6 +195,11 @@ public:
       break;
     }
     return true;
+  }
+
+  void drawImageWithLock(cv::Mat &disp)
+  {
+    disp=rgb_.clone();
   }
 };
 
