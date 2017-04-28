@@ -24,6 +24,7 @@
 #include <pcl/search/impl/kdtree.hpp>
 
 #include <pcl/features/integral_image_normal.h>
+#include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
 
 #include <rs/DrawingAnnotator.h>
@@ -108,8 +109,16 @@ public:
     }
     if(useRGB && cas.get(VIEW_CLOUD, *cloud_ptr))
     {
-      compute_normals_pcl(cloud_ptr, normals_ptr);
-      cas.set(VIEW_NORMALS, *normals_ptr);
+      if(cloud_ptr->isOrganized())
+      {
+        compute_normals_pcl(cloud_ptr, normals_ptr);
+        cas.set(VIEW_NORMALS, *normals_ptr);
+      }
+      else
+      {
+        compute_normals_unOrganizedCloud(cloud_ptr, normals_ptr);
+        cas.set(VIEW_NORMALS, *normals_ptr);
+      }
     }
 
     return UIMA_ERR_NONE;
@@ -125,6 +134,16 @@ public:
     ne.compute(*normals_ptr);
   }
 
+  void compute_normals_unOrganizedCloud(pcl::PointCloud< pcl::PointXYZRGBA>::Ptr &cloud_ptr, pcl::PointCloud< pcl::Normal>::Ptr &normals_ptr)
+  {
+    pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
+    ne.setInputCloud(cloud_ptr);
+    pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA>());
+    ne.setSearchMethod(tree);
+    ne.setRadiusSearch(0.03);
+    ne.compute(*normals_ptr);
+    outInfo("  Normal Cloud Size: " FG_BLUE << normals_ptr->points.size());
+  }
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";

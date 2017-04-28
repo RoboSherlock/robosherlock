@@ -143,8 +143,8 @@
       <node>CollectionReader</node>
       <!--<node>ImagePreprocessor</node>
       <node>RegionFilter</node>-->
-      <!--<node>NormalEstimator</node>
-      <node>PlaneAnnotator</node>-->
+      <node>NormalEstimator</node>
+      <!--<node>PlaneAnnotator</node>-->
       <!-- <node>ImageSegmentationAnnotator</node>
       <node>PointCloudClusterExtractor</node>
       <node>ClusterMerger</node>
