@@ -24,8 +24,11 @@
 #include <rs/io/ROSCamInterface.h>
 #include <rs/utils/BlurDetector.h>
 
-typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::CameraInfo> RGBSyncPolicy;
-typedef message_filters::sync_policies::ApproximateTime<sensor_msgs::Image, sensor_msgs::Image, sensor_msgs::CameraInfo> RGBDSyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime
+         <sensor_msgs::Image, sensor_msgs::CameraInfo> RGBSyncPolicy;
+typedef message_filters::sync_policies::ApproximateTime
+        <sensor_msgs::Image, sensor_msgs::PointCloud2, sensor_msgs::CameraInfo>
+                                                            colorCloudSyncPolicy;
 
 class ROSTangoBridge : public ROSCamInterface
 {
@@ -33,23 +36,22 @@ private:
   bool filterBlurredImages;
   BlurDetector detector;
 
-  ros::Subscriber cloud_sub;
   image_transport::ImageTransport it;
 
-  message_filters::Synchronizer<RGBSyncPolicy> *colorSync;
   message_filters::Synchronizer<RGBSyncPolicy> *fisheyeSync;
-  //message_filters::Synchronizer<RGBDSyncPolicy> *sync;
+  message_filters::Synchronizer<colorCloudSyncPolicy> *colorCloudSync;
 
   image_transport::SubscriberFilter *colorImageSubscriber;
   image_transport::SubscriberFilter *fisheyeImageSubscriber;
 
   message_filters::Subscriber<sensor_msgs::CameraInfo> *colorInfoSubscriber;
   message_filters::Subscriber<sensor_msgs::CameraInfo> *fisheyeInfoSubscriber;
+  message_filters::Subscriber<sensor_msgs::PointCloud2> *cloudSubscriber;
 
   cv::Mat color;
   cv::Mat fisheye;
 
-  pcl::PointCloud<pcl::PointXYZ> cloud;
+  //pcl::PointCloud<pcl::PointXYZ> cloud;
   pcl::PointCloud<pcl::PointXYZRGBA> cloud_color;
 
   sensor_msgs::CameraInfo colorCameraInfo;
@@ -58,13 +60,12 @@ private:
   void initSpinner();
   void readConfig(const boost::property_tree::ptree &pt);
 
-  void colorCb_(const sensor_msgs::Image::ConstPtr color_img_msg,
-                const sensor_msgs::CameraInfo::ConstPtr color_info_msg);
-
   void fisheyeCb_(const sensor_msgs::Image::ConstPtr fisheye_img_msg,
                   const sensor_msgs::CameraInfo::ConstPtr fisheye_info_msg);
 
-  void cloudCb_(const sensor_msgs::PointCloud2 cloud_msg);
+  void cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
+           const sensor_msgs::PointCloud2::ConstPtr cloud_msg,
+           const sensor_msgs::CameraInfo::ConstPtr color_info_msg);
 
 public:
   ROSTangoBridge(const boost::property_tree::ptree &pt);
