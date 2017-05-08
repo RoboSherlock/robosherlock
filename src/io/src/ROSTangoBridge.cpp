@@ -20,6 +20,7 @@
 #include <cmath>
 #include <Eigen/Core>
 
+#include<iostream>
 ROSTangoBridge::ROSTangoBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt),
                                                                         it(nodeHandle)
 {
@@ -176,10 +177,19 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
       // outInfo("  Pixel Coordinate u: " FG_BLUE << pixelCoords[0]);
       // outInfo("  Pixel Coordinate v: " FG_BLUE << pixelCoords[1]);
 
-      // cloud_color.points[i].r = color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[0];
-      // cloud_color.points[i].g = color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[1];
-      // cloud_color.points[i].b = color.at<cv::Vec3b>(pixelCoords[1], pixelCoords[0])[2];
-      cloud_color.points[i].a = 255;
+      if(pixelCoords[0] <= color.cols && pixelCoords[1] <= color.rows)
+      {
+          cloud_color.points[i].b = color.at<cv::Vec3b>(cv::Point(pixelCoords[0], pixelCoords[1]))[0];
+          cloud_color.points[i].g = color.at<cv::Vec3b>(cv::Point(pixelCoords[0], pixelCoords[1]))[1];
+          cloud_color.points[i].r = color.at<cv::Vec3b>(cv::Point(pixelCoords[0], pixelCoords[1]))[2];
+          cloud_color.points[i].a = 255;
+      }
+      else
+      {
+          outInfo("  The pixel coordinates exceed the size of color image. ");
+          outInfo("  Pixel Coordinate u: " FG_BLUE << pixelCoords[0]);
+          outInfo("  Pixel Coordinate v: " FG_BLUE << pixelCoords[1]);
+      }
     }
 
     lock.lock();
