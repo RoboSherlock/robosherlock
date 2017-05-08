@@ -133,7 +133,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_tango.ini</string>
+            <string>config_kinect_robot.ini</string>
           </array>
         </value>
       </nameValuePair>
