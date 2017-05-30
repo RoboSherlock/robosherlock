@@ -23,12 +23,17 @@
 #define VIEW_CAMERA_INFO         "camera_info"
 #define VIEW_CAMERA_INFO_HD      "camera_info_hd"
 
+
 #define VIEW_COLOR_IMAGE         "color_image"
 #define VIEW_COLOR_IMAGE_HD      "color_image_hd"
 #define VIEW_DEPTH_IMAGE         "depth_image"
 #define VIEW_DEPTH_IMAGE_HD      "depth_image_hd"
 #define VIEW_OBJECT_IMAGE        "object_image"
 #define VIEW_OBJECT_IMAGE_HD     "object_image_hd"
+
+#define VIEW_FISHEYE_IMAGE        "fisheye_image"
+#define VIEW_COLOR_CAMERA_INFO    "color_camera_info"
+#define VIEW_FISHEYE_CAMERA_INFO  "fisheye_camera_info"
 
 #define VIEW_CLOUD               "cloud"
 #define VIEW_CLOUD_DOWNSAMPLED   "cloud_downsampled"
