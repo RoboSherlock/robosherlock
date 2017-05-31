@@ -33,6 +33,7 @@
 
 // RS
 #include <rs/io/ROSKinectBridge.h>
+#include <rs/io/ROSTangoBridge.h>
 #include <rs/io/ROSCameraBridge.h>
 #include <rs/io/ROSThermalCamBridge.h>
 #include <rs/io/MongoDBBridge.h>
@@ -125,6 +126,10 @@ private:
       else if(interface == "Kinect")
       {
         cameras.push_back(new ROSKinectBridge(pt));
+      }
+      else if(interface == "Tango")
+      {
+        cameras.push_back(new ROSTangoBridge(pt));
       }
       else if(interface == "Thermal")
       {
@@ -284,4 +289,3 @@ public:
 
 // This macro exports an entry point that is used to create the annotator.
 MAKE_AE(CollectionReader)
-
