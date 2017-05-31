@@ -147,7 +147,6 @@
       <node>PlaneAnnotator</node>
       <node>ImageSegmentationAnnotator</node>
       <node>PointCloudClusterExtractor</node>
-      <node>Cluster3DGeometryAnnotator</node>
       <node>ClusterMerger</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
