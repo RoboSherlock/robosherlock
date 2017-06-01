@@ -100,18 +100,17 @@ public:
     return UIMA_ERR_NONE;
   }
 
-private:
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
     MEASURE_TIME;
     outInfo("Process begins");
     rs::SceneCas cas(tcas);
-    cas.get(VIEW_THERMAL_COLOR_IMAGE, out);
+    cas.get(VIEW_COLOR_IMAGE, out);
 
     supervoxelcloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
     pcl::PointCloud< pcl::PointXYZRGBA>::Ptr cloudPtr(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    cas.get(VIEW_THERMAL_CLOUD, *cloudPtr);
+    cas.get(VIEW_CLOUD, *cloudPtr);
     supervoxels = new pcl::SupervoxelClustering<pcl::PointXYZRGBA>(voxel_resolution, seed_resolution, use_transform);
     supervoxels->setColorImportance(color_importance);
     supervoxels->setSpatialImportance(spatial_importance);
