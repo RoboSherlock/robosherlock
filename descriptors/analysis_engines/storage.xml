@@ -64,6 +64,9 @@
     <delegateAnalysisEngine key="ObjectIdentityResolution">
       <import location="../annotators/tracker/ObjectIdentityResolution.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="OverSegmentationAnnotator">
+      <import location="../annotators/segmentation/OverSegmentationAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PCLDescriptorExtractor">
       <import location="../annotators/annotation/PCLDescriptorExtractor.xml"/>
     </delegateAnalysisEngine>
