@@ -81,6 +81,7 @@ public:
 
     outInfo("process begins");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
 
     //get cloud from CAS
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -124,7 +125,19 @@ public:
     outInfo("Total clusters = " << clusters.size());
 
     //publish clusters to CAS
-    //cas.set(VIEW_OVERSEG_CLUSTERS, *clusters);
+    for( auto cluster:clusters){
+      const pcl::PointIndices &indices = cluster;
+
+      rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
+      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+      rs::PointIndices uimaIndices = rs::conversion::to(tcas, indices);
+
+      rcp.indices.set(uimaIndices);
+      uimaCluster.points.set(rcp);
+      uimaCluster.source.set("OverSegmentation");
+
+      scene.identifiables.append(uimaCluster);
+    }
 
     return UIMA_ERR_NONE;
   }
