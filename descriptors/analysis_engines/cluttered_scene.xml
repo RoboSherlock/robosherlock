@@ -55,6 +55,9 @@
     <delegateAnalysisEngine key="LinemodAnnotator">
       <import location="../annotators/recognition/LinemodAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="LoadPointCloud">
+      <import location="../annotators/io/LoadPointCloud.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MLNInferencer">
       <import location="../annotators/recognition/MLNInferencer.xml"/>
     </delegateAnalysisEngine>
@@ -143,9 +146,7 @@
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-      <node>CollectionReader</node>
-      <node>ImagePreprocessor</node>
-      <node>PointCloudFilter</node>
+      <node>LoadPointCloud</node>
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
       <node>ResultAdvertiser</node>

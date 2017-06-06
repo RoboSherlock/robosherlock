@@ -199,7 +199,7 @@ public:
 
   void drawImageWithLock(cv::Mat &disp)
   {
-    disp=rgb_.clone();
+    //disp=rgb_.clone();
   }
 };
 

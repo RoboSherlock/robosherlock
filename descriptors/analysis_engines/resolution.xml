@@ -55,6 +55,9 @@
     <delegateAnalysisEngine key="LinemodAnnotator">
       <import location="../annotators/recognition/LinemodAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="LoadPointCloud">
+      <import location="../annotators/io/LoadPointCloud.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MLNInferencer">
       <import location="../annotators/recognition/MLNInferencer.xml"/>
     </delegateAnalysisEngine>
