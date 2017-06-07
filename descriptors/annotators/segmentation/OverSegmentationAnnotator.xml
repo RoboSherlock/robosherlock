@@ -56,7 +56,7 @@
         <nameValuePair>
             <name>minClusterSize</name>
             <value>
-                <integer>50</integer>
+                <integer>120</integer>
             </value>
         </nameValuePair>
         <nameValuePair>
@@ -68,7 +68,7 @@
         <nameValuePair>
             <name>neighborNumber</name>
             <value>
-                <integer>20</integer>
+                <integer>5</integer>
             </value>
         </nameValuePair>
     </configurationParameterSettings>

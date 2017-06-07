@@ -133,6 +133,56 @@
           <parameter>CollectionReader/camera_config_files</parameter>
         </overrides>
       </configurationParameter>
+      <configurationParameter>
+        <name>radiusSearch</name>
+        <description>neighbor search radius in normal estimator</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>NormalEstimator/radiusSearch</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>normalAngleThreshold</name>
+        <description>To validate smoothness between points</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/normalAngleThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>curvatureThreshold</name>
+        <description>To validate points for expansion</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/curvatureThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>neighborNumber</name>
+        <description>Number of neighbor for region growing expansion</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/neighborNumber</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>leaf_size</name>
+        <description>downsample voxel resolution</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>PointCloudDownsampler/leaf_size</parameter>
+        </overrides>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -143,10 +193,41 @@
           </array>
         </value>
       </nameValuePair>
+      <nameValuePair>
+        <name>radiusSearch</name>
+        <value>
+          <float>0.008</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>normalAngleThreshold</name>
+        <value>
+          <float>0.261</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>curvatureThreshold</name>
+        <value>
+          <float>0.5</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>neighborNumber</name>
+        <value>
+          <integer>10</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>leaf_size</name>
+        <value>
+          <float>0.005</float>
+        </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
       <node>LoadPointCloud</node>
+      <!--<node>PointCloudDownsampler</node>-->
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
       <node>ResultAdvertiser</node>

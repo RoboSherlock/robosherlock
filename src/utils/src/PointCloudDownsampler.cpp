@@ -86,7 +86,7 @@ public:
 
     cloud_filtered->width = cloud_ptr->width;
     cloud_filtered->height = cloud_ptr->height;
-    cas.set(VIEW_CLOUD_DOWNSAMPLED, *cloud_filtered);
+    cas.set(VIEW_CLOUD, *cloud_filtered);
 
     return UIMA_ERR_NONE;
   }
