@@ -1,5 +1,8 @@
 #include <uima/api.hpp>
 #include <vector>
+#include <mutex>
+
+#include <omp.h>
 
 //PCL include
 #include <pcl/point_cloud.h>
@@ -17,6 +20,13 @@
 #include <rs/utils/time.h>
 
 
+//graph
+#include <rs/graph/GraphBase.hpp>
+#include <rs/graph/Graph.hpp>
+#include <rs/graph/GraphAlgorithms.hpp>
+#include <rs/segmentation/array_utils.hpp>
+
+
 
 using namespace uima;
 
@@ -25,15 +35,22 @@ class OverSegmentationAnnotator : public DrawingAnnotator
 {
 private:
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud;
-  pcl::RegionGrowing<pcl::PointXYZ, pcl::Normal> rg;
+  std::vector< pcl::RegionGrowing<pcl::PointXYZ, pcl::Normal> > rg;
 
-  float normalAngleThreshold;
+  float minNormalThreshold;
+  float maxNormalThreshold;
   float curvatureThreshold;
+
+  float overlapThreshold;
 
   int minClusterSize;
   int maxClusterSize;
 
   int neighborNumber;
+
+  int numSegmentation;
+
+  int choose;
 
   double pointSize;
 
@@ -44,9 +61,17 @@ public:
   {
     outInfo("initialize");
 
-    if(ctx.isParameterDefined("normalAngleThreshold"))
+    if(ctx.isParameterDefined("minNormalThreshold"))
     {
-      ctx.extractValue("normalAngleThreshold", normalAngleThreshold);
+      ctx.extractValue("minNormalThreshold", minNormalThreshold);
+    }
+    if(ctx.isParameterDefined("maxNormalThreshold"))
+    {
+      ctx.extractValue("maxNormalThreshold", maxNormalThreshold);
+    }
+    if(ctx.isParameterDefined("overlapThreshold"))
+    {
+      ctx.extractValue("overlapThreshold", overlapThreshold);
     }
     if(ctx.isParameterDefined("curvatureThreshold"))
     {
@@ -64,8 +89,13 @@ public:
     {
       ctx.extractValue("neighborNumber", neighborNumber);
     }
+    if(ctx.isParameterDefined("numSegmentation"))
+    {
+      ctx.extractValue("numSegmentation", numSegmentation);
+    }
 
-
+    rg.resize(numSegmentation);
+    choose = 0;
     return UIMA_ERR_NONE;
   }
 
@@ -98,34 +128,98 @@ public:
     pcl::copyPointCloud(*cloud_ptr, *cloud);
 
 
-    //init search method
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
+    // populate normal Threshold
+    std::vector<float> normalThresholds;
+    if(numSegmentation == 1){
+      normalThresholds.push_back(minNormalThreshold);
+    }
+    else{
+      for(size_t i = 0 ; i < numSegmentation; i++)
+        normalThresholds.push_back(i * (maxNormalThreshold - minNormalThreshold) / (numSegmentation - 1) + minNormalThreshold);
+    }
 
-
-    //update cloud for RegionGrowing instance
-    rg.setMinClusterSize(minClusterSize);
-    rg.setMaxClusterSize(maxClusterSize);
-    rg.setNumberOfNeighbours(neighborNumber);
-    rg.setSmoothnessThreshold(normalAngleThreshold);
-    rg.setCurvatureThreshold(curvatureThreshold);
-    rg.setSearchMethod(tree);
-    rg.setInputCloud(cloud);
-    rg.setInputNormals(normals);
-
-    outInfo("Normal Threshold =  " << normalAngleThreshold);
-    outInfo("Curvature Threshold =  " << curvatureThreshold);
-
-    //container for segmentation Result
-    std::vector<pcl::PointIndices> clusters;
+    //container for segmentation Results
+    std::vector< std::vector<pcl::PointIndices> > segmentations(numSegmentation);
+    std::vector<pcl::PointIndices> linear_segments;
 
     //main execution
-    rg.extract(clusters);
-    colored_cloud = rg.getColoredCloud();
+    #pragma omp parallel for
+    for(size_t i = 0; i < numSegmentation; i++){
+      pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
 
-    outInfo("Total clusters = " << clusters.size());
+      rg[i].setMinClusterSize(minClusterSize);
+      rg[i].setMaxClusterSize(maxClusterSize);
+      rg[i].setNumberOfNeighbours(neighborNumber);
+      rg[i].setSmoothnessThreshold(normalThresholds[i]);
+      rg[i].setCurvatureThreshold(curvatureThreshold);
+      rg[i].setSearchMethod(tree);
+      rg[i].setInputCloud(cloud);
+      rg[i].setInputNormals(normals);
+      rg[i].extract(segmentations[i]);
+    }
+
+    // Merge similar segments from multiple segmentations and concat them to linear array
+    int numSegments = matrixToLinear(segmentations, segmentations.size(), 0);
+    outInfo("Total segments = " << numSegments);
+
+    Graph segmentGraph(numSegments);
+    std::mutex graph_mutex;
+
+    for(size_t srcSegmentationIt = 0; srcSegmentationIt < numSegmentation - 1; srcSegmentationIt++){
+      std::vector<pcl::PointIndices> src_segmentation = segmentations[srcSegmentationIt];
+      for(size_t tgtSegmentationIt = srcSegmentationIt + 1; tgtSegmentationIt < numSegmentation; tgtSegmentationIt++){
+        std::vector<pcl::PointIndices> tgt_segmentation = segmentations[tgtSegmentationIt];
+
+        #pragma omp parallel for
+        for(size_t srcSegmentIt = 0; srcSegmentIt < src_segmentation.size(); srcSegmentIt++){
+          for(size_t tgtSegmentIt = 0; tgtSegmentIt < tgt_segmentation.size(); tgtSegmentIt++){
+            int intersectSize = Intersection(src_segmentation[srcSegmentIt].indices, tgt_segmentation[tgtSegmentIt].indices).size();
+            int unionSize = Union(src_segmentation[srcSegmentIt].indices, tgt_segmentation[tgtSegmentIt].indices).size();
+            float ratio = (float) intersectSize / unionSize;
+
+            if(ratio > overlapThreshold){
+              int linearSrcSegmentSub = matrixToLinear(segmentations, srcSegmentationIt, srcSegmentIt);
+              int linearTgtSegmentSub = matrixToLinear(segmentations, tgtSegmentationIt, tgtSegmentIt);
+
+              graph_mutex.lock();
+              segmentGraph.addEdge(linearSrcSegmentSub, linearTgtSegmentSub);
+              graph_mutex.unlock();
+            }
+          }
+        }
+      }
+    }
+
+    std::vector< std::vector<int> > mergedSegmentIds = extractConnectedComponents(segmentGraph);
+
+    outInfo("Total segments after merging " << mergedSegmentIds.size() << " segments");
+    linear_segments.resize(mergedSegmentIds.size());
+    for(size_t ccIt = 0; ccIt < mergedSegmentIds.size(); ccIt++){
+      int maxSize = -1;
+      int selectSegmentationIt = -1;
+      int selectSegmentIt = -1;
+      for(size_t linSegmentIdIt = 0; linSegmentIdIt < mergedSegmentIds[ccIt].size(); linSegmentIdIt++){
+        int segmentationIt, segmentIt;
+        int linear_id = mergedSegmentIds[ccIt][linSegmentIdIt];
+        linearToMatrix(segmentations, linear_id, segmentationIt, segmentIt);
+
+        int currSegmentSize = segmentations[segmentationIt][segmentIt].indices.size();
+        if(currSegmentSize > maxSize){
+          maxSize = currSegmentSize;
+          selectSegmentationIt = segmentationIt;
+          selectSegmentIt = segmentIt;
+        }
+      }
+
+      linear_segments[ccIt] = segmentations[selectSegmentationIt][selectSegmentIt];
+    }
+
+    //for visualization purpose
+    outInfo("Choosing segment cloud num: " << choose);
+    colored_cloud = rg[choose].getColoredCloud();
 
     //publish clusters to CAS
-    for( auto cluster:clusters){
+    for( auto cluster:linear_segments){
       const pcl::PointIndices &indices = cluster;
 
       rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
@@ -142,6 +236,14 @@ public:
     return UIMA_ERR_NONE;
   }
 
+  bool callbackKey(const int key, const Source source){
+    choose = (int) key - 48;
+    if(choose > numSegmentation - 1){
+      choose = numSegmentation - 1;
+    }
+    return true;
+  }
+
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
@@ -155,6 +257,9 @@ public:
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
   }
+
+
+
   void drawImageWithLock(cv::Mat& disp) {}
 };
 

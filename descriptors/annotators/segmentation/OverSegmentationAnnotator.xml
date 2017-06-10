@@ -10,13 +10,25 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
-            <name>normalAngleThreshold</name>
+            <name>minNormalThreshold</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>maxNormalThreshold</name>
             <type>Float</type>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>curvatureThreshold</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>overlapThreshold</name>
             <type>Float</type>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
@@ -39,18 +51,36 @@
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
+        <configurationParameter>
+            <name>numSegmentation</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
         <nameValuePair>
-            <name>normalAngleThreshold</name>
+            <name>minNormalThreshold</name>
             <value>
-                <float>0.175</float>
+                <float>0.13</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>maxNormalThreshold</name>
+            <value>
+                <float>0.15</float>
             </value>
         </nameValuePair>
         <nameValuePair>
             <name>curvatureThreshold</name>
             <value>
                 <float>0.5</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>overlapThreshold</name>
+            <value>
+                <float>0.8</float>
             </value>
         </nameValuePair>
         <nameValuePair>
@@ -69,6 +99,12 @@
             <name>neighborNumber</name>
             <value>
                 <integer>5</integer>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>numSegmentation</name>
+            <value>
+                <integer>2</integer>
             </value>
         </nameValuePair>
     </configurationParameterSettings>

@@ -144,13 +144,33 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>normalAngleThreshold</name>
+        <name>minNormalThreshold</name>
         <description>To validate smoothness between points</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>OverSegmentationAnnotator/normalAngleThreshold</parameter>
+          <parameter>OverSegmentationAnnotator/minNormalThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>maxNormalThreshold</name>
+        <description>To validate smoothness between points</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/maxNormalThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>overlapThreshold</name>
+        <description>criteria for merging segments</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/overlapThreshold</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -161,6 +181,16 @@
         <mandatory>true</mandatory>
         <overrides>
           <parameter>OverSegmentationAnnotator/curvatureThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>numSegmentation</name>
+        <description>parallel over segmentation and merging</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/numSegmentation</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -196,13 +226,31 @@
       <nameValuePair>
         <name>radiusSearch</name>
         <value>
-          <float>0.008</float>
+          <float>0.005</float>
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>normalAngleThreshold</name>
+        <name>minNormalThreshold</name>
         <value>
-          <float>0.261</float>
+          <float>0.13</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>maxNormalThreshold</name>
+        <value>
+          <float>0.15</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>overlapThreshold</name>
+        <value>
+          <float>0.8</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>numSegmentation</name>
+        <value>
+          <integer>3</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
