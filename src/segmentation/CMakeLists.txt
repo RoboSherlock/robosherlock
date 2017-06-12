@@ -16,3 +16,6 @@ target_link_libraries(rs_PointCloudColorSegmentation rs_core)
 
 rs_add_library(rs_overSegmentationAnnotator src/OverSegmentationAnnotator.cpp)
 target_link_libraries(rs_overSegmentationAnnotator rs_core)
+
+rs_add_library(rs_edgeCurveAnnotator src/EdgeCurveAnnotator.cpp)
+target_link_libraries(rs_edgeCurveAnnotator rs_core)

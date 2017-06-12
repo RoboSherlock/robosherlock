@@ -37,6 +37,9 @@
     <delegateAnalysisEngine key="CollectionReader">
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="EdgeCurveAnnotator">
+      <import location="../annotators/annotation/EdgeCurveAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
     </delegateAnalysisEngine>

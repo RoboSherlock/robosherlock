@@ -37,6 +37,9 @@
     <delegateAnalysisEngine key="CollectionReader">
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="EdgeCurveAnnotator">
+      <import location="../annotators/annotation/EdgeCurveAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -213,6 +216,16 @@
           <parameter>PointCloudDownsampler/leaf_size</parameter>
         </overrides>
       </configurationParameter>
+      <configurationParameter>
+        <name>differentAngleThreshold</name>
+        <description>Angle Threshold for extracting boundary points</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>EdgeCurveAnnotator/differentAngleThreshold</parameter>
+        </overrides>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -271,6 +284,12 @@
           <float>0.005</float>
         </value>
       </nameValuePair>
+      <nameValuePair>
+        <name>differentAngleThreshold</name>
+        <value>
+          <float>1.74</float>
+        </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
@@ -278,6 +297,7 @@
       <!--<node>PointCloudDownsampler</node>-->
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
+      <node>EdgeCurveAnnotator</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>
