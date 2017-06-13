@@ -41,20 +41,19 @@
 #include <pcl/segmentation/comparator.h>
 #include <stdlib.h>
 #include <algorithm> 
+#include <cmath>
 
 namespace pcl
 {
- /** \brief HueClusterComparator is a comparator to extract clusters based on euclidean distance + hue threshold
+ /** \brief ValueClusterComparator is a comparator to extract clusters based on euclidean distance + value threshold
    * This needs to be run as a second pass after extracting planar surfaces, using MultiPlaneSegmentation for example.
    *
    * \author Tobias Hahn
    */
- template<typename PointT, typename PointNT, typename PointLT>
- class HueClusterComparator: public Comparator<PointT>
+ template<typename PointT, typename PointNT>
+ class ValueClusterComparator: public Comparator<PointT>
  {
- private:
-
- public:
+   public:
      typedef typename Comparator<PointT>::PointCloud PointCloud;
      typedef typename Comparator<PointT>::PointCloudConstPtr PointCloudConstPtr;
      
@@ -62,31 +61,27 @@ namespace pcl
      typedef typename PointCloudN::Ptr PointCloudNPtr;
      typedef typename PointCloudN::ConstPtr PointCloudNConstPtr;
      
-     typedef typename pcl::PointCloud<PointLT> PointCloudL;
-     typedef typename PointCloudL::Ptr PointCloudLPtr;
-     typedef typename PointCloudL::ConstPtr PointCloudLConstPtr;
-
-     typedef boost::shared_ptr<HueClusterComparator<PointT, PointNT, PointLT> > Ptr;
-     typedef boost::shared_ptr<const HueClusterComparator<PointT, PointNT, PointLT> > ConstPtr;
+     typedef boost::shared_ptr<ValueClusterComparator<PointT, PointNT> > Ptr;
+     typedef boost::shared_ptr<const ValueClusterComparator<PointT, PointNT> > ConstPtr;
 
      using pcl::Comparator<PointT>::input_;
      
-     /** \brief Empty constructor for HueClusterComparator. */
-     HueClusterComparator ()
+     /** \brief Empty constructor for ValueClusterComparator. */
+     ValueClusterComparator ()
        : normals_ ()
        , angular_threshold_ (0.0f)
        , distance_threshold_ (0.005f)
        , depth_dependent_ ()
        , z_axis_ ()
-       , hue_threshold_ (10.0f)
-	   , interval_ (9)
+       , value_threshold_ (0.1f)
+	   , interval_ (0.09f)
 	   , discretize_ (false)
      {
      }
      
-     /** \brief Destructor for HueClusterComparator. */
+     /** \brief Destructor for ValueClusterComparator. */
      virtual
-     ~HueClusterComparator ()
+     ~ValueClusterComparator ()
      {
      }
 
@@ -106,6 +101,13 @@ namespace pcl
        {
          normals_ = normals;
        }
+
+	   /** \brief Set the flag for discretization of value values
+		* \param[in] The value to set it to
+		*/
+	   inline void setDiscretization(bool set) {
+		discretize_ = set;	
+	   }
  
        /** \brief Get the input normals. */
        inline PointCloudNConstPtr
@@ -113,13 +115,6 @@ namespace pcl
        {
          return (normals_);
        }
-
-	   /** \brief Set the flag for discretization of hue values
-	     * \param[in] The value to set it to
-		 */
-		 inline void setDiscretization(bool set) {
-		 	discretize_ = set;
-		 }
  
        /** \brief Set the tolerance in radians for difference in normal direction between neighboring points, to be considered part of the same plane.
          * \param[in] angular_threshold the tolerance in radians
@@ -159,21 +154,21 @@ namespace pcl
          * \param[in] hue_threshold the tolerance in points
          */
        inline void
-       setHueThreshold (float hue_threshold)
+       setValueThreshold (float value_threshold)
        {
-         hue_threshold_ = hue_threshold;
-		 interval_ = (int) hue_threshold - 1;
+         value_threshold_ = value_threshold;
+		 interval_ = value_threshold - 0.01;
 		 if (interval_ <= 0) {
-		 	outInfo("Interval for discretization to low, set to 1!");
-			interval_ = 1;
+		 	outInfo("Interval for discretization too low, set to 0.01!");
+			interval_ = 0.01;
 		 }
        }
  
        /** \brief Get the hue threshold in points between neighboring points, to be considered part of the same plane. */
        inline float
-       getHueThreshold () const
+       getValueThreshold () const
        {
-         return (hue_threshold_);
+         return (value_threshold_);
        }
  
        /** \brief Compare points at two indices by their plane equations.  True if the angle between the normals is less than the angular threshold,
@@ -184,17 +179,18 @@ namespace pcl
        virtual bool
        compare (int idx1, int idx2) const
        {
-				 int hue1 = input_->points[idx1].h;
-	 			 int hue2 = input_->points[idx2].h;
-				 if (discretize_) {
-				 	hue1 = hue1 - (hue1 % interval_);
-					hue2 = hue2 - (hue2 % interval_);
-				 }
-	 			 int diff = std::abs(hue1 - hue2);
-					
-	 			 if (hue_threshold_ < std::min(diff, 360-diff))
-	   		   return false;
+		 float value1 = input_->points[idx1].v;
+		 float value2 = input_->points[idx2].v;
+		 if (discretize_) {
+			value1 = value1 - fmod(value1, interval_);
+			value2 = value2 - fmod(value2, interval_);
+		 }
+		 float diff = std::abs(value1 - value2);
 
+		 if (value_threshold_ < diff)
+	   		return false;
+         
+         
          float dist_threshold = distance_threshold_;
          if (depth_dependent_)
          {
@@ -202,12 +198,12 @@ namespace pcl
            float z = vec.dot (z_axis_);
            dist_threshold *= z * z;
          }
-
+ 
          float dx = input_->points[idx1].x - input_->points[idx2].x;
          float dy = input_->points[idx1].y - input_->points[idx2].y;
          float dz = input_->points[idx1].z - input_->points[idx2].z;
          float dist = sqrtf (dx*dx + dy*dy + dz*dz);
-					
+ 
          return (dist < dist_threshold);
        }
        
@@ -218,8 +214,8 @@ namespace pcl
        float distance_threshold_;
        bool depth_dependent_;
        Eigen::Vector3f z_axis_;
-       float hue_threshold_;
-	   int interval_;
+       float value_threshold_;
+	   float interval_;
 	   bool discretize_;
    };
  }

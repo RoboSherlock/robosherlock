@@ -29,8 +29,26 @@
         <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
+        <name>valueThreshold</name>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
         <name>distThreshold</name>
         <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>useHypothesis</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>discretize</name>
+        <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
       </configurationParameter>
@@ -40,7 +58,7 @@
       <nameValuePair>
         <name>minPoints</name>
         <value>
-          <integer>4000</integer>
+          <integer>100</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -52,13 +70,31 @@
       <nameValuePair>
         <name>hueThreshold</name>
         <value>
-          <integer>1</integer>
+          <integer>4</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>valueThreshold</name>
+        <value>
+          <float>0.01</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>distThreshold</name>
         <value>
-          <float>0.1</float>
+          <float>1</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>useHypothesis</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>discretize</name>
+        <value>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
