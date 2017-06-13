@@ -38,7 +38,11 @@
 #define VIEW_CLOUD               "cloud"
 #define VIEW_CLOUD_DOWNSAMPLED   "cloud_downsampled"
 #define VIEW_CLOUD_SUPERVOXEL    "cloud_supervoxel"
+#define VIEW_CLOUD_BOUNDARY      "cloud_boundary"
+#define VIEW_CLOUD_NON_BOUNDARY  "cloud_non_boundary"
 #define VIEW_NORMALS             "normals"
+
+#define VIEW_SEGMENT_IDS         "segment_ids"
 
 #define VIEW_MASK                "mask"
 #define VIEW_MASK_HD             "mask_hd"

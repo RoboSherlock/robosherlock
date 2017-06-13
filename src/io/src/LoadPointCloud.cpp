@@ -5,6 +5,7 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
+#include<pcl/io/ply_io.h>
 
 
 #include <rs/types/all_types.h>
@@ -14,8 +15,6 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 
-
-
 using namespace uima;
 
 
@@ -24,23 +23,30 @@ class LoadPointCloud : public DrawingAnnotator
 private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
-  std::string inputPath;
+  std::string folder;
+  std::vector<std::string* > filenames;
+
+  int iterator;
 
   double pointSize;
 
 public:
   LoadPointCloud () : DrawingAnnotator(__func__), pointSize(1.0) {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    iterator = 0;
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    if(ctx.isParameterDefined("inputPath"))
+    if(ctx.isParameterDefined("folder"))
     {
-      ctx.extractValue("inputPath", inputPath);
+      ctx.extractValue("folder", folder);
     }
-
+    if(ctx.isParameterDefined("filenames"))
+    {
+      ctx.extractValue("filenames", filenames);
+    }
     return UIMA_ERR_NONE;
   }
 
@@ -57,14 +63,21 @@ public:
     outInfo("process begins");
     rs::SceneCas cas(tcas);
 
-
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    if(pcl::io::loadPCDFile (inputPath, *cloud_ptr) == -1){
-      outInfo("Could not load point cloud file. Check path again!");
+
+    std::string path = folder + *filenames[iterator];
+
+    if(pcl::io::loadPCDFile (path, *cloud_ptr) == -1){
+      outError("Could not load point cloud file as PCD type. Check path again!");
     }
 
     cloud = cloud_ptr;
     outInfo("Cloud size: " << cloud->points.size());
+
+    iterator++;
+    if(iterator > filenames.size() - 1)
+      iterator = 0;
+
     cas.set(VIEW_CLOUD, *cloud);
 
     return UIMA_ERR_NONE;

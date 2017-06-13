@@ -9,11 +9,10 @@
 #include <pcl/search/impl/kdtree.hpp>
 
 //RS
-#include <rs/types/all_types.h>
-#include <rs/DrawingAnnotator.h>
 #include <rs/scene_cas.h>
-#include <rs/utils/output.h>
 #include <rs/utils/time.h>
+#include <rs/DrawingAnnotator.h>
+
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/BoundarySegmentation.hpp>
 
@@ -86,8 +85,8 @@ public:
     outInfo("Boundary cloud size = " << boundary_cloud->points.size());
 
     //publish cloud to CAS
-    //cas.set(VIEW_CLOUD_BOUNDARY, *boundary_cloud);
-    //cas.set(VIEW_CLOUD_NON_BOUNDARY, *non_boundary_cloud);
+    cas.set(VIEW_CLOUD_BOUNDARY, *boundary_cloud);
+    cas.set(VIEW_CLOUD_NON_BOUNDARY, *non_boundary_cloud);
 
     return UIMA_ERR_NONE;
   }

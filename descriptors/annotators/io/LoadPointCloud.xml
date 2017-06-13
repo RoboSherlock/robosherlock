@@ -10,17 +10,32 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
-            <name>inputPath</name>
+            <name>folder</name>
             <type>String</type>
             <multiValued>false</multiValued>
-            <mandatory>false</mandatory>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>filenames</name>
+            <type>String</type>
+            <multiValued>true</multiValued>
+            <mandatory>true</mandatory>
         </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
         <nameValuePair>
-            <name>inputPath</name>
+            <name>folder</name>
             <value>
-                <string>/home/anindex/cloud.pcd</string>
+                <string>/home/anindex/</string>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>filenames</name>
+            <value>
+              <array>
+                  <string>cloud.pcd</string>
+                  <string>cloud1.pcd</string>
+              </array>
             </value>
         </nameValuePair>
     </configurationParameterSettings>

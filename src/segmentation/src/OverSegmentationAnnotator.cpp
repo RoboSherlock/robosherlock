@@ -219,7 +219,7 @@ public:
     colored_cloud = rg[choose].getColoredCloud();
 
     //publish clusters to CAS
-    for( auto cluster:linear_segments){
+    /*for( auto cluster:linear_segments){
       const pcl::PointIndices &indices = cluster;
 
       rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
@@ -231,7 +231,8 @@ public:
       uimaCluster.source.set("OverSegmentation");
 
       scene.identifiables.append(uimaCluster);
-    }
+    }*/
+    cas.set(VIEW_SEGMENT_IDS, linear_segments);
 
     return UIMA_ERR_NONE;
   }

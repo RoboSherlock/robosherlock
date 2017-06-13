@@ -1,6 +1,8 @@
 #ifndef BOUNDARY_SEGMENTATION_HPP
 #define BOUNDARY_SEGMENTATION_HPP
 
+#include <vector>
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/features/boundary.h>
@@ -33,15 +35,18 @@ inline bool extractBoundaryCloud(
   be.compute(boundaries);
 
   //extract boundary cloud
-  boundary_cloud->points.resize(0);
-  non_boundary_cloud->points.resize(0);
+  std::vector<int> boundary_indices;
+  std::vector<int> non_boundary_indices;
 
   for(size_t it = 0; it < cloud->points.size(); it++){
     if(boundaries.points[it].boundary_point == 1)
-        boundary_cloud->points.push_back(cloud->points[it]);
+        boundary_indices.push_back(it);
     else
-        non_boundary_cloud->points.push_back(cloud->points[it]);
+        non_boundary_indices.push_back(it);
   }
+
+  pcl::copyPointCloud(*cloud, boundary_indices, *boundary_cloud);
+  pcl::copyPointCloud(*cloud, non_boundary_indices, *non_boundary_cloud);
 
   if(boundary_cloud->points.size() <= 0){
     outError("Could not extract boundary points!");
