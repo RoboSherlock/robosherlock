@@ -19,3 +19,6 @@ target_link_libraries(rs_overSegmentationAnnotator rs_core)
 
 rs_add_library(rs_edgeCurveAnnotator src/EdgeCurveAnnotator.cpp)
 target_link_libraries(rs_edgeCurveAnnotator rs_core)
+
+rs_add_library(rs_rotationalSymmetryAnnotator src/RotationalSymmetryAnnotator.cpp)
+target_link_libraries(rs_rotationalSymmetryAnnotator rs_core)

@@ -38,7 +38,7 @@
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="EdgeCurveAnnotator">
-      <import location="../annotators/annotation/EdgeCurveAnnotator.xml"/>
+      <import location="../annotators/segmentation/EdgeCurveAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
@@ -102,6 +102,9 @@
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="ResultAdvertiser">
       <import location="../annotators/io/ResultAdvertiser.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="RotationalSymmetryAnnotator">
+      <import location="../annotators/segmentation/RotationalSymmetryAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="SacModelAnnotator">
       <import location="../annotators/annotation/SacModelAnnotator.xml"/>
@@ -298,6 +301,7 @@
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
       <node>EdgeCurveAnnotator</node>
+      <node>RotationalSymmetryAnnotator</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>
