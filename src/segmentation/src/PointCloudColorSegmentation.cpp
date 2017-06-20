@@ -30,9 +30,6 @@
 #include <pcl/point_types_conversion.h>
 #include <pcl/filters/extract_indices.h>
 
-//JSON
-#include "rapidjson/document.h"
-
 typedef pcl::PointXYZRGBA PointR;
 typedef pcl::PointCloud<PointR> PCR;
 typedef pcl::PointXYZRGB PointX;
@@ -114,15 +111,20 @@ private:
 			rs::Query q = rs::create<rs::Query>(tcas);
 			//get id
 			cas.getFS("QUERY", q);
-			//q.asJson.set("{\"ID\":0}");
+			//q.asJson.set("{\"ID\":0,\"POS\":1}");
 			
-			id = q.asJson.get();
-			outInfo(q.asJson.get());
-			
-			rapidjson::Document d;
-			d.Parse(id.c_str());
-	
-			int hyp = d["ID"].GetInt();
+			std::string j = q.asJson.get();
+			int posID = j.find("\"ID\":");
+			int posBrace = j.find("}", posID);
+			int posComma = j.find(",", posID);
+			posID += 5;
+
+			if (posComma < 0) {
+				j = j.substr(posID, posBrace - posID);
+			} else {
+				j = j.substr(posID, posComma - posID);
+			}
+			int hyp = stoi(j);
 
 			//get cluster
 			std::vector<rs::Cluster> clusts;
