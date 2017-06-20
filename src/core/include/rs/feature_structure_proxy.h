@@ -382,6 +382,39 @@ public:
     h2.set(_get(), idx, value);
   }
 
+  template<typename  TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots) {
+    bool success = false;
+
+    if(has())
+    {
+      typename trait::ArrayFSType arrayfs = _get();
+      result.reserve(arrayfs.size());
+
+      uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+
+      for(size_t idx = 0; idx < arrayfs.size(); ++idx)
+      {
+        uima::FeatureStructure fs = arrayfs.get(idx);
+
+        if(fs.getType() == type)
+        {
+		  std::vector<AnnotT> annotations;
+		  TargetT elem(fs);
+		  elem.annotations.filter(annotations);
+
+		  if (annotations.size() > 0) {
+          	success = true;
+          	result.push_back(elem);
+			annots.push_back(annots);
+		  }
+        }
+      }
+    }
+
+    return success;
+  }
+
   template<typename TargetT>
   bool filter(std::vector<TargetT> &result)
   {
@@ -631,6 +664,40 @@ public:
   {
     // TODO: check if this behaves as stupid as append(...)
     _get().removeElement(accessor::convert<T, typename trait::ListElementType>(value));
+  }
+
+  template<typename  TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots) {
+    bool success = false;
+
+    if(!empty())
+    {
+      typename trait::ListType listfs = _get();
+
+      uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+
+      while(!listfs.isEmpty())
+      {
+        uima::FeatureStructure fs = listfs.getHead();
+
+        if(fs.getType() == type)
+        {
+		  std::vector<AnnotT> annotations;
+		  TargetT elem(fs);
+		  elem.annotations.filter(annotations);
+
+		  if (annotations.size() > 0) {
+          	success = true;
+          	result.push_back(elem);
+			annots.push_back(annotations);
+		  }
+        }
+
+		listfs = listfs.getTail();
+      }
+    }
+
+    return success;
   }
 
   template<typename TargetT>
