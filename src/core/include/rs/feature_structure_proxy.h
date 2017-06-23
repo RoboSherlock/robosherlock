@@ -409,6 +409,41 @@ public:
 
     return success;
   }
+
+  template<typename TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots)
+  {
+    bool success = false;
+
+    if(has())
+    {
+      typename trait::ArrayFSType arrayfs = _get();
+      result.reserve(arrayfs.size());
+
+      uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+
+      for(size_t idx = 0; idx < arrayfs.size(); ++idx)
+      {
+        uima::FeatureStructure fs = arrayfs.get(idx);
+
+        if(fs.getType() == type)
+        {
+          std::vector<AnnotT> clustannots;
+          TargetT cluster(fs);
+          cluster.annotations.filter(clustannots);
+
+          if(clustannots.size() > 0)
+          {
+            success = true;
+            result.push_back(cluster);
+            annots.push_back(clustannots);
+          }
+        }
+      }
+    }
+
+    return success;
+  }
 };
 
 template<typename T, typename TAllocator>
@@ -653,6 +688,42 @@ public:
           success = true;
           TargetT elem(fs);
           result.push_back(elem);
+        }
+
+        listfs = listfs.getTail();
+      }
+    }
+
+    return success;
+  }
+
+  template<typename TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots)
+  {
+    bool success = false;
+
+    if(!empty())
+    {
+      typename trait::ListType listfs = _get();
+
+      uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+
+      while(!listfs.isEmpty())
+      {
+        uima::FeatureStructure fs = listfs.getHead();
+
+        if(fs.getType() == type)
+        {
+          std::vector<AnnotT> clustannots;
+          TargetT cluster(fs);
+          cluster.annotations.filter(clustannots);
+
+          if(clustannots.size() > 0)
+          {
+            success = true;
+            result.push_back(cluster);
+            annots.push_back(clustannots);
+          }
         }
 
         listfs = listfs.getTail();
