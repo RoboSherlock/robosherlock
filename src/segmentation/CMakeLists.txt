@@ -14,3 +14,6 @@ target_link_libraries(rs_PointCloudClusterExtractor rs_core)
 rs_add_library(rs_PointCloudColorSegmentation src/PointCloudColorSegmentation.cpp)
 target_link_libraries(rs_PointCloudColorSegmentation rs_core)
 
+rs_add_library(rs_transparentSegmentator src/TransparentSegmentator.cpp)
+target_link_libraries(rs_transparentSegmentator rs_core)
+
