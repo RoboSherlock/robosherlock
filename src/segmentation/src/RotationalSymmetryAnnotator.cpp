@@ -16,6 +16,8 @@
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
 
+#define M_PI 3.141592654
+
 
 
 using namespace uima;
@@ -100,7 +102,7 @@ public:
   }
 
 private:
-  void detectInitialSymmetries(){
+  inline void detectInitialSymmetries(){
     #pragma omp parallel for
     for(size_t segmentId = 0; segmentId < numSegments; segmentId++){
       segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -123,16 +125,54 @@ private:
     }
   }
 
-  void refineSymmtries(){
+  inline void refineSymmtries(){
 
   }
 
-  void filterSymmetries(){
+  inline void filterSymmetries(){
 
   }
 
-  void mergeSymmetries(){
+  inline void mergeSymmetries(){
 
+  }
+
+  template<typename PointT>
+  inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>& cloud,
+                                     pcl::PointCloud<pcl::Normal>& normals,
+                                     RotationalSymmetry& symmetry,
+                                     std::vector<float>& point_symmetry_scores,
+                                     float min_fit_angle = 0.0f,
+                                     float max_fit_angle = M_PI / 2)
+  {
+    point_symmetry_scores.resize(cloud.points.size());
+
+    for(size_t it = 0; it < cloud.points.size(); it++){
+      Eigen::Vector3f point =  cloud->points[it].getVector3fMap();
+      Eigen::Vector3f normal = normals->points[it].getVector3fMap();
+
+      float angle = getRotSymFitError(point, normal, symmetry);
+      float score = (angle - min_fit_angle) / (max_fit_angle - min_fit_angle);
+
+      score = clamp(score, 0.0, 1.0);
+      point_symmetry_scores[it] = score;
+    }
+
+    return mean(point_symmetry_scores);
+  }
+
+  template<typename PointT>
+  inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>& cloud,
+                                      DistanceMap& dist_map,
+                                      RotationalSymmetry& symmetry,
+                                      std::vector<float>& point_occlusion_scores,
+                                      float min_occlusion_dist = 0.0f,
+                                      float max_occlusion_dist = 1.0f,
+                                      int redundant_factor = 12)
+  {
+    point_occlusion_scores.resize(cloud.points.size());
+
+    
   }
 
   void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, float length, float lineWidth){

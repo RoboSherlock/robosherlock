@@ -25,9 +25,30 @@ inline Eigen::Matrix<Type, 3, 1> pointToLineProjection(const Eigen::Matrix<Type,
 }
 
 template<class Type>
+inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1>& plane, const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& normal){
+  normal << plane[0], plane[1], plane[2];
+  Type denom = normal.norm();
+  normal /= denom; // normalize plane normal
+  point = normal * (- plane[3] / denom);
+}
+
+template<class Type>
+inline void pointNormalToPlane(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& normal, const Eigen::Matrix<Type, 4, 1>& plane){
+  plane.head(3) = normal;
+  plane(3) = -normal.dot(point);
+}
+
+template<class Type>
 inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& planePoint, const Eigen::Matrix<Type, 3, 1>& planeNormal){
   Eigen::Matrix<Type, 3, 1> line = point - planePoint;
   return line.dot(planeNormal);
+}
+
+template<class Type>
+inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 4, 1>& plane){
+  Eigen::Vector3f planePoint, planeNormal;
+  planeToPointNormal(plane, planePoint, planeNormal);
+  return pointToPlaneSignedNorm(point, planePoint, planeNormal);
 }
 
 template<class Type>
@@ -52,6 +73,7 @@ inline Type lineToLineNorm(const Eigen::Matrix<Type, 3, 1>& line1Point1,
   Eigen::Matrix<Type, 3, 1> line3 = line1Point1 - line2Point1;
   return std::abs(line3.dot(line1.cross(line2))) / denom;
 }
+
 
 
 #endif

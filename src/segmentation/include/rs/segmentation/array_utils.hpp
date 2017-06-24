@@ -66,4 +66,10 @@ inline bool linearToMatrix(std::vector< std::vector<Type> >& v, int linear_id, i
   return false;
 }
 
+template<typename Type>
+inline float mean(std::vector<Type>& v){
+  Type sum = std::accumulate(v.begin(), v.end(), 0.0);
+  return static_cast<float> (sum) / static_cast<float>(v.size());
+}
+
 #endif
