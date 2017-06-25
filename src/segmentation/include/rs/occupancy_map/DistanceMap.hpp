@@ -18,29 +18,32 @@ private:
   typename pcl::octree::OctreePointCloudSearch<PointT>::Ptr octree;
   float resolution;
 
+  float min_map_dist;
+  float max_map_dist;
+
   std::vector<Eigen::Vector4f> bounding_planes;
 public:
   std::vector<int> kNearestPointId;
   std::vector<float> nearestDistMap;
 
-  DistanceMap() : resolution(0.0) {}
-  DistanceMap(float res) : resolution(res) {}
+  DistanceMap() : resolution(0.0, 0.0, 1.0) {}
+  DistanceMap(float res, float min, float max) : resolution(res), min_map_dist(min), max_map_dist(max) {}
   ~DistanceMap() {}
 
-  bool setInputCloud(pcl::PointCloud<PointT>::Ptr &cloud){
+  bool setInputCloud(typename pcl::PointCloud<PointT>::Ptr &cloud){
     if(cloud->points.size() < 3){
       outError("Insufficient points in cloud!");
       return false;
     }
 
-    octree = new pcl::octree::OctreePointCloudSearch<PointT>(resolution);
+    octree = typename pcl::octree::OctreePointCloudSearch<PointT>::Ptr ( new pcl::octree::OctreePointCloudSearch<PointT>(resolution) );
     octree->setInputCloud(cloud);
     octree->addPointsFromInputCloud();
 
     return true;
   }
 
-  bool setBoundingPlanes(std::vector<Eigen::Vector4f>& planes, std::vector<float>& offset = std::vector<float>(0)){
+  bool setBoundingPlanes(const std::vector<Eigen::Vector4f>& planes, const std::vector<float>& offset = std::vector<float>(0)){
       if(offset.size() == 0){
         bounding_planes = planes;
       }
@@ -54,14 +57,20 @@ public:
         for(size_t it = 0; it < planes.size(); it++){
           Eigen::Vector3f point, normal;
           planeToPointNormal(planes[it], point, normal);
-          point += normal * offsets[it];
+          point += normal * offset[it];
           pointNormalToPlane(point, normal, bounding_planes[it]);
         }
       }
+      return true;
   }
 
   void setResolution(float res){
     resolution = res;
+  }
+
+  void setConstraints(float min_dist, float max_dist){
+    min_map_dist = min_dist;
+    max_map_dist = max_dist;
   }
 
   bool getNearestOccupiedDistance(PointT& point, int& result_index, float& sqr_dist){
@@ -70,19 +79,25 @@ public:
       return false;
     }
 
-    float nearestPointDist;
-    int nearestPointId;
-    approxNearestSearch(point, nearestPointId, nearestPointDist);
+    octree->approxNearestSearch(point, result_index, sqr_dist);
+    if(sqr_dist < 0)
+      sqr_dist = max_map_dist;
 
-    float boundingPlaneDist = getMinDistToBoundingPlane(point.getVector3fMap());
-    boundingPlaneDist = std::max(-boundingPlaneDist, 0.0);
+    Eigen::Vector3f pointVec = point.getVector3fMap();
+    float boundingPlaneDist = getMinDistToBoundingPlane(pointVec);
+    boundingPlaneDist = std::max(-boundingPlaneDist, 0.0f);
 
-    return std::max(nearestPointDist, boundingPlaneDist);
+    if(boundingPlaneDist > sqr_dist){
+      sqr_dist = boundingPlaneDist;
+      result_index = -1;
+    }
+
+    return true;
   }
 
 private:
   float getMinDistToBoundingPlane(Eigen::Vector3f& point){
-    float dist = std::numeric<float>::max();
+    float dist = std::numeric_limits<float>::max();
 
     for(size_t it = 0;  it < bounding_planes.size(); it++)
       dist = std::min(dist, pointToPlaneSignedNorm(point, bounding_planes[it]));

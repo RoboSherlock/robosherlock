@@ -15,8 +15,7 @@
 
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
-
-#define M_PI 3.141592654
+#include <rs/occupancy_map/DistanceMap.hpp>
 
 
 
@@ -31,6 +30,8 @@ private:
   std::vector<Eigen::Vector3f> segment_centroids;
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
+
+  boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
 
   int numSegments;
 
@@ -80,6 +81,32 @@ public:
     //main execution
     detectInitialSymmetries();
 
+    Eigen::Vector4f plane(0.0f, 0.0f, 1.0f, 0.0f);
+    std::vector<Eigen::Vector4f> planes;
+    planes.push_back(plane);
+
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr test(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    test->width = 3;
+    test->height = 1;
+    test->points.resize(test->width * test->height);
+
+    test->points[0].getVector3fMap() = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
+    test->points[1].getVector3fMap() = Eigen::Vector3f(0.0f, 1.0f, 1.0f);
+    test->points[2].getVector3fMap() = Eigen::Vector3f(1.0f, 0.0f, 1.0f);
+
+    pcl::PointXYZRGBA searchPoint;
+    searchPoint.x = 0.9f;
+    searchPoint.y = 0.1f;
+    searchPoint.z = 1.0f;
+
+    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (0.005f, 0.01f, 0.03f));
+    dist_map->setBoundingPlanes(planes);
+    dist_map->setInputCloud(test);
+    int index;
+    float dist;
+
+    dist_map->getNearestOccupiedDistance(searchPoint, index, dist);
+    std::cout << "Point index: " << index << " with dist: " << dist << '\n';
 
     return UIMA_ERR_NONE;
   }
@@ -91,12 +118,12 @@ public:
     if(firstRun){
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryLine(visualizer, 0.2, 0.2);
+      addSymmetryLine(visualizer, 0.2f, 0.2f);
     }
     else{
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      updateSymmetryLine(visualizer, 0.2, 0.2);
+      updateSymmetryLine(visualizer, 0.2f, 0.2f);
     }
 
   }
@@ -138,8 +165,8 @@ private:
   }
 
   template<typename PointT>
-  inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>& cloud,
-                                     pcl::PointCloud<pcl::Normal>& normals,
+  inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
+                                     pcl::PointCloud<pcl::Normal>::Ptr& normals,
                                      RotationalSymmetry& symmetry,
                                      std::vector<float>& point_symmetry_scores,
                                      float min_fit_angle = 0.0f,
@@ -149,12 +176,12 @@ private:
 
     for(size_t it = 0; it < cloud.points.size(); it++){
       Eigen::Vector3f point =  cloud->points[it].getVector3fMap();
-      Eigen::Vector3f normal = normals->points[it].getVector3fMap();
+      Eigen::Vector3f normal( normals->points[it].data_c[0], normals->points[it].data_c[1], normals->points[it].data_c[2]);
 
       float angle = getRotSymFitError(point, normal, symmetry);
       float score = (angle - min_fit_angle) / (max_fit_angle - min_fit_angle);
 
-      score = clamp(score, 0.0, 1.0);
+      score = clamp(score, 0.0f, 1.0f);
       point_symmetry_scores[it] = score;
     }
 
@@ -163,7 +190,7 @@ private:
 
   template<typename PointT>
   inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>& cloud,
-                                      DistanceMap& dist_map,
+                                      DistanceMap<PointT>& dist_map,
                                       RotationalSymmetry& symmetry,
                                       std::vector<float>& point_occlusion_scores,
                                       float min_occlusion_dist = 0.0f,
@@ -172,7 +199,7 @@ private:
   {
     point_occlusion_scores.resize(cloud.points.size());
 
-    
+    return 0.0f;
   }
 
   void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, float length, float lineWidth){
@@ -185,7 +212,7 @@ private:
         std::string id = "sym" + std::to_string(segId * segmentSymmetries[segId].size() + symId);
         visualizer.addLine(p1, p2, id);
         visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
-        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 1.0, 0.0, id);
+        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
       }
     }
   }
@@ -201,7 +228,7 @@ private:
         visualizer.removeShape(id);
         visualizer.addLine(p1, p2, id);
         visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
-        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0, 1.0, 0.0, id);
+        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
       }
     }
   }

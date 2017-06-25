@@ -6,7 +6,7 @@
 
 
 template<typename Type>
-inline Type clamp(const Type val, const Type minVal, const Type maxVal){
+inline Type clamp(Type val, Type minVal, Type maxVal){
   Type result = val;
   result = std::max(minVal, result);
   result = std::min(maxVal, result);
@@ -25,7 +25,7 @@ inline Eigen::Matrix<Type, 3, 1> pointToLineProjection(const Eigen::Matrix<Type,
 }
 
 template<class Type>
-inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1>& plane, const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& normal){
+inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1>& plane, Eigen::Matrix<Type, 3, 1>& point, Eigen::Matrix<Type, 3, 1>& normal){
   normal << plane[0], plane[1], plane[2];
   Type denom = normal.norm();
   normal /= denom; // normalize plane normal
@@ -33,7 +33,7 @@ inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1>& plane, const Eig
 }
 
 template<class Type>
-inline void pointNormalToPlane(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& normal, const Eigen::Matrix<Type, 4, 1>& plane){
+inline void pointNormalToPlane(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& normal, Eigen::Matrix<Type, 4, 1>& plane){
   plane.head(3) = normal;
   plane(3) = -normal.dot(point);
 }
@@ -74,6 +74,22 @@ inline Type lineToLineNorm(const Eigen::Matrix<Type, 3, 1>& line1Point1,
   return std::abs(line3.dot(line1.cross(line2))) / denom;
 }
 
+template<class Type>
+inline Type vecVecAngle(const Eigen::Matrix<Type, 3, 1>& v1,
+                        const Eigen::Matrix<Type, 3, 1>& v2
+                                  )
+{
+  v1.normalized();
+  v2.normalized();
+  return std::acos(clamp(v1.dot(v2), -1.0f, 1.0f));
+}
+
+template<class Type>
+inline Type lineLineAngle(const Eigen::Matrix<Type, 3, 1>& v1,
+                        const Eigen::Matrix<Type, 3, 1>& v2
+                                  ){
+  return std::abs(vecVecAngle<Type>(v1, v2));
+}
 
 
 #endif
