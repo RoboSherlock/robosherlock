@@ -422,7 +422,7 @@ public:
    *    1.  std::vectorrs::Cluster class_clust;
    *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
    *
-   *    2.  std::vector<std::vectorpercepteros::ToolObject> class_anno;
+   *    2.  std::vector<std::vector<rs::Classification>> class_anno;
    *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors since every cluster can have multiple annotations of the same type. The vector of annotations at index 0 corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be anything, but in order to get a result they have to be some type of annotations.
    *
    *    3.  scene.identifiables.filter(class_clust, class_anno);
@@ -727,7 +727,7 @@ public:
    *    1.  std::vectorrs::Cluster class_clust;
    *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
    *
-   *    2.  std::vector<std::vectorpercepteros::ToolObject> class_anno;
+   *    2.  std::vector<std::vector<rs::Classification>> class_anno;
    *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors since every cluster can have multiple annotations of the same type. The vector of annotations at index 0 corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be anything, but in order to get a result they have to be some type of annotations.
    *
    *    3.  scene.identifiables.filter(class_clust, class_anno);
