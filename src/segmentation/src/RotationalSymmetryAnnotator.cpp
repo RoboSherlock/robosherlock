@@ -16,6 +16,7 @@
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
 #include <rs/occupancy_map/DistanceMap.hpp>
+#include <rs/NonLinearOptimization/Functor.hpp>
 
 
 
@@ -31,7 +32,7 @@ private:
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
-  boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
+  boost::shared_ptr< DistanceMap<pcl::PointXYZ> > dist_map;
 
   int numSegments;
 
@@ -79,35 +80,55 @@ public:
     segment_centroids.resize(numSegments);
 
     //main execution
-    detectInitialSymmetries();
+    #pragma omp parallel for
+    for(size_t segmentId = 0; segmentId < numSegments; segmentId++){
+      segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
+      pcl::copyPointCloud(*cloud, segments[segmentId], *segmentClouds[segmentId]);
+
+      detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentSymmetries[segmentId], segment_centroids[segmentId]);
+
+      //TODO: refine symmtries using LevenbergMarquardt algorithm without boudary points
+
+      //TODO: filter refined symmtries by sym score, occlusion score, perpendicularity score and coverage score
+
+      //TODO: merge similar symmtries by their orientation and points
+
+      //TODO: define CAS Symmetries Type
+    }
+
+
 
     Eigen::Vector4f plane(0.0f, 0.0f, 1.0f, 0.0f);
     std::vector<Eigen::Vector4f> planes;
     planes.push_back(plane);
 
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr test(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::PointXYZ>::Ptr test(new pcl::PointCloud<pcl::PointXYZ>);
     test->width = 3;
     test->height = 1;
     test->points.resize(test->width * test->height);
 
-    test->points[0].getVector3fMap() = Eigen::Vector3f(1.0f, 1.0f, 1.0f);
-    test->points[1].getVector3fMap() = Eigen::Vector3f(0.0f, 1.0f, 1.0f);
-    test->points[2].getVector3fMap() = Eigen::Vector3f(1.0f, 0.0f, 1.0f);
+    test->points[0].getVector3fMap() = Eigen::Vector3f(100.0f, 100.0f, 100.0f);
+    test->points[1].getVector3fMap() = Eigen::Vector3f(0.0f, 100.0f, 100.0f);
+    test->points[2].getVector3fMap() = Eigen::Vector3f(100.0f, 0.0f, 100.0f);
 
-    pcl::PointXYZRGBA searchPoint;
-    searchPoint.x = 0.9f;
-    searchPoint.y = 0.1f;
-    searchPoint.z = 1.0f;
+    pcl::PointXYZ searchPoint;
+    searchPoint.x = 130.0f;
+    searchPoint.y = 100.0f;
+    searchPoint.z = 100.0f;
 
-    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (0.005f, 0.01f, 0.03f));
+    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZ > >(new DistanceMap <pcl::PointXYZ> (0.1f, 0.1f, 0.3f));
     dist_map->setBoundingPlanes(planes);
     dist_map->setInputCloud(test);
     int index;
     float dist;
 
     dist_map->getNearestOccupiedDistance(searchPoint, index, dist);
-    std::cout << "Point index: " << index << " with dist: " << dist << '\n';
+    std::cout << "Point 1 index: " << index << " with dist: " << dist << '\n';
 
+    searchPoint.x = 0.0f;
+    searchPoint.y = 70.0f;
+    dist_map->getNearestOccupiedDistance(searchPoint, index, dist);
+    std::cout << "Point 2 index: " << index << " with dist: " << dist << '\n';
     return UIMA_ERR_NONE;
   }
 
@@ -129,37 +150,33 @@ public:
   }
 
 private:
-  inline void detectInitialSymmetries(){
-    #pragma omp parallel for
-    for(size_t segmentId = 0; segmentId < numSegments; segmentId++){
-      segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      pcl::copyPointCloud(*cloud, segments[segmentId], *segmentClouds[segmentId]);
+  template<typename PointT>
+  inline void detectInitialSymmetries(typename pcl::PointCloud<PointT>::Ptr& cloud, std::vector<RotationalSymmetry>& symmetries, Eigen::Vector3f& segmentCentroid){
+    symmetries.clear();
+    if(cloud->points.size() < 3)
+      outInfo("Segment has under 3 points. Symmetries will not calculated!");
 
-      segmentSymmetries[segmentId].clear();
-      if(segmentClouds[segmentId]->points.size() < 3){
-        outInfo("Segment ID " << segmentId << " has under 3 points. Symmetries will not calculated!");
-        continue;
-      }
+    pcl::PCA<pcl::PointXYZRGBA> pca;
+    pca.setInputCloud(cloud);
+    segmentCentroid = pca.getMean().head(3);
 
-      pcl::PCA<pcl::PointXYZRGBA> pca;
-      pca.setInputCloud(segmentClouds[segmentId]);
-      segment_centroids[segmentId] = pca.getMean().head(3);
-
-      segmentSymmetries[segmentId].resize(3);
-      segmentSymmetries[segmentId][0] = RotationalSymmetry(segment_centroids[segmentId], pca.getEigenVectors().col(0));
-      segmentSymmetries[segmentId][1] = RotationalSymmetry(segment_centroids[segmentId], pca.getEigenVectors().col(1));
-      segmentSymmetries[segmentId][2] = RotationalSymmetry(segment_centroids[segmentId], pca.getEigenVectors().col(2));
-    }
+    symmetries.resize(3);
+    symmetries[0] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(0));
+    symmetries[1] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(1));
+    symmetries[2] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(2));
   }
 
+  template<typename PointT>
   inline void refineSymmtries(){
 
   }
 
+  template<typename PointT>
   inline void filterSymmetries(){
 
   }
 
+  template<typename PointT>
   inline void mergeSymmetries(){
 
   }

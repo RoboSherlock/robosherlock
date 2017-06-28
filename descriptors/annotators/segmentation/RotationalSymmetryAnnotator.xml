@@ -5,12 +5,36 @@
   <annotatorImplementationName>rs_rotationalSymmetryAnnotator</annotatorImplementationName>
   <analysisEngineMetaData>
     <name>RotationalSymmetryAnnotator</name>
-    <description>Annotate rotational symmetry from cloud segments.</description>
+    <description>Annotate rotational symmetry from point cloud segments.</description>
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
+        <configurationParameter>
+            <name>differentAngleThreshold</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>radiusSearch</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+        <nameValuePair>
+            <name>differentAngleThreshold</name>
+            <value>
+                <float>2.356</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>radiusSearch</name>
+            <value>
+                <float>0.005</float>
+            </value>
+        </nameValuePair>
     </configurationParameterSettings>
     <typeSystemDescription>
         <imports>

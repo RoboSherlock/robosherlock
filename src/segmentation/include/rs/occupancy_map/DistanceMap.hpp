@@ -80,8 +80,7 @@ public:
     }
 
     octree->approxNearestSearch(point, result_index, sqr_dist);
-    if(sqr_dist < 0)
-      sqr_dist = max_map_dist;
+    sqr_dist = std::sqrt(sqr_dist);
 
     Eigen::Vector3f pointVec = point.getVector3fMap();
     float boundingPlaneDist = getMinDistToBoundingPlane(pointVec);
