@@ -27,11 +27,15 @@ public:
     return orientation;
   }
 
-  void setOrigin(Eigen::Vector3f point) {
+  void setOrigin(Eigen::Vector3f& point) {
     origin = point;
   }
 
-  void setOrientation(Eigen::Vector3f vec){
+  void setProjectedOrigin(Eigen::Vector3f& point){
+    origin = projectPoint(point);
+  }
+
+  void setOrientation(Eigen::Vector3f& vec){
     orientation = vec.normalized();
   }
 
@@ -47,7 +51,7 @@ public:
     return Eigen::AngleAxisf(angle, orientation).toRotationMatrix();
   }
 
-  Eigen::Vector3f rotatePoint(Eigen::Vector3f& point, float angle){
+  Eigen::Vector3f rotatePoint(const Eigen::Vector3f& point, float angle){
     Eigen::Vector3f projectedPoint = projectPoint(point);
     return projectedPoint + getRotationMatrix(angle) * (point - projectedPoint);
   }
@@ -57,7 +61,7 @@ public:
     pcl::copyPointCloud(cloud_in, cloud_out);
 
     for(size_t it = 0; it < cloud_in.points.size(); it++){
-      cloud_out.points[it] = rotatePoint(cloud_in.points[it].getVector3fMap(), angle);
+      cloud_out.points[it].getVector3fMap() = rotatePoint(cloud_in.points[it].getVector3fMap(), angle);
     }
   }
 
@@ -66,7 +70,7 @@ public:
     pcl::copyPointCloud(cloud_in, indices, cloud_out);
 
     for(size_t it = 0; it < indices.size(); it++){
-      cloud_out.points[indices[it]] = rotatePoint(cloud_in.points[indices[it]].getVector3fMap(), angle);
+      cloud_out.points[indices[it]].getVector3fMap() = rotatePoint(cloud_in.points[indices[it]].getVector3fMap(), angle);
     }
   }
 

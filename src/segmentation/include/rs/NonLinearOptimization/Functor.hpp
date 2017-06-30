@@ -5,16 +5,18 @@
 #include <rs/segmentation/RotationalSymmetry.hpp>
 
 //NOTE: This class was implemented for compatible use of Eigen NonLinearOptimization module
-template <typename Type, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
+template <typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
 struct OptimizationFunctor{
+  typedef _Scalar Scalar; // for compatible purpose with NumericalDiff class
+
   enum{
     InputsAtCompileTime = NX,
     ValuesAtCompileTime = NY
   };
 
-  typedef Eigen::Matrix<Type, InputsAtCompileTime, 1> InputType;
-  typedef Eigen::Matrix<Type, ValuesAtCompileTime, 1> ValueType;
-  typedef Eigen::Matrix<Type, ValuesAtCompileTime, InputsAtCompileTime> JacobianType;
+  typedef Eigen::Matrix<Scalar, InputsAtCompileTime, 1> InputType;
+  typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, 1> ValueType;
+  typedef Eigen::Matrix<Scalar, ValuesAtCompileTime, InputsAtCompileTime> JacobianType;
 
   int m_inputs, m_outputs;
 
@@ -36,11 +38,13 @@ struct RotSymOptimizeFunctor : OptimizationFunctor<float>
 
   RotSymOptimizeFunctor() : max_fit_angle(1.0f) {}
 
-  int operator()(const Eigen::VectorXf &x, Eigen::VectorXf &fvec){
+  int operator()(const Eigen::VectorXf &x, Eigen::VectorXf &fvec) const{
     RotationalSymmetry symmetry(x.head(3), x.tail(3));
 
     for(size_t it = 0; it < cloud->points.size(); it++){
-      float angle = getRotSymFitError(cloud->points[it], normals->points[it], symmetry);
+      Eigen::Vector3f point = cloud->points[it].getVector3fMap();
+      Eigen::Vector3f normal( normals->points[it].data_c[0], normals->points[it].data_c[1], normals->points[it].data_c[2]);
+      float angle = getRotSymFitError(point, normal, symmetry);
 
       fvec(it) = std::min(angle, max_fit_angle);
     }
@@ -48,8 +52,8 @@ struct RotSymOptimizeFunctor : OptimizationFunctor<float>
     return 0;
   }
 
-  int inputs() { return 6; }
-  int values() { return cloud->points.size(); }
+  int inputs() const { return 6; }
+  int values() const { return this->cloud->points.size(); }
 };
 
 template <typename PointT>

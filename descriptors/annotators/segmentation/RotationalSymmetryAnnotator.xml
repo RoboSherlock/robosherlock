@@ -10,29 +10,137 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
-            <name>differentAngleThreshold</name>
+            <name>min_fit_angle</name>
             <type>Float</type>
             <multiValued>false</multiValued>
-            <mandatory>false</mandatory>
+            <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
-            <name>radiusSearch</name>
+            <name>max_fit_angle</name>
             <type>Float</type>
             <multiValued>false</multiValued>
-            <mandatory>false</mandatory>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>min_occlusion_dist</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>max_occlusion_dist</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>max_sym_score</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>max_occlusion_score</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>max_perpendicular_score</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>min_coverage_score</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>dist_map_resolution</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>boundaryRadiusSearch</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>boundaryAngleThreshold</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
         </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
         <nameValuePair>
-            <name>differentAngleThreshold</name>
+            <name>min_fit_angle</name>
             <value>
-                <float>2.356</float>
+                <float>0.175f</float>
             </value>
         </nameValuePair>
         <nameValuePair>
-            <name>radiusSearch</name>
+            <name>max_fit_angle</name>
             <value>
-                <float>0.005</float>
+                <float>1.047f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>min_occlusion_dist</name>
+            <value>
+                <float>0.01f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_occlusion_dist</name>
+            <value>
+                <float>0.03f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_sym_score</name>
+            <value>
+                <float>0.02f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_occlusion_score</name>
+            <value>
+                <float>0.012f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_perpendicular_score</name>
+            <value>
+                <float>0.6f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>min_coverage_score</name>
+            <value>
+                <float>0.3f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>dist_map_resolution</name>
+            <value>
+                <float>0.005f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>boundaryRadiusSearch</name>
+            <value>
+                <float>0.01f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>boundaryAngleThreshold</name>
+            <value>
+                <float>2.356f</float>
             </value>
         </nameValuePair>
     </configurationParameterSettings>

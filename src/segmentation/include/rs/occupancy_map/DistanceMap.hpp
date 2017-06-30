@@ -18,16 +18,13 @@ private:
   typename pcl::octree::OctreePointCloudSearch<PointT>::Ptr octree;
   float resolution;
 
-  float min_map_dist;
-  float max_map_dist;
-
   std::vector<Eigen::Vector4f> bounding_planes;
 public:
   std::vector<int> kNearestPointId;
   std::vector<float> nearestDistMap;
 
-  DistanceMap() : resolution(0.0, 0.0, 1.0) {}
-  DistanceMap(float res, float min, float max) : resolution(res), min_map_dist(min), max_map_dist(max) {}
+  DistanceMap() : resolution(0.0) {}
+  DistanceMap(float res) : resolution(res) {}
   ~DistanceMap() {}
 
   bool setInputCloud(typename pcl::PointCloud<PointT>::Ptr &cloud){
@@ -66,11 +63,6 @@ public:
 
   void setResolution(float res){
     resolution = res;
-  }
-
-  void setConstraints(float min_dist, float max_dist){
-    min_map_dist = min_dist;
-    max_map_dist = max_dist;
   }
 
   bool getNearestOccupiedDistance(PointT& point, int& result_index, float& sqr_dist){

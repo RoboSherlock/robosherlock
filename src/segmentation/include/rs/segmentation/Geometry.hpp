@@ -84,11 +84,34 @@ inline Type vecVecAngle(const Eigen::Matrix<Type, 3, 1>& v1,
   return std::acos(clamp(v1.dot(v2), -1.0f, 1.0f));
 }
 
+//vecter vector angle clockwise
+template<class Type>
+inline Type vecVecAngleClockwise(const Eigen::Matrix<Type, 3, 1>& v1,
+                                 const Eigen::Matrix<Type, 3, 1>& v2,
+                                 const Eigen::Matrix<Type, 3, 1>& normal
+                                  )
+{
+  v1.normalized();
+  v2.normalized();
+  Type denom = v1.dot(v2);
+  Type nom = clamp(normal.dot(v1.cross(v2)), -1.0f, 1.0f);
+  return std::atan2(nom, denom);
+}
+
 template<class Type>
 inline Type lineLineAngle(const Eigen::Matrix<Type, 3, 1>& v1,
                         const Eigen::Matrix<Type, 3, 1>& v2
                                   ){
   return std::abs(vecVecAngle<Type>(v1, v2));
+}
+
+//This function return bounded angle in 2 * PI
+template<class Type>
+inline Type angleDifferent(const Type angle1, const Type angle2){
+  Type result = angle2 - angle1;
+  if(result < 0)
+    result += 2 * M_PI;
+  return result;
 }
 
 
