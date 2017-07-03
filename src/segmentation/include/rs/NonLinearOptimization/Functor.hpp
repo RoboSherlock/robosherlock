@@ -43,7 +43,7 @@ struct RotSymOptimizeFunctor : OptimizationFunctor<float>
 
     for(size_t it = 0; it < cloud->points.size(); it++){
       Eigen::Vector3f point = cloud->points[it].getVector3fMap();
-      Eigen::Vector3f normal( normals->points[it].data_c[0], normals->points[it].data_c[1], normals->points[it].data_c[2]);
+      Eigen::Vector3f normal( normals->points[it].normal_x, normals->points[it].normal_y, normals->points[it].normal_z);
       float angle = getRotSymFitError(point, normal, symmetry);
 
       fvec(it) = std::min(angle, max_fit_angle);

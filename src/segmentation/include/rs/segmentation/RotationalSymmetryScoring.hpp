@@ -22,7 +22,7 @@ inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
 
   for(size_t it = 0; it < cloud->points.size(); it++){
     Eigen::Vector3f point =  cloud->points[it].getVector3fMap();
-    Eigen::Vector3f normal( normals->points[it].data_c[0], normals->points[it].data_c[1], normals->points[it].data_c[2]);
+    Eigen::Vector3f normal( normals->points[it].normal_x, normals->points[it].normal_y, normals->points[it].normal_z);
 
     float angle = getRotSymFitError(point, normal, symmetry);
     float score = (angle - min_fit_angle) / (max_fit_angle - min_fit_angle);
@@ -84,7 +84,7 @@ inline float getCloudPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr& norma
   point_perpendicular_scores.resize(normals->points.size());
 
   for(size_t it = 0; it < normals->points.size(); it++){
-    Eigen::Vector3f normal(normals->points[it].data_c[0], normals->points[it].data_c[1], normals->points[it].data_c[2]);
+    Eigen::Vector3f normal(normals->points[it].normal_x, normals->points[it].normal_y, normals->points[it].normal_z);
     point_perpendicular_scores[it] = getRotSymPerpendicularity(normal, symmetry, threshold);
   }
 

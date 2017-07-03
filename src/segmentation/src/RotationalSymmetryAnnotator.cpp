@@ -45,13 +45,16 @@ private:
   std::vector< std::vector<float> > segmentCoverageScores;
 
   //container for point level score
-  std::vector< std::vector< std::vector<float> > >pointSymScores;
+  std::vector< std::vector< std::vector<float> > > pointSymScores;
   std::vector< std::vector< std::vector<float> > > pointOcclusionScores;
   std::vector< std::vector< std::vector<float> > > pointPerpendicularScores;
 
   //container for filtered symmetries id
   std::vector< std::vector<int> > filteredSymmetries;
-  std::vector<int> bestSymmetries;
+  std::vector< std::vector<int> > bestSymmetries;
+
+  //container for final output to CAS
+  std::vector<RotationalSymmetry> finalSymmetries;
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
@@ -148,6 +151,8 @@ public:
     pointSymScores.resize(numSegments);
     pointOcclusionScores.resize(numSegments);
     pointPerpendicularScores.resize(numSegments);
+    filteredSymmetries.resize(numSegments);
+    bestSymmetries.resize(numSegments);
 
     //initialize distance map
     std::vector<Eigen::Vector4f> planes;
@@ -167,7 +172,7 @@ public:
     dist_map->setInputCloud(cloud);
 
     //main execution
-    #pragma omp parallel for
+    //#pragma omp parallel for
     for(size_t segmentId = 0; segmentId < numSegments; segmentId++){
       //extract cloud segments
       segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -200,13 +205,25 @@ public:
                                          pointSymScores[segmentId],
                                          pointOcclusionScores[segmentId],
                                          pointPerpendicularScores[segmentId]);
+
+      //filter out bad estimated symmetries by bounding scores
+      filterSymmetries(segmentSymScores[segmentId],
+                       segmentOcclusionScores[segmentId],
+                       segmentPerpendicularScores[segmentId],
+                       segmentCoverageScores[segmentId],
+                       segmentId);
+
+      //get best representation symmetry of a segment based on occlusion scores
+      getBestSymmetryID(filteredSymmetries[segmentId], segmentOcclusionScores[segmentId], segmentId);
     }
 
-    //TODO: filter refined symmtries by sym score, occlusion score, perpendicularity score and coverage score
 
     //TODO: merge similar symmtries by their orientation and points
 
     //TODO: define CAS Symmetries Type
+
+    //linearize bets symmetries representation of a whole scene
+    linearizeSegmentData<RotationalSymmetry>(segmentRefinedSymmetries, finalSymmetries, bestSymmetries);
 
     return UIMA_ERR_NONE;
   }
@@ -218,12 +235,12 @@ public:
     if(firstRun){
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryLine(visualizer, segmentRefinedSymmetries, 0.2f, 0.4f);
+      addSymmetryLine(visualizer, finalSymmetries, 0.4f, 0.8f);
     }
     else{
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      updateSymmetryLine(visualizer, segmentRefinedSymmetries, 0.2f, 0.4f);
+      updateSymmetryLine(visualizer, finalSymmetries, 0.4f, 0.8f);
     }
 
   }
@@ -292,17 +309,64 @@ private:
       occlusionScores[it] = getCloudOcclusionScore<PointT>(cloud, dist_map, refinedSymmetries[it], pointOcclusionScores[it], min_occlusion_dist, max_occlusion_dist);
       perpendicularScores[it] = getCloudPerpendicularScore(normals, refinedSymmetries[it], pointPerpendicularScores[it]);
       coverageScores[it] = getCloudCoverageScore<PointT>(cloud, refinedSymmetries[it]);
+
+      //std::cout << " SymScore: " << symScores[it] << " OccScores: " << occlusionScores[it] << " perScores: " << perpendicularScores[it] << " CovScores: " << coverageScores[it] << '\n';
     }
   }
 
-  template<typename PointT>
-  inline void filterSymmetries(){
+  inline void filterSymmetries(std::vector<float>& symScores,
+                               std::vector<float>& occlusionScores,
+                               std::vector<float>& perpendicularScores,
+                               std::vector<float>& coverageScores,
+                               int segmentId){
+    filteredSymmetries[segmentId].clear();
+    int symSize = symScores.size();
 
+    for(size_t symId = 0; symId < symSize; symId++){
+      if(symScores[symId] < max_sym_score &&
+         occlusionScores[symId] < max_occlusion_dist &&
+         perpendicularScores[symId] < max_perpendicular_score &&
+         coverageScores[symId] > min_coverage_score){
+           filteredSymmetries[segmentId].push_back(symId);
+         }
+    }
   }
 
-  template<typename PointT>
-  inline void getBestSymmetry(){
+  inline void getBestSymmetryID(std::vector<int>& symmetryIds, std::vector<float>& occlusionScores, int segmentId){
+    float bestScore = std::numeric_limits<float>::max(); // a.k.a min occlusionScores (consistent cloud)
+    int bestSymId = -1;
+    int symSize = symmetryIds.size();
+    for(size_t it = 0; it < symSize; it++){
+      int symId = symmetryIds[it];
+      if(occlusionScores[symId] < bestScore){
+        bestSymId = symId;
+        bestScore = occlusionScores[symId];
+      }
+    }
 
+    bestSymmetries[segmentId].push_back(bestSymId);
+  }
+
+  template<typename Type>
+  inline void linearizeSegmentData(typename std::vector< std::vector<Type> >& segmentDataIn, typename std::vector<Type>& segmentDataOut, std::vector< std::vector<int> > indices = std::vector<int>(0)){ // for both scores and Symmetries
+    segmentDataOut.clear();
+
+    for(size_t segmentIt = 0; segmentIt < segmentDataIn.size(); segmentIt++){
+      if(indices.size() != 0){
+        int dataId;
+        for(size_t it = 0; it < indices[segmentIt].size(); it++){
+          dataId = indices[segmentIt][it];
+          if(dataId >= 0 && dataId < segmentDataIn[segmentIt].size()){
+            segmentDataOut.push_back(segmentDataIn[segmentIt][dataId]);
+          }
+        }
+      }
+      else{
+        for(size_t it = 0; it < segmentDataIn[segmentIt].size(); it++){
+          segmentDataOut.push_back(segmentDataIn[segmentIt][it]);
+        }
+      }
+    }
   }
 
   template<typename PointT>
@@ -310,7 +374,7 @@ private:
 
   }
 
-  void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> > symmetries, float length, float lineWidth){
+  void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> >& symmetries, float length, float lineWidth){
     for(size_t segId = 0; segId < numSegments; segId++){
       for(size_t symId = 0; symId < symmetries[segId].size(); symId++){
         pcl::PointXYZ p1, p2;
@@ -325,7 +389,20 @@ private:
     }
   }
 
-  void updateSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> > symmetries, float length, float lineWidth){
+  void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
+    for(size_t symId = 0; symId < symmetries.size(); symId++){
+      pcl::PointXYZ p1, p2;
+      p1.getVector3fMap() = symmetries[symId].getOrigin() + symmetries[symId].getOrientation() * length / 2;
+      p2.getVector3fMap() = symmetries[symId].getOrigin() - symmetries[symId].getOrientation() * length / 2;
+
+      std::string id = "sym" + std::to_string(symId);
+      visualizer.addLine(p1, p2, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
+    }
+  }
+
+  void updateSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> >& symmetries, float length, float lineWidth){
     for(size_t segId = 0; segId < numSegments; segId++){
       for(size_t symId = 0; symId < symmetries[segId].size(); symId++){
         pcl::PointXYZ p1, p2;
@@ -341,6 +418,19 @@ private:
     }
   }
 
+  void updateSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
+    for(size_t symId = 0; symId < symmetries.size(); symId++){
+      pcl::PointXYZ p1, p2;
+      p1.getVector3fMap() = symmetries[symId].getOrigin() + symmetries[symId].getOrientation() * length / 2;
+      p2.getVector3fMap() = symmetries[symId].getOrigin() - symmetries[symId].getOrientation() * length / 2;
+
+      std::string id = "sym" + std::to_string(symId);
+      visualizer.removeShape(id);
+      visualizer.addLine(p1, p2, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
+    }
+  }
 };
 
 // This macro exports an entry point that is used to create the annotator.
