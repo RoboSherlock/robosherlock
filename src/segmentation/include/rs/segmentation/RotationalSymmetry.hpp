@@ -102,6 +102,11 @@ public:
     populateCloud(cloud_in, indices, cloud_out, step_angle);
   }
 
+  inline void getRotSymDifference(const RotationalSymmetry& target, float& angle, float& dist){
+    angle = lineLineAngle<float>(orientation, target.getOrientation());
+    dist = lineToLineNorm<float>(origin, origin + orientation, target.getOrigin(), target.getOrigin() + target.getOrientation());
+  }
+
 };
 
 inline float getRotSymFitError(Eigen::Vector3f& point,

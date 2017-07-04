@@ -34,6 +34,7 @@
             <value>
               <array>
                   <string>cloud.pcd</string>
+                  <string>cloud1.pcd</string>
               </array>
             </value>
         </nameValuePair>

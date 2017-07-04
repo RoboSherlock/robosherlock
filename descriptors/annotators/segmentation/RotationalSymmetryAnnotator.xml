@@ -75,6 +75,18 @@
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
+        <configurationParameter>
+            <name>max_angle_diff</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>max_dist_diff</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
         <nameValuePair>
@@ -141,6 +153,18 @@
             <name>boundaryAngleThreshold</name>
             <value>
                 <float>2.356f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_angle_diff</name>
+            <value>
+                <float>0.174f</float>
+            </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>max_dist_diff</name>
+            <value>
+                <float>0.01f</float>
             </value>
         </nameValuePair>
     </configurationParameterSettings>

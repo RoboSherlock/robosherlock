@@ -300,7 +300,7 @@
       <!--<node>PointCloudDownsampler</node>-->
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
-      <node>EdgeCurveAnnotator</node>
+      <!--<node>EdgeCurveAnnotator</node>-->
       <node>RotationalSymmetryAnnotator</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
