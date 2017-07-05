@@ -37,6 +37,9 @@
     <delegateAnalysisEngine key="CollectionReader">
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="DataLoader">
+      <import location="../annotators/io/DataLoader.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -54,9 +57,6 @@
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="LinemodAnnotator">
       <import location="../annotators/recognition/LinemodAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="LoadPointCloud">
-      <import location="../annotators/io/LoadPointCloud.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MLNInferencer">
       <import location="../annotators/recognition/MLNInferencer.xml"/>
