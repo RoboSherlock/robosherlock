@@ -7,6 +7,7 @@ add_library(rs_io SHARED
   src/ROSThermalCamBridge.cpp
   src/ROSCameraBridge.cpp
   src/UnrealVisionBridge.cpp
+  src/DataLoaderBridge.cpp
   src/MongoDBBridge.cpp
   src/Storage.cpp
   src/visualizer.cpp

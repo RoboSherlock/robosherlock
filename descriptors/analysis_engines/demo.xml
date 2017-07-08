@@ -136,16 +136,16 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_kinect_robot.ini</string>
+            <string>config_data_loader.ini</string>
           </array>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-       <node>DataLoader</node>
-       <!--<node>CollectionReader</node>
-       <node>ImagePreprocessor</node>
+       <node>CollectionReader</node>
+       <node>NormalEstimator</node>
+       <!--<node>ImagePreprocessor</node>
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
