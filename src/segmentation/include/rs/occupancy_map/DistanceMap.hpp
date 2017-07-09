@@ -20,9 +20,6 @@ private:
 
   std::vector<Eigen::Vector4f> bounding_planes;
 public:
-  std::vector<int> kNearestPointId;
-  std::vector<float> nearestDistMap;
-
   DistanceMap() : resolution(0.0) {}
   DistanceMap(float res) : resolution(res) {}
   ~DistanceMap() {}

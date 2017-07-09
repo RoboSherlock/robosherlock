@@ -12,6 +12,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 #include <rs/DrawingAnnotator.h>
+#include <rs/types/all_types.h>
 
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
@@ -245,8 +246,30 @@ public:
 
     mergeSymmetries(unmergedSymmetries, unmergedSupportSizes, finalSymmetries);
 
-    //TODO: define CAS Symmetries Type
+    //convert RotationalSymmetry to CAS Symmetries and push to CAS
+    std::vector<rs::RotationalSymmetry> casSymmetries;
+    for(size_t it = 0; it < finalSymmetries.size(); it++){
+      rs::RotationalSymmetry currSym = rs::create<rs::RotationalSymmetry>(tcas);
+      rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
+      rs::Point3f currOrientation = rs::create<rs::Point3f>(tcas);
 
+      Eigen::Vector3f eigenOrigin = finalSymmetries[it].getOrigin();
+      Eigen::Vector3f eigenOrientation = finalSymmetries[it].getOrientation();
+
+      currOrigin.x.set(eigenOrigin[0]);
+      currOrigin.y.set(eigenOrigin[1]);
+      currOrigin.z.set(eigenOrigin[2]);
+
+      currOrientation.x.set(eigenOrientation[0]);
+      currOrientation.y.set(eigenOrientation[1]);
+      currOrientation.z.set(eigenOrientation[2]);
+
+      currSym.origin.set(currOrigin);
+      currSym.orientation.set(currOrientation);
+      casSymmetries.push_back(currSym);
+    }
+
+    cas.set(VIEW_ROTATIONAL_SYMMETRIES, casSymmetries);
 
     return UIMA_ERR_NONE;
   }

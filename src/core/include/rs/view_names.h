@@ -44,6 +44,9 @@
 
 #define VIEW_SEGMENT_IDS         "segment_ids"
 
+#define VIEW_ROTATIONAL_SYMMETRIES "rotational_symmetries"
+#define VIEW_BILATERAL_SYMMETRIES "bilateral_symmetries"
+
 #define VIEW_MASK                "mask"
 #define VIEW_MASK_HD             "mask_hd"
 
