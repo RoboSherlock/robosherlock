@@ -106,6 +106,9 @@
     <delegateAnalysisEngine key="RotationalSymmetryAnnotator">
       <import location="../annotators/segmentation/RotationalSymmetryAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="RotationalSymmetrySegmentation">
+      <import location="../annotators/segmentation/RotationalSymmetrySegmentation.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="SacModelAnnotator">
       <import location="../annotators/annotation/SacModelAnnotator.xml"/>
     </delegateAnalysisEngine>

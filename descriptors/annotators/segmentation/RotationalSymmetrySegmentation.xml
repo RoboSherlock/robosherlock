@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_rotationalSymmetrySegmentation</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>RotationalSymmetrySegmentation</name>
+    <description>Extract cloud segments from rotational symmteries.</description>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+    </configurationParameters>
+    <configurationParameterSettings>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+        <imports>
+            <import location="../../typesystem/all_types.xml"/>
+        </imports>
+    </typeSystemDescription>
+    <capabilities>
+        <capability>
+            <inputs/>
+            <outputs/>
+            <languagesSupported>
+                <language>x-unspecified</language>
+            </languagesSupported>
+        </capability>
+    </capabilities>
+    <operationalProperties>
+        <modifiesCas>true</modifiesCas>
+        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+        <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>

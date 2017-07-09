@@ -22,3 +22,6 @@ target_link_libraries(rs_edgeCurveAnnotator rs_core)
 
 rs_add_library(rs_rotationalSymmetryAnnotator src/RotationalSymmetryAnnotator.cpp)
 target_link_libraries(rs_rotationalSymmetryAnnotator rs_core)
+
+rs_add_library(rs_rotationalSymmetrySegmentation src/RotationalSymmetrySegmentation.cpp)
+target_link_libraries(rs_rotationalSymmetrySegmentation rs_core)
