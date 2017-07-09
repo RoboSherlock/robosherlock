@@ -305,6 +305,7 @@
       <node>OverSegmentationAnnotator</node>
       <!--<node>EdgeCurveAnnotator</node>-->
       <node>RotationalSymmetryAnnotator</node>
+      <node>RotationalSymmetrySegmentation</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>

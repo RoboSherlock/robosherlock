@@ -20,10 +20,23 @@ void Vertex::print() const
 }
 
 Edge::Edge() : v1(0), v2(0) {}
+Edge::Edge(const int v1, const int v2){
+  this->v1 = v1;
+  this->v2 = v2;
+}
 
 void Edge::print() const
 {
   std::cout << v1 << " <-> " << v2 << '\n';
+}
+
+WeightedEdge::WeightedEdge() : Edge(), weight(0.0f) {}
+WeightedEdge::WeightedEdge(const int v1, const int v2, const float weight) : Edge(v1, v2){
+  this->weight = weight;
+}
+
+void WeightedEdge::print() const {
+  std::cout << v1 << "<-- " << weight << " -->" << v2 << '\n';
 }
 
 #endif

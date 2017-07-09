@@ -15,7 +15,18 @@ struct Edge{
     int v2;
 
     Edge();
+    Edge(const int v1, const int v2);
     void print() const;
+};
+
+struct WeightedEdge : public Edge
+{
+  float weight;
+
+  WeightedEdge();
+  WeightedEdge(const int v1, const int v2, const float weight);
+
+  void print() const;
 };
 
 #endif

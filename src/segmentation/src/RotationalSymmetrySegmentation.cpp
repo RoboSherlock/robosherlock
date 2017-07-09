@@ -21,6 +21,8 @@
 
 #include <rs/occupancy_map/DistanceMap.hpp>
 
+#include <rs/graph/WeightedGraph.hpp>
+
 
 
 using namespace uima;
@@ -102,8 +104,6 @@ public:
     //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
 
     //main execution
-
-
 
     return UIMA_ERR_NONE;
   }
