@@ -11,8 +11,11 @@
 #include <boost/progress.hpp>
 #include <boost/optional/optional.hpp>
 
-#include <mutex>
 #include <functional>
+#include <iterator>
+#include <mutex>
+#include <sstream>
+
 
 using namespace uima;
 
@@ -111,7 +114,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
     getListFile(path_to_cloud, clouds, cloud_extension, isCloudFile);
     std::sort(clouds.begin(), clouds.end());
     data_size = clouds.size();
-    haveCloud = true;
+    haveCloud = (data_size > 0);
   }
 
   boost::optional< const boost::property_tree::ptree& > foundRGB;
@@ -123,7 +126,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
     getListFile(path_to_rgb, images, rgb_extension, isRGBFile);
     std::sort(images.begin(), images.end());
     data_size = images.size();
-    haveRGB = true;
+    haveRGB = (data_size > 0);
   }
 
   boost::optional< const boost::property_tree::ptree& > foundDepth;
@@ -135,7 +138,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
     getListFile(path_to_depth, depths, depth_extension, isDepthFile);
     std::sort(depths.begin(), depths.end());
     data_size = depths.size();
-    haveDepth = true;
+    haveDepth = (data_size > 0);
   }
 
   this->isLoop = pt.get<bool>("option.isLoop", true);
@@ -144,6 +147,32 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
     outError("Provided data is not consistent, all must be a file or size of each kind of data must be equal!");
     _newData = false;
   }
+
+  this->frameRate = pt.get<double>("camera_info.frameRate", 1);
+  this->cameraInfo.width = pt.get<int>("camera_info.width", 640);
+  this->cameraInfo.height = pt.get<int>("camera_info.height", 480);
+
+  this->cameraInfo.roi.width = this->cameraInfo.width;
+  this->cameraInfo.roi.height = this->cameraInfo.height;
+  this->cameraInfo.roi.x_offset = 0;
+  this->cameraInfo.roi.y_offset = 0;
+
+  std::string line = pt.get<std::string>("camera_info.matrix");
+  std::replace(line.begin(), line.end(), ',', ' ');
+
+  std::stringstream sstr(line);
+  std::vector<double> cameraMatrix{std::istream_iterator<double>(sstr),
+                                   std::istream_iterator<double>()};
+  std::copy(cameraMatrix.begin(), cameraMatrix.end(), this->cameraInfo.K.begin());
+
+  line = pt.get<std::string>("camera_info.distortion");
+  std::replace(line.begin(), line.end(), ',', ' ');
+  sstr.str(line);
+  std::vector<double> cameraDistortion{std::istream_iterator<double>(sstr),
+                                       std::istream_iterator<double>()};
+  std::copy(cameraDistortion.begin(), cameraDistortion.end(), this->cameraInfo.D.begin());
+
+  this->depth_scaling_factor = pt.get<int>("camera_info.depth_scaling_factor", 3000);
 }
 
 bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
@@ -170,6 +199,8 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     cas.set(VIEW_CLOUD, *cloud_ptr);
   }
 
+  auto imageSize = cv::Size(this->cameraInfo.width, this->cameraInfo.height);
+
   if(haveRGB){
     std::string path;
     if(!isRGBFile){
@@ -180,7 +211,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     }
 
     this->color = cv::imread(path);
-    cv::resize(color, color, cv::Size(640, 480), 0, 0, cv::INTER_NEAREST);
+    cv::resize(color, color, imageSize, 0, 0, cv::INTER_NEAREST);
     cas.set(VIEW_COLOR_IMAGE, color);
   }
 
@@ -194,15 +225,17 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     }
 
     this->depth = cv::imread(path,  CV_LOAD_IMAGE_ANYDEPTH);
-    cv::resize(depth, depth, cv::Size(640, 480), 0, 0, cv::INTER_NEAREST);
+    cv::resize(depth, depth, imageSize, 0, 0, cv::INTER_NEAREST);
 
     if (depth.type() == CV_16UC1)
-      depth.convertTo(depth, CV_16UC1, 3000./65535, 0);
+      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor/65535, 0);
     else
-      depth.convertTo(depth, CV_16UC1, 3000./255, 0);
+      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor/255, 0);
 
     cas.set(VIEW_DEPTH_IMAGE, depth);
   }
+
+  cas.set(VIEW_CAMERA_INFO, cameraInfo);
 
   iterator++;
   if(iterator > data_size - 1){

@@ -32,12 +32,18 @@ private:
   bool haveCloud;
   bool haveRGB;
   bool haveDepth;
+  bool haveCameraInfo;
 
   cv::Mat color;
   cv::Mat depth;
 
+  double depth_scaling_factor;
+
   int iterator; // aka frameID
   int data_size;
+
+  double frameRate;
+  sensor_msgs::CameraInfo cameraInfo;
 
   void readConfig(const boost::property_tree::ptree &pt);
   void getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile);
