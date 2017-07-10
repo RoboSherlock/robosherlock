@@ -20,6 +20,7 @@
 #include <rs/segmentation/RotationalSymmetryScoring.hpp>
 
 #include <rs/occupancy_map/DistanceMap.hpp>
+#include <rs/occupancy_map/DownsampleMap.hpp>
 
 #include <rs/graph/WeightedGraph.hpp>
 
@@ -82,10 +83,12 @@ public:
     rs::SceneCas cas(tcas);
 
     //get RGB cloud
-    cas.get(VIEW_CLOUD, *sceneCloud);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    cas.get(VIEW_CLOUD, *cloud_ptr);
 
     //get normal cloud
-    cas.get(VIEW_NORMALS, *sceneNormals);
+    pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+    cas.get(VIEW_NORMALS, *normals);
 
     //get Rotational Symmteries
     std::vector<rs::RotationalSymmetry> casSymmetries;
@@ -104,6 +107,16 @@ public:
     //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
 
     //main execution
+    std::vector< std::vector<int> > dsMap;
+    std::vector<int> nearestMap;
+    DownsampleMap<pcl::PointXYZRGBA> dc;
+    dc.setInputCloud(cloud_ptr);
+    dc.setLeafSize(0.005f);
+    dc.filter(*sceneCloud);
+    dc.getDownsampleMap(dsMap);
+    dc.getNearestNeighborMap(nearestMap);
+
+    computeDownsampleNormals(normals, dsMap, nearestMap, AVERAGE, sceneNormals);
 
     return UIMA_ERR_NONE;
   }
@@ -111,13 +124,19 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
+    const std::string normalsname = this->name + "_normals";
 
     if(firstRun){
       visualizer.addPointCloud(sceneCloud, cloudname);
+      visualizer.addPointCloudNormals<pcl::PointXYZRGBA, pcl::Normal>(sceneCloud, sceneNormals, 50, 0.02f, normalsname);
+      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
     else{
       visualizer.updatePointCloud(sceneCloud, cloudname);
+      visualizer.removePointCloud(normalsname);
+      visualizer.addPointCloudNormals<pcl::PointXYZRGBA, pcl::Normal>(sceneCloud, sceneNormals, 50, 0.02f, normalsname);
+      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
   }
