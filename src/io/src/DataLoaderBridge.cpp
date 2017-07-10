@@ -13,7 +13,6 @@
 
 #include <functional>
 #include <iterator>
-#include <mutex>
 #include <sstream>
 
 
@@ -37,6 +36,12 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree& pt) : CamI
   _newData = true;
 
   this->readConfig(pt);
+
+  if (this->frameRate > 0) {
+    auto worker = std::bind(&DataLoaderBridge::updateTimerWorker, this,
+      std::chrono::milliseconds(std::lround(1000 / this->frameRate)));
+    this->updateTimerThread = std::thread(worker);
+  }
 }
 
 DataLoaderBridge::~DataLoaderBridge() {}
@@ -76,6 +81,21 @@ bool DataLoaderBridge::checkConsistency(){
     return false;
   }
   return true;
+}
+
+void DataLoaderBridge::updateTimerWorker(const std::chrono::milliseconds period) {
+  this->done = false;
+
+  while (!done) {
+    outInfo("sleep");
+    std::this_thread::sleep_for(period);
+    outInfo("wake");
+    {
+      std::lock_guard<std::mutex> lock(this->updateLock);
+      this->_newData = true;
+      outInfo("newData");
+    }
+  }
 }
 
 void DataLoaderBridge::getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile){
@@ -148,7 +168,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
     _newData = false;
   }
 
-  this->frameRate = pt.get<double>("camera_info.frameRate", 1);
+  this->frameRate = pt.get<double>("camera_info.frame_rate", -1);
   this->cameraInfo.width = pt.get<int>("camera_info.width", 640);
   this->cameraInfo.height = pt.get<int>("camera_info.height", 480);
 
@@ -178,6 +198,8 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
 bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
   if(!newData())
     return false;
+
+  outInfo("setData");
 
   rs::SceneCas cas(tcas);
 
@@ -228,9 +250,9 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     cv::resize(depth, depth, imageSize, 0, 0, cv::INTER_NEAREST);
 
     if (depth.type() == CV_16UC1)
-      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor/65535, 0);
+      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor / 65535, 0);
     else
-      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor/255, 0);
+      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor / 255, 0);
 
     cas.set(VIEW_DEPTH_IMAGE, depth);
   }
@@ -242,7 +264,12 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     if(isLoop)
       iterator = 0;
     else
-      _newData = false;
+      this->done = true;
+  }
+
+  if (this->frameRate > 0) {
+    std::lock_guard<std::mutex> lock(this->updateLock);
+    _newData = false;
   }
 
   return true;
