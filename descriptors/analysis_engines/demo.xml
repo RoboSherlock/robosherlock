@@ -144,15 +144,15 @@
     <flowConstraints>
       <fixedFlow>
        <node>CollectionReader</node>
+       <node>ImagePreprocessor</node>
        <node>NormalEstimator</node>
-       <!--<node>ImagePreprocessor</node>
-       <node>PointCloudFilter</node>
+<!--        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
        <node>ImageSegmentationAnnotator</node>
        <node>PointCloudClusterExtractor</node>
        <node>ClusterMerger</node>
-       <node>ResultAdvertiser</node>-->
+       <node>ResultAdvertiser</node> -->
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

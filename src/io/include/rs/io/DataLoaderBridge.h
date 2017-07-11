@@ -1,6 +1,9 @@
 #ifndef DATA_LOADER_BRIDGE_H
 #define DATA_LOADER_BRIDGE_H
 
+#include <thread>
+#include <mutex>
+
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
@@ -32,16 +35,27 @@ private:
   bool haveCloud;
   bool haveRGB;
   bool haveDepth;
+  bool haveCameraInfo;
 
   cv::Mat color;
   cv::Mat depth;
 
+  double depth_scaling_factor;
+
   int iterator; // aka frameID
   int data_size;
+
+  double frameRate;
+  sensor_msgs::CameraInfo cameraInfo;
+
+  bool done; // we are done reading files, no new data to be posted
+  std::thread updateTimerThread;
+  std::mutex updateLock;
 
   void readConfig(const boost::property_tree::ptree &pt);
   void getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile);
   bool checkConsistency();
+  void updateTimerWorker(const std::chrono::milliseconds period);
 public:
   DataLoaderBridge(const boost::property_tree::ptree& pt);
   ~DataLoaderBridge();
