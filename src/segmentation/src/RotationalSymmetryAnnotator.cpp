@@ -187,7 +187,7 @@ public:
     std::vector<Eigen::Vector4f> planes;
     planes.push_back(boundingPlane);
 
-    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (0.005f));
+    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
     dist_map->setBoundingPlanes(planes);
     dist_map->setInputCloud(cloud);
 

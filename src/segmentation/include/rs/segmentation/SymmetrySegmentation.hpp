@@ -17,6 +17,7 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
                                         const float radius,
                                         const int numNeighbors,
                                         WeightedGraph& graph,
+                                        const float scale_factor = 1.0f,
                                         const float sigmaConvex = 2.0f,
                                         const float sigmaConcave = 0.15f)
 {
@@ -42,9 +43,9 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
     angle = 1.0f - angle;
 
     if(n1.dot(p1 - p2) > 0)
-      weight = std::exp(-angle / sigmaConvex);
+      weight = std::exp(-angle / sigmaConvex) * scale_factor;
     else
-      weight = std::exp(-angle / sigmaConcave);
+      weight = std::exp(-angle / sigmaConcave) * scale_factor;
 
     if(!graph.setEdgeWeight(edgeId, weight)){
       outError("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");

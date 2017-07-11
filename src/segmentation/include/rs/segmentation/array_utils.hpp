@@ -72,4 +72,16 @@ inline float mean(std::vector<Type>& v){
   return static_cast<float> (sum) / static_cast<float>(v.size());
 }
 
+template<typename Type>
+ostream& operator<<(ostream& output, std::vector< std::vector<Type> >& arr){
+  for(size_t it = 0; it < arr.size(); it++){
+    output << "ID: ";
+    for(size_t subIt = 0; subIt < arr[it].size(); subIt++){
+      output << arr[it][subIt] << ' ';
+    }
+    output << '\n';
+  }
+  return output;
+}
+
 #endif
