@@ -18,6 +18,7 @@
 #include <rs/segmentation/BoundarySegmentation.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
 #include <rs/segmentation/RotationalSymmetryScoring.hpp>
+#include <rs/segmentation/SymmetrySegmentation.hpp>
 
 #include <rs/occupancy_map/DistanceMap.hpp>
 #include <rs/occupancy_map/DownsampleMap.hpp>
@@ -37,6 +38,8 @@ private:
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
   Eigen::Vector4f boundingPlane;
+
+  WeightedGraph sceneGraph;
 
   std::vector<RotationalSymmetry> symmetries;
   int numSymmetries;
@@ -117,6 +120,11 @@ public:
     dc.getNearestNeighborMap(nearestMap);
 
     computeDownsampleNormals(normals, dsMap, nearestMap, AVERAGE, sceneNormals);
+
+    //compute adjacency weigth for smoothness term
+    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, 0.01f, 9, sceneGraph))
+      outError("Could not construct adjacency graph!");
+
 
     return UIMA_ERR_NONE;
   }

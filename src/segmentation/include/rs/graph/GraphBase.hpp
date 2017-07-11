@@ -55,14 +55,14 @@ inline bool GraphBase<Vertex, Edge>::addEdge(const int v1_id, const int v2_id){
 
 template<typename Vertex, typename Edge>
 inline void GraphBase<Vertex, Edge>::clear(){
-  list_vertex.resize(0);
-  list_edge.resize(0);
+  list_vertex.clear();
+  list_edge.clear();
 }
 
 template<typename Vertex, typename Edge>
 inline void GraphBase<Vertex, Edge>::setVertices(const int numVertices){
   clear();
-  list_vertex.resize();
+  list_vertex.resize(numVertices);
 }
 
 template<typename Vertex, typename Edge>
