@@ -46,7 +46,11 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree& pt) : CamI
   }
 }
 
-DataLoaderBridge::~DataLoaderBridge() {}
+DataLoaderBridge::~DataLoaderBridge() {
+  this->done = true;
+  if (this->updateTimerThread.joinable())
+    this->updateTimerThread.join();
+}
 
 //NOTE: check if all are files or all size of data are equal
 bool DataLoaderBridge::checkConsistency(){
