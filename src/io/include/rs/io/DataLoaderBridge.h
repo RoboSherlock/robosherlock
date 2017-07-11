@@ -52,8 +52,8 @@ private:
   std::thread updateTimerThread;
   std::mutex updateLock;
 
-  void readConfig(const boost::property_tree::ptree &pt);
-  void getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile);
+  bool readConfig(const boost::property_tree::ptree &pt);
+  bool getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile);
   bool checkConsistency();
   void updateTimerWorker(const std::chrono::milliseconds period);
 public:

@@ -33,11 +33,13 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree& pt) : CamI
 
   iterator = 0;
 
-  _newData = true;
 
-  this->readConfig(pt);
+  if (this->readConfig(pt))
+    this->_newData = true;
+  else
+    this->_newData = false;
 
-  if (this->frameRate > 0) {
+  if (this->frameRate > 0 && this->_newData) {
     auto worker = std::bind(&DataLoaderBridge::updateTimerWorker, this,
       std::chrono::milliseconds(std::lround(1000 / this->frameRate)));
     this->updateTimerThread = std::thread(worker);
@@ -96,13 +98,14 @@ void DataLoaderBridge::updateTimerWorker(const std::chrono::milliseconds period)
   }
 }
 
-void DataLoaderBridge::getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile){
+bool DataLoaderBridge::getListFile(std::string& path, std::vector<std::string>& filenames, std::string& pattern, bool& isFile){
   fs::path full_path(fs::initial_path<fs::path>());
   full_path = fs::system_complete(fs::path(path));
 
   //check if path exists
   if(!fs::exists(full_path)){
-    outError("Could not found path provided! Please check again");
+    outError("Could not found path " << path << " Please check again");
+    return false;
   }
   //if it is a directory, find all relevant file
   if(fs::is_directory(full_path)){
@@ -119,17 +122,27 @@ void DataLoaderBridge::getListFile(std::string& path, std::vector<std::string>& 
   }
   else
     isFile = true;
+
+  if( (!isFile && filenames.empty()) || (isFile && path.find(pattern) == std::string::npos) ){
+    outError("No file with extension: " << pattern << " found!");
+    return false;
+  }
+
+  return true;
 }
 
 
-void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
+bool DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
   boost::optional< const boost::property_tree::ptree& > foundCloud;
   foundCloud = pt.get_child_optional( "data_path.path_to_cloud" );
+
+  bool success = true;
+
   if(foundCloud)
   {
     this->path_to_cloud = pt.get<std::string>("data_path.path_to_cloud");
     std::string cloud_extension = pt.get<std::string>("data_path.cloud_extension");
-    getListFile(path_to_cloud, clouds, cloud_extension, isCloudFile);
+    success = getListFile(path_to_cloud, clouds, cloud_extension, isCloudFile);
     std::sort(clouds.begin(), clouds.end());
     data_size = clouds.size();
     haveCloud = (data_size > 0);
@@ -141,7 +154,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
   {
     this->path_to_rgb = pt.get<std::string>("data_path.path_to_rgb");
     std::string rgb_extension = pt.get<std::string>("data_path.rgb_extension");
-    getListFile(path_to_rgb, images, rgb_extension, isRGBFile);
+    success = getListFile(path_to_rgb, images, rgb_extension, isRGBFile);
     std::sort(images.begin(), images.end());
     data_size = images.size();
     haveRGB = (data_size > 0);
@@ -153,7 +166,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
   {
     this->path_to_depth = pt.get<std::string>("data_path.path_to_depth");
     std::string depth_extension = pt.get<std::string>("data_path.depth_extension");
-    getListFile(path_to_depth, depths, depth_extension, isDepthFile);
+    success = getListFile(path_to_depth, depths, depth_extension, isDepthFile);
     std::sort(depths.begin(), depths.end());
     data_size = depths.size();
     haveDepth = (data_size > 0);
@@ -163,7 +176,7 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
 
   if(!checkConsistency()){
     outError("Provided data is not consistent, all must be a file or size of each kind of data must be equal!");
-    _newData = false;
+    success = false;
   }
 
   this->frameRate = pt.get<double>("camera_info.frame_rate", -1);
@@ -190,7 +203,9 @@ void DataLoaderBridge::readConfig(const boost::property_tree::ptree& pt){
                                        std::istream_iterator<double>()};
   std::copy(cameraDistortion.begin(), cameraDistortion.end(), this->cameraInfo.D.begin());
 
-  this->depth_scaling_factor = pt.get<int>("camera_info.depth_scaling_factor", 3000);
+  this->depth_scaling_factor = pt.get<int>("camera_info.depth_scaling_factor", 1);
+
+  return success;
 }
 
 bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
@@ -247,10 +262,10 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts){
     this->depth = cv::imread(path,  CV_LOAD_IMAGE_ANYDEPTH);
     cv::resize(depth, depth, imageSize, 0, 0, cv::INTER_NEAREST);
 
-    if (depth.type() == CV_16UC1)
-      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor / 65535, 0);
+    if (depth.type() == CV_8UC1)
+      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor, 0);
     else
-      depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor / 255, 0);
+      depth.convertTo(depth, -1, this->depth_scaling_factor, 0);
 
     cas.set(VIEW_DEPTH_IMAGE, depth);
   }
