@@ -33,6 +33,3 @@ target_link_libraries(rs_TFBroadcaster rs_core)
 
 rs_add_library(rs_ResultAdvertiser src/ResultAdvertiser.cpp)
 target_link_libraries(rs_ResultAdvertiser rs_core)
-
-rs_add_library(rs_dataLoader src/DataLoader.cpp)
-target_link_libraries(rs_dataLoader rs_core)

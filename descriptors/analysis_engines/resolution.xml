@@ -37,9 +37,6 @@
     <delegateAnalysisEngine key="CollectionReader">
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="DataLoader">
-      <import location="../annotators/io/DataLoader.xml"/>
-    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
     </delegateAnalysisEngine>
