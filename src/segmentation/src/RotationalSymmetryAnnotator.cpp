@@ -286,7 +286,8 @@ public:
     else{
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      updateSymmetryLine(visualizer, finalSymmetries, 0.4f, 0.8f);
+      visualizer.removeAllShapes();
+      addSymmetryLine(visualizer, finalSymmetries, 0.4f, 0.8f);
     }
 
   }
@@ -487,36 +488,6 @@ private:
       p2.getVector3fMap() = symmetries[symId].getOrigin() - symmetries[symId].getOrientation() * length / 2;
 
       std::string id = "sym" + std::to_string(symId);
-      visualizer.addLine(p1, p2, id);
-      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
-      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
-    }
-  }
-
-  void updateSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> >& symmetries, float length, float lineWidth){
-    for(size_t segId = 0; segId < numSegments; segId++){
-      for(size_t symId = 0; symId < symmetries[segId].size(); symId++){
-        pcl::PointXYZ p1, p2;
-        p1.getVector3fMap() = symmetries[segId][symId].getOrigin() + symmetries[segId][symId].getOrientation() * length / 2;
-        p2.getVector3fMap() = symmetries[segId][symId].getOrigin() - symmetries[segId][symId].getOrientation() * length / 2;
-
-        std::string id = "sym" + std::to_string(segId * symmetries[segId].size() + symId);
-        visualizer.removeShape(id);
-        visualizer.addLine(p1, p2, id);
-        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
-        visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
-      }
-    }
-  }
-
-  void updateSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
-    for(size_t symId = 0; symId < symmetries.size(); symId++){
-      pcl::PointXYZ p1, p2;
-      p1.getVector3fMap() = symmetries[symId].getOrigin() + symmetries[symId].getOrientation() * length / 2;
-      p2.getVector3fMap() = symmetries[symId].getOrigin() - symmetries[symId].getOrientation() * length / 2;
-
-      std::string id = "sym" + std::to_string(symId);
-      visualizer.removeShape(id);
       visualizer.addLine(p1, p2, id);
       visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
       visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);

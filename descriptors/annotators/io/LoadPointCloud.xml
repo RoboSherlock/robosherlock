@@ -26,7 +26,7 @@
         <nameValuePair>
             <name>folder</name>
             <value>
-                <string>/home/anindex/</string>
+                <string>/home/anindex/datasets/</string>
             </value>
         </nameValuePair>
         <nameValuePair>
@@ -35,6 +35,7 @@
               <array>
                   <string>cloud.pcd</string>
                   <string>cloud1.pcd</string>
+                  <string>cloud3.pcd</string>
               </array>
             </value>
         </nameValuePair>
