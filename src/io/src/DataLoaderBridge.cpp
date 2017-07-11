@@ -87,13 +87,11 @@ void DataLoaderBridge::updateTimerWorker(const std::chrono::milliseconds period)
   this->done = false;
 
   while (!done) {
-    outInfo("sleep");
     std::this_thread::sleep_for(period);
-    outInfo("wake");
     {
       std::lock_guard<std::mutex> lock(this->updateLock);
       this->_newData = true;
-      outInfo("newData");
+      //outInfo("newData");
     }
   }
 }
