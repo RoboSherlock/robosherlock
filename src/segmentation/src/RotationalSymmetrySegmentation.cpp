@@ -1,6 +1,7 @@
 #include <uima/api.hpp>
 #include <vector>
 #include <omp.h>
+#include <mutex>
 
 //PCL include
 #include <pcl/point_cloud.h>
@@ -53,8 +54,15 @@ private:
   std::vector< std::vector< float > > pointOcclusionScores;
   std::vector< std::vector< float > > pointPerpendicularScores;
 
+  std::vector< std::vector<int> > dsMap;
+
   std::vector< std::vector< float > > fgWeights;
   std::vector< std::vector< float > > bgWeights;
+
+  std::vector< std::vector<int> > dsSegmentIds;
+  std::vector< std::vector<int> > segmentIds;
+
+  std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segments;
 
   //parameters
   bool isDownsampled;
@@ -79,9 +87,12 @@ private:
   float bg_weight_factor;
 
   double pointSize;
+  int segVisIt;
+
+  std::mutex sym_mutex;
 
 public:
-  RotationalSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0) {
+  RotationalSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0) {
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
   }
@@ -131,9 +142,13 @@ public:
     pointSymScores.clear();
     pointOcclusionScores.clear();
     pointPerpendicularScores.clear();
+    dsMap.clear();
     fgWeights.clear();
     bgWeights.clear();
     symmetries.clear();
+    segmentIds.clear();
+    dsSegmentIds.clear();
+    segments.clear();
 
     //get RGB cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -168,12 +183,14 @@ public:
     pointPerpendicularScores.resize(numSymmetries);
     fgWeights.resize(numSymmetries);
     bgWeights.resize(numSymmetries);
+    segmentIds.resize(numSymmetries);
+    dsSegmentIds.resize(numSymmetries);
+    segments.resize(numSymmetries);
 
     //main execution
 
     //downsample the cloud and normal cloud to speed up segmentation
     if(isDownsampled){
-      std::vector< std::vector<int> > dsMap;
       std::vector<int> nearestMap;
       DownsampleMap<pcl::PointXYZRGBA> dc;
       dc.setInputCloud(cloud_ptr);
@@ -217,6 +234,26 @@ public:
 
         bgWeights[symId][pId] = (pointSymScores[symId][pId] * (1.0f - pointPerpendicularScores[symId][pId]) + pointOcclusionScores[symId][pId]) * bg_weight_factor;
       }
+
+      sym_mutex.lock();
+      std::vector<int> backgroundIds;
+      float max_flow = BoykovMinCut::min_cut(fgWeights[symId], bgWeights[symId], sceneGraph, dsSegmentIds[symId], backgroundIds);
+      if(max_flow < 0.0f)
+        outError("Could not segment cloud using Boykov min_cut! abort!");
+      std::cout << "Size segment: " << dsSegmentIds[symId].size() << " size sceneCloud: " << sceneCloud->points.size() << '\n';
+      if(isDownsampled)
+        upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
+      else
+        segmentIds = dsSegmentIds;
+
+      sym_mutex.unlock();
+      //TODO: compute segment score to filter false segments
+    }
+
+    //construct segment for visualizer
+    for(size_t segmentId = 0; segmentId < segmentIds.size(); segmentId++){
+      segments[segmentId] = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+      pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *segments[segmentId]);
     }
 
     return UIMA_ERR_NONE;
@@ -225,21 +262,56 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
-    const std::string normalsname = this->name + "_normals";
 
     if(firstRun){
-      visualizer.addPointCloud(sceneCloud, cloudname);
-      visualizer.addPointCloudNormals<pcl::PointXYZRGBA, pcl::Normal>(sceneCloud, sceneNormals, 50, 0.02f, normalsname);
-      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
+      visualizer.addPointCloud(segments[segVisIt], cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
+      visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
     }
     else{
-      visualizer.updatePointCloud(sceneCloud, cloudname);
-      visualizer.removePointCloud(normalsname);
-      visualizer.addPointCloudNormals<pcl::PointXYZRGBA, pcl::Normal>(sceneCloud, sceneNormals, 50, 0.02f, normalsname);
-      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
+      visualizer.removeAllShapes();
+      visualizer.updatePointCloud(segments[segVisIt], cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
+      visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
     }
+  }
+
+private:
+
+  void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
+    for(size_t symId = 0; symId < symmetries.size(); symId++){
+      pcl::PointXYZ p1, p2;
+      p1.getVector3fMap() = symmetries[symId].getOrigin() + symmetries[symId].getOrientation() * length / 2;
+      p2.getVector3fMap() = symmetries[symId].getOrigin() - symmetries[symId].getOrientation() * length / 2;
+
+      std::string id = "sym" + std::to_string(symId);
+      visualizer.addLine(p1, p2, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_LINE_WIDTH, lineWidth, id);
+      visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
+    }
+  }
+
+  bool callbackKey(const int key, const Source source)
+  {
+    switch(key)
+    {
+    case 'a':
+      segVisIt--;
+      if(segVisIt < 0)
+        segVisIt = numSymmetries - 1;
+      break;
+    case 'd':
+      segVisIt++;
+      if(segVisIt >= numSymmetries)
+        segVisIt = 0;
+      break;
+    default:
+      segVisIt = 0;
+      break;
+    }
+    return true;
   }
 };
 

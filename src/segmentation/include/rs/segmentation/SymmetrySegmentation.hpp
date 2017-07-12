@@ -61,7 +61,8 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
   return true;
 }
 
-static class BoykovMinCut{
+class BoykovMinCut{
+public:
   typedef boost::adjacency_list_traits < boost::vecS, boost::vecS, boost::directedS > Traits;
   typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
                                   boost::property < boost::vertex_name_t, std::string,
@@ -77,7 +78,7 @@ static class BoykovMinCut{
   typedef boost::property_map< GraphBoost, boost::edge_reverse_t >::type ReverseEdgeMap;
   typedef boost::property_map< GraphBoost, boost::vertex_color_t, boost::default_color_type >::type VertexColorMap;
 
-  static bool boost_add_edge(Traits::vertex_desriptor& v1, Traits::vertex_desriptor& v2, GraphBoost& graph, const float weight, CapacityMap& capacity_map, ReverseEdgeMap& reverse_edge_map){
+  static bool boost_add_edge(Traits::vertex_descriptor& v1, Traits::vertex_descriptor& v2, GraphBoost& graph, const float weight, CapacityMap& capacity_map, ReverseEdgeMap& reverse_edge_map){
     Traits::edge_descriptor edge, reverse_edge;
     bool addedEdge, addedReverseEdge;
 
@@ -90,11 +91,12 @@ static class BoykovMinCut{
     capacity_map[reverse_edge] = weight;
     reverse_edge_map[edge] = reverse_edge;
     reverse_edge_map[reverse_edge] = edge;
+    return true;
   }
 
-  static min_cut(const std::vector<float>& foreground_weights,
+  static float min_cut(const std::vector<float>& foreground_weights,
                  const std::vector<float>& background_weights,
-                 const WeightedGraph& adjacency_weights,
+                 WeightedGraph& adjacency_weights,
                  std::vector<int>& foreground_ids,
                  std::vector<int>& background_ids)
   {
@@ -105,9 +107,9 @@ static class BoykovMinCut{
 
     int numVertices = foreground_weights.size();
     GraphBoost graph;
-    std::vector<Traits::vertex_desriptor> vertices;
-    Traits::vertex_desriptor source;
-    Traits::vertex_desriptor sink;
+    std::vector<Traits::vertex_descriptor> vertices;
+    Traits::vertex_descriptor source;
+    Traits::vertex_descriptor sink;
     CapacityMap capacity = boost::get(boost::edge_capacity, graph);
     ReverseEdgeMap reverse_edge_map = boost::get(boost::edge_reverse, graph);
     VertexColorMap VertexColorMap = boost::get(boost::vertex_color, graph);
@@ -124,7 +126,7 @@ static class BoykovMinCut{
       boost_add_edge(vertices[it], sink, graph, background_weights[it], capacity, reverse_edge_map);
     }
 
-    for(size_t it = 0; it < adjacency_weights.getNumEdges(); it++){
+    for(size_t edge_id = 0; edge_id < adjacency_weights.getNumEdges(); edge_id++){
       int v1_id, v2_id;
       float weight;
 
@@ -133,8 +135,9 @@ static class BoykovMinCut{
         return false;
       }
 
-      Traits::vertex_desriptor v1 = vertices[v1_id];
-      Traits::vertex_desriptor v2 = vertices[v2_id];
+      Traits::vertex_descriptor v1 = vertices[v1_id];
+      Traits::vertex_descriptor v2 = vertices[v2_id];
+
       boost_add_edge(v1, v2, graph, weight, capacity, reverse_edge_map);
     }
 
@@ -149,6 +152,7 @@ static class BoykovMinCut{
       else
         background_ids.push_back(it);
     }
+    return max_flow;
   }
 };
 

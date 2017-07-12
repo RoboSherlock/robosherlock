@@ -168,7 +168,7 @@ inline bool computeDownsampleNormals(pcl::PointCloud<pcl::Normal>::Ptr& in_norma
   return true;
 }
 
-inline bool upsample_cloud(std::vector<int>& dsIndices,
+inline bool upsample_cloud(const std::vector<int>& dsIndices,
                            const std::vector< std::vector<int> >& dsMap,
                            std::vector<int>& usIndices)
 {
@@ -177,8 +177,8 @@ inline bool upsample_cloud(std::vector<int>& dsIndices,
     return false;
   }
 
-  for(size_t it = 0; it < dsMap.size(); it++)
-    usIndices.insert(usIndices.end(), dsMap[it].begin(), dsMap[it].end());
+  for(size_t it = 0; it < dsIndices.size(); it++)
+    usIndices.insert(usIndices.end(), dsMap[dsIndices[it]].begin(), dsMap[dsIndices[it]].end());
 
   return true;
 }

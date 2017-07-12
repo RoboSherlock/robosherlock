@@ -84,4 +84,14 @@ ostream& operator<<(ostream& output, std::vector< std::vector<Type> >& arr){
   return output;
 }
 
+template<typename Type>
+ostream& operator<<(ostream& output, std::vector<Type>& arr){
+  output << "Data: ";
+  for(size_t it = 0; it < arr.size(); it++){
+    output << arr[it] << " ";
+  }
+  output << '\n';
+  return output;
+}
+
 #endif
