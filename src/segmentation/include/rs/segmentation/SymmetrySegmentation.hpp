@@ -112,7 +112,7 @@ public:
     Traits::vertex_descriptor sink;
     CapacityMap capacity = boost::get(boost::edge_capacity, graph);
     ReverseEdgeMap reverse_edge_map = boost::get(boost::edge_reverse, graph);
-    VertexColorMap VertexColorMap = boost::get(boost::vertex_color, graph);
+    VertexColorMap vertex_color_map = boost::get(boost::vertex_color, graph);
 
     vertices.resize(numVertices + 2); // plus 2 of source and sink vertex
     for(size_t it = 0; it < static_cast<size_t>(numVertices + 2); it++)
@@ -147,7 +147,7 @@ public:
     background_ids.clear();
 
     for(size_t it = 0; it < static_cast<size_t>(numVertices); it++){
-      if(VertexColorMap(vertices[it]) == 0)
+      if(vertex_color_map(vertices[it]) == vertex_color_map(source))
         foreground_ids.push_back(it);
       else
         background_ids.push_back(it);

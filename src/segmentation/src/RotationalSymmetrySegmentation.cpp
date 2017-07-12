@@ -247,6 +247,7 @@ public:
         segmentIds = dsSegmentIds;
 
       sym_mutex.unlock();
+
       //TODO: compute segment score to filter false segments
     }
 
@@ -255,6 +256,10 @@ public:
       segments[segmentId] = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *segments[segmentId]);
     }
+
+    //avoid segmentation fault
+    if(segVisIt >= segments.size() || segVisIt < 0)
+      segVisIt = 0;
 
     return UIMA_ERR_NONE;
   }

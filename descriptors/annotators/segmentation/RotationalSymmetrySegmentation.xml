@@ -128,7 +128,7 @@
       <nameValuePair>
           <name>num_adjacency_neighbors</name>
           <value>
-              <integer>true</integer>
+              <integer>9</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -146,7 +146,7 @@
       <nameValuePair>
           <name>adjacency_weight_factor</name>
           <value>
-              <float>2.0f</float>
+              <float>2.6f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -158,7 +158,7 @@
       <nameValuePair>
           <name>max_fit_angle</name>
           <value>
-              <float>0.262f</float>
+              <float>1.255f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -170,25 +170,25 @@
       <nameValuePair>
           <name>max_occlusion_dist</name>
           <value>
-              <float>0.03f</float>
+              <float>0.155f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>max_perpendicular_angle</name>
           <value>
-              <float>0.523f</float>
+              <float>1.355f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>fg_weight_factor</name>
           <value>
-              <float>1.0f</float>
+              <float>1.8f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>bg_weight_factor</name>
           <value>
-              <float>0.5f</float>
+              <float>1.1f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
