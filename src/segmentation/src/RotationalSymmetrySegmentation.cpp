@@ -124,6 +124,17 @@ public:
     outInfo("process begins");
     rs::SceneCas cas(tcas);
 
+    //clearing previous data
+    symmetryScores.clear();
+    occlusionScores.clear();
+    smoothnessScores.clear();
+    pointSymScores.clear();
+    pointOcclusionScores.clear();
+    pointPerpendicularScores.clear();
+    fgWeights.clear();
+    bgWeights.clear();
+    symmetries.clear();
+
     //get RGB cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
     cas.get(VIEW_CLOUD, *cloud_ptr);

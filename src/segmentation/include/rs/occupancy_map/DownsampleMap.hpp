@@ -168,4 +168,19 @@ inline bool computeDownsampleNormals(pcl::PointCloud<pcl::Normal>::Ptr& in_norma
   return true;
 }
 
+inline bool upsample_cloud(std::vector<int>& dsIndices,
+                           const std::vector< std::vector<int> >& dsMap,
+                           std::vector<int>& usIndices)
+{
+  if(dsMap.empty()){
+    outError("Downsample map is null!");
+    return false;
+  }
+
+  for(size_t it = 0; it < dsMap.size(); it++)
+    usIndices.insert(usIndices.end(), dsMap[it].begin(), dsMap[it].end());
+
+  return true;
+}
+
 #endif
