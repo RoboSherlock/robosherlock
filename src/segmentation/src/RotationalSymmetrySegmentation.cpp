@@ -162,6 +162,13 @@ public:
     std::vector<rs::RotationalSymmetry> casSymmetries;
     cas.get(VIEW_ROTATIONAL_SYMMETRIES, casSymmetries);
     numSymmetries = casSymmetries.size();
+
+    if(numSymmetries < 1){
+      outWarn("No input rotational symmteries! Segmentation abort!");
+      return UIMA_ERR_NONE;
+    }
+
+
     symmetries.resize(numSymmetries);
 
     for(size_t it = 0; it < casSymmetries.size(); it++){
@@ -268,18 +275,20 @@ public:
   {
     const std::string cloudname = this->name + "_cloud";
 
-    if(firstRun){
-      visualizer.addPointCloud(segments[segVisIt], cloudname);
-      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
-      visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
-    }
-    else{
-      visualizer.removeAllShapes();
-      visualizer.updatePointCloud(segments[segVisIt], cloudname);
-      visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
-      visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
+    if(numSymmetries > 0){
+      if(firstRun){
+        visualizer.addPointCloud(segments[segVisIt], cloudname);
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
+        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
+      }
+      else{
+        visualizer.removeAllShapes();
+        visualizer.updatePointCloud(segments[segVisIt], cloudname);
+        visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        addSymmetryLine(visualizer, symmetries, 0.4f, 0.8f);
+        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(numSymmetries), 15, 125, 24, 1.0, 1.0, 1.0);
+      }
     }
   }
 

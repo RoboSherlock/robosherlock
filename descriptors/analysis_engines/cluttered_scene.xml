@@ -223,13 +223,283 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>differentAngleThreshold</name>
-        <description>Angle Threshold for extracting boundary points</description>
+        <name>min_fit_angle_annotator</name>
+        <description>Minimum fit angle of a normal to symmetry</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>EdgeCurveAnnotator/differentAngleThreshold</parameter>
+          <parameter>RotationalSymmetryAnnotator/min_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_fit_angle_annotator</name>
+        <description>Maximum fit angle of a normal to symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>min_occlusion_dist_annotator</name>
+        <description>Lower bound for occlusion scoring</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/min_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_occlusion_dist_annotator</name>
+        <description>Upper bound for occlusion scoring</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_sym_score</name>
+        <description>Maximum symmetry score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_sym_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_occlusion_score</name>
+        <description>Maximum occlusion score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_occlusion_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_perpendicular_score</name>
+        <description>Maximum perpendicular score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_perpendicular_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>min_coverage_score</name>
+        <description>Minimum coverage score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/min_coverage_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>dist_map_resolution_annotator</name>
+        <description>Resolution for distance map in point cloud</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/dist_map_resolution</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>boundaryRadiusSearch</name>
+        <description>Radius for searching boundary point</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/boundaryRadiusSearch</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>boundaryAngleThreshold</name>
+        <description>threshold different between normals to be considered boundary</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/boundaryAngleThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_angle_diff</name>
+        <description>Maximum angle difference between two symmetries to be merged</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_angle_diff</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_dist_diff</name>
+        <description>Maximum distance between two symmetries to be merged</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/max_dist_diff</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>isDownsampled</name>
+        <description>A switch to turn downsample on or off</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/isDownsampled</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>downsample_leaf_size</name>
+        <description>Leaf size to construct downsample map</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/downsample_leaf_size</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>dist_map_resolution_segmentation</name>
+        <description>Resolution for distance map in Rot Sym Segmentation</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/dist_map_resolution</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>adjacency_radius</name>
+        <description>Radius to search to construct point cloud map</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/adjacency_radius</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>num_adjacency_neighbors</name>
+        <description>Number of neighbor for construct point cloud map</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/num_adjacency_neighbors</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>adjacency_sigma_convex</name>
+        <description>Parameter compute weight between two point of same object</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/adjacency_sigma_convex</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>adjacency_sigma_concave</name>
+        <description>Parameter compute weight between two point of same object</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/adjacency_sigma_concave</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>adjacency_weight_factor</name>
+        <description>Weight importance of adjacency map</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/adjacency_weight_factor</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>min_fit_angle_segmentation</name>
+        <description>Minimum fit angle for symmetry score for each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/min_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_fit_angle_segmentation</name>
+        <description>Maximum fit angle for symmetry score for each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/max_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>min_occlusion_dist_segmentation</name>
+        <description>Lower bound for occlusion scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/min_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_occlusion_dist_segmentation</name>
+        <description>Upper bound for occlusion scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/max_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>max_perpendicular_angle</name>
+        <description>Upper bound angle for perpendicular scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/max_perpendicular_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>fg_weight_factor</name>
+        <description>Foreground weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/fg_weight_factor</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>bg_weight_factor</name>
+        <description>Background weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/bg_weight_factor</parameter>
         </overrides>
       </configurationParameter>
     </configurationParameters>
@@ -251,13 +521,13 @@
       <nameValuePair>
         <name>minNormalThreshold</name>
         <value>
-          <float>0.13</float>
+          <float>0.1</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxNormalThreshold</name>
         <value>
-          <float>0.15</float>
+          <float>0.2</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -291,9 +561,171 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>differentAngleThreshold</name>
+        <name>min_fit_angle_annotator</name>
         <value>
-          <float>1.74</float>
+          <float>0.175f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_fit_angle_annotator</name>
+        <value>
+          <float>1.047f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>min_occlusion_dist_annotator</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_occlusion_dist_annotator</name>
+        <value>
+          <float>0.03f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_sym_score</name>
+        <value>
+          <float>0.02f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_occlusion_score</name>
+        <value>
+          <float>0.012f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_perpendicular_score</name>
+        <value>
+          <float>0.6f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>min_coverage_score</name>
+        <value>
+          <float>0.3f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>dist_map_resolution_annotator</name>
+        <value>
+          <float>0.005f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>boundaryRadiusSearch</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>boundaryAngleThreshold</name>
+        <value>
+          <float>2.356f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_angle_diff</name>
+        <value>
+          <float>0.174f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_dist_diff</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>isDownsampled</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>downsample_leaf_size</name>
+        <value>
+          <float>0.005f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>dist_map_resolution_segmentation</name>
+        <value>
+          <float>0.005f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>adjacency_radius</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>num_adjacency_neighbors</name>
+        <value>
+          <integer>9</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>adjacency_sigma_convex</name>
+        <value>
+          <float>2.0f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>adjacency_sigma_concave</name>
+        <value>
+          <float>0.15f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>adjacency_weight_factor</name>
+        <value>
+          <float>3.0f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>min_fit_angle_segmentation</name>
+        <value>
+          <float>0.0f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_fit_angle_segmentation</name>
+        <value>
+          <float>1.155f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>min_occlusion_dist_segmentation</name>
+        <value>
+          <float>0.005f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_occlusion_dist_segmentation</name>
+        <value>
+          <float>0.155f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>max_perpendicular_angle</name>
+        <value>
+          <float>1.255f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>fg_weight_factor</name>
+        <value>
+          <float>2.0f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>bg_weight_factor</name>
+        <value>
+          <float>1.0f</float>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
@@ -303,7 +735,6 @@
       <!--<node>PointCloudDownsampler</node>-->
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
-      <!--<node>EdgeCurveAnnotator</node>-->
       <node>RotationalSymmetryAnnotator</node>
       <node>RotationalSymmetrySegmentation</node>
       <node>ResultAdvertiser</node>
