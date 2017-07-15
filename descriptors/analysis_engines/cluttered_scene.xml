@@ -587,19 +587,19 @@
       <nameValuePair>
         <name>max_sym_score</name>
         <value>
-          <float>0.02f</float>
+          <float>1.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>max_occlusion_score</name>
         <value>
-          <float>0.012f</float>
+          <float>0.7f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>max_perpendicular_score</name>
         <value>
-          <float>0.6f</float>
+          <float>1.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -665,13 +665,13 @@
       <nameValuePair>
         <name>num_adjacency_neighbors</name>
         <value>
-          <integer>9</integer>
+          <integer>11</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>adjacency_sigma_convex</name>
         <value>
-          <float>2.0f</float>
+          <float>2.8f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -683,7 +683,7 @@
       <nameValuePair>
         <name>adjacency_weight_factor</name>
         <value>
-          <float>3.0f</float>
+          <float>4.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -695,7 +695,7 @@
       <nameValuePair>
         <name>max_fit_angle_segmentation</name>
         <value>
-          <float>1.155f</float>
+          <float>1.055f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -707,25 +707,25 @@
       <nameValuePair>
         <name>max_occlusion_dist_segmentation</name>
         <value>
-          <float>0.155f</float>
+          <float>0.15f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>max_perpendicular_angle</name>
         <value>
-          <float>1.255f</float>
+          <float>1.055f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>fg_weight_factor</name>
         <value>
-          <float>2.0f</float>
+          <float>2.5f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>bg_weight_factor</name>
         <value>
-          <float>1.0f</float>
+          <float>1.65f</float>
         </value>
       </nameValuePair>
     </configurationParameterSettings>

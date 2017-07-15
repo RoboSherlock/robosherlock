@@ -243,11 +243,14 @@ public:
       }
 
       sym_mutex.lock();
+
       std::vector<int> backgroundIds;
-      float max_flow = BoykovMinCut::min_cut(fgWeights[symId], bgWeights[symId], sceneGraph, dsSegmentIds[symId], backgroundIds);
+      float min_cut_value;
+      float max_flow = BoykovMinCut::min_cut(fgWeights[symId], bgWeights[symId], sceneGraph, dsSegmentIds[symId], backgroundIds, min_cut_value);
+
       if(max_flow < 0.0f)
         outError("Could not segment cloud using Boykov min_cut! abort!");
-      std::cout << "Size segment: " << dsSegmentIds[symId].size() << " size sceneCloud: " << sceneCloud->points.size() << '\n';
+        
       if(isDownsampled)
         upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
       else

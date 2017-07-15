@@ -11,7 +11,7 @@
 #include <rs/occupancy_map/DownsampleMap.hpp>
 
 #include <rs/segmentation/Geometry.hpp>
-
+#include <rs/segmentation/array_utils.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/boykov_kolmogorov_max_flow.hpp>
@@ -36,7 +36,7 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
     int v1_id, v2_id;
 
     if(!graph.getEdge(edgeId, v1_id, v2_id, weight)){
-      outError("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
+      outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
       return false;
     }
 
@@ -54,7 +54,7 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
       weight = std::exp(-angle / sigmaConcave) * scale_factor;
 
     if(!graph.setEdgeWeight(edgeId, weight)){
-      outError("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
+      outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
       return false;
     }
   }
@@ -98,10 +98,11 @@ public:
                  const std::vector<float>& background_weights,
                  WeightedGraph& adjacency_weights,
                  std::vector<int>& foreground_ids,
-                 std::vector<int>& background_ids)
+                 std::vector<int>& background_ids,
+                 float& min_cut_value)
   {
     if(! (foreground_weights.size() == background_weights.size()) && (foreground_weights.size() == adjacency_weights.getNumVertices()) ){
-      outError("Input foreground_weights, background_weights and adjacency_weights is not consistent!");
+      outWarn("Input foreground_weights, background_weights and adjacency_weights is not consistent!");
       return false;
     }
 
@@ -152,8 +153,28 @@ public:
       else
         background_ids.push_back(it);
     }
+
+    //get min cut routine
+    min_cut_value = 0.0f;
+    for(size_t edgeId = 0; edgeId < adjacency_weights.getNumEdges();edgeId++){
+      int v1_id, v2_id;
+      float weight;
+      if(!adjacency_weights.getEdge(edgeId, v1_id, v2_id, weight)){
+        outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
+        return max_flow;
+      }
+
+      std::vector<int> foundIndices;
+      int v1 = vectorSearch(foreground_ids, v1_id, foundIndices);
+      int v2 = vectorSearch(foreground_ids, v2_id, foundIndices);
+
+      if((v1 > 0 && v2 == 0) || (v1 == 0 && v2 > 0))
+        min_cut_value += weight;
+    }
+
     return max_flow;
   }
+
 };
 
 #endif

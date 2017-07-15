@@ -94,4 +94,21 @@ ostream& operator<<(ostream& output, std::vector<Type>& arr){
   return output;
 }
 
+template<typename Type>
+inline int vectorSearch(std::vector<Type>& arr, const Type target, std::vector<int>& searchIndices){
+  searchIndices.clear();
+  auto it = arr.begin();
+
+  while(true){
+    it = std::find(it, arr.end(), target);
+    if(it == arr.end())
+      break;
+    else{
+      searchIndices.push_back(it - arr.end());
+      it++;
+    }
+  }
+  return searchIndices.size();
+}
+
 #endif

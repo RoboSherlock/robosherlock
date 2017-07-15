@@ -437,7 +437,7 @@ private:
         float angle, dist;
         srcSym.getRotSymDifference(tgtSym, angle, dist);
 
-        if(angle < max_angle_diff && dist < max_dist_diff)
+        if( (angle < max_angle_diff || (M_PI - angle) < max_angle_diff) && dist < max_dist_diff)
           symGraph.addEdge(srcId, tgtId);
       }
     }
