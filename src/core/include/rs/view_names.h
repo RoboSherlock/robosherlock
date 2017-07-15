@@ -43,6 +43,8 @@
 #define VIEW_NORMALS             "normals"
 
 #define VIEW_SEGMENT_IDS         "segment_ids"
+#define VIEW_ROTATIONAL_SEGMENTATION_IDS "rotational_segment_ids"
+#define VIEW_BILATERAL_SEGMENTATION_IDS "bilateral_segment_ids"
 
 #define VIEW_ROTATIONAL_SYMMETRIES "rotational_symmetries"
 #define VIEW_BILATERAL_SYMMETRIES "bilateral_symmetries"

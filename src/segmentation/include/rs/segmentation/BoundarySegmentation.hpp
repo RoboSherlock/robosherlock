@@ -15,10 +15,11 @@ template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,
   typename pcl::PointCloud<NormalT>::Ptr &normals,
-  typename pcl::PointCloud<PointT>::Ptr &boundary_cloud,
-  typename pcl::PointCloud<PointT>::Ptr &non_boundary_cloud,
-  float radiusSearch,
-  float differentAngleThreshold
+  std::vector<int>& indices,
+  std::vector<int>& boundary_indices,
+  std::vector<int>& non_boundary_indices,
+  float radiusSearch = 0.01f,
+  float differentAngleThreshold = 2.356f
 )
 {
   //initialize necessary instance
@@ -29,32 +30,26 @@ inline bool extractBoundaryCloud(
   //setting up boundary estimator
   be.setInputCloud(cloud);
   be.setInputNormals(normals);
+  be.setIndices(boost::make_shared< std::vector<int> >(indices));
   be.setRadiusSearch(radiusSearch);
   be.setAngleThreshold(differentAngleThreshold);
   be.setSearchMethod(tree);
   be.compute(boundaries);
 
   //extract boundary cloud
-  std::vector<int> boundary_indices;
-  std::vector<int> non_boundary_indices;
-
-  for(size_t it = 0; it < cloud->points.size(); it++){
-    if(boundaries.points[it].boundary_point == 1)
-        boundary_indices.push_back(it);
+  for(size_t it = 0; it < indices.size(); it++){
+    int pointId = indices[it];
+    if(boundaries.points[pointId].boundary_point == 1)
+        boundary_indices.push_back(pointId);
     else
-        non_boundary_indices.push_back(it);
+        non_boundary_indices.push_back(pointId);
   }
 
-  pcl::copyPointCloud(*cloud, boundary_indices, *boundary_cloud);
-  pcl::copyPointCloud(*cloud, non_boundary_indices, *non_boundary_cloud);
-
-  if(boundary_cloud->points.size() <= 0){
+  if(boundary_indices.size() <= 0){
     outError("Could not extract boundary points!");
     return false;
   }
-  else{
-    return true;
-  }
+  return true;
 }
 
 template <typename PointT, typename NormalT>
@@ -63,39 +58,40 @@ inline bool extractBoundaryCloud(
   typename pcl::PointCloud<NormalT>::Ptr &normals,
   std::vector<int>& boundary_indices,
   std::vector<int>& non_boundary_indices,
-  float radiusSearch,
-  float differentAngleThreshold
+  float radiusSearch = 0.01f,
+  float differentAngleThreshold = 2.356f
 )
 {
-  //initialize necessary instance
-  pcl::PointCloud<pcl::Boundary> boundaries;
-  pcl::BoundaryEstimation<PointT, NormalT, pcl::Boundary> be;
-  typename pcl::search::KdTree<PointT>::Ptr tree (new pcl::search::KdTree<PointT>());
-
-  //setting up boundary estimator
-  be.setInputCloud(cloud);
-  be.setInputNormals(normals);
-  be.setRadiusSearch(radiusSearch);
-  be.setAngleThreshold(differentAngleThreshold);
-  be.setSearchMethod(tree);
-  be.compute(boundaries);
-
-  //extract boundary cloud
-  for(size_t it = 0; it < cloud->points.size(); it++){
-    if(boundaries.points[it].boundary_point == 1)
-        boundary_indices.push_back(it);
-    else
-        non_boundary_indices.push_back(it);
+  //create fake indices
+  std::vector<int> indices(cloud->points.size());
+  for(size_t it = 0; it < cloud->points.size();it++){
+    indices[it] = it;
   }
-
-  if(boundary_indices.size() <= 0){
-    outError("Could not extract boundary points!");
-    return false;
-  }
-  else{
-    return true;
-  }
+  return extractBoundaryCloud<PointT, NormalT>(cloud, normals, indices, boundary_indices, non_boundary_indices, radiusSearch, differentAngleThreshold);
 }
 
+template <typename PointT, typename NormalT>
+inline bool extractBoundaryCloud(
+  typename pcl::PointCloud<PointT>::Ptr &cloud,
+  typename pcl::PointCloud<NormalT>::Ptr &normals,
+  typename pcl::PointCloud<PointT>::Ptr &boundary_cloud,
+  typename pcl::PointCloud<PointT>::Ptr &non_boundary_cloud,
+  float radiusSearch = 0.01f,
+  float differentAngleThreshold = 2.356f
+)
+{
+  boundary_cloud.reset(new pcl::PointCloud<PointT>);
+  non_boundary_cloud.reset(new pcl::PointCloud<PointT>);
+
+  std::vector<int> boundary_indices;
+  std::vector<int> non_boundary_indices;
+  bool success = extractBoundaryCloud<PointT, NormalT>(cloud, normals, boundary_indices, non_boundary_indices, radiusSearch, differentAngleThreshold);
+  if (success){
+    pcl::copyPointCloud(*cloud, boundary_indices, *boundary_cloud);
+    pcl::copyPointCloud(*cloud, non_boundary_indices, *non_boundary_cloud);
+  }
+
+  return success;
+}
 
 #endif

@@ -99,6 +99,30 @@
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
+      <configurationParameter>
+          <name>max_sym_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>max_occlusion_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>max_cut_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>min_segment_size</name>
+          <type>Integer</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -189,6 +213,30 @@
           <name>bg_weight_factor</name>
           <value>
               <float>1.0f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>max_sym_score</name>
+          <value>
+              <float>0.4f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>max_occlusion_score</name>
+          <value>
+              <float>0.03f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>max_cut_score</name>
+          <value>
+              <float>0.3f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>min_segment_size</name>
+          <value>
+              <integer>800</integer>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
