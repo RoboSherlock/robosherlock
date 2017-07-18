@@ -14,6 +14,11 @@ inline Type clamp(Type val, Type minVal, Type maxVal){
 }
 
 template<class Type>
+inline Type pointToPointNorm(const Eigen::Matrix<Type, 3, 1>& point1, const Eigen::Matrix<Type, 3, 1>& point2){
+  return (point2 - point1).norm();
+}
+
+template<class Type>
 inline Type pointToLineNorm(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& linePoint1, const Eigen::Matrix<Type, 3, 1>& linePoint2){
   return (point - linePoint1).cross(point - linePoint2).norm() / (linePoint2 - linePoint1).norm();
 }
