@@ -738,8 +738,9 @@
       <!--<node>PointCloudDownsampler</node>-->
       <node>NormalEstimator</node>
       <node>OverSegmentationAnnotator</node>
-      <node>RotationalSymmetryAnnotator</node>
-      <node>RotationalSymmetrySegmentation</node>
+      <!--<node>RotationalSymmetryAnnotator</node>
+      <node>RotationalSymmetrySegmentation</node>-->
+      <node>BilateralSymmetryAnnotator</node>
       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>

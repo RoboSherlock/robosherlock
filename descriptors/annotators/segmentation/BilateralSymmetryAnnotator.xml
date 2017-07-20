@@ -9,8 +9,20 @@
     <version>1.0</version>
     <vendor/>
     <configurationParameters>
+      <configurationParameter>
+          <name>angle_division</name>
+          <type>Integer</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+      <nameValuePair>
+          <name>angle_division</name>
+          <value>
+              <integer>2</integer>
+          </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <typeSystemDescription>
         <imports>

@@ -119,5 +119,76 @@ inline Type angleDifferent(const Type angle1, const Type angle2){
   return result;
 }
 
+inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f> &points)
+{
+  points.clear();
+
+  if(division < 2)
+  {
+    return false;
+  }
+
+  const float step = M_PI / division;
+  bool polarPoint = (division % 2) == 0;
+
+  if(polarPoint)
+  {
+    points.push_back(Eigen::Vector3f::UnitZ());
+  }
+
+  Eigen::Matrix3f rotation;
+  std::vector<Eigen::Vector3f> equator;
+  equator.push_back(Eigen::Vector3f::UnitX());
+  for(size_t it = 1; it < division; it++)
+  {
+    rotation = Eigen::AngleAxisf(step * it, Eigen::Vector3f::UnitZ());
+    equator.push_back(rotation * equator[0]);
+  }
+  points.insert(points.end(), equator.begin(), equator.end());
+
+  Eigen::Vector3f rotAxis;
+  for(size_t it = 1; it < division; it++)
+  {
+    if(polarPoint && it * 2 == division)
+    {
+      continue;
+    }
+
+    for(size_t equatorId = 0; equatorId < equator.size(); equatorId++)
+    {
+      rotAxis = equator[equatorId].cross(Eigen::Vector3f::UnitZ());
+      rotation = Eigen::AngleAxisf(step * it, rotAxis);
+      points.push_back(rotation * equator[equatorId]);
+    }
+  }
+
+  return true;
+}
+
+template<typename Type>
+inline Eigen::Matrix<Type, 3, 3> getAlignMatrix(Eigen::Vector3f source, Eigen::Vector3f target)
+{
+  source.normalize();
+  target.normalize();
+
+  if(source == target)
+  {
+    return Eigen::Matrix<Type, 3, 3>::Identity();
+  }
+
+  Eigen::Matrix<Type, 1, 3> k = source.cross(target);
+  Type sinTheta = k.norm();
+  Type cosTheta = target.dot(source);
+
+  Eigen::Matrix<Type, 3, 3> K;
+  K <<  0, -k(2), -k(1),
+     k(2),     0, -k(0),
+    -k(1),  k(0),     0;
+
+  Eigen::Matrix<Type, 3, 3> R;
+  R = Eigen::Matrix<Type, 3, 3>::Identity() + sinTheta * K + (1 - cosTheta) * K * K;
+  return R;
+}
+
 
 #endif

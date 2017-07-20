@@ -62,12 +62,6 @@ public:
     return (normal - 2 * normal.dot(this->normal) * this->normal);
   }
 
-  std::ostream& operator<<(std::ostream& output, const BilateralSymmetry& symmetry){
-    output << "Origin: " << symmetry.getOrigin().tranpose() << '\n';
-    output << "Normal: " << symmetry.getNormal().tranpose() << '\n';
-    return output;
-  }
-
   inline float getBilSymNormalFitError(const Eigen::Vector3f& normal1, const Eigen::Vector3f& normal2){
     Eigen::Vector3f reflectedNormal2 = reflectNormal(normal2);
     float value = clamp(reflectedNormal2.dot(normal1), -1.0f, 1.0f);
@@ -79,5 +73,11 @@ public:
     return pointSignedDist(mid);
   }
 };
+
+std::ostream& operator<<(std::ostream& output, const BilateralSymmetry& symmetry){
+  output << "Origin: " << symmetry.getOrigin().transpose() << '\n';
+  output << "Normal: " << symmetry.getNormal().transpose() << '\n';
+  return output;
+}
 
 #endif
