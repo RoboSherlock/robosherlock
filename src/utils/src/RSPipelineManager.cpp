@@ -81,7 +81,7 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
     }
 
     // Right now, we just skip this annotator if it can't be found.
-    outInfo("Warning in RSPipelineManager::setPipelineOrdering : " << annotators.at(i) <<
+    outWarn(annotators.at(i) <<
             " can't be found in your loaded AnalysisEngine. Maybe it has not been "
             "defined in your given AnalysisEngine XML file? - Skipping it....");
     // return;
