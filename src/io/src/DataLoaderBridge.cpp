@@ -19,6 +19,8 @@
 
 #include <rs/io/DataLoaderBridge.h>
 
+#include <ros/package.h>
+
 //PCL includes
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -162,13 +164,23 @@ void DataLoaderBridge::updateTimerWorker(const std::chrono::milliseconds period)
 bool DataLoaderBridge::getListFile(std::string &path, std::vector<std::string> &filenames, std::string &pattern, bool &isFile)
 {
   fs::path full_path(fs::initial_path<fs::path>());
-  full_path = fs::system_complete(fs::path(path));
+  fs::path relative_path(fs::initial_path<fs::path>());
+
+  relative_path = fs::path(ros::package::getPath("robosherlock") + path);
+  full_path = fs::path(path);
 
   //check if path exists
-  if(!fs::exists(full_path))
+  if(!fs::exists(relative_path))
   {
-    outError("Could not found path " << path << " Please check again");
-    return false;
+    if(!fs::exists(full_path))
+    {
+      outError("Could not found relative path: " << relative_path << " and full path: " << full_path);
+      return false;
+    }
+  }
+  else
+  {
+    full_path = relative_path;
   }
 
   //if it is a directory, find all relevant file
