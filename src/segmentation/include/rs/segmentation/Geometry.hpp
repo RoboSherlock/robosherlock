@@ -4,6 +4,10 @@
 #include <eigen3/Eigen/Dense>
 #include <cmath>
 
+#include <rs/utils/output.h>
+
+#include <pcl/search/kdtree.h>
+#include <pcl/registration/correspondence_rejection_one_to_one.h>
 
 template<typename Type>
 inline Type clamp(Type val, Type minVal, Type maxVal){
@@ -60,6 +64,16 @@ template<class Type>
 inline Eigen::Matrix<Type, 3, 1> pointToPlaneProjection(const Eigen::Matrix<Type, 3, 1>& point, const Eigen::Matrix<Type, 3, 1>& planePoint, const Eigen::Matrix<Type, 3, 1>& planeNormal){
   Eigen::Matrix<Type, 3, 1> line = point - planePoint;
   return point - planeNormal * pointToPlaneSignedNorm(point, planePoint, planeNormal);
+}
+
+template<typename PointT>
+inline void cloudToPlaneProjection(typename pcl::PointCloud<PointT>::Ptr &cloud_in, const Eigen::Vector3f &planePoint, const Eigen::Vector3f &planeNormal, typename pcl::PointCloud<PointT>::Ptr &cloud_out)
+{
+  cloud_out = cloud_in;
+  for(size_t pointId = 0; pointId < cloud_in->points.size(); pointId++)
+  {
+    cloud_out->points[pointId].getVector3fMap() = pointToPlaneProjection<float>(cloud_in->points[pointId].getVector3fMap(), planePoint, planeNormal);
+  }
 }
 
 template<class Type>
@@ -129,7 +143,7 @@ inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f>
   }
 
   const float step = M_PI / division;
-  bool polarPoint = (division % 2) == 0;
+  bool polarPoint = (division % 2 == 0);
 
   if(polarPoint)
   {
@@ -141,7 +155,7 @@ inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f>
   equator.push_back(Eigen::Vector3f::UnitX());
   for(size_t it = 1; it < division; it++)
   {
-    rotation = Eigen::AngleAxisf(step * it, Eigen::Vector3f::UnitZ());
+    rotation = Eigen::AngleAxisf(static_cast<float>(step * it), Eigen::Vector3f::UnitZ());
     equator.push_back(rotation * equator[0]);
   }
   points.insert(points.end(), equator.begin(), equator.end());
@@ -157,7 +171,7 @@ inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f>
     for(size_t equatorId = 0; equatorId < equator.size(); equatorId++)
     {
       rotAxis = equator[equatorId].cross(Eigen::Vector3f::UnitZ());
-      rotation = Eigen::AngleAxisf(step * it, rotAxis);
+      rotation = Eigen::AngleAxisf(static_cast<float>(step * it), rotAxis);
       points.push_back(rotation * equator[equatorId]);
     }
   }
@@ -189,6 +203,5 @@ inline Eigen::Matrix<Type, 3, 3> getAlignMatrix(Eigen::Vector3f source, Eigen::V
   R = Eigen::Matrix<Type, 3, 3>::Identity() + sinTheta * K + (1 - cosTheta) * K * K;
   return R;
 }
-
 
 #endif

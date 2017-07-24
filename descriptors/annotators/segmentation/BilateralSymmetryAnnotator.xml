@@ -10,17 +10,77 @@
     <vendor/>
     <configurationParameters>
       <configurationParameter>
+          <name>isDownsampled</name>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>downsample_voxel_size</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
           <name>angle_division</name>
           <type>Integer</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>correspondence_search_radius</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>correspondence_max_normal_fit_error</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>correspondence_min_sym_dist</name>
+          <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
+          <name>isDownsampled</name>
+          <value>
+              <boolean>false</boolean>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>downsample_voxel_size</name>
+          <value>
+              <float>0.005f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
           <name>angle_division</name>
           <value>
-              <integer>2</integer>
+              <integer>3</integer>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>correspondence_search_radius</name>
+          <value>
+              <float>0.01f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>correspondence_max_normal_fit_error</name>
+          <value>
+              <float>0.174f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>correspondence_min_sym_dist</name>
+          <value>
+              <float>0.02f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>

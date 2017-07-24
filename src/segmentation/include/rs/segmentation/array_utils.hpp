@@ -73,6 +73,13 @@ inline float mean(std::vector<Type>& v){
 }
 
 template<typename Type>
+inline Type median(std::vector<Type>& v){
+  std::vector<Type> copied(v);
+  std::nth_element(copied.begin(), copied.begin() + copied.size()/2, copied.end());
+  return copied[copied.size()/2];
+}
+
+template<typename Type>
 ostream& operator<<(ostream& output, std::vector< std::vector<Type> >& arr){
   for(size_t it = 0; it < arr.size(); it++){
     output << "ID: ";
