@@ -268,7 +268,6 @@ private:
         }
 
         float medianError = median<float>(positionFitErrors);
-        std::cout << medianError << '\n';
         refined_symmetries[symId].setOrigin(initial_symmetries[symId].getOrigin() + initial_symmetries[symId].getNormal() * medianError);
       }
     }

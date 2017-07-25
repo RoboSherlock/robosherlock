@@ -50,7 +50,7 @@
       <nameValuePair>
           <name>isDownsampled</name>
           <value>
-              <boolean>false</boolean>
+              <boolean>true</boolean>
           </value>
       </nameValuePair>
       <nameValuePair>
