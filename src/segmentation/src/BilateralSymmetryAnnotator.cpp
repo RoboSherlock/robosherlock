@@ -51,6 +51,7 @@ private:
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
   float correspondence_min_sym_dist;
+  float correspondence_max_sym_reflected_dist;
 
   int numSegments;
 
@@ -73,6 +74,8 @@ public:
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
     ctx.extractValue("correspondence_min_sym_dist", correspondence_min_sym_dist);
+    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+
 
     return UIMA_ERR_NONE;
   }
@@ -152,25 +155,22 @@ public:
         segmentDSNormals[segmentId] = segmentNormals[segmentId];
       }
 
+      pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGBA>());
+      tree->setInputCloud(segmentClouds[segmentId]);
+
       detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId], angle_division);
 
-      segmentRefinedSymmetries[segmentId].resize(segmentInitialSymmetries[segmentId].size());
-
-      #pragma omp parallel for
-      for(size_t symId = 0; symId < segmentInitialSymmetries[segmentId].size(); symId++)
-      {
-        pcl::Correspondences symCorrespondences;
-        refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
-                                                           segmentNormals[segmentId],
-                                                           segmentDSClouds[segmentId],
-                                                           segmentDSNormals[segmentId],
-                                                           segmentInitialSymmetries[segmentId][symId],
-                                                           segmentRefinedSymmetries[segmentId][symId],
-                                                           symCorrespondences,
-                                                           correspondence_search_radius,
-                                                           correspondence_max_normal_fit_error,
-                                                           correspondence_min_sym_dist);
-      }
+      refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+                                                         segmentNormals[segmentId],
+                                                         segmentDSClouds[segmentId],
+                                                         segmentDSNormals[segmentId],
+                                                         tree,
+                                                         segmentInitialSymmetries[segmentId],
+                                                         segmentRefinedSymmetries[segmentId],
+                                                         correspondence_search_radius,
+                                                         correspondence_max_normal_fit_error,
+                                                         correspondence_min_sym_dist,
+                                                         correspondence_max_sym_reflected_dist);
     }
 
     return UIMA_ERR_NONE;
@@ -235,32 +235,48 @@ private:
                                               pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                               typename pcl::PointCloud<PointT>::Ptr &dsCloud,
                                               pcl::PointCloud<pcl::Normal>::Ptr &dsNormals,
-                                              BilateralSymmetry &symmetry,
-                                              BilateralSymmetry &refinedSymmetry,
-                                              pcl::Correspondences &correspondences,
+                                              typename pcl::search::KdTree<PointT>::Ptr &tree,
+                                              std::vector<BilateralSymmetry> &initial_symmetries,
+                                              std::vector<BilateralSymmetry> &refined_symmetries,
                                               float search_radius = 0.01f,
                                               float max_normal_fit_error = 0.174f,
-                                              float min_sym_corresspondence_dist = 0.02f)
+                                              float min_sym_corresspondence_dist = 0.02f,
+                                              float max_sym_reflected_dist = 0.005f)
   {
-    refinedSymmetry = symmetry;
 
-    bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, symmetry, correspondences, search_radius, max_normal_fit_error, min_sym_corresspondence_dist);
-
-    if(success)
+    if(cloud->size() == 0 || dsCloud->size() == 0)
     {
-      std::vector<float> positionFitErrors(correspondences.size());
-      for(size_t it = 0; it < correspondences.size(); it++)
-      {
-        int queryId = correspondences[it].index_query;
-        int matchId = correspondences[it].index_match;
-        positionFitErrors[it] = symmetry.getBilSymPositionFitError(dsCloud->points[queryId].getVector3fMap(), cloud->points[matchId].getVector3fMap());
-      }
-
-      float medianError = median<float>(positionFitErrors);
-
-      refinedSymmetry.setOrigin(symmetry.getOrigin() + symmetry.getNormal() * medianError);
+      outWarn("No point in cloud! Cloud need at least one point!");
+      return false;
     }
-    return success;
+
+    refined_symmetries.resize(initial_symmetries.size());
+
+    #pragma omp parallel for
+    for(size_t symId = 0; symId < initial_symmetries.size(); symId++)
+    {
+      pcl::Correspondences symCorrespondences;
+
+      refined_symmetries[symId] = initial_symmetries[symId];
+
+      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, max_sym_reflected_dist);
+
+      if(success)
+      {
+        std::vector<float> positionFitErrors(symCorrespondences.size());
+        for(size_t it = 0; it < symCorrespondences.size(); it++)
+        {
+          int queryId = symCorrespondences[it].index_query;
+          int matchId = symCorrespondences[it].index_match;
+          positionFitErrors[it] = initial_symmetries[symId].getBilSymPositionFitError(dsCloud->points[queryId].getVector3fMap(), cloud->points[matchId].getVector3fMap());
+        }
+
+        float medianError = median<float>(positionFitErrors);
+
+        refined_symmetries[symId].setOrigin(initial_symmetries[symId].getOrigin() + initial_symmetries[symId].getNormal() * medianError);
+      }
+    }
+    return true;
   }
 
   inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)

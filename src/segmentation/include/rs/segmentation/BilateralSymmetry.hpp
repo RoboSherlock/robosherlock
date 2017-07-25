@@ -80,7 +80,7 @@ std::ostream& operator<<(std::ostream& output, const BilateralSymmetry& symmetry
   return output;
 }
 
-template<typename PointT>
+/*template<typename PointT>
 inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                                  pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                                  typename pcl::PointCloud<PointT>::Ptr &dsCloud,
@@ -134,6 +134,7 @@ inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT
       }
 
       float currNormalFitError = symmetry.getBilSymNormalFitError(srcNormal, tgtNormal);
+      std::cout << "currNormalFitError: " << currNormalFitError << '\n';
       if(currNormalFitError > max_normal_fit_error)
       {
         continue;
@@ -150,6 +151,77 @@ inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT
     {
       correspondences.push_back(pcl::Correspondence(pointId, bestId, minNormalFitError));
     }
+  }
+
+  pcl::registration::CorrespondenceRejectorOneToOne corresRejectOneToOne;
+  corresRejectOneToOne.getRemainingCorrespondences(correspondences, correspondences);
+
+  if(correspondences.size() == 0)
+  {
+    return false;
+  }
+  return true;
+}*/
+
+template<typename PointT>
+inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                                 pcl::PointCloud<pcl::Normal>::Ptr &normals,
+                                                 typename pcl::PointCloud<PointT>::Ptr &dsCloud,
+                                                 pcl::PointCloud<pcl::Normal>::Ptr &dsNormals,
+                                                 typename pcl::search::KdTree<PointT>::Ptr &tree,
+                                                 BilateralSymmetry &symmetry,
+                                                 pcl::Correspondences &correspondences,
+                                                 float search_radius = 0.01f,
+                                                 float max_normal_fit_error = 0.174f,
+                                                 float min_sym_corresspondence_dist = 0.02f,
+                                                 float max_sym_reflected_dist = 0.005f
+                                                 )
+{
+  if(cloud->size() == 0 || dsCloud->size() == 0)
+  {
+    outWarn("No point in cloud! Cloud need at least one point!");
+    return false;
+  }
+
+  correspondences.clear();
+  Eigen::Vector3f symOrigin = symmetry.getOrigin();
+  Eigen::Vector3f symNormal = symmetry.getNormal();
+
+  for(size_t pointId = 0; pointId < dsCloud->size(); pointId++)
+  {
+    Eigen::Vector3f srcPoint = dsCloud->points[pointId].getVector3fMap();
+    Eigen::Vector3f srcNormal(dsNormals->points[pointId].normal_x, dsNormals->points[pointId].normal_y, dsNormals->points[pointId].normal_z);
+
+    Eigen::Vector3f reflectedSrcPoint = symmetry.reflectPoint(srcPoint);
+    Eigen::Vector3f reflectedSrcNormal = symmetry.reflectNormal(srcNormal);
+
+    std::vector<float> dists(1);
+    std::vector<int> neighborIndices(1);
+    PointT searchPoint;
+    searchPoint.getVector3fMap() = reflectedSrcPoint;
+
+    tree->radiusSearch(searchPoint, search_radius, neighborIndices, dists);
+
+    Eigen::Vector3f tgtPoint = cloud->points[neighborIndices[0]].getVector3fMap();
+    Eigen::Vector3f tgtNormal(normals->points[neighborIndices[0]].normal_x, normals->points[neighborIndices[0]].normal_y, normals->points[neighborIndices[0]].normal_z);
+
+    if(std::abs(symmetry.pointSignedDist(srcPoint) - symmetry.pointSignedDist(tgtPoint)) < min_sym_corresspondence_dist)
+    {
+      continue;
+    }
+
+    if(dists[0] > max_sym_reflected_dist * max_sym_reflected_dist)
+    {
+      continue;
+    }
+
+    float normalError = symmetry.getBilSymNormalFitError(reflectedSrcNormal, tgtNormal);
+    if(normalError > max_normal_fit_error)
+    {
+      continue;
+    }
+
+    correspondences.push_back(pcl::Correspondence(pointId, neighborIndices[0], normalError));
   }
 
   pcl::registration::CorrespondenceRejectorOneToOne corresRejectOneToOne;
