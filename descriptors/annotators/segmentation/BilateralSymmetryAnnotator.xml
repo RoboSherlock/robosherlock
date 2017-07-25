@@ -45,12 +45,6 @@
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
-      <configurationParameter>
-          <name>correspondence_max_sym_reflected_dist</name>
-          <type>Float</type>
-          <multiValued>false</multiValued>
-          <mandatory>true</mandatory>
-      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -87,12 +81,6 @@
           <name>correspondence_min_sym_dist</name>
           <value>
               <float>0.02f</float>
-          </value>
-      </nameValuePair>
-      <nameValuePair>
-          <name>correspondence_max_sym_reflected_dist</name>
-          <value>
-              <float>0.005f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>

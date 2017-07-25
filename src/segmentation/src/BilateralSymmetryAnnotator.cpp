@@ -51,7 +51,6 @@ private:
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
   float correspondence_min_sym_dist;
-  float correspondence_max_sym_reflected_dist;
 
   int numSegments;
 
@@ -74,7 +73,6 @@ public:
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
     ctx.extractValue("correspondence_min_sym_dist", correspondence_min_sym_dist);
-    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
 
 
     return UIMA_ERR_NONE;
@@ -169,8 +167,7 @@ public:
                                                          segmentRefinedSymmetries[segmentId],
                                                          correspondence_search_radius,
                                                          correspondence_max_normal_fit_error,
-                                                         correspondence_min_sym_dist,
-                                                         correspondence_max_sym_reflected_dist);
+                                                         correspondence_min_sym_dist);
     }
 
     return UIMA_ERR_NONE;
@@ -240,8 +237,7 @@ private:
                                               std::vector<BilateralSymmetry> &refined_symmetries,
                                               float search_radius = 0.01f,
                                               float max_normal_fit_error = 0.174f,
-                                              float min_sym_corresspondence_dist = 0.02f,
-                                              float max_sym_reflected_dist = 0.005f)
+                                              float min_sym_corresspondence_dist = 0.02f)
   {
 
     if(cloud->size() == 0 || dsCloud->size() == 0)
@@ -259,7 +255,7 @@ private:
 
       refined_symmetries[symId] = initial_symmetries[symId];
 
-      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, max_sym_reflected_dist);
+      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, search_radius, max_normal_fit_error, min_sym_corresspondence_dist);
 
       if(success)
       {
@@ -272,7 +268,7 @@ private:
         }
 
         float medianError = median<float>(positionFitErrors);
-
+        std::cout << medianError << '\n';
         refined_symmetries[symId].setOrigin(initial_symmetries[symId].getOrigin() + initial_symmetries[symId].getNormal() * medianError);
       }
     }

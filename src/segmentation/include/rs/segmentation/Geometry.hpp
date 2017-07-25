@@ -195,7 +195,7 @@ inline Eigen::Matrix<Type, 3, 3> getAlignMatrix(Eigen::Vector3f source, Eigen::V
   Type cosTheta = target.dot(source);
 
   Eigen::Matrix<Type, 3, 3> K;
-  K <<  0, -k(2), -k(1),
+  K <<  0, -k(2), k(1),
      k(2),     0, -k(0),
     -k(1),  k(0),     0;
 

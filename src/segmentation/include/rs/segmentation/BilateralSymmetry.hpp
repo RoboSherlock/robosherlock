@@ -173,8 +173,7 @@ inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT
                                                  pcl::Correspondences &correspondences,
                                                  float search_radius = 0.01f,
                                                  float max_normal_fit_error = 0.174f,
-                                                 float min_sym_corresspondence_dist = 0.02f,
-                                                 float max_sym_reflected_dist = 0.005f
+                                                 float min_sym_corresspondence_dist = 0.02f
                                                  )
 {
   if(cloud->size() == 0 || dsCloud->size() == 0)
@@ -195,33 +194,44 @@ inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT
     Eigen::Vector3f reflectedSrcPoint = symmetry.reflectPoint(srcPoint);
     Eigen::Vector3f reflectedSrcNormal = symmetry.reflectNormal(srcNormal);
 
-    std::vector<float> dists(1);
-    std::vector<int> neighborIndices(1);
+    std::vector<float> dists;
+    std::vector<int> neighborIndices;
     PointT searchPoint;
     searchPoint.getVector3fMap() = reflectedSrcPoint;
 
     tree->radiusSearch(searchPoint, search_radius, neighborIndices, dists);
 
-    Eigen::Vector3f tgtPoint = cloud->points[neighborIndices[0]].getVector3fMap();
-    Eigen::Vector3f tgtNormal(normals->points[neighborIndices[0]].normal_x, normals->points[neighborIndices[0]].normal_y, normals->points[neighborIndices[0]].normal_z);
-
-    if(std::abs(symmetry.pointSignedDist(srcPoint) - symmetry.pointSignedDist(tgtPoint)) < min_sym_corresspondence_dist)
+    int bestId = -1;
+    float minNormalFitError = std::numeric_limits<float>::max();
+    for(size_t it = 0; it < neighborIndices.size(); it++)
     {
-      continue;
+      int id = neighborIndices[it];
+      Eigen::Vector3f tgtPoint = cloud->points[id].getVector3fMap();
+      Eigen::Vector3f tgtNormal(normals->points[id].normal_x, normals->points[id].normal_y, normals->points[id].normal_z);
+
+      if(std::abs(symmetry.pointSignedDist(srcPoint) - symmetry.pointSignedDist(tgtPoint)) < min_sym_corresspondence_dist)
+      {
+        continue;
+      }
+
+      float currNormalFitError = symmetry.getBilSymNormalFitError(reflectedSrcNormal, tgtNormal);
+
+      if(currNormalFitError > max_normal_fit_error)
+      {
+        continue;
+      }
+
+      if(currNormalFitError < minNormalFitError)
+      {
+        minNormalFitError = currNormalFitError;
+        bestId = id;
+      }
     }
 
-    if(dists[0] > max_sym_reflected_dist * max_sym_reflected_dist)
+    if(bestId != -1)
     {
-      continue;
+      correspondences.push_back(pcl::Correspondence(pointId, bestId, minNormalFitError));
     }
-
-    float normalError = symmetry.getBilSymNormalFitError(reflectedSrcNormal, tgtNormal);
-    if(normalError > max_normal_fit_error)
-    {
-      continue;
-    }
-
-    correspondences.push_back(pcl::Correspondence(pointId, neighborIndices[0], normalError));
   }
 
   pcl::registration::CorrespondenceRejectorOneToOne corresRejectOneToOne;
