@@ -71,7 +71,6 @@ struct BilSymOptimizeFunctor : OptimizationFunctor<float>
   typename pcl::PointCloud<pcl::Normal>::Ptr normals;
   typename pcl::PointCloud<PointT>::Ptr dsCloud;
 
-  DistanceMap<PointT> distMap;
   pcl::Correspondences correspondences;
 
   BilSymOptimizeFunctor() {};
@@ -96,7 +95,7 @@ struct BilSymOptimizeFunctor : OptimizationFunctor<float>
       Eigen::Vector3f reflectedTgtPoint = symmetry.reflectPoint(tgtPoint);
       Eigen::Vector3f reflectedTgtNormal = symmetry.reflectPoint(tgtNormal);
 
-      fvec(i) = std::abs(pointToPlaneSignedNorm<float>(srcPoint, reflectedTgtPoint, reflectedTgtNormal));
+      fvec(it) = std::abs(pointToPlaneSignedNorm<float>(srcPoint, reflectedTgtPoint, reflectedTgtNormal));
     }
 
     return 0;

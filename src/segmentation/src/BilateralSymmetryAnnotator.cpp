@@ -51,6 +51,9 @@ private:
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
   float correspondence_min_sym_dist;
+  float correspondence_max_sym_reflected_dist;
+
+  int refine_max_iteration;
 
   int numSegments;
 
@@ -73,6 +76,9 @@ public:
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
     ctx.extractValue("correspondence_min_sym_dist", correspondence_min_sym_dist);
+    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+
+    ctx.extractValue("refine_max_iteration", refine_max_iteration);
 
 
     return UIMA_ERR_NONE;
@@ -158,16 +164,39 @@ public:
 
       detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId], angle_division);
 
-      refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
-                                                         segmentNormals[segmentId],
-                                                         segmentDSClouds[segmentId],
-                                                         segmentDSNormals[segmentId],
-                                                         tree,
-                                                         segmentInitialSymmetries[segmentId],
-                                                         segmentRefinedSymmetries[segmentId],
-                                                         correspondence_search_radius,
-                                                         correspondence_max_normal_fit_error,
-                                                         correspondence_min_sym_dist);
+      std::vector< BilateralSymmetry > temp_symmetries;
+      if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+                                                              segmentNormals[segmentId],
+                                                              segmentDSClouds[segmentId],
+                                                              segmentDSNormals[segmentId],
+                                                              tree,
+                                                              segmentInitialSymmetries[segmentId],
+                                                              temp_symmetries,
+                                                              correspondence_search_radius,
+                                                              correspondence_max_normal_fit_error,
+                                                              correspondence_min_sym_dist,
+                                                              correspondence_max_sym_reflected_dist))
+      {
+        continue;
+      }
+
+      if(! refineBilateralSymmetryFitting<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+                                                             segmentNormals[segmentId],
+                                                             segmentDSClouds[segmentId],
+                                                             segmentDSNormals[segmentId],
+                                                             segment_centroids[segmentId],
+                                                             tree,
+                                                             temp_symmetries,
+                                                             segmentRefinedSymmetries[segmentId],
+                                                             refine_max_iteration,
+                                                             correspondence_search_radius,
+                                                             correspondence_max_normal_fit_error,
+                                                             correspondence_min_sym_dist,
+                                                             correspondence_max_sym_reflected_dist))
+      {
+        continue;
+      }
+
     }
 
     return UIMA_ERR_NONE;
@@ -237,7 +266,8 @@ private:
                                               std::vector<BilateralSymmetry> &refined_symmetries,
                                               float search_radius = 0.01f,
                                               float max_normal_fit_error = 0.174f,
-                                              float min_sym_corresspondence_dist = 0.02f)
+                                              float min_sym_corresspondence_dist = 0.02f,
+                                              float max_sym_corresspondence_reflected_dist = 0.005f)
   {
 
     if(cloud->size() == 0 || dsCloud->size() == 0)
@@ -255,7 +285,7 @@ private:
 
       refined_symmetries[symId] = initial_symmetries[symId];
 
-      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, search_radius, max_normal_fit_error, min_sym_corresspondence_dist);
+      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, NEIGHBOR_RADIUS, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, correspondence_max_sym_reflected_dist);
 
       if(success)
       {
@@ -271,6 +301,80 @@ private:
         refined_symmetries[symId].setOrigin(initial_symmetries[symId].getOrigin() + initial_symmetries[symId].getNormal() * medianError);
       }
     }
+    return true;
+  }
+
+  template<typename PointT>
+  inline bool refineBilateralSymmetryFitting(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                             pcl::PointCloud<pcl::Normal>::Ptr &normals,
+                                             typename pcl::PointCloud<PointT>::Ptr &dsCloud,
+                                             pcl::PointCloud<pcl::Normal>::Ptr &dsNormals,
+                                             Eigen::Vector3f &segmentCentroid,
+                                             typename pcl::search::KdTree<PointT>::Ptr &tree,
+                                             std::vector<BilateralSymmetry> &initial_symmetries,
+                                             std::vector<BilateralSymmetry> &refined_symmetries,
+                                             int max_iter = 20,
+                                             float search_radius = 0.01f,
+                                             float max_normal_fit_error = 0.785f,
+                                             float min_sym_corresspondence_dist = 0.02f,
+                                             float max_sym_corresspondence_reflected_dist = 0.005f)
+  {
+    if(cloud->size() == 0 || dsCloud->size() == 0)
+    {
+      outWarn("No point in cloud! Cloud need at least one point!");
+      return false;
+    }
+
+    refined_symmetries.resize(initial_symmetries.size());
+
+    BilSymOptimizeFunctorDiff<PointT> functor;
+    functor.cloud = cloud;
+    functor.normals = normals;
+    functor.dsCloud = dsCloud;
+
+    pcl::Correspondences correspondences;
+
+    #pragma omp parallel for
+    for(size_t symId = 0; symId < initial_symmetries.size(); symId++)
+    {
+      refined_symmetries[symId] = initial_symmetries[symId];
+
+      BilateralSymmetry last_symmetry;
+      for(size_t iteration = 0; iteration < max_iter; iteration++)
+      {
+        last_symmetry = refined_symmetries[symId];
+
+        correspondences.clear();
+        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, correspondence_max_sym_reflected_dist);
+
+        if(success)
+        {
+          Eigen::VectorXf x(6);
+          x.head(3) = refined_symmetries[symId].getOrigin();
+          x.tail(3) = refined_symmetries[symId].getNormal();
+
+          functor.correspondences = correspondences;
+
+          Eigen::LevenbergMarquardt< BilSymOptimizeFunctorDiff<PointT>, float> optimizer(functor);
+          optimizer.minimize(x);
+
+          refined_symmetries[symId] = BilateralSymmetry(x.head(3), x.tail(3));
+          refined_symmetries[symId].setProjectedOrigin(segmentCentroid);
+
+          float angleDiff, distDiff;
+          refined_symmetries[symId].bilateralSymDiff(last_symmetry, angleDiff, distDiff);
+          if(angleDiff < 0.0017f && distDiff < 0.0005f)
+          {
+            break;
+          }
+        }
+        else
+        {
+          break;
+        }
+      }
+    }
+
     return true;
   }
 
