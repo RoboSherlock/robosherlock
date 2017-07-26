@@ -17,6 +17,7 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_CXX_FLAGS    "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
 ################################################################################
 ## Configure project configuration files                                      ##
@@ -170,3 +171,12 @@ add_subdirectory(src/tracking)
 ################################################################################
 ## Testing                                                                    ##
 ################################################################################
+
+catkin_add_gtest(${PROJECT_NAME}-test
+    test/main.cpp
+    test/robosherlock/test.cpp)
+target_link_libraries(${PROJECT_NAME}-test
+    rs_analysisEngineManager
+    rs_core
+    rs_io
+    rs_utils)
