@@ -37,6 +37,9 @@
     <delegateAnalysisEngine key="CollectionReader">
       <import location="../annotators/io/CollectionReader.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="EdgeCurveAnnotator">
+      <import location="../annotators/segmentation/EdgeCurveAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -55,6 +58,9 @@
     <delegateAnalysisEngine key="LinemodAnnotator">
       <import location="../annotators/recognition/LinemodAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="LoadPointCloud">
+      <import location="../annotators/io/LoadPointCloud.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MLNInferencer">
       <import location="../annotators/recognition/MLNInferencer.xml"/>
     </delegateAnalysisEngine>
@@ -63,6 +69,9 @@
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="ObjectIdentityResolution">
       <import location="../annotators/tracker/ObjectIdentityResolution.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="OverSegmentationAnnotator">
+      <import location="../annotators/segmentation/OverSegmentationAnnotator.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PCLDescriptorExtractor">
       <import location="../annotators/annotation/PCLDescriptorExtractor.xml"/>
@@ -93,6 +102,12 @@
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="ResultAdvertiser">
       <import location="../annotators/io/ResultAdvertiser.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="RotationalSymmetryAnnotator">
+      <import location="../annotators/segmentation/RotationalSymmetryAnnotator.xml"/>
+    </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="RotationalSymmetrySegmentation">
+      <import location="../annotators/segmentation/RotationalSymmetrySegmentation.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="SacModelAnnotator">
       <import location="../annotators/annotation/SacModelAnnotator.xml"/>
