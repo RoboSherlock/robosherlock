@@ -183,7 +183,7 @@ inline bool findBilateralSymmetryCorrespondences(typename pcl::PointCloud<PointT
         continue;
       }
 
-      correspondences.push_back(pcl::Correspondence(pointId, neighborIndices[0], dists[0]));
+      correspondences.push_back(pcl::Correspondence(pointId, neighborIndices[0], normalFitError));
     }
   }
 

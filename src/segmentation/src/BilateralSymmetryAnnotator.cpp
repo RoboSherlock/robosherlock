@@ -345,7 +345,7 @@ private:
         last_symmetry = refined_symmetries[symId];
 
         correspondences.clear();
-        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, correspondence_max_sym_reflected_dist);
+        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, max_sym_corresspondence_reflected_dist);
 
         if(success)
         {
