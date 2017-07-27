@@ -16,6 +16,7 @@
 
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/BilateralSymmetry.hpp>
+#include <rs/segmentation/BilateralSymmetryScoring.hpp>
 #include <rs/segmentation/BoundarySegmentation.hpp>
 #include <rs/occupancy_map/DistanceMap.hpp>
 #include <rs/occupancy_map/DownsampleMap.hpp>
@@ -41,6 +42,18 @@ private:
   std::vector<pcl::PointIndices> segments;
   std::vector<Eigen::Vector3f> segment_centroids;
 
+  std::vector< std::vector< std::vector<float> > > pointSymScores;
+  std::vector< std::vector< std::vector<float> > > pointOcclusionScores;
+
+  std::vector< std::vector<float> > occlusionScores;
+  std::vector< std::vector<float> > segmentInlierScores;
+  std::vector< std::vector<float> > corresInlierScores;
+
+  std::vector< std::vector<bool> > validSymmetries;
+
+  boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
+  Eigen::Vector4f boundingPlane; // this plane will be extracted from PlaneAnnotator
+
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
   bool isDownsampled;
@@ -54,6 +67,15 @@ private:
   float correspondence_max_sym_reflected_dist;
 
   int refine_max_iteration;
+  float refine_min_inlier_sym_score;
+  float refine_max_inlier_sym_score;
+
+  float min_occlusion_dist;
+  float max_occlusion_dist;
+
+  float max_occlusion_score;
+  float min_segment_inlier_score;
+  float min_corres_inlier_score;
 
   int numSegments;
 
@@ -79,8 +101,17 @@ public:
     ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("refine_max_iteration", refine_max_iteration);
+    ctx.extractValue("refine_min_inlier_sym_score", refine_min_inlier_sym_score);
+    ctx.extractValue("refine_max_inlier_sym_score", refine_max_inlier_sym_score);
 
+    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
+    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
 
+    ctx.extractValue("max_occlusion_score", max_occlusion_score);
+    ctx.extractValue("min_segment_inlier_score", min_segment_inlier_score);
+    ctx.extractValue("min_corres_inlier_score", min_corres_inlier_score);
+
+    boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
     return UIMA_ERR_NONE;
   }
 
@@ -118,6 +149,13 @@ public:
     segmentDSClouds.clear();
     segmentDSNormals.clear();
     segment_centroids.clear();
+    pointSymScores.clear();
+    pointOcclusionScores.clear();
+    occlusionScores.clear();
+    segmentInlierScores.clear();
+    corresInlierScores.clear();
+    validSymmetries.clear();
+
 
     //allocating containers
     numSegments = segments.size();
@@ -129,6 +167,20 @@ public:
     symSupportSizes.resize(numSegments);
     segmentNormals.resize(numSegments);
     segment_centroids.resize(numSegments);
+    pointSymScores.resize(numSegments);
+    pointOcclusionScores.resize(numSegments);
+    occlusionScores.resize(numSegments);
+    segmentInlierScores.resize(numSegments);
+    corresInlierScores.resize(numSegments);
+    validSymmetries.resize(numSegments);
+
+    //initialize distance map
+    std::vector<Eigen::Vector4f> planes;
+    planes.push_back(boundingPlane);
+
+    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
+    dist_map->setBoundingPlanes(planes);
+    dist_map->setInputCloud(cloud);
 
     #pragma omp parallel for
     for(size_t segmentId = 0; segmentId < numSegments; segmentId++){
@@ -162,7 +214,7 @@ public:
       pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGBA>());
       tree->setInputCloud(segmentClouds[segmentId]);
 
-      detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId], angle_division);
+      detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId]);
 
       std::vector< BilateralSymmetry > temp_symmetries;
       if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
@@ -171,11 +223,7 @@ public:
                                                               segmentDSNormals[segmentId],
                                                               tree,
                                                               segmentInitialSymmetries[segmentId],
-                                                              temp_symmetries,
-                                                              correspondence_search_radius,
-                                                              correspondence_max_normal_fit_error,
-                                                              correspondence_min_sym_dist,
-                                                              correspondence_max_sym_reflected_dist))
+                                                              temp_symmetries))
       {
         continue;
       }
@@ -186,16 +234,19 @@ public:
                                                              segmentDSNormals[segmentId],
                                                              segment_centroids[segmentId],
                                                              tree,
+                                                             *dist_map,
                                                              temp_symmetries,
                                                              segmentRefinedSymmetries[segmentId],
-                                                             refine_max_iteration,
-                                                             correspondence_search_radius,
-                                                             correspondence_max_normal_fit_error,
-                                                             correspondence_min_sym_dist,
-                                                             correspondence_max_sym_reflected_dist))
+                                                             pointSymScores[segmentId],
+                                                             pointOcclusionScores[segmentId],
+                                                             occlusionScores[segmentId],
+                                                             segmentInlierScores[segmentId],
+                                                             corresInlierScores[segmentId],
+                                                             validSymmetries[segmentId]))
       {
         continue;
       }
+
 
     }
 
@@ -224,8 +275,7 @@ private:
   template<typename PointT>
   inline bool detectInitialSymmetries(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                       std::vector<BilateralSymmetry> &symmetries,
-                                      Eigen::Vector3f &segmentCentroid,
-                                      int division)
+                                      Eigen::Vector3f &segmentCentroid)
   {
     symmetries.clear();
 
@@ -247,7 +297,7 @@ private:
     }
 
     std::vector<Eigen::Vector3f> points;
-    generateHemisphere(division, points);
+    generateHemisphere(angle_division, points);
 
     for(size_t pointId = 0; pointId < points.size(); pointId++)
     {
@@ -263,11 +313,7 @@ private:
                                               pcl::PointCloud<pcl::Normal>::Ptr &dsNormals,
                                               typename pcl::search::KdTree<PointT>::Ptr &tree,
                                               std::vector<BilateralSymmetry> &initial_symmetries,
-                                              std::vector<BilateralSymmetry> &refined_symmetries,
-                                              float search_radius = 0.01f,
-                                              float max_normal_fit_error = 0.174f,
-                                              float min_sym_corresspondence_dist = 0.02f,
-                                              float max_sym_corresspondence_reflected_dist = 0.005f)
+                                              std::vector<BilateralSymmetry> &refined_symmetries)
   {
 
     if(cloud->size() == 0 || dsCloud->size() == 0)
@@ -285,7 +331,7 @@ private:
 
       refined_symmetries[symId] = initial_symmetries[symId];
 
-      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, NEIGHBOR_RADIUS, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, correspondence_max_sym_reflected_dist);
+      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, NEIGHBOR_RADIUS, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
 
       if(success)
       {
@@ -311,13 +357,15 @@ private:
                                              pcl::PointCloud<pcl::Normal>::Ptr &dsNormals,
                                              Eigen::Vector3f &segmentCentroid,
                                              typename pcl::search::KdTree<PointT>::Ptr &tree,
+                                             DistanceMap<PointT> &dist_map,
                                              std::vector<BilateralSymmetry> &initial_symmetries,
                                              std::vector<BilateralSymmetry> &refined_symmetries,
-                                             int max_iter = 20,
-                                             float search_radius = 0.01f,
-                                             float max_normal_fit_error = 0.785f,
-                                             float min_sym_corresspondence_dist = 0.02f,
-                                             float max_sym_corresspondence_reflected_dist = 0.005f)
+                                             std::vector< std::vector<float> > &point_symmetry_scores,
+                                             std::vector< std::vector<float> > &point_occlusion_scores,
+                                             std::vector<float> &occlusion_scores,
+                                             std::vector<float> &segment_inlier_scores,
+                                             std::vector<float> &corres_inlier_scores,
+                                             std::vector<bool> &valid_symmetries)
   {
     if(cloud->size() == 0 || dsCloud->size() == 0)
     {
@@ -326,6 +374,12 @@ private:
     }
 
     refined_symmetries.resize(initial_symmetries.size());
+    point_symmetry_scores.resize(initial_symmetries.size());
+    point_occlusion_scores.resize(initial_symmetries.size());
+    occlusion_scores.resize(initial_symmetries.size());
+    segment_inlier_scores.resize(initial_symmetries.size());
+    corres_inlier_scores.resize(initial_symmetries.size());
+    valid_symmetries.resize(initial_symmetries.size(), true);
 
     BilSymOptimizeFunctorDiff<PointT> functor;
     functor.cloud = cloud;
@@ -345,7 +399,7 @@ private:
         last_symmetry = refined_symmetries[symId];
 
         correspondences.clear();
-        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, max_sym_corresspondence_reflected_dist);
+        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
 
         if(success)
         {
@@ -370,9 +424,24 @@ private:
         }
         else
         {
+          valid_symmetries[symId] = false;
           break;
         }
       }
+
+      //compute symmetry score
+      getCloudBilateralSymmetryScore(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, point_symmetry_scores[symId], correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist, refine_min_inlier_sym_score, refine_max_inlier_sym_score);
+      getCloudBilateralOcclusionScore(dsCloud, dist_map, refined_symmetries[symId], point_occlusion_scores[symId], min_occlusion_dist, max_occlusion_dist);
+
+      float inlierSum = 0.0f;
+      for(size_t corresId = 0; corresId < correspondences.size(); corresId++)
+      {
+        inlierSum += (1.0f - point_symmetry_scores[corresId]);
+      }
+
+      occlusion_scores[symId] = mean(point_occlusion_scores);
+      segment_inlier_scores[symId] = inlierSum / static_cast<float>(dsCloud->size());
+      corres_inlier_scores[symId] = inlierSum / static_cast<float>(correspondences.size());
     }
 
     return true;

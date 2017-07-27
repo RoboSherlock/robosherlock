@@ -57,6 +57,48 @@
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
+      <configurationParameter>
+          <name>refine_min_inlier_sym_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>refine_max_inlier_sym_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>min_occlusion_dist</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>max_occlusion_dist</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>max_occlusion_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>min_segment_inlier_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>min_corres_inlier_score</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -105,6 +147,48 @@
           <name>refine_max_iteration</name>
           <value>
               <integer>20</integer>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>refine_min_inlier_sym_score</name>
+          <value>
+              <float>0.262f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>refine_max_inlier_sym_score</name>
+          <value>
+              <float>0.349f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>min_occlusion_dist</name>
+          <value>
+              <float>0.01f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>max_occlusion_dist</name>
+          <value>
+              <float>0.03f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>max_occlusion_score</name>
+          <value>
+              <float>0.01f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>min_segment_inlier_score</name>
+          <value>
+              <float>0.3f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>min_corres_inlier_score</name>
+          <value>
+              <float>0.8f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
