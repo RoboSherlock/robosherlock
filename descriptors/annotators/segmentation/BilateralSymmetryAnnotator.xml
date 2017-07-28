@@ -28,6 +28,12 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
+          <name>dist_map_resolution</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
           <name>correspondence_search_radius</name>
           <type>Float</type>
           <multiValued>false</multiValued>
@@ -116,7 +122,13 @@
       <nameValuePair>
           <name>angle_division</name>
           <value>
-              <integer>2</integer>
+              <integer>3</integer>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>dist_map_resolution</name>
+          <value>
+              <float>0.005f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -140,7 +152,7 @@
       <nameValuePair>
           <name>correspondence_max_sym_reflected_dist</name>
           <value>
-              <float>0.005f</float>
+              <float>0.01f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -152,13 +164,13 @@
       <nameValuePair>
           <name>refine_min_inlier_sym_score</name>
           <value>
-              <float>0.262f</float>
+              <float>0.174f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>refine_max_inlier_sym_score</name>
           <value>
-              <float>0.349f</float>
+              <float>0.232f</float>
           </value>
       </nameValuePair>
       <nameValuePair>

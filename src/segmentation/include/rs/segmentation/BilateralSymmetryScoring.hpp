@@ -17,7 +17,7 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
                                            typename pcl::search::KdTree<PointT>::Ptr &tree,
                                            BilateralSymmetry &symmetry,
                                            pcl::Correspondences &correspondences,
-                                           std::vector<float> &point_symmetry_scores
+                                           std::vector<float> &point_symmetry_scores,
                                            float search_radius = 0.01f,
                                            float max_normal_fit_error = 0.174f,
                                            float min_sym_corresspondence_dist = 0.02f,
@@ -86,7 +86,7 @@ inline bool getCloudBilateralOcclusionScore(typename pcl::PointCloud<PointT>::Pt
     float dist;
     distMap.getNearestOccupiedDistance(searchPoint, index, dist);
     float score = (dist - min_occlusion_dist) / (max_occlusion_dist - min_occlusion_dist);
-    dist = clamp(score, 0.0f, 1.0f);
+    score = clamp(score, 0.0f, 1.0f);
     point_occlusion_scores[pointId] = score;
   }
 

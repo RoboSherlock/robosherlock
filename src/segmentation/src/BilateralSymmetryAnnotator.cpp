@@ -32,6 +32,8 @@ private:
   //container for inital symmetries usign PCA solver
   std::vector< std::vector<BilateralSymmetry> > segmentInitialSymmetries;
   std::vector< std::vector<BilateralSymmetry> > segmentRefinedSymmetries;
+  std::vector< BilateralSymmetry > finalSymmetries;
+  std::vector< std::vector<int> > filteredSymmetryIds;
 
   std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segmentClouds;
   std::vector< pcl::PointCloud<pcl::Normal>::Ptr > segmentNormals;
@@ -60,6 +62,8 @@ private:
   float downsample_voxel_size;
 
   int angle_division;
+
+  float dist_map_resolution;
 
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
@@ -94,6 +98,8 @@ public:
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
 
     ctx.extractValue("angle_division", angle_division);
+
+    ctx.extractValue("dist_map_resolution", dist_map_resolution);
 
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
@@ -143,6 +149,8 @@ public:
     //clearing for consecutive frame
     segmentInitialSymmetries.clear();
     segmentRefinedSymmetries.clear();
+    finalSymmetries.clear();
+    filteredSymmetryIds.clear();
     segmentClouds.clear();
     symSupportSizes.clear();
     segmentNormals.clear();
@@ -217,7 +225,7 @@ public:
       detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId]);
 
       std::vector< BilateralSymmetry > temp_symmetries;
-      if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+      /*if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                               segmentNormals[segmentId],
                                                               segmentDSClouds[segmentId],
                                                               segmentDSNormals[segmentId],
@@ -226,8 +234,9 @@ public:
                                                               temp_symmetries))
       {
         continue;
-      }
+      }*/
 
+      temp_symmetries = segmentInitialSymmetries[segmentId];
       if(! refineBilateralSymmetryFitting<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                              segmentNormals[segmentId],
                                                              segmentDSClouds[segmentId],
@@ -247,7 +256,9 @@ public:
         continue;
       }
 
-
+      //filter symmetries based on score and linearize data to an array
+      this->filterSymmetries();
+      this->linearizeSegmentData(segmentRefinedSymmetries, finalSymmetries, filteredSymmetryIds);
     }
 
     return UIMA_ERR_NONE;
@@ -260,13 +271,13 @@ public:
     if(firstRun){
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryPlanes(visualizer, segmentRefinedSymmetries, 0.05f, 0.05f);
+      addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
     }
     else{
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.removeAllShapes();
-      addSymmetryPlanes(visualizer, segmentRefinedSymmetries, 0.05f, 0.05f);
+      addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
     }
 
   }
@@ -297,11 +308,16 @@ private:
     }
 
     std::vector<Eigen::Vector3f> points;
-    generateHemisphere(angle_division, points);
+    /*generateHemisphere(angle_division, points);
 
     for(size_t pointId = 0; pointId < points.size(); pointId++)
     {
       symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * points[pointId]));
+    }*/
+
+    for (size_t symId = 0; symId < 2; symId++)
+    {
+      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(symId)));
     }
     return true;
   }
@@ -394,7 +410,7 @@ private:
       refined_symmetries[symId] = initial_symmetries[symId];
 
       BilateralSymmetry last_symmetry;
-      for(size_t iteration = 0; iteration < max_iter; iteration++)
+      for(size_t iteration = 0; iteration < refine_max_iteration; iteration++)
       {
         last_symmetry = refined_symmetries[symId];
 
@@ -430,21 +446,64 @@ private:
       }
 
       //compute symmetry score
-      getCloudBilateralSymmetryScore(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, point_symmetry_scores[symId], correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist, refine_min_inlier_sym_score, refine_max_inlier_sym_score);
-      getCloudBilateralOcclusionScore(dsCloud, dist_map, refined_symmetries[symId], point_occlusion_scores[symId], min_occlusion_dist, max_occlusion_dist);
+      getCloudBilateralSymmetryScore<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, point_symmetry_scores[symId], correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist, refine_min_inlier_sym_score, refine_max_inlier_sym_score);
+      getCloudBilateralOcclusionScore<PointT>(dsCloud, dist_map, refined_symmetries[symId], point_occlusion_scores[symId], min_occlusion_dist, max_occlusion_dist);
 
       float inlierSum = 0.0f;
       for(size_t corresId = 0; corresId < correspondences.size(); corresId++)
       {
-        inlierSum += (1.0f - point_symmetry_scores[corresId]);
+        inlierSum += (1.0f - point_symmetry_scores[symId][corresId]);
       }
 
-      occlusion_scores[symId] = mean(point_occlusion_scores);
+      occlusion_scores[symId] = mean(point_occlusion_scores[symId]);
       segment_inlier_scores[symId] = inlierSum / static_cast<float>(dsCloud->size());
       corres_inlier_scores[symId] = inlierSum / static_cast<float>(correspondences.size());
     }
 
     return true;
+  }
+
+  inline void filterSymmetries()
+  {
+    filteredSymmetryIds.resize(numSegments);
+
+    for(size_t segmentId = 0; segmentId < numSegments; segmentId++)
+    {
+      for(size_t symId = 0; symId < segmentRefinedSymmetries[segmentId].size(); symId++)
+      {
+        if(validSymmetries[segmentId][symId])
+        {
+          if(occlusionScores[segmentId][symId] < max_occlusion_score &&
+             segmentInlierScores[segmentId][symId] > min_segment_inlier_score&&
+             corresInlierScores[segmentId][symId] > min_corres_inlier_score)
+          {
+            filteredSymmetryIds[segmentId].push_back(symId);
+          }
+        }
+      }
+    }
+  }
+
+  template<typename Type>
+  inline void linearizeSegmentData(typename std::vector< std::vector<Type> >& segmentDataIn, typename std::vector<Type>& segmentDataOut, std::vector< std::vector<int> > indices = std::vector<int>(0)){ // for both scores and Symmetries
+    segmentDataOut.clear();
+
+    for(size_t segmentIt = 0; segmentIt < segmentDataIn.size(); segmentIt++){
+      if(indices.size() != 0){
+        int dataId;
+        for(size_t it = 0; it < indices[segmentIt].size(); it++){
+          dataId = indices[segmentIt][it];
+          if(dataId >= 0 && dataId < segmentDataIn[segmentIt].size()){
+            segmentDataOut.push_back(segmentDataIn[segmentIt][dataId]);
+          }
+        }
+      }
+      else{
+        for(size_t it = 0; it < segmentDataIn[segmentIt].size(); it++){
+          segmentDataOut.push_back(segmentDataIn[segmentIt][it]);
+        }
+      }
+    }
   }
 
   inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)
@@ -481,6 +540,15 @@ private:
         std::string id = "BilSym" + std::to_string(segmentId * symmetries[segmentId].size() + symId);
         addSymmetryPlane(visualizer, symmetries[segmentId][symId], id, width, height);
       }
+    }
+  }
+
+  inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std::vector<BilateralSymmetry> &symmetries, float width, float height)
+  {
+    for(size_t symId = 0; symId < symmetries.size(); symId++)
+    {
+      std::string id = "BilSym" + std::to_string(symId);
+      addSymmetryPlane(visualizer, symmetries[symId], id, width, height);
     }
   }
 };
