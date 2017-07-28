@@ -69,7 +69,8 @@ inline Eigen::Matrix<Type, 3, 1> pointToPlaneProjection(const Eigen::Matrix<Type
 template<typename PointT>
 inline void cloudToPlaneProjection(typename pcl::PointCloud<PointT>::Ptr &cloud_in, const Eigen::Vector3f &planePoint, const Eigen::Vector3f &planeNormal, typename pcl::PointCloud<PointT>::Ptr &cloud_out)
 {
-  cloud_out = cloud_in;
+  cloud_out.reset(new pcl::PointCloud<PointT>);
+  pcl::copyPointCloud(*cloud_in, *cloud_out);
   for(size_t pointId = 0; pointId < cloud_in->points.size(); pointId++)
   {
     cloud_out->points[pointId].getVector3fMap() = pointToPlaneProjection<float>(cloud_in->points[pointId].getVector3fMap(), planePoint, planeNormal);

@@ -225,7 +225,8 @@ public:
       detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId]);
 
       std::vector< BilateralSymmetry > temp_symmetries;
-      /*if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+      //NOTE: somehow this optimization does not increase accuracy of symmetry pose
+      if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                               segmentNormals[segmentId],
                                                               segmentDSClouds[segmentId],
                                                               segmentDSNormals[segmentId],
@@ -234,9 +235,9 @@ public:
                                                               temp_symmetries))
       {
         continue;
-      }*/
+      }
 
-      temp_symmetries = segmentInitialSymmetries[segmentId];
+      //temp_symmetries = segmentInitialSymmetries[segmentId];
       if(! refineBilateralSymmetryFitting<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                              segmentNormals[segmentId],
                                                              segmentDSClouds[segmentId],
@@ -308,17 +309,17 @@ private:
     }
 
     std::vector<Eigen::Vector3f> points;
-    /*generateHemisphere(angle_division, points);
+    generateHemisphere(angle_division, points);
 
     for(size_t pointId = 0; pointId < points.size(); pointId++)
     {
       symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * points[pointId]));
-    }*/
+    }
 
-    for (size_t symId = 0; symId < 2; symId++)
+    /*for (size_t symId = 0; symId < 2; symId++)
     {
       symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(symId)));
-    }
+    }*/
     return true;
   }
 
@@ -343,24 +344,90 @@ private:
     #pragma omp parallel for
     for(size_t symId = 0; symId < initial_symmetries.size(); symId++)
     {
-      pcl::Correspondences symCorrespondences;
+      pcl::Correspondences correspondences;
 
       refined_symmetries[symId] = initial_symmetries[symId];
 
-      bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], symCorrespondences, NEIGHBOR_RADIUS, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
+      //NOTE: first approach, finding correspondences based on error of reflected normal and src normal
+      //bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, initial_symmetries[symId], correspondences, NEIGHBOR_RADIUS, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
+
+      //NOTE:second approach
+      bool success = true;
+      //finding correspondences
+      Eigen::Vector3f symOrigin = initial_symmetries[symId].getOrigin();
+      Eigen::Vector3f symNormal = initial_symmetries[symId].getNormal();
+
+      typename pcl::PointCloud<PointT>::Ptr projectedCloud(new pcl::PointCloud<PointT>);
+      cloudToPlaneProjection<PointT>(cloud, symOrigin, symNormal, projectedCloud);
+
+      typename pcl::PointCloud<PointT>::Ptr projectedDSCloud(new pcl::PointCloud<PointT>);
+      cloudToPlaneProjection<PointT>(dsCloud, symOrigin, symNormal, projectedDSCloud);
+
+      typename pcl::search::KdTree<PointT> projectedTree;
+      projectedTree.setInputCloud(projectedCloud);
+
+      for(size_t pointId = 0; pointId < projectedDSCloud->size();pointId++)
+      {
+        Eigen::Vector3f srcPoint = dsCloud->points[pointId].getVector3fMap();
+        Eigen::Vector3f srcNormal(dsNormals->points[pointId].normal_x, dsNormals->points[pointId].normal_y, dsNormals->points[pointId].normal_z);
+
+        std::vector<float> dists;
+        std::vector<int> neighbors;
+        projectedTree.radiusSearch(projectedDSCloud->points[pointId], correspondence_search_radius, neighbors, dists);
+
+        int bestId = -1;
+        float minNormalFitError = std::numeric_limits<float>::max();
+        for(size_t it = 0; it < neighbors.size();it++)
+        {
+          int neighborId = neighbors[it];
+          Eigen::Vector3f tgtPoint = cloud->points[neighborId].getVector3fMap();
+          Eigen::Vector3f tgtNormal(normals->points[neighborId].normal_x, normals->points[neighborId].normal_y, normals->points[neighborId].normal_z);
+
+          if(std::abs(initial_symmetries[symId].pointSignedDist(srcPoint) - initial_symmetries[symId].pointSignedDist(tgtPoint)) < correspondence_min_sym_dist)
+          {
+            continue;
+          }
+
+          float currNormalFitError = initial_symmetries[symId].getBilSymNormalFitError(srcNormal, tgtNormal);
+
+          if(currNormalFitError > correspondence_max_normal_fit_error)
+          {
+            continue;
+          }
+
+          if(currNormalFitError < minNormalFitError)
+          {
+            minNormalFitError = currNormalFitError;
+            bestId = neighborId;
+          }
+        }
+
+        if(bestId != -1)
+        {
+          correspondences.push_back(pcl::Correspondence(pointId, bestId, minNormalFitError));
+        }
+      }
+
+      pcl::registration::CorrespondenceRejectorOneToOne correspRejectOneToOne;
+      correspRejectOneToOne.getRemainingCorrespondences(correspondences, correspondences);
+
+      if (correspondences.size() == 0)
+      {
+        success = false;
+      }
 
       if(success)
       {
-        std::vector<float> positionFitErrors(symCorrespondences.size());
-        for(size_t it = 0; it < symCorrespondences.size(); it++)
+        std::vector<float> positionFitErrors(correspondences.size());
+        for(size_t it = 0; it < correspondences.size(); it++)
         {
-          int queryId = symCorrespondences[it].index_query;
-          int matchId = symCorrespondences[it].index_match;
+          int queryId = correspondences[it].index_query;
+          int matchId = correspondences[it].index_match;
           positionFitErrors[it] = initial_symmetries[symId].getBilSymPositionFitError(dsCloud->points[queryId].getVector3fMap(), cloud->points[matchId].getVector3fMap());
         }
 
         float medianError = median<float>(positionFitErrors);
-        refined_symmetries[symId].setOrigin(initial_symmetries[symId].getOrigin() + initial_symmetries[symId].getNormal() * medianError);
+        refined_symmetries[symId].setOrigin(symOrigin + symNormal * medianError);
       }
     }
     return true;
@@ -415,7 +482,61 @@ private:
         last_symmetry = refined_symmetries[symId];
 
         correspondences.clear();
-        bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEAREST, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
+
+        //NOTE: first approach, finding correspondences based on error of reflected normal and src normal
+        //bool success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, NEIGHBOR_RADIUS, correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist);
+
+        //NOTE: second approach
+        bool success = true;
+        //finding correspondences
+        Eigen::Vector3f symOrigin = refined_symmetries[symId].getOrigin();
+        Eigen::Vector3f symNormal = refined_symmetries[symId].getNormal();
+
+        for(size_t pointId = 0; pointId < dsCloud->size();pointId++)
+        {
+          Eigen::Vector3f srcPoint = dsCloud->points[pointId].getVector3fMap();
+          Eigen::Vector3f srcNormal(dsNormals->points[pointId].normal_x, dsNormals->points[pointId].normal_y, dsNormals->points[pointId].normal_z);
+
+          Eigen::Vector3f reflectedSrcPoint = refined_symmetries[symId].reflectPoint(srcPoint);
+          Eigen::Vector3f reflectedSrcNormal = refined_symmetries[symId].reflectNormal(srcNormal);
+
+          std::vector<float> dists(1);
+          std::vector<int> neighbors(1);
+          PointT searchPoint;
+          searchPoint.getVector3fMap() = reflectedSrcPoint;
+          tree->nearestKSearch(searchPoint, 1, neighbors, dists);
+
+          Eigen::Vector3f tgtPoint = cloud->points[neighbors[0]].getVector3fMap();
+          Eigen::Vector3f tgtNormal(normals->points[neighbors[0]].normal_x, normals->points[neighbors[0]].normal_y, normals->points[neighbors[0]].normal_z);
+
+          if(std::abs(refined_symmetries[symId].pointSignedDist(srcPoint) - refined_symmetries[symId].pointSignedDist(tgtPoint)) < correspondence_min_sym_dist)
+          {
+            continue;
+          }
+
+          if(dists[0] > correspondence_max_sym_reflected_dist * correspondence_max_sym_reflected_dist)
+          {
+            continue;
+          }
+
+          float normalError = refined_symmetries[symId].getBilSymNormalFitError(srcNormal, tgtNormal);
+
+          if(normalError > correspondence_max_normal_fit_error)
+          {
+            continue;
+          }
+
+          correspondences.push_back(pcl::Correspondence(pointId, neighbors[0], dists[0]));
+
+        }
+
+        pcl::registration::CorrespondenceRejectorOneToOne correspRejectOneToOne;
+        correspRejectOneToOne.getRemainingCorrespondences(correspondences, correspondences);
+
+        if (correspondences.size() == 0)
+        {
+          success = false;
+        }
 
         if(success)
         {

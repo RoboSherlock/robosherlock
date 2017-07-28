@@ -21,7 +21,7 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
                                            float search_radius = 0.01f,
                                            float max_normal_fit_error = 0.174f,
                                            float min_sym_corresspondence_dist = 0.02f,
-                                           float max_sym_corresspondence_reflected_dist = 0.005f,
+                                           float max_sym_corresspondence_reflected_dist = 0.01f,
                                            float min_inlier_normal_angle = 0.174f,
                                            float max_inlier_normal_angle = 0.262f)
 {
@@ -31,7 +31,8 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
     return false;
   }
 
-  bool success = true;
+  //NOTE: first approach
+  /*bool success = true;
   if(correspondences.size() == 0)
   {
     success = findBilateralSymmetryCorrespondences<PointT>(cloud, normals, dsCloud, dsNormals, tree, symmetry, correspondences, NEAREST, search_radius, max_normal_fit_error, min_sym_corresspondence_dist, max_sym_corresspondence_reflected_dist);
@@ -55,7 +56,45 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
     }
   }
 
-  return success;
+  return success;*/
+
+  //NOTE: second approach
+  Eigen::Vector3f symOrigin = symmetry.getOrigin();
+  Eigen::Vector3f symNormal = symmetry.getNormal();
+
+  for(size_t pointId = 0; pointId < dsCloud->size();pointId++)
+  {
+    Eigen::Vector3f srcPoint = dsCloud->points[pointId].getVector3fMap();
+    Eigen::Vector3f srcNormal(dsNormals->points[pointId].normal_x, dsNormals->points[pointId].normal_y, dsNormals->points[pointId].normal_z);
+
+    Eigen::Vector3f reflectedSrcPoint = symmetry.reflectPoint(srcPoint);
+    Eigen::Vector3f reflectedSrcNormal = symmetry.reflectNormal(srcNormal);
+
+    std::vector<float> dists(1);
+    std::vector<int> neighbors(1);
+    PointT searchPoint;
+    searchPoint.getVector3fMap() = reflectedSrcPoint;
+    tree->nearestKSearch(searchPoint, 1, neighbors, dists);
+
+    if(dists[0] <= max_sym_corresspondence_reflected_dist * max_sym_corresspondence_reflected_dist)
+    {
+      Eigen::Vector3f tgtPoint = cloud->points[neighbors[0]].getVector3fMap();
+      Eigen::Vector3f tgtNormal(normals->points[neighbors[0]].normal_x, normals->points[neighbors[0]].normal_y, normals->points[neighbors[0]].normal_z);
+
+      float score = symmetry.getBilSymNormalFitError(srcNormal, tgtNormal);
+
+      if(score > M_PI * 3 / 4)
+      {
+        score = M_PI - score;
+      }
+
+      score = (score - min_inlier_normal_angle) / (max_inlier_normal_angle - min_inlier_normal_angle);
+      score = clamp(score, 0.0f, 1.0f);
+      point_symmetry_scores.push_back(score);
+    }
+  }
+
+  return true;
 }
 
 template<typename PointT>
