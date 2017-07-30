@@ -105,6 +105,18 @@
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
+      <configurationParameter>
+          <name>sym_angle_diff</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+          <name>sym_dist_diff</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -201,6 +213,18 @@
           <name>min_corres_inlier_score</name>
           <value>
               <float>0.1f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>sym_angle_diff</name>
+          <value>
+              <float>0.122f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>sym_dist_diff</name>
+          <value>
+              <float>0.01f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>

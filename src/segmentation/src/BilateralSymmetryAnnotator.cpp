@@ -34,6 +34,7 @@ private:
   std::vector< std::vector<BilateralSymmetry> > segmentRefinedSymmetries;
   std::vector< BilateralSymmetry > finalSymmetries;
   std::vector< std::vector<int> > filteredSymmetryIds;
+  std::vector< std::vector<int> > mergedSymmetryIds;
 
   std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segmentClouds;
   std::vector< pcl::PointCloud<pcl::Normal>::Ptr > segmentNormals;
@@ -81,6 +82,9 @@ private:
   float min_segment_inlier_score;
   float min_corres_inlier_score;
 
+  float sym_angle_diff;
+  float sym_dist_diff;
+
   int numSegments;
 
   double pointSize;
@@ -117,6 +121,9 @@ public:
     ctx.extractValue("min_segment_inlier_score", min_segment_inlier_score);
     ctx.extractValue("min_corres_inlier_score", min_corres_inlier_score);
 
+    ctx.extractValue("sym_angle_diff", sym_angle_diff);
+    ctx.extractValue("sym_dist_diff", sym_dist_diff);
+
     boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
     return UIMA_ERR_NONE;
   }
@@ -151,6 +158,7 @@ public:
     segmentRefinedSymmetries.clear();
     finalSymmetries.clear();
     filteredSymmetryIds.clear();
+    mergedSymmetryIds.clear();
     segmentClouds.clear();
     symSupportSizes.clear();
     segmentNormals.clear();
@@ -169,6 +177,8 @@ public:
     numSegments = segments.size();
     segmentInitialSymmetries.resize(numSegments);
     segmentRefinedSymmetries.resize(numSegments);
+    filteredSymmetryIds.resize(numSegments);
+    mergedSymmetryIds.resize(numSegments);
     segmentClouds.resize(numSegments);
     segmentDSClouds.resize(numSegments);
     segmentDSNormals.resize(numSegments);
@@ -258,9 +268,36 @@ public:
       }
 
       //filter symmetries based on score and linearize data to an array
-      this->filterSymmetries();
-      this->linearizeSegmentData(segmentRefinedSymmetries, finalSymmetries, filteredSymmetryIds);
+      this->filterSymmetries(segmentId);
+      this->mergeSymmetries(segmentId);
     }
+
+    this->linearizeSegmentData(segmentRefinedSymmetries, finalSymmetries, mergedSymmetryIds);
+
+    //convert BilateralSymmetry to CAS Symmetries and push to CAS
+    std::vector<rs::BilateralSymmetry> casSymmetries;
+    for(size_t it = 0; it < finalSymmetries.size(); it++){
+      rs::BilateralSymmetry currSym = rs::create<rs::BilateralSymmetry>(tcas);
+      rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
+      rs::Point3f currNormal = rs::create<rs::Point3f>(tcas);
+
+      Eigen::Vector3f eigenOrigin = finalSymmetries[it].getOrigin();
+      Eigen::Vector3f eigenNormal = finalSymmetries[it].getNormal();
+
+      currOrigin.x.set(eigenOrigin[0]);
+      currOrigin.y.set(eigenOrigin[1]);
+      currOrigin.z.set(eigenOrigin[2]);
+
+      currNormal.x.set(eigenNormal[0]);
+      currNormal.y.set(eigenNormal[1]);
+      currNormal.z.set(eigenNormal[2]);
+
+      currSym.origin.set(currOrigin);
+      currSym.normal.set(currNormal);
+      casSymmetries.push_back(currSym);
+    }
+
+    cas.set(VIEW_BILATERAL_SYMMETRIES, casSymmetries);
 
     return UIMA_ERR_NONE;
   }
@@ -584,24 +621,68 @@ private:
     return true;
   }
 
-  inline void filterSymmetries()
+  inline void filterSymmetries(int segmentId)
   {
-    filteredSymmetryIds.resize(numSegments);
-
-    for(size_t segmentId = 0; segmentId < numSegments; segmentId++)
+    for(size_t symId = 0; symId < segmentRefinedSymmetries[segmentId].size(); symId++)
     {
-      for(size_t symId = 0; symId < segmentRefinedSymmetries[segmentId].size(); symId++)
+      if(validSymmetries[segmentId][symId])
       {
-        if(validSymmetries[segmentId][symId])
+        if(occlusionScores[segmentId][symId] < max_occlusion_score &&
+           segmentInlierScores[segmentId][symId] > min_segment_inlier_score&&
+           corresInlierScores[segmentId][symId] > min_corres_inlier_score)
         {
-          if(occlusionScores[segmentId][symId] < max_occlusion_score &&
-             segmentInlierScores[segmentId][symId] > min_segment_inlier_score&&
-             corresInlierScores[segmentId][symId] > min_corres_inlier_score)
-          {
-            filteredSymmetryIds[segmentId].push_back(symId);
-          }
+          filteredSymmetryIds[segmentId].push_back(symId);
         }
       }
+    }
+  }
+
+  inline void mergeSymmetries(int segmentId)
+  {
+    Graph symGraph(filteredSymmetryIds[segmentId].size());
+
+    for(size_t srcIdIt = 0; srcIdIt < filteredSymmetryIds[segmentId].size(); srcIdIt++)
+    {
+      int srcId = filteredSymmetryIds[segmentId][srcIdIt];
+      BilateralSymmetry srcSym = segmentRefinedSymmetries[segmentId][srcId];
+
+      for(size_t tgtIdIt = srcIdIt+1; tgtIdIt < filteredSymmetryIds[segmentId].size(); tgtIdIt++)
+      {
+        int tgtId = filteredSymmetryIds[segmentId][tgtIdIt];
+        BilateralSymmetry tgtSym = segmentRefinedSymmetries[segmentId][tgtId];
+
+        float angleDiff, distDiff;
+        srcSym.bilateralSymDiff(tgtSym, angleDiff, distDiff);
+        if(angleDiff < sym_angle_diff && distDiff < sym_dist_diff)
+        {
+          symGraph.addEdge(srcIdIt, tgtIdIt);
+        }
+      }
+    }
+
+    std::vector< std::vector<int> > symConnectedComponents;
+    symConnectedComponents = extractConnectedComponents(symGraph);
+
+    for(size_t clusterId = 0; clusterId < symConnectedComponents.size(); clusterId++)
+    {
+      float minScore = std::numeric_limits<float>::max();
+      float bestSym = -1;
+      for(size_t symIdIt = 0; symIdIt < symConnectedComponents[clusterId].size(); symIdIt++)
+      {
+        int symId = filteredSymmetryIds[segmentId][symConnectedComponents[clusterId][symIdIt]];
+        if(occlusionScores[segmentId][symId] < minScore)
+        {
+          minScore = occlusionScores[segmentId][symId];
+          bestSym = symId;
+        }
+      }
+
+      if(bestSym == -1)
+      {
+        outWarn("Could not merge similar bilateral symmetries!");
+      }
+
+      mergedSymmetryIds[segmentId].push_back(bestSym);
     }
   }
 
