@@ -48,8 +48,7 @@ UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : 
   running = true;
   receiver = std::thread(&UnrealVisionBridge::receive, this);
 #else
-  outError("F16C not supported. Use of UnrealBridge is not possible");
-  exit(1);
+  createLookupTables();
 #endif
 }
 
@@ -71,6 +70,55 @@ void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  TF To: " FG_BLUE << tfTo);
 }
 
+
+uint32_t UnrealVisionBridge::convertMantissa(const uint32_t i) const
+{
+  uint32_t m = i << 13; // Zero pad mantissa bits
+  uint32_t e = 0; // Zero exponent
+  while(!(m & 0x00800000)) // While not normalized
+  {
+    e -= 0x00800000; // Decrement exponent (1<<23)
+    m <<= 1; // Shift mantissa
+  }
+  m &= ~0x00800000; // Clear leading 1 bit
+  e += 0x38800000; // Adjust bias ((127-14)<<23)
+  return m | e; // Return combined number
+}
+
+void UnrealVisionBridge::createLookupTables()
+{
+  mantissaTable[0] = 0;
+  for(size_t i = 1; i < 1024; ++i)
+  {
+    mantissaTable[i] = convertMantissa(i);
+  }
+  for(size_t i = 1024; i < 2048; ++i)
+  {
+    mantissaTable[i] = 0x38000000 + ((i - 1024) << 13);
+  }
+
+  exponentTable[0] = 0;
+  for(size_t i = 1; i < 31; ++i)
+  {
+    exponentTable[i] = i << 23;
+  }
+  exponentTable[31] = 0x47800000;
+  exponentTable[32] = 0x80000000;
+  for(size_t i = 33; i < 63; ++i)
+  {
+    exponentTable[i] = 0x80000000 + ((i - 32) << 23);
+  }
+  exponentTable[63] = 0xC7800000;
+
+  offsetTable[0] = 0;
+  for(size_t i = 1; i < 64; ++i)
+  {
+    offsetTable[i] = 1024;
+  }
+  offsetTable[32] = 0;
+}
+
+
 void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
 {
 #ifdef __F16C__
@@ -78,6 +126,12 @@ void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
   for(size_t i = 0; i < size; ++i, in += 4, ++out)
   {
     *out = _mm_cvtph_ps(_mm_set_epi16(0, 0, 0, 0, *(in + 3), *(in + 2), *(in + 1), *(in + 0)));
+  }
+#else
+  const size_t size = packet.header.width * packet.header.height;
+  for(size_t i = 0; i < size; ++i, ++in, ++out)
+  {
+    *out = mantissaTable[offsetTable[*in >> 10] + (*in & 0x3ff)] + exponentTable[*in >> 10];
   }
 #endif
 }
@@ -236,7 +290,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   tf::Quaternion rotationCamera;
   rotationCamera.setEuler(90.0 * M_PI / 180.0, 0.0, -90.0 * M_PI / 180.0);
   rotation = rotation * rotationCamera;
-  
+
   if(advertiseTf)
   {
     broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
@@ -253,8 +307,11 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cv::Mat object(packet.header.height, packet.header.width, CV_8UC3, packet.pObject);
 
   // converting depth data
+#ifdef __F16C__
   convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<__m128>());
-
+#else
+  convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<uint32_t>());
+#endif
   // getting object color map
   std::map<std::string, cv::Vec3b> objectMap;
   const size_t SizeEntryHeader = sizeof(uint32_t) + 3 * sizeof(uint8_t);
