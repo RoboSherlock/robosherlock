@@ -107,6 +107,8 @@ private:
   void connectToServer();
   void receive();
 
+  void createLookupTables();
+  uint32_t convertMantissa(const uint32_t i) const;
 public:
   UnrealVisionBridge(const boost::property_tree::ptree &pt);
   ~UnrealVisionBridge();
