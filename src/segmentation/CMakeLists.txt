@@ -28,3 +28,6 @@ target_link_libraries(rs_rotationalSymmetrySegmentation rs_core)
 
 rs_add_library(rs_bilateralSymmetryAnnotator src/BilateralSymmetryAnnotator.cpp)
 target_link_libraries(rs_bilateralSymmetryAnnotator rs_core)
+
+rs_add_library(rs_bilateralSymmetrySegmentation src/BilateralSymmetrySegmentation.cpp)
+target_link_libraries(rs_bilateralSymmetrySegmentation rs_core)

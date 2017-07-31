@@ -7,6 +7,9 @@
     <delegateAnalysisEngine key="BilateralSymmetryAnnotator">
       <import location="../annotators/segmentation/BilateralSymmetryAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="BilateralSymmetrySegmentation">
+      <import location="../annotators/segmentation/BilateralSymmetrySegmentation.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="BlurDetectorAnnotator">
       <import location="../annotators/utils/BlurDetectorAnnotator.xml"/>
     </delegateAnalysisEngine>
