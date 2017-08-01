@@ -20,7 +20,8 @@ private:
   DownsampleMethod downsampleMethod;
 
   typename pcl::PointCloud<PointT>::Ptr dsCloud;
-  std::vector< std::vector<int> > downsampleMap;
+  std::vector< std::vector<int> > downsampleMap; // from downsample indices to original indices
+  std::vector<int> reversedMap; // from original indices to downsample indices
 
   std::vector<int> nearestIndices; // store nearest index of each point for NEAREST NEIGHBOR method
 
@@ -43,9 +44,25 @@ private:
         int pointId = this->indices_->at(it);
         int dsPointId = this->getCentroidIndex(this->input_->points[pointId]);
         downsampleMap[dsPointId].push_back(pointId);
-        }
+      }
     }
     return true;
+  }
+
+  inline void initReversedMap(){
+    if(reversedMap.empty()){
+      initDownsampleMap();
+
+      reversedMap.resize(this->indices_->size());
+      for(size_t dsPointId = 0; dsPointId < downsampleMap.size(); dsPointId++)
+      {
+        for(size_t pointIdIt = 0; pointIdIt < downsampleMap[dsPointId].size(); pointIdIt++)
+        {
+          int pointId = downsampleMap[dsPointId][pointIdIt];
+          reversedMap[pointId] = dsPointId;
+        }
+      }
+    }
   }
 
   inline void initNearestPointIndices(){
@@ -107,6 +124,10 @@ public:
   inline void getDownsampleMap(std::vector< std::vector<int> >& dsMap){
     initDownsampleMap();
     dsMap = downsampleMap;
+  }
+  inline void getReversedMap(std::vector<int> &reversed_map){
+    initReversedMap();
+    reversed_map = reversedMap;
   }
   inline void getNearestNeighborMap(std::vector< int >& dsNearestMap){
     initNearestPointIndices();

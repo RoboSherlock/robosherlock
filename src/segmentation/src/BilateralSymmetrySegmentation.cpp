@@ -51,6 +51,7 @@ private:
   int numSymmetries;
 
   std::vector< std::vector<int> > dsMap;
+  std::vector<int> reversedMap;
 
   std::vector< float > symmetryScores;
   std::vector< float > occlusionScores;
@@ -173,6 +174,7 @@ public:
     pointPerpendicularScores.clear();
     symmetrySupportOverlapScores.clear();
     dsMap.clear();
+    reversedMap.clear();
     fgWeights.clear();
     bgWeights.clear();
     symmetries.clear();
@@ -210,8 +212,6 @@ public:
       symmetrySupports[it] = casSymmetries[it].support();
     }
 
-    std::cout << "SymSupports: " << symmetrySupports[0].size() << " Data: " << symmetrySupports[0][1] << '\n';
-
     //discard color information
     //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudxyz (new  pcl::PointCloud<pcl::PointXYZ>);
     //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
@@ -239,6 +239,7 @@ public:
       dc.filter(*sceneCloud);
       dc.getDownsampleMap(dsMap);
       dc.getNearestNeighborMap(nearestMap);
+      dc.getReversedMap(reversedMap);
 
       computeDownsampleNormals(normals, dsMap, nearestMap, AVERAGE, sceneNormals);
     }
@@ -266,7 +267,20 @@ public:
     #pragma omp parallel for
     for(size_t symId = 0; symId < numSymmetries; symId++)
     {
-
+      // setup mask for faster interation
+      std::vector<bool> supportMask(sceneCloud->size(), false);
+      for(size_t pointIdIt = 0; pointIdIt < symmetrySupports[symId].size(); pointIdIt++)
+      {
+        if(isDownsampled)
+        {
+          int dsPointId = reversedMap[symmetrySupports[symId][pointIdIt]];
+          supportMask[dsPointId] = true;
+        }
+        else
+        {
+          supportMask[symmetrySupports[symId][pointIdIt]] = true;
+        }
+      }
     }
 
     return UIMA_ERR_NONE;
