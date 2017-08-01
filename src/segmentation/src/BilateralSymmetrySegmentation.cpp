@@ -49,6 +49,14 @@ private:
 
   std::vector< std::vector<int> > dsMap;
 
+  std::vector< float > symmetryScores;
+  std::vector< float > occlusionScores;
+  std::vector< float > cutScores;
+
+  std::vector< std::vector< float > > pointSymScores;
+  std::vector< std::vector< float > > pointOcclusionScores;
+  std::vector< std::vector< float > > pointPerpendicularScores;
+
   std::vector< std::vector< float > > fgWeights;
   std::vector< std::vector< float > > bgWeights;
 
@@ -64,12 +72,38 @@ private:
 
   float dist_map_resolution;
 
+  float adjacency_radius;
+  int num_adjacency_neighbors;
+  float adjacency_sigma_convex;
+  float adjacency_sigma_concave;
+  float adjacency_weight_factor;
+
+  float min_fit_angle;
+  float max_fit_angle;
+  float min_occlusion_dist;
+  float max_occlusion_dist;
+  float min_perpendicular_angle;
+  float max_perpendicular_angle;
+  float correspondence_max_sym_reflected_dist;
+
+  float fg_weight_factor;
+  float bg_weight_factor;
+
+  float max_sym_score;
+  float max_occlusion_score;
+  float max_cut_score;
+  float min_sym_sypport_overlap;
+  int min_segment_size;
+
+  float overlap_threshold;
+
   std::mutex sym_mutex;
 
   double pointSize;
+  int segVisIt;
 
 public:
-  BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0){
+  BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0){
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
   }
@@ -81,6 +115,29 @@ public:
     ctx.extractValue("isDownsampled", isDownsampled);
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
+
+    ctx.extractValue("adjacency_radius", adjacency_radius);
+    ctx.extractValue("num_adjacency_neighbors", num_adjacency_neighbors);
+    ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
+    ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
+    ctx.extractValue("adjacency_weight_factor", adjacency_weight_factor);
+
+    ctx.extractValue("min_fit_angle", min_fit_angle);
+    ctx.extractValue("max_fit_angle", max_fit_angle);
+    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
+    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
+    ctx.extractValue("min_perpendicular_angle", min_perpendicular_angle);
+    ctx.extractValue("max_perpendicular_angle", max_perpendicular_angle);
+    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+
+    ctx.extractValue("fg_weight_factor", fg_weight_factor);
+    ctx.extractValue("bg_weight_factor", bg_weight_factor);
+
+    ctx.extractValue("max_sym_score", max_sym_score);
+    ctx.extractValue("max_occlusion_score", max_occlusion_score);
+    ctx.extractValue("max_cut_score", max_cut_score);
+    ctx.extractValue("min_sym_sypport_overlap", min_sym_sypport_overlap);
+    ctx.extractValue("min_segment_size", min_segment_size);
 
     boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
 
@@ -101,6 +158,12 @@ public:
     rs::SceneCas cas(tcas);
 
     //clearing previous data
+    symmetryScores.clear();
+    occlusionScores.clear();
+    cutScores.clear();
+    pointSymScores.clear();
+    pointOcclusionScores.clear();
+    pointPerpendicularScores.clear();
     dsMap.clear();
     fgWeights.clear();
     bgWeights.clear();
@@ -125,7 +188,7 @@ public:
     numSymmetries = casSymmetries.size();
 
     if(numSymmetries < 1){
-      outWarn("No input rotational symmteries! Segmentation abort!");
+      outWarn("No input bilateral symmteries! Segmentation abort!");
       return UIMA_ERR_NONE;
     }
 

@@ -132,5 +132,30 @@ inline bool getCloudBilateralOcclusionScore(typename pcl::PointCloud<PointT>::Pt
   return true;
 }
 
+inline bool getCloudBilateralPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr normals,
+                                                BilateralSymmetry &symmetry,
+                                                std::vector<float> &point_perpendicular_scores,
+                                                float min_perpendicular_angle = 0.785f,
+                                                float max_perpendicular_angle = 1.396f)
+{
+  if(normals->size() == 0)
+  {
+    outWarn("No point in cloud! Cloud need at least one point!");
+    return false;
+  }
+
+  point_perpendicular_scores.resize(normals->size());
+
+  for(size_t pointId = 0; pointId < normals->size(); pointId++)
+  {
+    Eigen::Vector3f normal(normals->points[pointId].normal_x, normals->points[pointId].normal_y, normals->points[pointId].normal_z);
+    float angle = lineLineAngle<float>(normal, symmetry.getNormal());
+    angle = (angle - min_perpendicular_angle) / (max_perpendicular_angle - min_perpendicular_angle);
+    angle = clamp(angle, 0.0f, 1.0f);
+    point_perpendicular_scores[pointId] = angle;
+  }
+  return true;
+}
+
 
 #endif
