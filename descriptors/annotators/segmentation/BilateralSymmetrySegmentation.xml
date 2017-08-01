@@ -100,6 +100,12 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
+          <name>symmetric_weight_factor</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
           <name>fg_weight_factor</name>
           <type>Float</type>
           <multiValued>false</multiValued>
@@ -237,6 +243,12 @@
           <name>correspondence_max_sym_reflected_dist</name>
           <value>
               <float>0.01f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>symmetric_weight_factor</name>
+          <value>
+              <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>

@@ -37,11 +37,14 @@ class BilateralSymmetrySegmentation : public DrawingAnnotator
 private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr sceneCloud;
   pcl::PointCloud<pcl::Normal>::Ptr sceneNormals;
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dsSceneCloud;
+  pcl::PointCloud<pcl::Normal>::Ptr dsSceneNormals;
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
   Eigen::Vector4f boundingPlane;
 
   WeightedGraph sceneGraph;
+  std::vector<WeightedGraph> symmetricGraph;
 
   std::vector<pcl::Correspondences> correspondences;
 
@@ -52,6 +55,8 @@ private:
 
   std::vector< std::vector<int> > dsMap;
   std::vector<int> reversedMap;
+
+  pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr search_tree;
 
   std::vector< float > symmetryScores;
   std::vector< float > occlusionScores;
@@ -91,6 +96,7 @@ private:
   float max_perpendicular_angle;
   float correspondence_max_sym_reflected_dist;
 
+  float symmetric_weight_factor;
   float fg_weight_factor;
   float bg_weight_factor;
 
@@ -111,6 +117,8 @@ public:
   BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0){
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
+    dsSceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    dsSceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -135,6 +143,7 @@ public:
     ctx.extractValue("max_perpendicular_angle", max_perpendicular_angle);
     ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
 
+    ctx.extractValue("symmetric_weight_factor", symmetric_weight_factor);
     ctx.extractValue("fg_weight_factor", fg_weight_factor);
     ctx.extractValue("bg_weight_factor", bg_weight_factor);
 
@@ -166,6 +175,7 @@ public:
     symmetries.clear();
     symmetrySupports.clear();
     correspondences.clear();
+    symmetricGraph.clear();
     symmetryScores.clear();
     occlusionScores.clear();
     cutScores.clear();
@@ -185,12 +195,10 @@ public:
     filteredSegmentIds.clear();
 
     //get RGB cloud
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    cas.get(VIEW_CLOUD, *cloud_ptr);
+    cas.get(VIEW_CLOUD, *sceneCloud);
 
     //get normal cloud
-    pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_NORMALS, *normals);
+    cas.get(VIEW_NORMALS, *sceneNormals);
 
     //get Rotational Symmteries
     std::vector<rs::BilateralSymmetry> casSymmetries;
@@ -218,6 +226,7 @@ public:
 
     //allocating containers
     correspondences.resize(numSymmetries);
+    symmetricGraph.resize(numSymmetries);
     symmetryScores.resize(numSymmetries);
     occlusionScores.resize(numSymmetries);
     cutScores.resize(numSymmetries);
@@ -234,18 +243,18 @@ public:
     if(isDownsampled){
       std::vector<int> nearestMap;
       DownsampleMap<pcl::PointXYZRGBA> dc;
-      dc.setInputCloud(cloud_ptr);
+      dc.setInputCloud(sceneCloud);
       dc.setLeafSize(downsample_voxel_size);
-      dc.filter(*sceneCloud);
+      dc.filter(*dsSceneCloud);
       dc.getDownsampleMap(dsMap);
       dc.getNearestNeighborMap(nearestMap);
       dc.getReversedMap(reversedMap);
 
-      computeDownsampleNormals(normals, dsMap, nearestMap, AVERAGE, sceneNormals);
+      computeDownsampleNormals(sceneNormals, dsMap, nearestMap, AVERAGE, dsSceneNormals);
     }
     else{
-      sceneCloud = cloud_ptr;
-      sceneNormals = normals;
+      dsSceneCloud = sceneCloud;
+      dsSceneNormals = sceneNormals;
     }
 
     //initialize distance map
@@ -258,17 +267,21 @@ public:
 
     //main execution
     //compute adjacency weigth for smoothness term
-    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, adjacency_radius, num_adjacency_neighbors, sceneGraph, adjacency_weight_factor))
+    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(dsSceneCloud, dsSceneNormals, adjacency_radius, num_adjacency_neighbors, sceneGraph, adjacency_weight_factor))
     {
       outWarn("Could not construct adjacency graph!");
       return UIMA_ERR_NONE;
     }
 
+    //initialize search_tree
+    search_tree.reset(new pcl::search::KdTree<pcl::PointXYZRGBA>());
+    search_tree->setInputCloud(sceneCloud);
+
     #pragma omp parallel for
     for(size_t symId = 0; symId < numSymmetries; symId++)
     {
       // setup mask for faster interation
-      std::vector<bool> supportMask(sceneCloud->size(), false);
+      std::vector<bool> supportMask(dsSceneCloud->size(), false);
       for(size_t pointIdIt = 0; pointIdIt < symmetrySupports[symId].size(); pointIdIt++)
       {
         if(isDownsampled)
@@ -281,8 +294,58 @@ public:
           supportMask[symmetrySupports[symId][pointIdIt]] = true;
         }
       }
-    }
 
+      //compute score
+      getCloudBilateralSymmetryScore<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, dsSceneCloud, dsSceneNormals, search_tree, symmetries[symId], correspondences[symId], pointSymScores[symId], 0.01f, 0.174f, 0.02f, correspondence_max_sym_reflected_dist, min_fit_angle, max_fit_angle);
+      getCloudBilateralOcclusionScore<pcl::PointXYZRGBA>(dsSceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], min_occlusion_dist, max_occlusion_dist);
+      getCloudBilateralPerpendicularScore(dsSceneNormals, symmetries[symId], pointPerpendicularScores[symId], min_perpendicular_angle, max_perpendicular_angle);
+
+      //compute unary weight from scores
+      fgWeights[symId].resize(dsSceneCloud->points.size());
+      bgWeights[symId].resize(dsSceneCloud->points.size());
+
+      for(size_t pId = 0; pId < dsSceneCloud->points.size(); pId++)
+      {
+        bgWeights[symId][pId] = pointOcclusionScores[symId][pId] * bg_weight_factor;
+      }
+
+      for(size_t corresId = 0; corresId < correspondences[symId].size(); corresId++)
+      {
+        int pointId = correspondences[symId][corresId].index_query;
+        fgWeights[symId][pointId] = (1.0f - pointSymScores[symId][corresId]) * fg_weight_factor;
+        if(!supportMask[pointId])
+        {
+          fgWeights[symId][pointId] *= (1.0f - pointPerpendicularScores[symId][pointId]);
+        }
+      }
+
+      //compute symmetric weight
+      symmetricGraph[symId] = sceneGraph;
+      for(size_t corresId = 0; corresId < correspondences[symId].size(); corresId++)
+      {
+        if(correspondences[symId][corresId].distance < 0.0f || pointSymScores[symId][corresId] >= 1.0f)
+        {
+          continue;
+        }
+
+        int srcPointId, tgtPointId;
+        if(isDownsampled)
+        {
+          //convert to downsample ID
+          srcPointId = reversedMap[correspondences[symId][corresId].index_query];
+        }
+        else
+        {
+          srcPointId = correspondences[symId][corresId].index_query;
+        }
+        tgtPointId = correspondences[symId][corresId].index_match;
+
+        // need checking: (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor or just symmetric_weight_factor;
+        symmetricGraph[symId].addEdge(srcPointId, tgtPointId, (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor * adjacency_weight_factor);
+      }
+
+    }
+    
     return UIMA_ERR_NONE;
   }
 
