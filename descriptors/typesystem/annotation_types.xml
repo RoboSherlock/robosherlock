@@ -642,6 +642,11 @@
           <description/>
           <rangeTypeName>rs.cv.Point3f</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>support</name>
+          <description/>
+          <rangeTypeName>uima.cas.IntegerArray</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
   </types>

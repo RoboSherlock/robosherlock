@@ -43,7 +43,10 @@ private:
 
   WeightedGraph sceneGraph;
 
+  std::vector<pcl::Correspondences> correspondences;
+
   std::vector<BilateralSymmetry> symmetries;
+  std::vector< std::vector<int> > symmetrySupports;
   std::vector<BilateralSymmetry> finalSymmetries;
   int numSymmetries;
 
@@ -52,6 +55,7 @@ private:
   std::vector< float > symmetryScores;
   std::vector< float > occlusionScores;
   std::vector< float > cutScores;
+  std::vector< float > symmetrySupportOverlapScores;
 
   std::vector< std::vector< float > > pointSymScores;
   std::vector< std::vector< float > > pointOcclusionScores;
@@ -158,12 +162,16 @@ public:
     rs::SceneCas cas(tcas);
 
     //clearing previous data
+    symmetries.clear();
+    symmetrySupports.clear();
+    correspondences.clear();
     symmetryScores.clear();
     occlusionScores.clear();
     cutScores.clear();
     pointSymScores.clear();
     pointOcclusionScores.clear();
     pointPerpendicularScores.clear();
+    symmetrySupportOverlapScores.clear();
     dsMap.clear();
     fgWeights.clear();
     bgWeights.clear();
@@ -194,24 +202,33 @@ public:
 
 
     symmetries.resize(numSymmetries);
-
+    symmetrySupports.resize(numSymmetries);
     for(size_t it = 0; it < casSymmetries.size(); it++){
       Eigen::Vector3f currOrigin(casSymmetries[it].origin().x(), casSymmetries[it].origin().y(), casSymmetries[it].origin().z());
       Eigen::Vector3f currNormal(casSymmetries[it].normal().x(), casSymmetries[it].normal().y(), casSymmetries[it].normal().z());
       symmetries[it] = BilateralSymmetry(currOrigin, currNormal);
+      symmetrySupports[it] = casSymmetries[it].support();
     }
+
+    std::cout << "SymSupports: " << symmetrySupports[0].size() << " Data: " << symmetrySupports[0][1] << '\n';
 
     //discard color information
     //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudxyz (new  pcl::PointCloud<pcl::PointXYZ>);
     //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
 
     //allocating containers
+    correspondences.resize(numSymmetries);
+    symmetryScores.resize(numSymmetries);
+    occlusionScores.resize(numSymmetries);
+    cutScores.resize(numSymmetries);
+    symmetrySupportOverlapScores.resize(numSymmetries);
+    pointSymScores.resize(numSymmetries);
+    pointOcclusionScores.resize(numSymmetries);
+    pointPerpendicularScores.resize(numSymmetries);
     fgWeights.resize(numSymmetries);
     bgWeights.resize(numSymmetries);
     segmentIds.resize(numSymmetries);
     dsSegmentIds.resize(numSymmetries);
-
-    //main execution
 
     //downsample the cloud and normal cloud to speed up segmentation
     if(isDownsampled){
@@ -239,6 +256,18 @@ public:
     dist_map->setInputCloud(sceneCloud);
 
     //main execution
+    //compute adjacency weigth for smoothness term
+    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, adjacency_radius, num_adjacency_neighbors, sceneGraph, adjacency_weight_factor))
+    {
+      outWarn("Could not construct adjacency graph!");
+      return UIMA_ERR_NONE;
+    }
+
+    #pragma omp parallel for
+    for(size_t symId = 0; symId < numSymmetries; symId++)
+    {
+
+    }
 
     return UIMA_ERR_NONE;
   }

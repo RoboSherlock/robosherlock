@@ -276,25 +276,33 @@ public:
 
     //convert BilateralSymmetry to CAS Symmetries and push to CAS
     std::vector<rs::BilateralSymmetry> casSymmetries;
-    for(size_t it = 0; it < finalSymmetries.size(); it++){
-      rs::BilateralSymmetry currSym = rs::create<rs::BilateralSymmetry>(tcas);
-      rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
-      rs::Point3f currNormal = rs::create<rs::Point3f>(tcas);
+    for(size_t segId = 0; segId < mergedSymmetryIds.size(); segId++){
+      for(size_t symIdIt = 0; symIdIt < mergedSymmetryIds[segId].size(); symIdIt++)
+      {
+        int symId = mergedSymmetryIds[segId][symIdIt];
+        BilateralSymmetry sym = segmentRefinedSymmetries[segId][symId];
 
-      Eigen::Vector3f eigenOrigin = finalSymmetries[it].getOrigin();
-      Eigen::Vector3f eigenNormal = finalSymmetries[it].getNormal();
+        rs::BilateralSymmetry currSym = rs::create<rs::BilateralSymmetry>(tcas);
+        rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
+        rs::Point3f currNormal = rs::create<rs::Point3f>(tcas);
 
-      currOrigin.x.set(eigenOrigin[0]);
-      currOrigin.y.set(eigenOrigin[1]);
-      currOrigin.z.set(eigenOrigin[2]);
+        Eigen::Vector3f eigenOrigin = sym.getOrigin();
+        Eigen::Vector3f eigenNormal = sym.getNormal();
 
-      currNormal.x.set(eigenNormal[0]);
-      currNormal.y.set(eigenNormal[1]);
-      currNormal.z.set(eigenNormal[2]);
+        currOrigin.x.set(eigenOrigin[0]);
+        currOrigin.y.set(eigenOrigin[1]);
+        currOrigin.z.set(eigenOrigin[2]);
 
-      currSym.origin.set(currOrigin);
-      currSym.normal.set(currNormal);
-      casSymmetries.push_back(currSym);
+        currNormal.x.set(eigenNormal[0]);
+        currNormal.y.set(eigenNormal[1]);
+        currNormal.z.set(eigenNormal[2]);
+
+        currSym.origin.set(currOrigin);
+        currSym.normal.set(currNormal);
+        currSym.support.set(segments[segId].indices);
+        casSymmetries.push_back(currSym);
+      }
+
     }
 
     cas.set(VIEW_BILATERAL_SYMMETRIES, casSymmetries);
