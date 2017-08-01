@@ -104,6 +104,7 @@ private:
 
   void readConfig(const boost::property_tree::ptree &pt);
   void convertDepth(const uint16_t *in, __m128 *out) const;
+  void convertDepth(const uint16_t *in, uint32_t *out) const;
   void connectToServer();
   void receive();
 

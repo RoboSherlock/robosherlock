@@ -36,7 +36,6 @@
 
 UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false), advertiseTf(false)
 {
-#ifdef __F16C__
   readConfig(pt);
 
   const size_t bufferSize = 1024 * 1024 * 10;
@@ -47,9 +46,7 @@ UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : 
   outInfo("starting receiver and transmitter threads.");
   running = true;
   receiver = std::thread(&UnrealVisionBridge::receive, this);
-#else
   createLookupTables();
-#endif
 }
 
 UnrealVisionBridge::~UnrealVisionBridge()
@@ -119,6 +116,14 @@ void UnrealVisionBridge::createLookupTables()
 }
 
 
+void UnrealVisionBridge::convertDepth(const uint16_t *in, uint32_t *out) const
+{
+  const size_t size = packet.header.width * packet.header.height;
+  for(size_t i = 0; i < size; ++i, ++in, ++out)
+  {
+    *out = mantissaTable[offsetTable[*in >> 10] + (*in & 0x3ff)] + exponentTable[*in >> 10];
+  }
+}
 void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
 {
 #ifdef __F16C__
@@ -126,12 +131,6 @@ void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
   for(size_t i = 0; i < size; ++i, in += 4, ++out)
   {
     *out = _mm_cvtph_ps(_mm_set_epi16(0, 0, 0, 0, *(in + 3), *(in + 2), *(in + 1), *(in + 0)));
-  }
-#else
-  const size_t size = packet.header.width * packet.header.height;
-  for(size_t i = 0; i < size; ++i, ++in, ++out)
-  {
-    *out = mantissaTable[offsetTable[*in >> 10] + (*in & 0x3ff)] + exponentTable[*in >> 10];
   }
 #endif
 }
