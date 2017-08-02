@@ -527,13 +527,13 @@
       <nameValuePair>
         <name>minNormalThreshold</name>
         <value>
-          <float>0.1</float>
+          <float>0.09</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxNormalThreshold</name>
         <value>
-          <float>0.2</float>
+          <float>0.13</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -545,7 +545,7 @@
       <nameValuePair>
         <name>numSegmentation</name>
         <value>
-          <integer>3</integer>
+          <integer>2</integer>
         </value>
       </nameValuePair>
       <nameValuePair>

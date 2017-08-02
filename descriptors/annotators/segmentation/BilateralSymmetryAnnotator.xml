@@ -206,13 +206,13 @@
       <nameValuePair>
           <name>min_segment_inlier_score</name>
           <value>
-              <float>0.1f</float>
+              <float>0.3f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>min_corres_inlier_score</name>
           <value>
-              <float>0.1f</float>
+              <float>0.8f</float>
           </value>
       </nameValuePair>
       <nameValuePair>

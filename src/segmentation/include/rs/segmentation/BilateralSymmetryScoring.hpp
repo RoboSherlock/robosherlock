@@ -59,6 +59,9 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
   return success;*/
 
   //NOTE: second approach
+  point_symmetry_scores.clear();
+  correspondences.clear();
+
   Eigen::Vector3f symOrigin = symmetry.getOrigin();
   Eigen::Vector3f symNormal = symmetry.getNormal();
 
@@ -90,6 +93,7 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
 
       score = (score - min_inlier_normal_angle) / (max_inlier_normal_angle - min_inlier_normal_angle);
       score = clamp(score, 0.0f, 1.0f);
+      correspondences.push_back(pcl::Correspondence(pointId, neighbors[0], dists[0]));
       point_symmetry_scores.push_back(score);
     }
   }

@@ -329,23 +329,127 @@ public:
         }
 
         int srcPointId, tgtPointId;
+        srcPointId = correspondences[symId][corresId].index_query;
         if(isDownsampled)
         {
           //convert to downsample ID
-          srcPointId = reversedMap[correspondences[symId][corresId].index_query];
+          tgtPointId = reversedMap[correspondences[symId][corresId].index_match];
         }
         else
         {
-          srcPointId = correspondences[symId][corresId].index_query;
+          tgtPointId = correspondences[symId][corresId].index_match;
         }
-        tgtPointId = correspondences[symId][corresId].index_match;
 
-        // need checking: (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor or just symmetric_weight_factor;
-        symmetricGraph[symId].addEdge(srcPointId, tgtPointId, (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor * adjacency_weight_factor);
+        if(srcPointId != tgtPointId)
+        {
+          // need checking: (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor or just symmetric_weight_factor;
+          symmetricGraph[symId].addEdge(srcPointId, tgtPointId, (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor * adjacency_weight_factor);
+        }
       }
 
+      std::vector<int> backgroundIds;
+      float min_cut_value;
+      float max_flow = BoykovMinCut::min_cut(fgWeights[symId], bgWeights[symId], symmetricGraph[symId], dsSegmentIds[symId], backgroundIds, min_cut_value);
+
+      if(max_flow < 0.0f)
+      {
+        outWarn("Could not segment cloud using Boykov min_cut! abort!");
+      }
+
+      //compute segment score for filtering
+      symmetryScores[symId] = 0.0f;
+      occlusionScores[symId] = 0.0f;
+      cutScores[symId] = 0.0f;
+      symmetrySupportOverlapScores[symId] = 0.0f;
+
+      if(dsSegmentIds[symId].size() > min_segment_size)
+      {
+        std::vector<bool> dsSegmentMask(dsSceneCloud->size(), false);
+        for(size_t pointIdIt = 0; pointIdIt < dsSegmentIds[symId].size(); pointIdIt++)
+        {
+          dsSegmentMask[dsSegmentIds[symId][pointIdIt]] = true;
+        }
+
+        //compute symmetry scores
+        int numInlier = 0;
+        for(size_t corresId = 0; corresId < correspondences[symId].size(); corresId++)
+        {
+          int srcPointId = correspondences[symId][corresId].index_query;
+          int tgtPointId = correspondences[symId][corresId].index_match;
+          if(dsSegmentMask[srcPointId] && dsSegmentMask[tgtPointId])
+          {
+            numInlier++;
+            symmetryScores[symId] += pointSymScores[symId][corresId];
+          }
+        }
+
+        if(numInlier > 0)
+        {
+          symmetryScores[symId] /= static_cast<float>(numInlier);
+        }
+        else
+        {
+          symmetryScores[symId] = 1.0f;
+        }
+
+        //compute occlusion score
+        for(size_t pointIdIt = 0; pointIdIt < dsSegmentIds[symId].size(); pointIdIt++){
+          int pointId = dsSegmentIds[symId][pointIdIt];
+          occlusionScores[symId] += pointOcclusionScores[symId][pointId];
+        }
+        occlusionScores[symId] /= static_cast<float>(dsSegmentIds[symId].size());
+
+        //compute cut score
+        if(dsSegmentIds[symId].size() != dsSceneCloud->size())
+        {
+          cutScores[symId] = min_cut_value / static_cast<float>(dsSegmentIds[symId].size());
+        }
+
+        //compute overlap score
+        for(size_t pointIdIt = 0; pointIdIt < dsSegmentIds[symId].size(); pointIdIt++)
+        {
+          int pointId = dsSegmentIds[symId][pointIdIt];
+          if(supportMask[pointId])
+          {
+            symmetrySupportOverlapScores[symId] += 1.0f;
+          }
+          symmetrySupportOverlapScores[symId] /= static_cast<float>(symmetrySupports[symId].size());
+        }
+      }
+
+      //if downsampled, upsample the cloud
+      if(isDownsampled)
+      {
+        upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
+      }
+      else
+      {
+        segmentIds = dsSegmentIds;
+      }
     }
-    
+    //filter segments
+    this->filter();
+
+    //extract good segment for visualizer and publish to CAS
+    std::vector<pcl::PointIndices> casSegments;
+    for(size_t segmentIdIt = 0; segmentIdIt < filteredSegmentIds.size(); segmentIdIt++){
+      int segmentId = filteredSegmentIds[segmentIdIt];
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
+      pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *currSegment);
+      segments.push_back(currSegment);
+      finalSymmetries.push_back(symmetries[segmentId]);
+
+      pcl::PointIndices currSegmentIds;
+      currSegmentIds.indices = segmentIds[segmentId];
+      casSegments.push_back(currSegmentIds);
+    }
+
+    cas.set(VIEW_BILATERAL_SEGMENTATION_IDS, casSegments);
+
+    //avoid segmentation fault
+    if(segVisIt >= segments.size() || segVisIt < 0)
+      segVisIt = 0;
+
     return UIMA_ERR_NONE;
   }
 
@@ -358,19 +462,31 @@ public:
         visualizer.addPointCloud(sceneCloud, cloudname);
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
         addSymmetryPlanes(visualizer, symmetries, 0.05f, 0.05f);
-        //visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
       else{
         visualizer.removeAllShapes();
         visualizer.updatePointCloud(sceneCloud, cloudname);
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
         addSymmetryPlanes(visualizer, symmetries, 0.05f, 0.05f);
-        //visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
     }
   }
 
 private:
+  inline void filter(){
+    for(size_t symId = 0; symId < numSymmetries; symId++){
+      if( symmetryScores[symId] < max_sym_score &&
+          occlusionScores[symId] < max_occlusion_score &&
+          cutScores[symId] < max_cut_score &&
+          dsSegmentIds[symId].size() > min_segment_size &&
+          symmetrySupportOverlapScores[symId] > min_sym_sypport_overlap)
+      {
+        filteredSegmentIds.push_back(symId);
+      }
+    }
+  }
 
   inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)
   {
@@ -418,7 +534,7 @@ private:
     }
   }
 
-  /*bool callbackKey(const int key, const Source source)
+  bool callbackKey(const int key, const Source source)
   {
     switch(key)
     {
@@ -437,7 +553,7 @@ private:
       break;
     }
     return true;
-  }*/
+  }
 };
 
 // This macro exports an entry point that is used to create the annotator.
