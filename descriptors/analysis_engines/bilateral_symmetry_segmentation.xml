@@ -629,7 +629,7 @@
        <node>NormalEstimator</node>
        <node>OverSegmentationAnnotator</node>
        <node>BilateralSymmetryAnnotator</node>
-       <!--<node>BilateralSymmetrySegmentation</node>-->
+       <node>BilateralSymmetrySegmentation</node>
        <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>

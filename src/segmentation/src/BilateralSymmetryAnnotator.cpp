@@ -33,8 +33,8 @@ private:
   std::vector< std::vector<BilateralSymmetry> > segmentInitialSymmetries;
   std::vector< std::vector<BilateralSymmetry> > segmentRefinedSymmetries;
   std::vector< BilateralSymmetry > finalSymmetries;
+  std::vector< int > finalSupportSizeIds;
   std::vector< std::vector<int> > filteredSymmetryIds;
-  std::vector< std::vector<int> > mergedSymmetryIds;
 
   std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segmentClouds;
   std::vector< pcl::PointCloud<pcl::Normal>::Ptr > segmentNormals;
@@ -158,7 +158,7 @@ public:
     segmentRefinedSymmetries.clear();
     finalSymmetries.clear();
     filteredSymmetryIds.clear();
-    mergedSymmetryIds.clear();
+    finalSupportSizeIds.clear();
     segmentClouds.clear();
     symSupportSizes.clear();
     segmentNormals.clear();
@@ -178,7 +178,6 @@ public:
     segmentInitialSymmetries.resize(numSegments);
     segmentRefinedSymmetries.resize(numSegments);
     filteredSymmetryIds.resize(numSegments);
-    mergedSymmetryIds.resize(numSegments);
     segmentClouds.resize(numSegments);
     segmentDSClouds.resize(numSegments);
     segmentDSNormals.resize(numSegments);
@@ -269,40 +268,33 @@ public:
 
       //filter symmetries based on score and linearize data to an array
       this->filterSymmetries(segmentId);
-      this->mergeSymmetries(segmentId);
     }
 
-    this->linearizeSegmentData(segmentRefinedSymmetries, finalSymmetries, mergedSymmetryIds);
+    this->mergeSymmetries();
 
     //convert BilateralSymmetry to CAS Symmetries and push to CAS
     std::vector<rs::BilateralSymmetry> casSymmetries;
-    for(size_t segId = 0; segId < mergedSymmetryIds.size(); segId++){
-      for(size_t symIdIt = 0; symIdIt < mergedSymmetryIds[segId].size(); symIdIt++)
-      {
-        int symId = mergedSymmetryIds[segId][symIdIt];
-        BilateralSymmetry sym = segmentRefinedSymmetries[segId][symId];
+    for(size_t symId = 0; symId < finalSymmetries.size(); symId++)
+    {
+      rs::BilateralSymmetry currSym = rs::create<rs::BilateralSymmetry>(tcas);
+      rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
+      rs::Point3f currNormal = rs::create<rs::Point3f>(tcas);
 
-        rs::BilateralSymmetry currSym = rs::create<rs::BilateralSymmetry>(tcas);
-        rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
-        rs::Point3f currNormal = rs::create<rs::Point3f>(tcas);
+      Eigen::Vector3f eigenOrigin = finalSymmetries[symId].getOrigin();
+      Eigen::Vector3f eigenNormal = finalSymmetries[symId].getNormal();
 
-        Eigen::Vector3f eigenOrigin = sym.getOrigin();
-        Eigen::Vector3f eigenNormal = sym.getNormal();
+      currOrigin.x.set(eigenOrigin[0]);
+      currOrigin.y.set(eigenOrigin[1]);
+      currOrigin.z.set(eigenOrigin[2]);
 
-        currOrigin.x.set(eigenOrigin[0]);
-        currOrigin.y.set(eigenOrigin[1]);
-        currOrigin.z.set(eigenOrigin[2]);
+      currNormal.x.set(eigenNormal[0]);
+      currNormal.y.set(eigenNormal[1]);
+      currNormal.z.set(eigenNormal[2]);
 
-        currNormal.x.set(eigenNormal[0]);
-        currNormal.y.set(eigenNormal[1]);
-        currNormal.z.set(eigenNormal[2]);
-
-        currSym.origin.set(currOrigin);
-        currSym.normal.set(currNormal);
-        currSym.support.set(segments[segId].indices);
-        casSymmetries.push_back(currSym);
-      }
-
+      currSym.origin.set(currOrigin);
+      currSym.normal.set(currNormal);
+      currSym.support.set(segments[finalSupportSizeIds[symId]].indices);
+      casSymmetries.push_back(currSym);
     }
 
     cas.set(VIEW_BILATERAL_SYMMETRIES, casSymmetries);
@@ -645,25 +637,37 @@ private:
     }
   }
 
-  inline void mergeSymmetries(int segmentId)
+  inline void mergeSymmetries()
   {
-    Graph symGraph(filteredSymmetryIds[segmentId].size());
-
-    for(size_t srcIdIt = 0; srcIdIt < filteredSymmetryIds[segmentId].size(); srcIdIt++)
+    std::vector<float> linear_occlusion_score;
+    std::vector<BilateralSymmetry> linear_symmetries;
+    std::vector<int> linear_support_size_ids;
+    for(size_t segmentId = 0; segmentId < numSegments; segmentId++)
     {
-      int srcId = filteredSymmetryIds[segmentId][srcIdIt];
-      BilateralSymmetry srcSym = segmentRefinedSymmetries[segmentId][srcId];
-
-      for(size_t tgtIdIt = srcIdIt+1; tgtIdIt < filteredSymmetryIds[segmentId].size(); tgtIdIt++)
+      for(size_t symIdIt = 0; symIdIt < filteredSymmetryIds[segmentId].size(); symIdIt++)
       {
-        int tgtId = filteredSymmetryIds[segmentId][tgtIdIt];
-        BilateralSymmetry tgtSym = segmentRefinedSymmetries[segmentId][tgtId];
+        int symId = filteredSymmetryIds[segmentId][symIdIt];
+        linear_occlusion_score.push_back(occlusionScores[segmentId][symId]);
+        linear_symmetries.push_back(segmentRefinedSymmetries[segmentId][symId]);
+        linear_support_size_ids.push_back(segmentId);
+      }
+    }
+
+    Graph symGraph(linear_symmetries.size());
+
+    for(size_t srcId = 0; srcId < linear_symmetries.size(); srcId++)
+    {
+      BilateralSymmetry srcSym = linear_symmetries[srcId];
+
+      for(size_t tgtId = srcId+1; tgtId < linear_symmetries.size(); tgtId++)
+      {
+        BilateralSymmetry tgtSym = linear_symmetries[tgtId];
 
         float angleDiff, distDiff;
         srcSym.bilateralSymDiff(tgtSym, angleDiff, distDiff);
         if(angleDiff < sym_angle_diff && distDiff < sym_dist_diff)
         {
-          symGraph.addEdge(srcIdIt, tgtIdIt);
+          symGraph.addEdge(srcId, tgtId);
         }
       }
     }
@@ -677,10 +681,10 @@ private:
       float bestSym = -1;
       for(size_t symIdIt = 0; symIdIt < symConnectedComponents[clusterId].size(); symIdIt++)
       {
-        int symId = filteredSymmetryIds[segmentId][symConnectedComponents[clusterId][symIdIt]];
-        if(occlusionScores[segmentId][symId] < minScore)
+        int symId = symConnectedComponents[clusterId][symIdIt];
+        if(linear_occlusion_score[symId] < minScore)
         {
-          minScore = occlusionScores[segmentId][symId];
+          minScore = linear_occlusion_score[symId];
           bestSym = symId;
         }
       }
@@ -690,7 +694,8 @@ private:
         outWarn("Could not merge similar bilateral symmetries!");
       }
 
-      mergedSymmetryIds[segmentId].push_back(bestSym);
+      finalSupportSizeIds.push_back(linear_support_size_ids[bestSym]);
+      finalSymmetries.push_back(linear_symmetries[bestSym]);
     }
   }
 
