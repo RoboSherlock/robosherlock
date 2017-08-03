@@ -26,6 +26,8 @@
 #include <rs/occupancy_map/DownsampleMap.hpp>
 
 #include <rs/graph/WeightedGraph.hpp>
+#include <rs/graph/Graph.hpp>
+#include <rs/graph/GraphAlgorithms.hpp>
 
 
 
@@ -75,6 +77,7 @@ private:
 
   std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segments;
   std::vector<int> filteredSegmentIds;
+  std::vector<int> mergedSymmetryIds;
 
   //parameters
   bool isDownsampled;
@@ -107,7 +110,6 @@ private:
   int min_segment_size;
 
   float overlap_threshold;
-
   std::mutex sym_mutex;
 
   double pointSize;
@@ -153,6 +155,8 @@ public:
     ctx.extractValue("min_sym_sypport_overlap", min_sym_sypport_overlap);
     ctx.extractValue("min_segment_size", min_segment_size);
 
+    ctx.extractValue("overlap_threshold", overlap_threshold);
+
     boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
 
     return UIMA_ERR_NONE;
@@ -193,6 +197,7 @@ public:
     dsSegmentIds.clear();
     segments.clear();
     filteredSegmentIds.clear();
+    mergedSymmetryIds.clear();
 
     //get RGB cloud
     cas.get(VIEW_CLOUD, *sceneCloud);
@@ -253,8 +258,10 @@ public:
       computeDownsampleNormals(sceneNormals, dsMap, nearestMap, AVERAGE, dsSceneNormals);
     }
     else{
-      dsSceneCloud = sceneCloud;
-      dsSceneNormals = sceneNormals;
+      //dsSceneCloud = sceneCloud;
+      //dsSceneNormals = sceneNormals;
+      pcl::copyPointCloud(*sceneCloud, *dsSceneCloud);
+      pcl::copyPointCloud(*sceneNormals, *dsSceneNormals);
     }
 
     //initialize distance map
@@ -343,7 +350,7 @@ public:
         if(srcPointId != tgtPointId)
         {
           // need checking: (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor or just symmetric_weight_factor;
-          symmetricGraph[symId].addEdge(srcPointId, tgtPointId, (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor * adjacency_weight_factor);
+          symmetricGraph[symId].addEdge(srcPointId, tgtPointId, symmetric_weight_factor * adjacency_weight_factor); // * (1.0f - pointSymScores[symId][corresId])
         }
       }
 
@@ -413,8 +420,8 @@ public:
           {
             symmetrySupportOverlapScores[symId] += 1.0f;
           }
-          symmetrySupportOverlapScores[symId] /= static_cast<float>(symmetrySupports[symId].size());
         }
+        symmetrySupportOverlapScores[symId] /= static_cast<float>(symmetrySupports[symId].size());
       }
 
       //if downsampled, upsample the cloud
@@ -424,16 +431,17 @@ public:
       }
       else
       {
-        segmentIds = dsSegmentIds;
+        segmentIds[symId] = dsSegmentIds[symId];
       }
     }
     //filter segments
     this->filter();
+    this->merge();
 
     //extract good segment for visualizer and publish to CAS
     std::vector<pcl::PointIndices> casSegments;
-    for(size_t segmentIdIt = 0; segmentIdIt < filteredSegmentIds.size(); segmentIdIt++){
-      int segmentId = filteredSegmentIds[segmentIdIt];
+    for(size_t segmentIdIt = 0; segmentIdIt < mergedSymmetryIds.size(); segmentIdIt++){
+      int segmentId = mergedSymmetryIds[segmentIdIt];
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *currSegment);
       segments.push_back(currSegment);
@@ -446,29 +454,25 @@ public:
 
     cas.set(VIEW_BILATERAL_SEGMENTATION_IDS, casSegments);
 
-    //avoid segmentation fault
-    if(segVisIt >= segments.size() || segVisIt < 0)
-      segVisIt = 0;
-
     return UIMA_ERR_NONE;
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
-
+    std::string symname = "sym" + std::to_string(segVisIt+1);
     if(numSymmetries > 0){
       if(firstRun){
-        visualizer.addPointCloud(sceneCloud, cloudname);
+        visualizer.addPointCloud(segments[segVisIt], cloudname);
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-        addSymmetryPlanes(visualizer, symmetries, 0.05f, 0.05f);
+        addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
         visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
       else{
         visualizer.removeAllShapes();
-        visualizer.updatePointCloud(sceneCloud, cloudname);
+        visualizer.updatePointCloud(segments[segVisIt], cloudname);
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-        addSymmetryPlanes(visualizer, symmetries, 0.05f, 0.05f);
+        addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
         visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
     }
@@ -480,10 +484,54 @@ private:
       if( symmetryScores[symId] < max_sym_score &&
           occlusionScores[symId] < max_occlusion_score &&
           cutScores[symId] < max_cut_score &&
-          dsSegmentIds[symId].size() > min_segment_size &&
+          segmentIds[symId].size() > min_segment_size &&
           symmetrySupportOverlapScores[symId] > min_sym_sypport_overlap)
       {
         filteredSegmentIds.push_back(symId);
+      }
+    }
+  }
+
+  inline void merge()
+  {
+    Graph similarSegments(filteredSegmentIds.size());
+
+    for(size_t srcSegmentIdIt = 0; srcSegmentIdIt < filteredSegmentIds.size(); srcSegmentIdIt++)
+    {
+      int srcSegmentId = filteredSegmentIds[srcSegmentIdIt];
+      for(size_t tgtSegmentIdIt = srcSegmentIdIt+1; tgtSegmentIdIt < filteredSegmentIds.size(); tgtSegmentIdIt++)
+      {
+        int tgtSegmentId = filteredSegmentIds[tgtSegmentIdIt];
+
+        int intersectSize = Intersection(segmentIds[srcSegmentId], segmentIds[tgtSegmentId]).size();
+        int unionSize = Union(segmentIds[srcSegmentId], segmentIds[tgtSegmentId]).size();
+        float ratio = (float) intersectSize / unionSize;
+        if(ratio > overlap_threshold)
+        {
+          similarSegments.addEdge(srcSegmentIdIt, tgtSegmentIdIt);
+        }
+      }
+    }
+
+    std::vector< std::vector<int> > connectedSegments;
+    connectedSegments = extractConnectedComponents(similarSegments);
+
+    for(size_t ccId = 0; ccId < connectedSegments.size(); ccId++)
+    {
+      int bestId = -1;
+      int max_segment_size = 0;
+      for(size_t segIdIt = 0; segIdIt < connectedSegments[ccId].size(); segIdIt++)
+      {
+        int segmentId = filteredSegmentIds[connectedSegments[ccId][segIdIt]];
+        if(segmentIds[segmentId].size() > max_segment_size)
+        {
+          bestId = segmentId;
+          max_segment_size = segmentIds[segmentId].size();
+        }
+      }
+      if(bestId != -1)
+      {
+        mergedSymmetryIds.push_back(bestId);
       }
     }
   }
@@ -541,11 +589,11 @@ private:
     case 'a':
       segVisIt--;
       if(segVisIt < 0)
-        segVisIt = numSymmetries - 1;
+        segVisIt = segments.size() - 1;
       break;
     case 'd':
       segVisIt++;
-      if(segVisIt >= numSymmetries)
+      if(segVisIt >= segments.size())
         segVisIt = 0;
       break;
     default:

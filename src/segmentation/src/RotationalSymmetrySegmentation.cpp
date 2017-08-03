@@ -320,10 +320,6 @@ public:
 
     cas.set(VIEW_ROTATIONAL_SEGMENTATION_IDS, casSegments);
 
-    //avoid segmentation fault
-    if(segVisIt >= segments.size() || segVisIt < 0)
-      segVisIt = 0;
-
     return UIMA_ERR_NONE;
   }
 
@@ -370,11 +366,11 @@ private:
     case 'a':
       segVisIt--;
       if(segVisIt < 0)
-        segVisIt = numSymmetries - 1;
+        segVisIt = segments.size() - 1;
       break;
     case 'd':
       segVisIt++;
-      if(segVisIt >= numSymmetries)
+      if(segVisIt >= segments.size())
         segVisIt = 0;
       break;
     default:

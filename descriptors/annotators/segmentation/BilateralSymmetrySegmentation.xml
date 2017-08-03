@@ -266,37 +266,37 @@
       <nameValuePair>
           <name>max_sym_score</name>
           <value>
-              <float>0.3f</float>
+              <float>0.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>max_occlusion_score</name>
           <value>
-              <float>0.005f</float>
+              <float>0.1f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>max_cut_score</name>
           <value>
-              <float>0.3f</float>
+              <float>0.55f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>min_sym_sypport_overlap</name>
           <value>
-              <float>0.5f</float>
+              <float>0.1f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>min_segment_size</name>
           <value>
-              <integer>800</integer>
+              <integer>300</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>overlap_threshold</name>
           <value>
-              <float>0.5f</float>
+              <float>0.8f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
