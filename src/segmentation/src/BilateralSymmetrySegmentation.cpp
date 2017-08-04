@@ -218,6 +218,7 @@ public:
 
     symmetries.resize(numSymmetries);
     symmetrySupports.resize(numSymmetries);
+    #pragma omp parallel for
     for(size_t it = 0; it < casSymmetries.size(); it++){
       Eigen::Vector3f currOrigin(casSymmetries[it].origin().x(), casSymmetries[it].origin().y(), casSymmetries[it].origin().z());
       Eigen::Vector3f currNormal(casSymmetries[it].normal().x(), casSymmetries[it].normal().y(), casSymmetries[it].normal().z());
@@ -258,10 +259,10 @@ public:
       computeDownsampleNormals(sceneNormals, dsMap, nearestMap, AVERAGE, dsSceneNormals);
     }
     else{
-      //dsSceneCloud = sceneCloud;
-      //dsSceneNormals = sceneNormals;
-      pcl::copyPointCloud(*sceneCloud, *dsSceneCloud);
-      pcl::copyPointCloud(*sceneNormals, *dsSceneNormals);
+      dsSceneCloud = sceneCloud;
+      dsSceneNormals = sceneNormals;
+      //pcl::copyPointCloud(*sceneCloud, *dsSceneCloud);
+      //pcl::copyPointCloud(*sceneNormals, *dsSceneNormals);
     }
 
     //initialize distance map
@@ -381,8 +382,18 @@ public:
         int numInlier = 0;
         for(size_t corresId = 0; corresId < correspondences[symId].size(); corresId++)
         {
-          int srcPointId = correspondences[symId][corresId].index_query;
-          int tgtPointId = correspondences[symId][corresId].index_match;
+          int srcPointId, tgtPointId;
+          srcPointId = correspondences[symId][corresId].index_query;
+          if(isDownsampled)
+          {
+            //convert to downsample ID
+            tgtPointId = reversedMap[correspondences[symId][corresId].index_match];
+          }
+          else
+          {
+            tgtPointId = correspondences[symId][corresId].index_match;
+          }
+
           if(dsSegmentMask[srcPointId] && dsSegmentMask[tgtPointId])
           {
             numInlier++;
@@ -415,13 +426,32 @@ public:
         //compute overlap score
         for(size_t pointIdIt = 0; pointIdIt < dsSegmentIds[symId].size(); pointIdIt++)
         {
-          int pointId = dsSegmentIds[symId][pointIdIt];
-          if(supportMask[pointId])
+          int dsPointId = dsSegmentIds[symId][pointIdIt];
+          if(supportMask[dsPointId])
           {
             symmetrySupportOverlapScores[symId] += 1.0f;
           }
         }
-        symmetrySupportOverlapScores[symId] /= static_cast<float>(symmetrySupports[symId].size());
+        if(isDownsampled)
+        {
+          int denom = 0;
+          for(size_t it = 0; it < supportMask.size(); it++)
+          {
+            denom += static_cast<int>(supportMask[it]);
+          }
+          if(denom != 0)
+          {
+            symmetrySupportOverlapScores[symId] /= static_cast<float>(denom);
+          }
+          else
+          {
+            symmetrySupportOverlapScores[symId] = 0.0f;
+          }
+        }
+        else
+        {
+          symmetrySupportOverlapScores[symId] /= static_cast<float>(symmetrySupports[symId].size());
+        }
       }
 
       //if downsampled, upsample the cloud

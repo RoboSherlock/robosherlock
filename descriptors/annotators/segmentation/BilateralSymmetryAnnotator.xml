@@ -206,25 +206,25 @@
       <nameValuePair>
           <name>min_segment_inlier_score</name>
           <value>
-              <float>0.3f</float>
+              <float>0.2f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>min_corres_inlier_score</name>
           <value>
-              <float>0.8f</float>
+              <float>0.7f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>sym_angle_diff</name>
           <value>
-              <float>0.122f</float>
+              <float>0.2f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>sym_dist_diff</name>
           <value>
-              <float>0.01f</float>
+              <float>0.05f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>

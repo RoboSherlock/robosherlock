@@ -348,10 +348,11 @@ private:
     std::vector<Eigen::Vector3f> points;
     generateHemisphere(angle_division, points);
 
-    for(size_t pointId = 0; pointId < points.size(); pointId++)
+    /*for(size_t pointId = 0; pointId < points.size(); pointId++)
     {
       symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * points[pointId]));
-    }
+    }*/
+    symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * Eigen::Vector3f::UnitY()));
 
     /*for (size_t symId = 0; symId < 2; symId++)
     {

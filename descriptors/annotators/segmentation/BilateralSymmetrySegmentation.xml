@@ -158,7 +158,7 @@
       <nameValuePair>
           <name>isDownsampled</name>
           <value>
-              <boolean>false</boolean>
+              <boolean>true</boolean>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -290,13 +290,13 @@
       <nameValuePair>
           <name>min_segment_size</name>
           <value>
-              <integer>400</integer>
+              <integer>300</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>overlap_threshold</name>
           <value>
-              <float>0.5f</float>
+              <float>0.3f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
