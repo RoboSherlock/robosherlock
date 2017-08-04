@@ -115,8 +115,13 @@ private:
   double pointSize;
   int segVisIt;
 
+  enum {
+    ALL,
+    SEGMENT
+  } dispMode;
+
 public:
-  BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0){
+  BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0), dispMode(ALL){
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
     dsSceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -472,10 +477,26 @@ public:
     std::vector<pcl::PointIndices> casSegments;
     for(size_t segmentIdIt = 0; segmentIdIt < mergedSymmetryIds.size(); segmentIdIt++){
       int segmentId = mergedSymmetryIds[segmentIdIt];
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *currSegment);
-      segments.push_back(currSegment);
-      finalSymmetries.push_back(symmetries[segmentId]);
+      if(dispMode == SEGMENT)
+      {
+        pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
+        pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *currSegment);
+        segments.push_back(currSegment);
+        finalSymmetries.push_back(symmetries[segmentId]);
+      }
+      else if(dispMode == ALL)
+      {
+        int r = (255 / mergedSymmetryIds.size()) * (1 + segmentIdIt);
+        int g = (255 / mergedSymmetryIds.size()) * (mergedSymmetryIds.size() - segmentIdIt);
+        int b = (255 / mergedSymmetryIds.size()) * (1 + segmentIdIt);
+        for(size_t pointIdIt = 0; pointIdIt < segmentIds[segmentId].size(); pointIdIt++)
+        {
+          int pointId = segmentIds[segmentId][pointIdIt];
+          sceneCloud->points[pointId].r = r;
+          sceneCloud->points[pointId].g = g;
+          sceneCloud->points[pointId].b = b;
+        }
+      }
 
       pcl::PointIndices currSegmentIds;
       currSegmentIds.indices = segmentIds[segmentId];
@@ -490,18 +511,23 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
-    std::string symname = "sym" + std::to_string(segVisIt+1);
+
     if(numSymmetries > 0){
-      if(firstRun){
-        visualizer.addPointCloud(segments[segVisIt], cloudname);
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-        addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
-        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
-      }
-      else{
-        visualizer.removeAllShapes();
-        visualizer.updatePointCloud(segments[segVisIt], cloudname);
+      if(!firstRun)
+      {
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      }
+      visualizer.removeAllShapes();
+      visualizer.removeAllPointClouds();
+      if(dispMode == ALL)
+      {
+        visualizer.addPointCloud(sceneCloud, cloudname);
+        visualizer.addText("Total Segment " + std::to_string(mergedSymmetryIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+      }
+      else if (dispMode == SEGMENT)
+      {
+        std::string symname = "sym" + std::to_string(segVisIt+1);
+        visualizer.addPointCloud(segments[segVisIt], cloudname);
         addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
         visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
@@ -625,6 +651,12 @@ private:
       segVisIt++;
       if(segVisIt >= segments.size())
         segVisIt = 0;
+      break;
+    case '1':
+      dispMode = ALL;
+      break;
+    case '2':
+      dispMode = SEGMENT;
       break;
     default:
       segVisIt = 0;
