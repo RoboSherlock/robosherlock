@@ -25,6 +25,7 @@
 #include <rs/graph/Graph.hpp>
 #include <rs/graph/GraphAlgorithms.hpp>
 #include <rs/segmentation/array_utils.hpp>
+#include <rs/occupancy_map/DownsampleMap.hpp>
 
 
 
@@ -35,7 +36,15 @@ class OverSegmentationAnnotator : public DrawingAnnotator
 {
 private:
   pcl::PointCloud<pcl::PointXYZRGB>::Ptr colored_cloud;
-  std::vector< pcl::RegionGrowing<pcl::PointXYZ, pcl::Normal> > rg;
+  std::vector< pcl::RegionGrowing<pcl::PointXYZRGBA, pcl::Normal> > rg;
+
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
+  pcl::PointCloud<pcl::Normal>::Ptr normals;
+
+  std::vector< std::vector<int> > dsMap;
+
+  bool isDownsampled;
+  float downsample_voxel_size;
 
   float minNormalThreshold;
   float maxNormalThreshold;
@@ -61,6 +70,14 @@ public:
   {
     outInfo("initialize");
 
+    if(ctx.isParameterDefined("isDownsampled"))
+    {
+      ctx.extractValue("isDownsampled", isDownsampled);
+    }
+    if(ctx.isParameterDefined("downsample_voxel_size"))
+    {
+      ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
+    }
     if(ctx.isParameterDefined("minNormalThreshold"))
     {
       ctx.extractValue("minNormalThreshold", minNormalThreshold);
@@ -95,6 +112,10 @@ public:
     }
 
     rg.resize(numSegmentation);
+
+    cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    normals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
+
     choose = 0;
     return UIMA_ERR_NONE;
   }
@@ -116,17 +137,62 @@ public:
     //get cloud from CAS
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     cas.get(VIEW_CLOUD,*cloud_ptr);
-    outInfo("Cloud size: " << cloud_ptr->points.size());
 
     //get point cloud normals from CAS
-    pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_NORMALS, *normals);
-    outInfo("Normals size: " << normals->points.size());
+    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
+    cas.get(VIEW_NORMALS, *normals_ptr);
 
-    //discard color information
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud (new pcl::PointCloud<pcl::PointXYZ>);
-    pcl::copyPointCloud(*cloud_ptr, *cloud);
+    //get plane indices if it has
+    std::vector<int> object_indices;
+    std::vector<int> plane_indices;
+    std::vector<int> cloudIds(cloud_ptr->size());
+    for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
+    {
+      cloudIds[pointId] = pointId;
+    }
 
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+    for(size_t planeId = 0; planeId < planes.size(); planeId++)
+    {
+      std::vector<int> currIds = planes[planeId].inliers();
+      plane_indices.insert(plane_indices.end(), currIds.begin(), currIds.end());
+    }
+
+    if(plane_indices.size() != 0)
+    {
+      object_indices = Difference(cloudIds, plane_indices);
+    }
+    else
+    {
+      object_indices = cloudIds;
+    }
+
+    //filter object cloud
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr temp_cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::Normal>::Ptr temp_normals (new pcl::PointCloud<pcl::Normal>);
+    pcl::copyPointCloud(*cloud_ptr, object_indices, *temp_cloud);
+    pcl::copyPointCloud(*normals_ptr, object_indices, *temp_normals);
+
+    if(isDownsampled)
+    {
+      std::vector<int> nearestMap;
+      DownsampleMap<pcl::PointXYZRGBA> ds;
+      ds.setInputCloud(temp_cloud);
+      ds.setLeafSize(downsample_voxel_size);
+      ds.filter(*cloud);
+      ds.getDownsampleMap(dsMap);
+      ds.getNearestNeighborMap(nearestMap);
+
+      computeDownsampleNormals(temp_normals, dsMap, nearestMap, AVERAGE, normals);
+    }
+    else{
+      cloud = temp_cloud;
+      normals = temp_normals;
+    }
+
+    outInfo("Cloud size: " << cloud->size());
+    outInfo("Normals size: " << normals->size());
 
     // populate normal Threshold
     std::vector<float> normalThresholds;
@@ -145,7 +211,7 @@ public:
     //main execution
     #pragma omp parallel for
     for(size_t i = 0; i < numSegmentation; i++){
-      pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ>());
+      pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA>());
 
       rg[i].setMinClusterSize(minClusterSize);
       rg[i].setMaxClusterSize(maxClusterSize);
@@ -211,6 +277,13 @@ public:
         }
       }
 
+      std::vector<int> currSegment;
+      if(isDownsampled)
+      {
+        upsample_cloud(segmentations[selectSegmentationIt][selectSegmentIt].indices, dsMap, currSegment);
+        segmentations[selectSegmentationIt][selectSegmentIt].indices = currSegment;
+      }
+
       linear_segments[ccIt] = segmentations[selectSegmentationIt][selectSegmentIt];
     }
 
@@ -219,19 +292,6 @@ public:
     colored_cloud = rg[choose].getColoredCloud();
 
     //publish clusters to CAS
-    /*for( auto cluster:linear_segments){
-      const pcl::PointIndices &indices = cluster;
-
-      rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
-      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-      rs::PointIndices uimaIndices = rs::conversion::to(tcas, indices);
-
-      rcp.indices.set(uimaIndices);
-      uimaCluster.points.set(rcp);
-      uimaCluster.source.set("OverSegmentation");
-
-      scene.identifiables.append(uimaCluster);
-    }*/
     cas.set(VIEW_SEGMENT_IDS, linear_segments);
 
     return UIMA_ERR_NONE;

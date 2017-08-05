@@ -10,6 +10,18 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
+            <name>isDownsampled</name>
+            <type>Boolean</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
+            <name>downsample_voxel_size</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
             <name>minNormalThreshold</name>
             <type>Float</type>
             <multiValued>false</multiValued>
@@ -59,6 +71,18 @@
         </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+        <nameValuePair>
+            <name>isDownsampled</name>
+            <value>
+                <boolean>false</boolean>
+              </value>
+        </nameValuePair>
+        <nameValuePair>
+            <name>downsample_voxel_size</name>
+            <value>
+                <float>0.0025f</float>
+            </value>
+        </nameValuePair>
         <nameValuePair>
             <name>minNormalThreshold</name>
             <value>

@@ -41,6 +41,24 @@ inline std::vector<int> Union(const std::vector<int>& v1, const std::vector<int>
   return union_vec;
 }
 
+
+inline std::vector<int> Difference(const std::vector<int> &v1, const std::vector<int> &v2)
+{
+  std::vector<int> v_difference;
+  std::vector<int> v1_sorted(v1);
+  std::vector<int> v2_sorted(v2);
+
+  std::sort(v1_sorted.begin(), v1_sorted.end());
+  std::sort(v2_sorted.begin(), v2_sorted.end());
+
+  v1_sorted.erase(std::unique(v1_sorted.begin(), v1_sorted.end()), v1_sorted.end());
+  v2_sorted.erase(std::unique(v2_sorted.begin(), v2_sorted.end()), v2_sorted.end());
+
+  std::set_difference(v1_sorted.begin(), v1_sorted.end(), v2_sorted.begin(), v2_sorted.end(), std::back_inserter(v_difference));
+      
+  return v_difference;
+}
+
 // get linear subscript from 2D array
 template<typename Type>
 inline int matrixToLinear(std::vector< std::vector<Type> >& v, int row, int col){

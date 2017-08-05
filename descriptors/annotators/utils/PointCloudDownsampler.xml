@@ -9,6 +9,14 @@
     <version>1.0</version>
     <configurationParameters>
       <configurationParameter>
+        <name>pass_through</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+    <configurationParameters>
+      <configurationParameter>
         <name>leaf_size</name>
         <type>Float</type>
         <multiValued>false</multiValued>
@@ -17,9 +25,15 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
+        <name>pass_through</name>
+        <value>
+          <boolean>false</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
         <name>leaf_size</name>
         <value>
-          <float>0.007</float>
+          <float>0.0025f</float>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
