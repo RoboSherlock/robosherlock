@@ -60,6 +60,8 @@ private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
   bool isDownsampled;
+  bool naive_detection;
+
   float downsample_voxel_size;
 
   int angle_division;
@@ -99,6 +101,7 @@ public:
     outInfo("initialize");
 
     ctx.extractValue("isDownsampled", isDownsampled);
+    ctx.extractValue("naive_detection", naive_detection);
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
 
     ctx.extractValue("angle_division", angle_division);
@@ -235,7 +238,7 @@ public:
 
       std::vector< BilateralSymmetry > temp_symmetries;
       //NOTE: somehow this optimization does not increase accuracy of symmetry pose
-      if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
+      /*if(! refineBilateralSymmetryPosition<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                               segmentNormals[segmentId],
                                                               segmentDSClouds[segmentId],
                                                               segmentDSNormals[segmentId],
@@ -244,9 +247,9 @@ public:
                                                               temp_symmetries))
       {
         continue;
-      }
+      }*/
 
-      //temp_symmetries = segmentInitialSymmetries[segmentId];
+      temp_symmetries = segmentInitialSymmetries[segmentId];
       if(! refineBilateralSymmetryFitting<pcl::PointXYZRGBA>(segmentClouds[segmentId],
                                                              segmentNormals[segmentId],
                                                              segmentDSClouds[segmentId],
@@ -271,6 +274,7 @@ public:
     }
 
     this->mergeSymmetries();
+    //linearizeSegmentData<BilateralSymmetry>(segmentRefinedSymmetries, finalSymmetries);
 
     //convert BilateralSymmetry to CAS Symmetries and push to CAS
     std::vector<rs::BilateralSymmetry> casSymmetries;
@@ -345,19 +349,23 @@ private:
       basis.col(2) *= -1.0f;
     }
 
-    std::vector<Eigen::Vector3f> points;
-    generateHemisphere(angle_division, points);
-
-    /*for(size_t pointId = 0; pointId < points.size(); pointId++)
+    if(naive_detection)
     {
-      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * points[pointId]));
-    }*/
-    symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * Eigen::Vector3f::UnitY()));
-
-    /*for (size_t symId = 0; symId < 2; symId++)
+      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(1)));
+      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(2)));
+      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(0)));
+    }
+    else
     {
-      symmetries.push_back(BilateralSymmetry(segmentCentroid, basis.col(symId)));
-    }*/
+      std::vector<Eigen::Vector3f> points;
+      generateHemisphere(angle_division, points);
+
+      for(size_t pointId = 0; pointId < points.size(); pointId++)
+      {
+        symmetries.push_back(BilateralSymmetry(segmentCentroid, basis * points[pointId]));
+      }
+    }
+
     return true;
   }
 
@@ -592,7 +600,7 @@ private:
 
           float angleDiff, distDiff;
           refined_symmetries[symId].bilateralSymDiff(last_symmetry, angleDiff, distDiff);
-          if(angleDiff < 0.0017f && distDiff < 0.0005f)
+          if(angleDiff < 0.05f && distDiff < 0.0001f)
           {
             break;
           }
@@ -701,7 +709,7 @@ private:
   }
 
   template<typename Type>
-  inline void linearizeSegmentData(typename std::vector< std::vector<Type> >& segmentDataIn, typename std::vector<Type>& segmentDataOut, std::vector< std::vector<int> > indices = std::vector<int>(0)){ // for both scores and Symmetries
+  inline void linearizeSegmentData(typename std::vector< std::vector<Type> >& segmentDataIn, typename std::vector<Type>& segmentDataOut, std::vector< std::vector<int> > indices = std::vector< std::vector<int> >()){ // for both scores and Symmetries
     segmentDataOut.clear();
 
     for(size_t segmentIt = 0; segmentIt < segmentDataIn.size(); segmentIt++){

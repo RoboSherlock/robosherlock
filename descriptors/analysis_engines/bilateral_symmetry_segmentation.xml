@@ -179,6 +179,16 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
+        <name>curvatureThreshold</name>
+        <description>To validate points for expansion</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>OverSegmentationAnnotator/curvatureThreshold</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
         <name>numSegmentation</name>
         <description>parallel over segmentation and merging</description>
         <type>Integer</type>
@@ -196,6 +206,16 @@
         <mandatory>true</mandatory>
         <overrides>
           <parameter>OverSegmentationAnnotator/neighborNumber</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>naive_detection</name>
+        <description>Turn naive_detection for better performance but worse accuracy</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>BilateralSymmetryAnnotator/naive_detection</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -477,13 +497,19 @@
       <nameValuePair>
         <name>minNormalThreshold</name>
         <value>
-          <float>0.09f</float>
+          <float>0.08f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxNormalThreshold</name>
         <value>
-          <float>0.13f</float>
+          <float>0.1f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>curvatureThreshold</name>
+        <value>
+          <float>0.5</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -495,8 +521,14 @@
       <nameValuePair>
         <name>neighborNumber</name>
         <value>
-          <integer>9</integer>
+          <integer>7</integer>
         </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>naive_detection</name>
+          <value>
+              <boolean>true</boolean>
+          </value>
       </nameValuePair>
       <nameValuePair>
         <name>angle_division</name>
@@ -519,13 +551,13 @@
       <nameValuePair>
         <name>refine_min_inlier_sym_score</name>
         <value>
-          <float>0.174f</float>
+          <float>0.1f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>refine_max_inlier_sym_score</name>
         <value>
-          <float>0.232f</float>
+          <float>0.7f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -537,25 +569,25 @@
       <nameValuePair>
         <name>annotator_max_occlusion_dist</name>
         <value>
-          <float>0.03f</float>
+          <float>0.07f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>annotator_max_occlusion_score</name>
         <value>
-          <float>0.05f</float>
+          <float>0.01f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_segment_inlier_score</name>
         <value>
-          <float>0.2f</float>
+          <float>0.6f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_corres_inlier_score</name>
         <value>
-          <float>0.7f</float>
+          <float>0.85f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -567,13 +599,13 @@
       <nameValuePair>
           <name>num_adjacency_neighbors</name>
           <value>
-              <integer>9</integer>
+              <integer>13</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>adjacency_weight_factor</name>
           <value>
-              <float>5.0f</float>
+              <float>3.3f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -603,13 +635,13 @@
       <nameValuePair>
           <name>min_perpendicular_angle</name>
           <value>
-              <float>0.785f</float>
+              <float>0.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>max_perpendicular_angle</name>
           <value>
-              <float>1.396f</float>
+              <float>1.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -621,19 +653,19 @@
       <nameValuePair>
           <name>fg_weight_factor</name>
           <value>
-              <float>1.0f</float>
+              <float>1.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>bg_weight_factor</name>
           <value>
-              <float>2.0f</float>
+              <float>3.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>max_sym_score</name>
           <value>
-              <float>0.5f</float>
+              <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -645,7 +677,7 @@
       <nameValuePair>
           <name>max_cut_score</name>
           <value>
-              <float>0.55f</float>
+              <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>

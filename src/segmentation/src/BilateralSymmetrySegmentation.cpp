@@ -29,6 +29,9 @@
 #include <rs/graph/Graph.hpp>
 #include <rs/graph/GraphAlgorithms.hpp>
 
+#include <stdlib.h>
+#include <time.h>
+
 
 
 using namespace uima;
@@ -126,6 +129,8 @@ public:
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
     dsSceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     dsSceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
+
+    srand (time(NULL));
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -314,7 +319,7 @@ public:
       getCloudBilateralPerpendicularScore(dsSceneNormals, symmetries[symId], pointPerpendicularScores[symId], min_perpendicular_angle, max_perpendicular_angle);
 
       //compute unary weight from scores
-      fgWeights[symId].resize(dsSceneCloud->points.size());
+      fgWeights[symId].resize(dsSceneCloud->points.size(), 0.0f);
       bgWeights[symId].resize(dsSceneCloud->points.size());
 
       for(size_t pId = 0; pId < dsSceneCloud->points.size(); pId++)
@@ -474,7 +479,17 @@ public:
     this->merge();
 
     //extract good segment for visualizer and publish to CAS
+    if(dispMode == ALL)
+    {
+      for(size_t pointId = 0; pointId < sceneCloud->size(); pointId++)
+      {
+        sceneCloud->points[pointId].r = 30;
+        sceneCloud->points[pointId].g = 30;
+        sceneCloud->points[pointId].b = 30;
+      }
+    }
     std::vector<pcl::PointIndices> casSegments;
+    int finalSize = mergedSymmetryIds.size();
     for(size_t segmentIdIt = 0; segmentIdIt < mergedSymmetryIds.size(); segmentIdIt++){
       int segmentId = mergedSymmetryIds[segmentIdIt];
       if(dispMode == SEGMENT)
@@ -482,13 +497,12 @@ public:
         pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
         pcl::copyPointCloud(*sceneCloud, segmentIds[segmentId], *currSegment);
         segments.push_back(currSegment);
-        finalSymmetries.push_back(symmetries[segmentId]);
       }
       else if(dispMode == ALL)
       {
-        int r = (255 / mergedSymmetryIds.size()) * (1 + segmentIdIt);
-        int g = (255 / mergedSymmetryIds.size()) * (mergedSymmetryIds.size() - segmentIdIt);
-        int b = (255 / mergedSymmetryIds.size()) * (1 + segmentIdIt);
+        int r = (255 / (finalSize + 2)) * (rand() % (finalSize + 1));
+        int g = (255 / (finalSize + 2)) * (rand() % (finalSize + 1));
+        int b = (255 / (finalSize + 2)) * (rand() % (finalSize + 1));
         for(size_t pointIdIt = 0; pointIdIt < segmentIds[segmentId].size(); pointIdIt++)
         {
           int pointId = segmentIds[segmentId][pointIdIt];
@@ -497,6 +511,7 @@ public:
           sceneCloud->points[pointId].b = b;
         }
       }
+      finalSymmetries.push_back(symmetries[segmentId]);
 
       pcl::PointIndices currSegmentIds;
       currSegmentIds.indices = segmentIds[segmentId];
@@ -522,6 +537,7 @@ public:
       if(dispMode == ALL)
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
+        addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
         visualizer.addText("Total Segment " + std::to_string(mergedSymmetryIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
       else if (dispMode == SEGMENT)
