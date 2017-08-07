@@ -42,7 +42,21 @@ private:
       downsampleMap.resize(dsCloud->points.size());
       for(size_t it = 0; it < this->indices_->size(); it++){
         int pointId = this->indices_->at(it);
-        int dsPointId = this->getCentroidIndex(this->input_->points[pointId]);
+        int dsPointId;
+        try
+        {
+          dsPointId = this->getCentroidIndex(this->input_->points[pointId]);
+        }
+        catch(...)
+        {
+          Eigen::Vector3f coordinate = this->input_->points[pointId].getVector3fMap();
+          dsPointId = this->getCentroidIndexAt(this->getGridCoordinates(coordinate[0], coordinate[1], coordinate[2]));
+          if(dsPointId == -1)
+          {
+            continue;
+          }
+        }
+
         downsampleMap[dsPointId].push_back(pointId);
       }
     }

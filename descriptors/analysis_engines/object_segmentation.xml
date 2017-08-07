@@ -159,7 +159,7 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>downsample_leaf_size</name>
+        <name>leaf_size</name>
         <description>Leaf Size</description>
         <type>Float</type>
         <multiValued>false</multiValued>
@@ -266,6 +266,16 @@
         <mandatory>true</mandatory>
         <overrides>
           <parameter>OverSegmentationAnnotator/neighborNumber</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>isDownsampled</name>
+        <description>Turn naive_detection for better performance but worse accuracy</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>BilateralSymmetryAnnotator/isDownsampled</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -555,9 +565,9 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>downsample_leaf_size</name>
+        <name>leaf_size</name>
         <value>
-          <float>0.0025f</float>
+          <float>0.001f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -587,25 +597,25 @@
       <nameValuePair>
         <name>radiusSearch</name>
         <value>
-          <float>0.005f</float>
+          <float>0.0055f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>minNormalThreshold</name>
         <value>
-          <float>0.2f</float>
+          <float>0.1f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxNormalThreshold</name>
         <value>
-          <float>0.25f</float>
+          <float>0.14f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>curvatureThreshold</name>
         <value>
-          <float>0.8</float>
+          <float>0.7</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -619,6 +629,12 @@
         <value>
           <integer>9</integer>
         </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>isDownsampled</name>
+          <value>
+              <boolean>false</boolean>
+          </value>
       </nameValuePair>
       <nameValuePair>
           <name>naive_detection</name>
@@ -671,19 +687,19 @@
       <nameValuePair>
         <name>annotator_max_occlusion_score</name>
         <value>
-          <float>0.01f</float>
+          <float>1.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_segment_inlier_score</name>
         <value>
-          <float>0.6f</float>
+          <float>0.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_corres_inlier_score</name>
         <value>
-          <float>0.85f</float>
+          <float>0.0f</float>
         </value>
       </nameValuePair>
       <nameValuePair>

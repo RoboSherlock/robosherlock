@@ -43,8 +43,7 @@ private:
 
   std::vector< std::vector<int> > dsMap;
 
-  bool isDownsampled;
-  float downsample_voxel_size;
+  bool object_pass_through;
 
   float minNormalThreshold;
   float maxNormalThreshold;
@@ -70,13 +69,10 @@ public:
   {
     outInfo("initialize");
 
-    if(ctx.isParameterDefined("isDownsampled"))
+
+    if(ctx.isParameterDefined("object_pass_through"))
     {
-      ctx.extractValue("isDownsampled", isDownsampled);
-    }
-    if(ctx.isParameterDefined("downsample_voxel_size"))
-    {
-      ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
+      ctx.extractValue("object_pass_through", object_pass_through);
     }
     if(ctx.isParameterDefined("minNormalThreshold"))
     {
@@ -169,27 +165,8 @@ public:
     }
 
     //filter object cloud
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr temp_cloud (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::PointCloud<pcl::Normal>::Ptr temp_normals (new pcl::PointCloud<pcl::Normal>);
-    pcl::copyPointCloud(*cloud_ptr, object_indices, *temp_cloud);
-    pcl::copyPointCloud(*normals_ptr, object_indices, *temp_normals);
-
-    if(isDownsampled)
-    {
-      std::vector<int> nearestMap;
-      DownsampleMap<pcl::PointXYZRGBA> ds;
-      ds.setInputCloud(temp_cloud);
-      ds.setLeafSize(downsample_voxel_size);
-      ds.filter(*cloud);
-      ds.getDownsampleMap(dsMap);
-      ds.getNearestNeighborMap(nearestMap);
-
-      computeDownsampleNormals(temp_normals, dsMap, nearestMap, AVERAGE, normals);
-    }
-    else{
-      cloud = temp_cloud;
-      normals = temp_normals;
-    }
+    pcl::copyPointCloud(*cloud_ptr, object_indices, *cloud);
+    pcl::copyPointCloud(*normals_ptr, object_indices, *normals);
 
     outInfo("Cloud size: " << cloud->size());
     outInfo("Normals size: " << normals->size());
@@ -277,13 +254,6 @@ public:
         }
       }
 
-      std::vector<int> currSegment;
-      if(isDownsampled)
-      {
-        upsample_cloud(segmentations[selectSegmentationIt][selectSegmentIt].indices, dsMap, currSegment);
-        segmentations[selectSegmentationIt][selectSegmentIt].indices = currSegment;
-      }
-
       linear_segments[ccIt] = segmentations[selectSegmentationIt][selectSegmentIt];
     }
 
@@ -293,6 +263,18 @@ public:
 
     //publish clusters to CAS
     cas.set(VIEW_SEGMENT_IDS, linear_segments);
+
+    if(!object_pass_through)
+    {
+      cas.set(VIEW_CLOUD, *cloud);
+      cas.set(VIEW_NORMALS, *normals);
+    }
+    else
+    {
+      cas.set(VIEW_CLOUD_OBJECTS, *cloud);
+      cas.set(VIEW_NORMALS_OBJECTS, *normals);
+    }
+
 
     return UIMA_ERR_NONE;
   }
@@ -308,14 +290,20 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
+    const std::string normalsname = this->name + "_normals";
 
     if(firstRun){
       visualizer.addPointCloud(colored_cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      visualizer.addPointCloudNormals<pcl::PointXYZRGB, pcl::Normal>(colored_cloud, normals, 50, 0.02f, normalsname);
+      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
     }
     else{
       visualizer.updatePointCloud(colored_cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      visualizer.removePointCloud(normalsname);
+      visualizer.addPointCloudNormals<pcl::PointXYZRGB, pcl::Normal>(colored_cloud, normals, 50, 0.02f, normalsname);
+      visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
     }
   }
 

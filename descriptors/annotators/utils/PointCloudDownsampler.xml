@@ -33,7 +33,7 @@
       <nameValuePair>
         <name>leaf_size</name>
         <value>
-          <float>0.0025f</float>
+          <float>0.001f</float>
         </value>
       </nameValuePair>
     </configurationParameterSettings>

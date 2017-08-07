@@ -10,14 +10,8 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
-            <name>isDownsampled</name>
+            <name>object_pass_through</name>
             <type>Boolean</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-        </configurationParameter>
-        <configurationParameter>
-            <name>downsample_voxel_size</name>
-            <type>Float</type>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
@@ -72,16 +66,10 @@
     </configurationParameters>
     <configurationParameterSettings>
         <nameValuePair>
-            <name>isDownsampled</name>
+            <name>object_pass_through</name>
             <value>
-                <boolean>false</boolean>
+                <boolean>true</boolean>
               </value>
-        </nameValuePair>
-        <nameValuePair>
-            <name>downsample_voxel_size</name>
-            <value>
-                <float>0.0025f</float>
-            </value>
         </nameValuePair>
         <nameValuePair>
             <name>minNormalThreshold</name>
