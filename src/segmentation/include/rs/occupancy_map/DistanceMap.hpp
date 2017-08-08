@@ -20,6 +20,8 @@ private:
 
   std::vector<Eigen::Vector4f> bounding_planes;
 public:
+  typedef boost::shared_ptr< DistanceMap<PointT> > Ptr;
+
   DistanceMap() : resolution(0.0) {}
   DistanceMap(float res) : resolution(res) {}
   ~DistanceMap() {}

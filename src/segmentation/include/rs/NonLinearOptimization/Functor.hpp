@@ -2,7 +2,12 @@
 #define FUNCTOR_HPP
 
 #include <unsupported/Eigen/NonLinearOptimization>
+
 #include <rs/segmentation/RotationalSymmetry.hpp>
+#include <rs/segmentation/BilateralSymmetry.hpp>
+#include <rs/occupancy_map/DistanceMap.hpp>
+
+#include <pcl/registration/correspondence_rejection_one_to_one.h>
 
 //NOTE: This class was implemented for compatible use of Eigen NonLinearOptimization module
 template <typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
@@ -58,5 +63,46 @@ struct RotSymOptimizeFunctor : OptimizationFunctor<float>
 
 template <typename PointT>
 struct RotSymOptimizeFunctorDiff : Eigen::NumericalDiff< RotSymOptimizeFunctor<PointT> > {};
+
+template<typename PointT>
+struct BilSymOptimizeFunctor : OptimizationFunctor<float>
+{
+  typename pcl::PointCloud<PointT>::Ptr cloud;
+  typename pcl::PointCloud<pcl::Normal>::Ptr normals;
+  typename pcl::PointCloud<PointT>::Ptr dsCloud;
+
+  pcl::Correspondences correspondences;
+
+  BilSymOptimizeFunctor() {};
+
+  int inputs() const { return 6; }
+  int values() const { return this->correspondences.size(); }
+
+  int operator()(const Eigen::VectorXf &x, Eigen::VectorXf &fvec) const
+  {
+    BilateralSymmetry symmetry(x.head(3), x.tail(3));
+
+    for(size_t it = 0; it < this->correspondences.size(); it++)
+    {
+      int srcPointId = correspondences[it].index_query;
+      int tgtPointId = correspondences[it].index_match;
+
+      Eigen::Vector3f srcPoint = dsCloud->points[srcPointId].getVector3fMap();
+
+      Eigen::Vector3f tgtPoint = cloud->points[tgtPointId].getVector3fMap();
+      Eigen::Vector3f tgtNormal(normals->points[tgtPointId].normal_x, normals->points[tgtPointId].normal_y, normals->points[tgtPointId].normal_z);
+
+      Eigen::Vector3f reflectedTgtPoint = symmetry.reflectPoint(tgtPoint);
+      Eigen::Vector3f reflectedTgtNormal = symmetry.reflectPoint(tgtNormal);
+
+      fvec(it) = std::abs(pointToPlaneSignedNorm<float>(srcPoint, reflectedTgtPoint, reflectedTgtNormal));
+    }
+
+    return 0;
+  }
+};
+
+template <typename PointT>
+struct BilSymOptimizeFunctorDiff : Eigen::NumericalDiff< BilSymOptimizeFunctor<PointT> > {};
 
 #endif

@@ -271,7 +271,7 @@ public:
       symmetryScores[symId] = 0.0f;
       occlusionScores[symId] = 0.0f;
       cutScores[symId] = 0.0f;
-      if(dsSegmentIds.size() > min_segment_size){
+      if(dsSegmentIds[symId].size() > min_segment_size){
         std::vector<int> boundaryIds, nonBoundaryIds;
         extractBoundaryCloud<pcl::PointXYZRGBA, pcl::Normal>(sceneCloud, sceneNormals, dsSegmentIds[symId], boundaryIds, nonBoundaryIds);
 
@@ -287,7 +287,10 @@ public:
         }
         occlusionScores[symId] /= static_cast<float>(dsSegmentIds[symId].size());
 
-        cutScores[symId] = min_cut_value / static_cast<float>(dsSegmentIds[symId].size());
+        if(dsSegmentIds[symId].size() != sceneCloud->size())
+        {
+          cutScores[symId] = min_cut_value / static_cast<float>(dsSegmentIds[symId].size());
+        }
       }
 
       if(isDownsampled)
@@ -316,10 +319,6 @@ public:
     }
 
     cas.set(VIEW_ROTATIONAL_SEGMENTATION_IDS, casSegments);
-
-    //avoid segmentation fault
-    if(segVisIt >= segments.size() || segVisIt < 0)
-      segVisIt = 0;
 
     return UIMA_ERR_NONE;
   }
@@ -367,11 +366,11 @@ private:
     case 'a':
       segVisIt--;
       if(segVisIt < 0)
-        segVisIt = numSymmetries - 1;
+        segVisIt = segments.size() - 1;
       break;
     case 'd':
       segVisIt++;
-      if(segVisIt >= numSymmetries)
+      if(segVisIt >= segments.size())
         segVisIt = 0;
       break;
     default:
@@ -392,7 +391,6 @@ private:
         filteredSegmentIds.push_back(symId);
       }
     }
-
   }
 };
 

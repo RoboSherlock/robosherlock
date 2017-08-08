@@ -62,7 +62,10 @@ private:
   double depth_scaling_factor;
 
   int index_; // aka frameID, indexing for file list
+<<<<<<< HEAD
 
+=======
+>>>>>>> BilateralSymmetry-feature
   int data_size;
 
   double frameRate;
@@ -73,7 +76,10 @@ private:
   std::mutex updateLock;
 
   bool readConfig(const boost::property_tree::ptree &pt);
+<<<<<<< HEAD
 
+=======
+>>>>>>> BilateralSymmetry-feature
   bool getListFile(std::string &path, std::vector<std::string> &filenames, std::string &pattern, bool &isFile);
   bool checkConsistency();
   void updateTimerWorker(const std::chrono::milliseconds period);
@@ -94,4 +100,8 @@ public:
   }
 };
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> BilateralSymmetry-feature
 #endif //  __DATA_LOADER_BRIDGE_H__

@@ -10,6 +10,12 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
+            <name>object_pass_through</name>
+            <type>Boolean</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+        </configurationParameter>
+        <configurationParameter>
             <name>minNormalThreshold</name>
             <type>Float</type>
             <multiValued>false</multiValued>
@@ -59,6 +65,12 @@
         </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+        <nameValuePair>
+            <name>object_pass_through</name>
+            <value>
+                <boolean>true</boolean>
+              </value>
+        </nameValuePair>
         <nameValuePair>
             <name>minNormalThreshold</name>
             <value>
