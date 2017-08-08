@@ -63,21 +63,21 @@ private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  Eigen::Vector4f boundingPlane; // this plane will be extracted from PlaneAnnotator
+  std::vector<Eigen::Vector4f> boundingPlanes; // this plane will be extracted from PlaneAnnotator
 
   int numSegments;
 
   //parameters
-  float min_fit_angle;
-  float max_fit_angle;
+  float rotSymAnn_min_fit_angle;
+  float rotSymAnn_max_fit_angle;
 
-  float min_occlusion_dist;
-  float max_occlusion_dist;
+  float rotSymAnn_min_occlusion_dist;
+  float rotSymAnn_max_occlusion_dist;
 
-  float max_sym_score;
-  float max_occlusion_score;
-  float max_perpendicular_score;
-  float min_coverage_score;
+  float rotSymAnn_max_sym_score;
+  float rotSymAnn_max_occlusion_score;
+  float rotSymAnn_max_perpendicular_score;
+  float rotSymAnn_min_coverage_score;
 
   float dist_map_resolution;
 
@@ -86,8 +86,6 @@ private:
 
   float max_angle_diff;
   float max_dist_diff;
-
-
 
   double pointSize;
 
@@ -100,15 +98,15 @@ public:
   {
     outInfo("initialize");
 
-    ctx.extractValue("min_fit_angle", min_fit_angle);
-    ctx.extractValue("max_fit_angle", max_fit_angle);
-    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
-    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
+    ctx.extractValue("rotSymAnn_min_fit_angle", rotSymAnn_min_fit_angle);
+    ctx.extractValue("rotSymAnn_max_fit_angle", rotSymAnn_max_fit_angle);
+    ctx.extractValue("rotSymAnn_min_occlusion_dist", rotSymAnn_min_occlusion_dist);
+    ctx.extractValue("rotSymAnn_max_occlusion_dist", rotSymAnn_max_occlusion_dist);
 
-    ctx.extractValue("max_sym_score", max_sym_score);
-    ctx.extractValue("max_occlusion_score", max_occlusion_score);
-    ctx.extractValue("max_perpendicular_score", max_perpendicular_score);
-    ctx.extractValue("min_coverage_score", min_coverage_score);
+    ctx.extractValue("rotSymAnn_max_sym_score", rotSymAnn_max_sym_score);
+    ctx.extractValue("rotSymAnn_max_occlusion_score", rotSymAnn_max_occlusion_score);
+    ctx.extractValue("rotSymAnn_max_perpendicular_score", rotSymAnn_max_perpendicular_score);
+    ctx.extractValue("rotSymAnn_min_coverage_score", rotSymAnn_min_coverage_score);
 
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
 
@@ -118,7 +116,6 @@ public:
     ctx.extractValue("max_angle_diff", max_angle_diff);
     ctx.extractValue("max_dist_diff", max_dist_diff);
 
-    boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
     return UIMA_ERR_NONE;
   }
 
@@ -134,6 +131,7 @@ public:
 
     outInfo("process begins");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
 
     //get RGB cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -164,6 +162,7 @@ public:
     filteredSymmetries.clear();
     bestSymmetries.clear();
     finalSymmetries.clear();
+    boundingPlanes.clear();
 
     //allocating containers
     numSegments = segments.size();
@@ -183,12 +182,26 @@ public:
     filteredSymmetries.resize(numSegments);
     bestSymmetries.resize(numSegments);
 
-    //initialize distance map
-    std::vector<Eigen::Vector4f> planes;
-    planes.push_back(boundingPlane);
+    //get bounding planes
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+    boundingPlanes.resize(planes.size());
+    if(planes.empty())
+    {
+      outWarn("Planes are not found! Using default plane z=0");
+      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
+    }
+    else
+    {
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
+      }
+    }
 
+    //initialize distance map
     dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(planes);
+    dist_map->setBoundingPlanes(boundingPlanes);
     dist_map->setInputCloud(cloud);
 
     //main execution
@@ -341,7 +354,7 @@ private:
       RotSymOptimizeFunctorDiff<PointT> functor;
       functor.cloud = cloud;
       functor.normals = normals;
-      functor.max_fit_angle = max_fit_angle;
+      functor.max_fit_angle = rotSymAnn_max_fit_angle;
 
       Eigen::LevenbergMarquardt<RotSymOptimizeFunctorDiff<PointT>, float> optimizer(functor);
       optimizer.parameters.ftol = 1e-10;
@@ -356,8 +369,8 @@ private:
 
       supportSizes[it] = static_cast<float>(cloud->points.size());
 
-      symScores[it] = getCloudSymmetryScore<PointT>(cloud, normals, refinedSymmetries[it], pointSymScores[it], min_fit_angle, max_fit_angle);
-      occlusionScores[it] = getCloudOcclusionScore<PointT>(cloud, dist_map, refinedSymmetries[it], pointOcclusionScores[it], min_occlusion_dist, max_occlusion_dist);
+      symScores[it] = getCloudSymmetryScore<PointT>(cloud, normals, refinedSymmetries[it], pointSymScores[it], rotSymAnn_min_fit_angle, rotSymAnn_max_fit_angle);
+      occlusionScores[it] = getCloudOcclusionScore<PointT>(cloud, dist_map, refinedSymmetries[it], pointOcclusionScores[it], rotSymAnn_min_occlusion_dist, rotSymAnn_max_occlusion_dist);
       perpendicularScores[it] = getCloudPerpendicularScore(normals, refinedSymmetries[it], pointPerpendicularScores[it]);
       coverageScores[it] = getCloudCoverageScore<PointT>(cloud, refinedSymmetries[it]);
 
@@ -374,10 +387,10 @@ private:
     int symSize = symScores.size();
 
     for(size_t symId = 0; symId < symSize; symId++){
-      if(symScores[symId] < max_sym_score &&
-         occlusionScores[symId] < max_occlusion_dist &&
-         perpendicularScores[symId] < max_perpendicular_score &&
-         coverageScores[symId] > min_coverage_score){
+      if(symScores[symId] < rotSymAnn_max_sym_score &&
+         occlusionScores[symId] < rotSymAnn_max_occlusion_score &&
+         perpendicularScores[symId] < rotSymAnn_max_perpendicular_score &&
+         coverageScores[symId] > rotSymAnn_min_coverage_score){
            filteredSymmetries[segmentId].push_back(symId);
          }
     }

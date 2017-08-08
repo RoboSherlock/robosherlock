@@ -46,7 +46,7 @@ private:
   pcl::PointCloud<pcl::Normal>::Ptr dsSceneNormals;
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  Eigen::Vector4f boundingPlane;
+  std::vector<Eigen::Vector4f> boundingPlanes;
 
   WeightedGraph sceneGraph;
   std::vector<WeightedGraph> symmetricGraph;
@@ -167,8 +167,6 @@ public:
 
     ctx.extractValue("overlap_threshold", overlap_threshold);
 
-    boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
-
     return UIMA_ERR_NONE;
   }
 
@@ -184,6 +182,7 @@ public:
 
     outInfo("process begins");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
 
     //clearing previous data
     symmetries.clear();
@@ -249,10 +248,6 @@ public:
       symmetrySupports[it] = casSymmetries[it].support();
     }
 
-    //discard color information
-    //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudxyz (new  pcl::PointCloud<pcl::PointXYZ>);
-    //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
-
     //allocating containers
     correspondences.resize(numSymmetries);
     symmetricGraph.resize(numSymmetries);
@@ -284,16 +279,28 @@ public:
     else{
       dsSceneCloud = sceneCloud;
       dsSceneNormals = sceneNormals;
-      //pcl::copyPointCloud(*sceneCloud, *dsSceneCloud);
-      //pcl::copyPointCloud(*sceneNormals, *dsSceneNormals);
+    }
+
+    //get bounding planes
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+    boundingPlanes.resize(planes.size());
+    if(planes.empty())
+    {
+      outWarn("Planes are not found! Using default plane z=0");
+      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
+    }
+    else
+    {
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
+      }
     }
 
     //initialize distance map
-    std::vector<Eigen::Vector4f> planes;
-    planes.push_back(boundingPlane);
-
     dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(planes);
+    dist_map->setBoundingPlanes(boundingPlanes);
     dist_map->setInputCloud(sceneCloud);
 
     //main execution

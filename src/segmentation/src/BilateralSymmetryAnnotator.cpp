@@ -55,7 +55,7 @@ private:
   std::vector< std::vector<bool> > validSymmetries;
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  Eigen::Vector4f boundingPlane; // this plane will be extracted from PlaneAnnotator
+  std::vector<Eigen::Vector4f> boundingPlanes; // this plane will be extracted from PlaneAnnotator
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
@@ -127,7 +127,6 @@ public:
     ctx.extractValue("sym_angle_diff", sym_angle_diff);
     ctx.extractValue("sym_dist_diff", sym_dist_diff);
 
-    boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
     return UIMA_ERR_NONE;
   }
 
@@ -143,6 +142,7 @@ public:
 
     outInfo("process begins");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
 
     //get RGB cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -202,12 +202,26 @@ public:
     corresInlierScores.resize(numSegments);
     validSymmetries.resize(numSegments);
 
-    //initialize distance map
-    std::vector<Eigen::Vector4f> planes;
-    planes.push_back(boundingPlane);
+    //get bounding planes
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+    boundingPlanes.resize(planes.size());
+    if(planes.empty())
+    {
+      outWarn("Planes are not found! Using default plane z=0");
+      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
+    }
+    else
+    {
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
+      }
+    }
 
+    //initialize distance map
     dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(planes);
+    dist_map->setBoundingPlanes(boundingPlanes);
     dist_map->setInputCloud(cloud);
 
     #pragma omp parallel for

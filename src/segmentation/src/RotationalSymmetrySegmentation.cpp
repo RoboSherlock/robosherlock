@@ -39,7 +39,7 @@ private:
   pcl::PointCloud<pcl::Normal>::Ptr sceneNormals;
 
   boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  Eigen::Vector4f boundingPlane;
+  std::vector<Eigen::Vector4f> boundingPlanes;
 
   WeightedGraph sceneGraph;
 
@@ -72,25 +72,25 @@ private:
 
   float dist_map_resolution;
 
-  float adjacency_radius;
-  int num_adjacency_neighbors;
+  float rotSymSeg_adjacency_radius;
+  int rotSymSeg_num_adjacency_neighbors;
 
   float adjacency_sigma_convex;
   float adjacency_sigma_concave;
-  float adjacency_weight_factor;
+  float rotSymSeg_adjacency_weight_factor;
 
-  float min_fit_angle;
-  float max_fit_angle;
-  float min_occlusion_dist;
-  float max_occlusion_dist;
-  float max_perpendicular_angle;
+  float rotSymSeg_min_fit_angle;
+  float rotSymSeg_max_fit_angle;
+  float rotSymSeg_min_occlusion_dist;
+  float rotSymSeg_max_occlusion_dist;
+  float rotSymSeg_max_perpendicular_angle;
 
-  float fg_weight_factor;
-  float bg_weight_factor;
+  float rotSymSeg_fg_weight_factor;
+  float rotSymSeg_bg_weight_factor;
 
-  float max_sym_score;
-  float max_occlusion_score;
-  float max_cut_score;
+  float rotSymSeg_max_sym_score;
+  float rotSymSeg_max_occlusion_score;
+  float rotSymSeg_max_cut_score;
   int min_segment_size;
 
   double pointSize;
@@ -111,24 +111,22 @@ public:
     ctx.extractValue("isDownsampled", isDownsampled);
     ctx.extractValue("downsample_leaf_size", downsample_leaf_size);
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
-    ctx.extractValue("adjacency_radius", adjacency_radius);
-    ctx.extractValue("num_adjacency_neighbors", num_adjacency_neighbors);
+    ctx.extractValue("rotSymSeg_adjacency_radius", rotSymSeg_adjacency_radius);
+    ctx.extractValue("rotSymSeg_num_adjacency_neighbors", rotSymSeg_num_adjacency_neighbors);
     ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
     ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
-    ctx.extractValue("adjacency_weight_factor", adjacency_weight_factor);
-    ctx.extractValue("min_fit_angle", min_fit_angle);
-    ctx.extractValue("max_fit_angle", max_fit_angle);
-    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
-    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
-    ctx.extractValue("max_perpendicular_angle", max_perpendicular_angle);
-    ctx.extractValue("fg_weight_factor", fg_weight_factor);
-    ctx.extractValue("bg_weight_factor", bg_weight_factor);
-    ctx.extractValue("max_sym_score", max_sym_score);
-    ctx.extractValue("max_occlusion_score", max_occlusion_score);
-    ctx.extractValue("max_cut_score", max_cut_score);
+    ctx.extractValue("rotSymSeg_adjacency_weight_factor", rotSymSeg_adjacency_weight_factor);
+    ctx.extractValue("rotSymSeg_min_fit_angle", rotSymSeg_min_fit_angle);
+    ctx.extractValue("rotSymSeg_max_fit_angle", rotSymSeg_max_fit_angle);
+    ctx.extractValue("rotSymSeg_min_occlusion_dist", rotSymSeg_min_occlusion_dist);
+    ctx.extractValue("rotSymSeg_max_occlusion_dist", rotSymSeg_max_occlusion_dist);
+    ctx.extractValue("rotSymSeg_max_perpendicular_angle", rotSymSeg_max_perpendicular_angle);
+    ctx.extractValue("rotSymSeg_fg_weight_factor", rotSymSeg_fg_weight_factor);
+    ctx.extractValue("rotSymSeg_bg_weight_factor", rotSymSeg_bg_weight_factor);
+    ctx.extractValue("rotSymSeg_max_sym_score", rotSymSeg_max_sym_score);
+    ctx.extractValue("rotSymSeg_max_occlusion_score", rotSymSeg_max_occlusion_score);
+    ctx.extractValue("rotSymSeg_max_cut_score", rotSymSeg_max_cut_score);
     ctx.extractValue("min_segment_size", min_segment_size);
-
-    boundingPlane << 0.104788, -0.720677, -0.685305, 0.693016; // plane parameters from example cloud
 
     return UIMA_ERR_NONE;
   }
@@ -145,6 +143,7 @@ public:
 
     outInfo("process begins");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
 
     //clearing previous data
     symmetryScores.clear();
@@ -162,6 +161,7 @@ public:
     dsSegmentIds.clear();
     segments.clear();
     filteredSegmentIds.clear();
+    boundingPlanes.clear();
 
     //get RGB cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -189,10 +189,6 @@ public:
       Eigen::Vector3f currOrientation(casSymmetries[it].orientation().x(), casSymmetries[it].orientation().y(), casSymmetries[it].orientation().z());
       symmetries[it] = RotationalSymmetry(currOrigin, currOrientation);
     }
-
-    //discard color information
-    //pcl::PointCloud<pcl::PointXYZ>::Ptr cloudxyz (new  pcl::PointCloud<pcl::PointXYZ>);
-    //pcl::copyPointCloud(*cloud_ptr, *cloudxyz);
 
     //allocating containers
     symmetryScores.resize(numSymmetries);
@@ -225,16 +221,30 @@ public:
       sceneNormals = normals;
     }
 
-    //initialize distance map
-    std::vector<Eigen::Vector4f> planes;
-    planes.push_back(boundingPlane);
+    //get bounding planes
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+    boundingPlanes.resize(planes.size());
+    if(planes.empty())
+    {
+      outWarn("Planes are not found! Using default plane z=0");
+      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
+    }
+    else
+    {
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
+      }
+    }
 
+    //initialize distance map
     dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(planes);
+    dist_map->setBoundingPlanes(boundingPlanes);
     dist_map->setInputCloud(sceneCloud);
 
     //compute adjacency weigth for smoothness term
-    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, adjacency_radius, num_adjacency_neighbors, sceneGraph, adjacency_weight_factor)){
+    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, rotSymSeg_adjacency_radius, rotSymSeg_num_adjacency_neighbors, sceneGraph, rotSymSeg_adjacency_weight_factor)){
       outWarn("Could not construct adjacency graph!");
       return UIMA_ERR_NONE;
     }
@@ -243,18 +253,18 @@ public:
     #pragma omp parallel for
     for(size_t symId = 0; symId < numSymmetries; symId++){
       //compute point scores for each symmetry
-      getCloudSymmetryScore<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, symmetries[symId], pointSymScores[symId], min_fit_angle, max_fit_angle);
-      getCloudOcclusionScore<pcl::PointXYZRGBA>(sceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], min_occlusion_dist, max_occlusion_dist);
-      getCloudPerpendicularScore(sceneNormals, symmetries[symId], pointPerpendicularScores[symId], max_perpendicular_angle);
+      getCloudSymmetryScore<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, symmetries[symId], pointSymScores[symId], rotSymSeg_min_fit_angle, rotSymSeg_max_fit_angle);
+      getCloudOcclusionScore<pcl::PointXYZRGBA>(sceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], rotSymSeg_min_occlusion_dist, rotSymSeg_max_occlusion_dist);
+      getCloudPerpendicularScore(sceneNormals, symmetries[symId], pointPerpendicularScores[symId], rotSymSeg_max_perpendicular_angle);
 
       //compute unary weight from scores
       fgWeights[symId].resize(sceneCloud->points.size());
       bgWeights[symId].resize(sceneCloud->points.size());
 
       for(size_t pId = 0; pId < sceneCloud->points.size(); pId++){
-        fgWeights[symId][pId] = (1.0f - pointSymScores[symId][pId]) * (1.0f - pointOcclusionScores[symId][pId]) * (1.0f - pointPerpendicularScores[symId][pId]) * fg_weight_factor;
+        fgWeights[symId][pId] = (1.0f - pointSymScores[symId][pId]) * (1.0f - pointOcclusionScores[symId][pId]) * (1.0f - pointPerpendicularScores[symId][pId]) * rotSymSeg_fg_weight_factor;
 
-        bgWeights[symId][pId] = (pointSymScores[symId][pId] * (1.0f - pointPerpendicularScores[symId][pId]) + pointOcclusionScores[symId][pId]) * bg_weight_factor;
+        bgWeights[symId][pId] = (pointSymScores[symId][pId] * (1.0f - pointPerpendicularScores[symId][pId]) + pointOcclusionScores[symId][pId]) * rotSymSeg_bg_weight_factor;
       }
 
       //sym_mutex.lock();
@@ -383,9 +393,9 @@ private:
   inline void filter(){
 
     for(size_t symId = 0; symId < numSymmetries; symId++){
-      if( symmetryScores[symId] < max_sym_score &&
-          occlusionScores[symId] < max_occlusion_score &&
-          cutScores[symId] < max_cut_score &&
+      if( symmetryScores[symId] < rotSymSeg_max_sym_score &&
+          occlusionScores[symId] < rotSymSeg_max_occlusion_score &&
+          cutScores[symId] < rotSymSeg_max_cut_score &&
           dsSegmentIds[symId].size() > min_segment_size)
       {
         filteredSegmentIds.push_back(symId);
