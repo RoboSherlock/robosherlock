@@ -715,19 +715,19 @@
       <nameValuePair>
         <name>bilSymSeg_adjacency_radius</name>
         <value>
-          <float>0.015f</float>
+          <float>0.01f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
           <name>bilSymSeg_num_adjacency_neighbors</name>
           <value>
-              <integer>13</integer>
+              <integer>14</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>bilSymSeg_adjacency_weight_factor</name>
           <value>
-              <float>4.0f</float>
+              <float>5.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -769,7 +769,7 @@
       <nameValuePair>
           <name>symmetric_weight_factor</name>
           <value>
-              <float>1.0f</float>
+              <float>3.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
