@@ -28,13 +28,13 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>adjacency_radius</name>
+          <name>bilSymSeg_adjacency_radius</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>num_adjacency_neighbors</name>
+          <name>bilSymSeg_num_adjacency_neighbors</name>
           <type>Integer</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
@@ -52,43 +52,43 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>adjacency_weight_factor</name>
+          <name>bilSymSeg_adjacency_weight_factor</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>min_fit_angle</name>
+          <name>bilSymSeg_min_fit_angle</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_fit_angle</name>
+          <name>bilSymSeg_max_fit_angle</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>min_occlusion_dist</name>
+          <name>bilSymSeg_min_occlusion_dist</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_occlusion_dist</name>
+          <name>bilSymSeg_max_occlusion_dist</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>min_perpendicular_angle</name>
+          <name>bilSymSeg_min_perpendicular_angle</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_perpendicular_angle</name>
+          <name>bilSymSeg_max_perpendicular_angle</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
@@ -106,31 +106,31 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>fg_weight_factor</name>
+          <name>bilSymSeg_fg_weight_factor</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>bg_weight_factor</name>
+          <name>bilSymSeg_bg_weight_factor</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_sym_score</name>
+          <name>bilSymSeg_max_sym_score</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_occlusion_score</name>
+          <name>bilSymSeg_max_occlusion_score</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_cut_score</name>
+          <name>bilSymSeg_max_cut_score</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
@@ -174,13 +174,13 @@
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>adjacency_radius</name>
+          <name>bilSymSeg_adjacency_radius</name>
           <value>
               <float>0.01f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>num_adjacency_neighbors</name>
+          <name>bilSymSeg_num_adjacency_neighbors</name>
           <value>
               <integer>9</integer>
           </value>
@@ -198,43 +198,43 @@
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>adjacency_weight_factor</name>
+          <name>bilSymSeg_adjacency_weight_factor</name>
           <value>
               <float>5.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_fit_angle</name>
+          <name>bilSymSeg_min_fit_angle</name>
           <value>
               <float>0.174f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_fit_angle</name>
+          <name>bilSymSeg_max_fit_angle</name>
           <value>
               <float>0.785f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_occlusion_dist</name>
+          <name>bilSymSeg_min_occlusion_dist</name>
           <value>
               <float>0.01f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_occlusion_dist</name>
+          <name>bilSymSeg_max_occlusion_dist</name>
           <value>
               <float>0.03f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_perpendicular_angle</name>
+          <name>bilSymSeg_min_perpendicular_angle</name>
           <value>
               <float>0.785f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_perpendicular_angle</name>
+          <name>bilSymSeg_max_perpendicular_angle</name>
           <value>
               <float>1.396f</float>
           </value>
@@ -252,31 +252,31 @@
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>fg_weight_factor</name>
+          <name>bilSymSeg_fg_weight_factor</name>
           <value>
               <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>bg_weight_factor</name>
+          <name>bilSymSeg_bg_weight_factor</name>
           <value>
               <float>2.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_sym_score</name>
+          <name>bilSymSeg_max_sym_score</name>
           <value>
               <float>0.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_occlusion_score</name>
+          <name>bilSymSeg_max_occlusion_score</name>
           <value>
               <float>0.1f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_cut_score</name>
+          <name>bilSymSeg_max_cut_score</name>
           <value>
               <float>0.55f</float>
           </value>

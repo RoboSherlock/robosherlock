@@ -77,10 +77,10 @@ private:
   float refine_min_inlier_sym_score;
   float refine_max_inlier_sym_score;
 
-  float min_occlusion_dist;
-  float max_occlusion_dist;
+  float bilSymAnn_min_occlusion_dist;
+  float bilSymAnn_max_occlusion_dist;
 
-  float max_occlusion_score;
+  float bilSymAnn_max_occlusion_score;
   float min_segment_inlier_score;
   float min_corres_inlier_score;
 
@@ -117,10 +117,10 @@ public:
     ctx.extractValue("refine_min_inlier_sym_score", refine_min_inlier_sym_score);
     ctx.extractValue("refine_max_inlier_sym_score", refine_max_inlier_sym_score);
 
-    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
-    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
+    ctx.extractValue("bilSymAnn_min_occlusion_dist", bilSymAnn_min_occlusion_dist);
+    ctx.extractValue("bilSymAnn_max_occlusion_dist", bilSymAnn_max_occlusion_dist);
 
-    ctx.extractValue("max_occlusion_score", max_occlusion_score);
+    ctx.extractValue("bilSymAnn_max_occlusion_score", bilSymAnn_max_occlusion_score);
     ctx.extractValue("min_segment_inlier_score", min_segment_inlier_score);
     ctx.extractValue("min_corres_inlier_score", min_corres_inlier_score);
 
@@ -624,7 +624,7 @@ private:
 
       //compute symmetry score
       getCloudBilateralSymmetryScore<PointT>(cloud, normals, dsCloud, dsNormals, tree, refined_symmetries[symId], correspondences, point_symmetry_scores[symId], correspondence_search_radius, correspondence_max_normal_fit_error, correspondence_min_sym_dist, correspondence_max_sym_reflected_dist, refine_min_inlier_sym_score, refine_max_inlier_sym_score);
-      getCloudBilateralOcclusionScore<PointT>(dsCloud, dist_map, refined_symmetries[symId], point_occlusion_scores[symId], min_occlusion_dist, max_occlusion_dist);
+      getCloudBilateralOcclusionScore<PointT>(dsCloud, dist_map, refined_symmetries[symId], point_occlusion_scores[symId], bilSymAnn_min_occlusion_dist, bilSymAnn_max_occlusion_dist);
 
       float inlierSum = 0.0f;
       for(size_t corresId = 0; corresId < correspondences.size(); corresId++)
@@ -646,7 +646,7 @@ private:
     {
       if(validSymmetries[segmentId][symId])
       {
-        if(occlusionScores[segmentId][symId] < max_occlusion_score &&
+        if(occlusionScores[segmentId][symId] < bilSymAnn_max_occlusion_score &&
            segmentInlierScores[segmentId][symId] > min_segment_inlier_score&&
            corresInlierScores[segmentId][symId] > min_corres_inlier_score)
         {

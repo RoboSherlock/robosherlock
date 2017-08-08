@@ -88,27 +88,27 @@ private:
 
   float dist_map_resolution;
 
-  float adjacency_radius;
-  int num_adjacency_neighbors;
+  float bilSymSeg_adjacency_radius;
+  int bilSymSeg_num_adjacency_neighbors;
   float adjacency_sigma_convex;
   float adjacency_sigma_concave;
-  float adjacency_weight_factor;
+  float bilSymSeg_adjacency_weight_factor;
 
-  float min_fit_angle;
-  float max_fit_angle;
-  float min_occlusion_dist;
-  float max_occlusion_dist;
-  float min_perpendicular_angle;
-  float max_perpendicular_angle;
+  float bilSymSeg_min_fit_angle;
+  float bilSymSeg_max_fit_angle;
+  float bilSymSeg_min_occlusion_dist;
+  float bilSymSeg_max_occlusion_dist;
+  float bilSymSeg_min_perpendicular_angle;
+  float bilSymSeg_max_perpendicular_angle;
   float correspondence_max_sym_reflected_dist;
 
   float symmetric_weight_factor;
-  float fg_weight_factor;
-  float bg_weight_factor;
+  float bilSymSeg_fg_weight_factor;
+  float bilSymSeg_bg_weight_factor;
 
-  float max_sym_score;
-  float max_occlusion_score;
-  float max_cut_score;
+  float bilSymSeg_max_sym_score;
+  float bilSymSeg_max_occlusion_score;
+  float bilSymSeg_max_cut_score;
   float min_sym_sypport_overlap;
   int min_segment_size;
 
@@ -141,27 +141,27 @@ public:
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
 
-    ctx.extractValue("adjacency_radius", adjacency_radius);
-    ctx.extractValue("num_adjacency_neighbors", num_adjacency_neighbors);
+    ctx.extractValue("bilSymSeg_adjacency_radius", bilSymSeg_adjacency_radius);
+    ctx.extractValue("bilSymSeg_num_adjacency_neighbors", bilSymSeg_num_adjacency_neighbors);
     ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
     ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
-    ctx.extractValue("adjacency_weight_factor", adjacency_weight_factor);
+    ctx.extractValue("bilSymSeg_adjacency_weight_factor", bilSymSeg_adjacency_weight_factor);
 
-    ctx.extractValue("min_fit_angle", min_fit_angle);
-    ctx.extractValue("max_fit_angle", max_fit_angle);
-    ctx.extractValue("min_occlusion_dist", min_occlusion_dist);
-    ctx.extractValue("max_occlusion_dist", max_occlusion_dist);
-    ctx.extractValue("min_perpendicular_angle", min_perpendicular_angle);
-    ctx.extractValue("max_perpendicular_angle", max_perpendicular_angle);
+    ctx.extractValue("bilSymSeg_min_fit_angle", bilSymSeg_min_fit_angle);
+    ctx.extractValue("bilSymSeg_max_fit_angle", bilSymSeg_max_fit_angle);
+    ctx.extractValue("bilSymSeg_min_occlusion_dist", bilSymSeg_min_occlusion_dist);
+    ctx.extractValue("bilSymSeg_max_occlusion_dist", bilSymSeg_max_occlusion_dist);
+    ctx.extractValue("bilSymSeg_min_perpendicular_angle", bilSymSeg_min_perpendicular_angle);
+    ctx.extractValue("bilSymSeg_max_perpendicular_angle", bilSymSeg_max_perpendicular_angle);
     ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("symmetric_weight_factor", symmetric_weight_factor);
-    ctx.extractValue("fg_weight_factor", fg_weight_factor);
-    ctx.extractValue("bg_weight_factor", bg_weight_factor);
+    ctx.extractValue("bilSymSeg_fg_weight_factor", bilSymSeg_fg_weight_factor);
+    ctx.extractValue("bilSymSeg_bg_weight_factor", bilSymSeg_bg_weight_factor);
 
-    ctx.extractValue("max_sym_score", max_sym_score);
-    ctx.extractValue("max_occlusion_score", max_occlusion_score);
-    ctx.extractValue("max_cut_score", max_cut_score);
+    ctx.extractValue("bilSymSeg_max_sym_score", bilSymSeg_max_sym_score);
+    ctx.extractValue("bilSymSeg_max_occlusion_score", bilSymSeg_max_occlusion_score);
+    ctx.extractValue("bilSymSeg_max_cut_score", bilSymSeg_max_cut_score);
     ctx.extractValue("min_sym_sypport_overlap", min_sym_sypport_overlap);
     ctx.extractValue("min_segment_size", min_segment_size);
 
@@ -209,11 +209,24 @@ public:
     filteredSegmentIds.clear();
     mergedSymmetryIds.clear();
 
-    //get RGB cloud
-    cas.get(VIEW_CLOUD, *sceneCloud);
 
-    //get normal cloud
-    cas.get(VIEW_NORMALS, *sceneNormals);
+    //get RGB objects cloud
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+    cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
+    if(cloud_ptr->size() == 0)
+    {
+      outInfo("Input Object cloud address is empty! Using scene cloud");
+      cas.get(VIEW_CLOUD, *cloud_ptr);
+      cas.get(VIEW_NORMALS, *normals);
+    }
+    else
+    {
+      //get normal cloud
+      cas.get(VIEW_NORMALS_OBJECTS, *normals);
+    }
+    sceneCloud = cloud_ptr;
+    sceneNormals = normals;
 
     //get Rotational Symmteries
     std::vector<rs::BilateralSymmetry> casSymmetries;
@@ -285,7 +298,7 @@ public:
 
     //main execution
     //compute adjacency weigth for smoothness term
-    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(dsSceneCloud, dsSceneNormals, adjacency_radius, num_adjacency_neighbors, sceneGraph, adjacency_weight_factor))
+    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(dsSceneCloud, dsSceneNormals, bilSymSeg_adjacency_radius, bilSymSeg_num_adjacency_neighbors, sceneGraph, bilSymSeg_adjacency_weight_factor))
     {
       outWarn("Could not construct adjacency graph!");
       return UIMA_ERR_NONE;
@@ -314,9 +327,9 @@ public:
       }
 
       //compute score
-      getCloudBilateralSymmetryScore<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, dsSceneCloud, dsSceneNormals, search_tree, symmetries[symId], correspondences[symId], pointSymScores[symId], 0.01f, 0.174f, 0.02f, correspondence_max_sym_reflected_dist, min_fit_angle, max_fit_angle);
-      getCloudBilateralOcclusionScore<pcl::PointXYZRGBA>(dsSceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], min_occlusion_dist, max_occlusion_dist);
-      getCloudBilateralPerpendicularScore(dsSceneNormals, symmetries[symId], pointPerpendicularScores[symId], min_perpendicular_angle, max_perpendicular_angle);
+      getCloudBilateralSymmetryScore<pcl::PointXYZRGBA>(sceneCloud, sceneNormals, dsSceneCloud, dsSceneNormals, search_tree, symmetries[symId], correspondences[symId], pointSymScores[symId], 0.01f, 0.174f, 0.02f, correspondence_max_sym_reflected_dist, bilSymSeg_min_fit_angle, bilSymSeg_max_fit_angle);
+      getCloudBilateralOcclusionScore<pcl::PointXYZRGBA>(dsSceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], bilSymSeg_min_occlusion_dist, bilSymSeg_max_occlusion_dist);
+      getCloudBilateralPerpendicularScore(dsSceneNormals, symmetries[symId], pointPerpendicularScores[symId], bilSymSeg_min_perpendicular_angle, bilSymSeg_max_perpendicular_angle);
 
       //compute unary weight from scores
       fgWeights[symId].resize(dsSceneCloud->points.size(), 0.0f);
@@ -324,13 +337,13 @@ public:
 
       for(size_t pId = 0; pId < dsSceneCloud->points.size(); pId++)
       {
-        bgWeights[symId][pId] = pointOcclusionScores[symId][pId] * bg_weight_factor;
+        bgWeights[symId][pId] = pointOcclusionScores[symId][pId] * bilSymSeg_bg_weight_factor;
       }
 
       for(size_t corresId = 0; corresId < correspondences[symId].size(); corresId++)
       {
         int pointId = correspondences[symId][corresId].index_query;
-        fgWeights[symId][pointId] = (1.0f - pointSymScores[symId][corresId]) * fg_weight_factor;
+        fgWeights[symId][pointId] = (1.0f - pointSymScores[symId][corresId]) * bilSymSeg_fg_weight_factor;
         if(!supportMask[pointId])
         {
           fgWeights[symId][pointId] *= (1.0f - pointPerpendicularScores[symId][pointId]);
@@ -361,7 +374,7 @@ public:
         if(srcPointId != tgtPointId)
         {
           // need checking: (1.0f - pointSymScores[symId][corresId]) * symmetric_weight_factor or just symmetric_weight_factor;
-          symmetricGraph[symId].addEdge(srcPointId, tgtPointId, symmetric_weight_factor * adjacency_weight_factor); // * (1.0f - pointSymScores[symId][corresId])
+          symmetricGraph[symId].addEdge(srcPointId, tgtPointId, symmetric_weight_factor * bilSymSeg_adjacency_weight_factor); // * (1.0f - pointSymScores[symId][corresId])
         }
       }
 
@@ -553,9 +566,9 @@ public:
 private:
   inline void filter(){
     for(size_t symId = 0; symId < numSymmetries; symId++){
-      if( symmetryScores[symId] < max_sym_score &&
-          occlusionScores[symId] < max_occlusion_score &&
-          cutScores[symId] < max_cut_score &&
+      if( symmetryScores[symId] < bilSymSeg_max_sym_score &&
+          occlusionScores[symId] < bilSymSeg_max_occlusion_score &&
+          cutScores[symId] < bilSymSeg_max_cut_score &&
           segmentIds[symId].size() > min_segment_size &&
           symmetrySupportOverlapScores[symId] > min_sym_sypport_overlap)
       {

@@ -82,19 +82,19 @@
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>min_occlusion_dist</name>
+          <name>bilSymAnn_min_occlusion_dist</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_occlusion_dist</name>
+          <name>bilSymAnn_max_occlusion_dist</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-          <name>max_occlusion_score</name>
+          <name>bilSymAnn_max_occlusion_score</name>
           <type>Float</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
@@ -198,19 +198,19 @@
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_occlusion_dist</name>
+          <name>bilSymAnn_min_occlusion_dist</name>
           <value>
               <float>0.01f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_occlusion_dist</name>
+          <name>bilSymAnn_max_occlusion_dist</name>
           <value>
               <float>0.03f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_occlusion_score</name>
+          <name>bilSymAnn_max_occlusion_score</name>
           <value>
               <float>0.05f</float>
           </value>

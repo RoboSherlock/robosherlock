@@ -269,33 +269,33 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>annotator_min_occlusion_dist</name>
+        <name>bilSymAnn_min_occlusion_dist</name>
         <description>min occlusion dist for occlusion scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetryAnnotator/min_occlusion_dist</parameter>
+          <parameter>BilateralSymmetryAnnotator/bilSymAnn_min_occlusion_dist</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>annotator_max_occlusion_dist</name>
+        <name>bilSymAnn_max_occlusion_dist</name>
         <description>min occlusion dist for occlusion scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetryAnnotator/max_occlusion_dist</parameter>
+          <parameter>BilateralSymmetryAnnotator/bilSymAnn_max_occlusion_dist</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>annotator_max_occlusion_score</name>
+        <name>bilSymAnn_max_occlusion_score</name>
         <description>max occlusion score for symmetry filtering</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetryAnnotator/max_occlusion_score</parameter>
+          <parameter>BilateralSymmetryAnnotator/bilSymAnn_max_occlusion_score</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -319,113 +319,113 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>adjacency_radius</name>
+        <name>bilSymSeg_adjacency_radius</name>
         <description>point adjacency radius for computing adjacency radius</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/adjacency_radius</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_adjacency_radius</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>num_adjacency_neighbors</name>
+        <name>bilSymSeg_num_adjacency_neighbors</name>
         <description>Number of neighbor in searching adjacency radius</description>
         <type>Integer</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/num_adjacency_neighbors</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_num_adjacency_neighbors</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>adjacency_weight_factor</name>
+        <name>bilSymSeg_adjacency_weight_factor</name>
         <description>Weight of neighbors adjacency for mincut</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/adjacency_weight_factor</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_adjacency_weight_factor</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>min_fit_angle</name>
+        <name>bilSymSeg_min_fit_angle</name>
         <description>min fit angle for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/min_fit_angle</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_min_fit_angle</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>max_fit_angle</name>
+        <name>bilSymSeg_max_fit_angle</name>
         <description>max fit angle for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_fit_angle</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_fit_angle</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>segmentation_min_occlusion_dist</name>
+        <name>bilSymSeg_min_occlusion_dist</name>
         <description>min occlusion dist for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/min_occlusion_dist</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_min_occlusion_dist</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>segmentation_max_occlusion_dist</name>
+        <name>bilSymSeg_max_occlusion_dist</name>
         <description>max occlusion dist for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_occlusion_dist</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_occlusion_dist</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>min_perpendicular_angle</name>
+        <name>bilSymSeg_min_perpendicular_angle</name>
         <description>min perpendicular angle for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/min_perpendicular_angle</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_min_perpendicular_angle</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>max_perpendicular_angle</name>
+        <name>bilSymSeg_max_perpendicular_angle</name>
         <description>max perpendicular angle for symmetry segment scoring</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_perpendicular_angle</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_perpendicular_angle</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>fg_weight_factor</name>
+        <name>bilSymSeg_fg_weight_factor</name>
         <description>Foreground weight factor</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/fg_weight_factor</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_fg_weight_factor</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>bg_weight_factor</name>
+        <name>bilSymSeg_bg_weight_factor</name>
         <description>Background weight factor</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/bg_weight_factor</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_bg_weight_factor</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -439,33 +439,33 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>max_sym_score</name>
+        <name>bilSymSeg_max_sym_score</name>
         <description>Max symmetric score for segment filtering</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_sym_score</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_sym_score</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>segmentation_max_occlusion_score</name>
+        <name>bilSymSeg_max_occlusion_score</name>
         <description>Max occlusion score for segment filtering</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_occlusion_score</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_occlusion_score</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>max_cut_score</name>
+        <name>bilSymSeg_max_cut_score</name>
         <description>Max cut score for segment filtering</description>
         <type>Float</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetrySegmentation/max_cut_score</parameter>
+          <parameter>BilateralSymmetrySegmentation/bilSymSeg_max_cut_score</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -561,19 +561,19 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>annotator_min_occlusion_dist</name>
+        <name>bilSymAnn_min_occlusion_dist</name>
         <value>
           <float>0.01f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>annotator_max_occlusion_dist</name>
+        <name>bilSymAnn_max_occlusion_dist</name>
         <value>
           <float>0.07f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>annotator_max_occlusion_score</name>
+        <name>bilSymAnn_max_occlusion_score</name>
         <value>
           <float>0.01f</float>
         </value>
@@ -591,55 +591,55 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>adjacency_radius</name>
+        <name>bilSymSeg_adjacency_radius</name>
         <value>
           <float>0.01f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
-          <name>num_adjacency_neighbors</name>
+          <name>bilSymSeg_num_adjacency_neighbors</name>
           <value>
               <integer>13</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>adjacency_weight_factor</name>
+          <name>bilSymSeg_adjacency_weight_factor</name>
           <value>
               <float>3.3f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_fit_angle</name>
+          <name>bilSymSeg_min_fit_angle</name>
           <value>
               <float>0.174f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_fit_angle</name>
+          <name>bilSymSeg_max_fit_angle</name>
           <value>
               <float>0.785f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>segmentation_min_occlusion_dist</name>
+          <name>bilSymSeg_min_occlusion_dist</name>
           <value>
               <float>0.01f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>segmentation_max_occlusion_dist</name>
+          <name>bilSymSeg_max_occlusion_dist</name>
           <value>
               <float>0.03f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>min_perpendicular_angle</name>
+          <name>bilSymSeg_min_perpendicular_angle</name>
           <value>
               <float>0.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_perpendicular_angle</name>
+          <name>bilSymSeg_max_perpendicular_angle</name>
           <value>
               <float>1.5f</float>
           </value>
@@ -651,31 +651,31 @@
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>fg_weight_factor</name>
+          <name>bilSymSeg_fg_weight_factor</name>
           <value>
               <float>1.5f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>bg_weight_factor</name>
+          <name>bilSymSeg_bg_weight_factor</name>
           <value>
               <float>3.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_sym_score</name>
+          <name>bilSymSeg_max_sym_score</name>
           <value>
               <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>segmentation_max_occlusion_score</name>
+          <name>bilSymSeg_max_occlusion_score</name>
           <value>
               <float>0.1f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
-          <name>max_cut_score</name>
+          <name>bilSymSeg_max_cut_score</name>
           <value>
               <float>1.0f</float>
           </value>
