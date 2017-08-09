@@ -1,6 +1,8 @@
 #include <string>
 #include <gtest/gtest.h>
 #include "rs/utils/RSAnalysisEngineManager.h"
+#include "rs/utils/RSPipelineManager.h"
+
 #include "rs/utils/RSAnalysisEngine.h"
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
@@ -16,11 +18,15 @@ protected:
     {
         rs::common::getAEPaths("test",engineFile);
         engine.init(engineFile);
+        engine.initPipelineManager();
+        engine.getPipelineManager()->setPipelineOrdering(engineList);
     }
 
     virtual void TearDown(){}
     std::string engineFile;
     RSAnalysisEngine engine;
+
+    std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
 
 };
 

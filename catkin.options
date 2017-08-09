@@ -1,1 +1,1 @@
--DMY_CMAKE_CXX_FLAGS=--coverage -g -O0
+-DTEST_CMAKE_CXX_FLAGS=--coverage

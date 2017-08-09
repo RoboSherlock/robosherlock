@@ -133,7 +133,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader.ini</string>
+            <string>config_data_loader_test.ini</string>
           </array>
         </value>
       </nameValuePair>
@@ -141,6 +141,9 @@
     <flowConstraints>
       <fixedFlow>
       <node>CollectionReader</node>
+      <node>PlaneAnnotator</node>
+      <node>PointCloudClusterExtractor</node>
+      <node>PointCloudFilter</node>
       <node>NormalEstimator</node>
       </fixedFlow>
     </flowConstraints>
