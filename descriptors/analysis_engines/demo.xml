@@ -118,6 +118,9 @@
     <delegateAnalysisEngine key="SacModelAnnotator">
       <import location="../annotators/annotation/SacModelAnnotator.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="SegmentFilterHelper">
+      <import location="../annotators/segmentation/SegmentFilterHelper.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="StorageWriter">
       <import location="../annotators/io/StorageWriter.xml"/>
     </delegateAnalysisEngine>

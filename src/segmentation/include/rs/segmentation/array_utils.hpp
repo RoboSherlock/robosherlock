@@ -55,7 +55,7 @@ inline std::vector<int> Difference(const std::vector<int> &v1, const std::vector
   v2_sorted.erase(std::unique(v2_sorted.begin(), v2_sorted.end()), v2_sorted.end());
 
   std::set_difference(v1_sorted.begin(), v1_sorted.end(), v2_sorted.begin(), v2_sorted.end(), std::back_inserter(v_difference));
-      
+
   return v_difference;
 }
 
@@ -98,7 +98,7 @@ inline Type median(std::vector<Type>& v){
 }
 
 template<typename Type>
-ostream& operator<<(ostream& output, std::vector< std::vector<Type> >& arr){
+std::ostream& operator<<(std::ostream& output, std::vector< std::vector<Type> >& arr){
   for(size_t it = 0; it < arr.size(); it++){
     output << "ID: ";
     for(size_t subIt = 0; subIt < arr[it].size(); subIt++){
@@ -110,7 +110,7 @@ ostream& operator<<(ostream& output, std::vector< std::vector<Type> >& arr){
 }
 
 template<typename Type>
-ostream& operator<<(ostream& output, std::vector<Type>& arr){
+std::ostream& operator<<(std::ostream& output, std::vector<Type>& arr){
   output << "Data: ";
   for(size_t it = 0; it < arr.size(); it++){
     output << arr[it] << " ";
