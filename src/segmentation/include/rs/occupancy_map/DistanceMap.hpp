@@ -52,7 +52,7 @@ public:
 
         for(size_t it = 0; it < planes.size(); it++){
           Eigen::Vector3f point, normal;
-          planeToPointNormal(planes[it], point, normal);
+          planeToPointNormal<float>(planes[it], point, normal);
           point += normal * offset[it];
           pointNormalToPlane(point, normal, bounding_planes[it]);
         }
@@ -73,14 +73,15 @@ public:
     octree->approxNearestSearch(point, result_index, sqr_dist);
     sqr_dist = std::sqrt(sqr_dist);
 
-    Eigen::Vector3f pointVec = point.getVector3fMap();
+    //NOTE: it seems that it does not need to consider bounding planes in practical pipeline (because all objects are above bounding plane)
+    /*Eigen::Vector3f pointVec = point.getVector3fMap();
     float boundingPlaneDist = getMinDistToBoundingPlane(pointVec);
     boundingPlaneDist = std::max(-boundingPlaneDist, 0.0f);
 
     if(boundingPlaneDist > sqr_dist){
       sqr_dist = boundingPlaneDist;
       result_index = -1;
-    }
+    }*/
 
     return true;
   }

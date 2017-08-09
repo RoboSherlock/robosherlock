@@ -97,6 +97,9 @@
     <delegateAnalysisEngine key="PointCloudFilter">
       <import location="../annotators/filter/PointCloudFilter.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="PointNormalNaNFilter">
+      <import location="../annotators/filter/PointNormalNaNFilter.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PrimitiveShapeAnnotator">
       <import location="../annotators/annotation/PrimitiveShapeAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -640,7 +643,7 @@
       <nameValuePair>
           <name>isDownsampled</name>
           <value>
-              <boolean>false</boolean>
+              <boolean>true</boolean>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -818,6 +821,7 @@
        <node>PointCloudFilter</node>
        <node>PointCloudDownsampler</node>
        <node>NormalEstimator</node>
+       <node>PointNormalNaNFilter</node>
        <node>PlaneAnnotator</node>
        <node>OverSegmentationAnnotator</node>
        <node>BilateralSymmetryAnnotator</node>

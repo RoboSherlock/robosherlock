@@ -189,8 +189,7 @@ inline bool computeDownsampleNormals(pcl::PointCloud<pcl::Normal>::Ptr& in_norma
           out_normals->points[dsPointId] = pcl::Normal(dsNormX, dsNormY, dsNormZ);
         }
         else{
-          outError("Normal cloud is corrupted! Too many NaN normals");
-          return false;
+          outWarn("Normal cloud is corrupted! Too many NaN normals");
         }
       }
   }

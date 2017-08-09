@@ -97,6 +97,9 @@
     <delegateAnalysisEngine key="PointCloudFilter">
       <import location="../annotators/filter/PointCloudFilter.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="PointNormalNaNFilter">
+      <import location="../annotators/filter/PointNormalNaNFilter.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PrimitiveShapeAnnotator">
       <import location="../annotators/annotation/PrimitiveShapeAnnotator.xml"/>
     </delegateAnalysisEngine>
