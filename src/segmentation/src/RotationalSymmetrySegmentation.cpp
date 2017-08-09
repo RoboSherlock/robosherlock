@@ -67,7 +67,7 @@ private:
   std::vector<int> filteredSegmentIds;
 
   //parameters
-  bool isDownsampled;
+  bool rotSymSeg_isDownsampled;
   float downsample_leaf_size;
 
   float dist_map_resolution;
@@ -108,7 +108,7 @@ public:
   {
     outInfo("initialize");
 
-    ctx.extractValue("isDownsampled", isDownsampled);
+    ctx.extractValue("rotSymSeg_isDownsampled", rotSymSeg_isDownsampled);
     ctx.extractValue("downsample_leaf_size", downsample_leaf_size);
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
     ctx.extractValue("rotSymSeg_adjacency_radius", rotSymSeg_adjacency_radius);
@@ -205,7 +205,7 @@ public:
     //main execution
 
     //downsample the cloud and normal cloud to speed up segmentation
-    if(isDownsampled){
+    if(rotSymSeg_isDownsampled){
       std::vector<int> nearestMap;
       DownsampleMap<pcl::PointXYZRGBA> dc;
       dc.setInputCloud(cloud_ptr);
@@ -303,7 +303,7 @@ public:
         }
       }
 
-      if(isDownsampled)
+      if(rotSymSeg_isDownsampled)
         upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
       else
         segmentIds = dsSegmentIds;

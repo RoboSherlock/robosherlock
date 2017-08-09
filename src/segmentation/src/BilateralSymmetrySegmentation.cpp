@@ -83,7 +83,7 @@ private:
   std::vector<int> mergedSymmetryIds;
 
   //parameters
-  bool isDownsampled;
+  bool bilSymSeg_isDownsampled;
   float downsample_voxel_size;
 
   float dist_map_resolution;
@@ -137,7 +137,7 @@ public:
   {
     outInfo("initialize");
 
-    ctx.extractValue("isDownsampled", isDownsampled);
+    ctx.extractValue("bilSymSeg_isDownsampled", bilSymSeg_isDownsampled);
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
     ctx.extractValue("dist_map_resolution", dist_map_resolution);
 
@@ -264,7 +264,7 @@ public:
     dsSegmentIds.resize(numSymmetries);
 
     //downsample the cloud and normal cloud to speed up segmentation
-    if(isDownsampled){
+    if(bilSymSeg_isDownsampled){
       std::vector<int> nearestMap;
       DownsampleMap<pcl::PointXYZRGBA> dc;
       dc.setInputCloud(sceneCloud);
@@ -322,7 +322,7 @@ public:
       std::vector<bool> supportMask(dsSceneCloud->size(), false);
       for(size_t pointIdIt = 0; pointIdIt < symmetrySupports[symId].size(); pointIdIt++)
       {
-        if(isDownsampled)
+        if(bilSymSeg_isDownsampled)
         {
           int dsPointId = reversedMap[symmetrySupports[symId][pointIdIt]];
           supportMask[dsPointId] = true;
@@ -368,7 +368,7 @@ public:
 
         int srcPointId, tgtPointId;
         srcPointId = correspondences[symId][corresId].index_query;
-        if(isDownsampled)
+        if(bilSymSeg_isDownsampled)
         {
           //convert to downsample ID
           tgtPointId = reversedMap[correspondences[symId][corresId].index_match];
@@ -414,7 +414,7 @@ public:
         {
           int srcPointId, tgtPointId;
           srcPointId = correspondences[symId][corresId].index_query;
-          if(isDownsampled)
+          if(bilSymSeg_isDownsampled)
           {
             //convert to downsample ID
             tgtPointId = reversedMap[correspondences[symId][corresId].index_match];
@@ -462,7 +462,7 @@ public:
             symmetrySupportOverlapScores[symId] += 1.0f;
           }
         }
-        if(isDownsampled)
+        if(bilSymSeg_isDownsampled)
         {
           int denom = 0;
           for(size_t it = 0; it < supportMask.size(); it++)
@@ -485,7 +485,7 @@ public:
       }
 
       //if downsampled, upsample the cloud
-      if(isDownsampled)
+      if(bilSymSeg_isDownsampled)
       {
         upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
       }

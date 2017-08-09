@@ -10,7 +10,7 @@
     <vendor/>
     <configurationParameters>
       <configurationParameter>
-          <name>isDownsampled</name>
+          <name>bilSymAnn_isDownsampled</name>
           <type>Boolean</type>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
@@ -126,7 +126,7 @@
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
-          <name>isDownsampled</name>
+          <name>bilSymAnn_isDownsampled</name>
           <value>
               <boolean>true</boolean>
           </value>

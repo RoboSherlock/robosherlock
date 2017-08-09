@@ -59,7 +59,7 @@ private:
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
-  bool isDownsampled;
+  bool bilSymAnn_isDownsampled;
   bool naive_detection;
 
   float downsample_voxel_size;
@@ -100,7 +100,7 @@ public:
   {
     outInfo("initialize");
 
-    ctx.extractValue("isDownsampled", isDownsampled);
+    ctx.extractValue("bilSymAnn_isDownsampled", bilSymAnn_isDownsampled);
     ctx.extractValue("naive_detection", naive_detection);
     ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
 
@@ -235,7 +235,7 @@ public:
       segmentDSClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
       segmentDSNormals[segmentId].reset(new pcl::PointCloud<pcl::Normal>);
 
-      if(isDownsampled)
+      if(bilSymAnn_isDownsampled)
       {
         std::vector< std::vector<int> > dsMap;
         std::vector<int> nearestMap;
