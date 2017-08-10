@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_transparentSegmentationAnnotator</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>TransparentSegmentationAnnotator</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+        <configurationParameter>
+            <name>open_iterations</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>close_iterations</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>gc_erode_iterations</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>gc_dilate_iterations</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>grabcut_iterations</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>morph_kernel_size</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>convex_hull_segments</name>
+            <type>Boolean</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+
+        <configurationParameter>
+            <name>min_contour_area</name>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+        <nameValuePair>
+            <name>open_iterations</name>
+            <value>
+                <integer>6</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>close_iterations</name>
+            <value>
+                <integer>12</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>gc_erode_iterations</name>
+            <value>
+                <integer>6</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>gc_dilate_iterations</name>
+            <value>
+                <integer>12</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>grabcut_iterations</name>
+            <value>
+                <integer>2</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>morph_kernel_size</name>
+            <value>
+                <integer>3</integer>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>convex_hull_segments</name>
+            <value>
+                <boolean>False</boolean>
+            </value>
+        </nameValuePair>
+
+        <nameValuePair>
+            <name>min_contour_area</name>
+            <value>
+                <integer>1000</integer>
+            </value>
+        </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+        <imports>
+            <import location="../../typesystem/all_types.xml"/>
+        </imports>
+    </typeSystemDescription>
+    <capabilities>
+        <capability>
+            <inputs/>
+            <outputs/>
+            <languagesSupported>
+                <language>x-unspecified</language>
+            </languagesSupported>
+        </capability>
+    </capabilities>
+    <operationalProperties>
+        <modifiesCas>true</modifiesCas>
+        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+        <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>

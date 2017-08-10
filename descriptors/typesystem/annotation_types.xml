@@ -102,6 +102,28 @@
       </features>
     </typeDescription>
     <typeDescription>
+      <name>rs.annotation.TransparentSegment</name>
+      <description>Segment supposed to be transparent</description>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>segment</name>
+          <description></description>
+          <rangeTypeName>rs.annotation.Segment</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>maxSurfaceDepth</name>
+          <description></description>
+          <rangeTypeName>uima.cas.Float</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>source</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    <typeDescription>
       <name>rs.annotation.Board</name>
       <description>Annotation for chess and circle boards</description>
       <supertypeName>rs.core.Annotation</supertypeName>
