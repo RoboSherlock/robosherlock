@@ -1,3 +1,20 @@
+/**
+ * Copyright 2017 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <iterator>
 
 #include <uima/api.hpp>
@@ -15,59 +32,72 @@
 
 #include <rs/segmentation/ImageSegmentation.h>
 
+
 using namespace uima;
 
 
 class TransparentSegmentationAnnotator : public DrawingAnnotator
 {
-public:
-  TransparentSegmentationAnnotator(): DrawingAnnotator(__func__) {
+  friend class TransparentSegmentationUnitTest;
 
+public:
+  TransparentSegmentationAnnotator() : DrawingAnnotator(__func__)
+  {
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx)
+  TyErrorId initialize(AnnotatorContext &ctx) override
   {
     outInfo("initialize");
 
-    ctx.extractValue("open_iterations", open_iterations);
-    ctx.extractValue("close_iterations", close_iterations);
-    ctx.extractValue("gc_erode_iterations", gc_erode_iterations);
-    ctx.extractValue("gc_dilate_iterations", gc_dilate_iterations);
-    ctx.extractValue("grabcut_iterations", grabcut_iterations);
-    ctx.extractValue("morph_kernel_size", morph_kernel_size);
-    ctx.extractValue("convex_hull_segments", convex_hull_segments);
-    ctx.extractValue("min_contour_area", min_contour_area);
+    ctx.extractValue("open_iterations", this->openIterations);
+    ctx.extractValue("close_iterations", this->closeIterations);
+    ctx.extractValue("gc_erode_iterations", this->gcErodeIterations);
+    ctx.extractValue("gc_dilate_iterations", this->gcDilateIterations);
+    ctx.extractValue("grabcut_iterations", this->grabcutIterations);
+    ctx.extractValue("morph_kernel_size", this->morphKernelSize);
+    ctx.extractValue("convex_hull_segments", this->convexHullSegments);
+    ctx.extractValue("min_contour_area", minContourArea);
 
     return UIMA_ERR_NONE;
   }
 
-  TyErrorId destroy()
+  TyErrorId destroy() override
   {
     outInfo("destroy");
     return UIMA_ERR_NONE;
   }
 
-  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec) override
+  TyErrorId processWithLock(CAS &tcas,
+                            ResultSpecification const &res_spec) override
   {
     outInfo("process start");
     rs::SceneCas cas(tcas);
 
-    cv::Mat cas_image_rgb;
-    cv::Mat cas_image_depth;
+    if (!this->hasRGBDData)
+    {
+      cv::Mat casImageRGB;
+      cv::Mat casImageDepth;
 
-    if (!cas.get(VIEW_DEPTH_IMAGE, cas_image_depth)) {
-      outError("No depth image");
-      return UIMA_ERR_NONE;
+      if (!cas.get(VIEW_DEPTH_IMAGE, casImageDepth))
+      {
+        outError("No depth image");
+        return UIMA_ERR_NONE;
+      }
+
+      if (!cas.get(VIEW_COLOR_IMAGE, casImageRGB))
+      {
+        outError("No color image");
+        return UIMA_ERR_NONE;
+      }
+
+      casImageDepth.convertTo(this->imageDepth, CV_8UC1, 1, 0);
+      cv::threshold(this->imageDepth, this->imageDepth,
+                    1, 255, cv::THRESH_BINARY_INV);
+      cv::resize(casImageRGB, this->imageRGB, this->imageDepth.size());
+
+      this->hasRGBDData = true;
+      outInfo("Got RGBD input");
     }
-
-    if (!cas.get(VIEW_COLOR_IMAGE, cas_image_rgb)) {
-      outError("No color image");
-      return UIMA_ERR_NONE;
-    }
-
-    cas_image_depth.convertTo(image_depth, CV_8UC1, 1, 0);
-    cv::threshold(image_depth, image_depth, 1, 255, cv::THRESH_BINARY_INV);
-    cv::resize(cas_image_rgb, image_rgb, image_depth.size());
 
     rs::Scene scene = cas.getScene();
 
@@ -75,61 +105,69 @@ public:
     scene.annotations.filter(planes);
 
     if(planes.empty())
+    {
+      outInfo("No plane found, deferring until second run");
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
+    }
 
     rs::Plane &plane = planes[0];
-    std::vector<float> model = plane.model();
+    std::vector<float> planeModel = plane.model();
 
-    if(model.empty() || model.size() != 4)
-      outInfo("no plane found!");
+    if(planeModel.empty() || planeModel.size() != 4)
+      outInfo("Plane is incorrect");
     else
     {
-      sensor_msgs::CameraInfo camInfo;
-      cas.get(VIEW_CAMERA_INFO, camInfo);
-      readCameraInfo(camInfo);
+      sensor_msgs::CameraInfo cameraInfoMsg;
+      cas.get(VIEW_CAMERA_INFO, cameraInfoMsg);
+
+      cv::Mat cameraMatrix;
+      cv::Mat distortionCoefficients;
+      std::tie(cameraMatrix, distortionCoefficients) =
+          readCameraInfo(cameraInfoMsg);
 
       cv::Mat planeNormal(3, 1, CV_64F);
-      planeNormal.at<double>(0) = model[0];
-      planeNormal.at<double>(1) = model[1];
-      planeNormal.at<double>(2) = model[2];
-      const double planeDistance = model[3];
+      planeNormal.at<double>(0) = planeModel[0];
+      planeNormal.at<double>(1) = planeModel[1];
+      planeNormal.at<double>(2) = planeModel[2];
+      const double planeDistance = planeModel[3];
 
-      cv::Mat plane_mask = getPlaneMaskClosed(plane, camInfo); 
+      this->searchMask = getPlaneMaskClosed(plane, cameraInfoMsg);
 
-      search_mask = plane_mask;
+      cv::Mat depthFailedMask = (this->imageDepth == 255) & searchMask;
 
-      // TODO: use raw depth mask - the one before ImagePreprocessor
-      cv::Mat depth_failed_mask = (image_depth == 255) & plane_mask;
+      preprocessFailedMask(depthFailedMask);
 
-      preprocessFailedMask(depth_failed_mask);
+      auto roiMasks = getProbableCGRegions(depthFailedMask);
 
-      auto roi_masks = getProbableCGRegions(depth_failed_mask);
+      cv::Mat refinedFailedMask(depthFailedMask.size(), CV_8UC1, cv::GC_BGD);
 
-      cv::Mat refined_mask(depth_failed_mask.size(), CV_8UC1, cv::GC_BGD);
+      for (auto &region : roiMasks)
+        gcRefineRegion(region, refinedFailedMask, this->imageRGB, searchMask);
 
-      for (auto &region : roi_masks)
-        refineRegion(region, refined_mask, image_rgb, plane_mask);
-
-      refined_mask = ((refined_mask == cv::GC_FGD)
-        | (refined_mask == cv::GC_PR_FGD));
+      refinedFailedMask = ((refinedFailedMask == cv::GC_FGD) |
+                           (refinedFailedMask == cv::GC_PR_FGD));
 
       this->segments.clear();
 
-      int min_hole_size = 50;
-      ImageSegmentation::segment(refined_mask, segments, min_contour_area, min_hole_size,
-          cv::Rect(0, 0, refined_mask.cols, refined_mask.rows));
-      ImageSegmentation::computePose(segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
+      ImageSegmentation::segment(refinedFailedMask, this->segments,
+          this->minContourArea, this->minHoleSize,
+          cv::Rect(0, 0, refinedFailedMask.cols, refinedFailedMask.rows));
+      ImageSegmentation::computePose(this->segments, cameraMatrix,
+          distortionCoefficients, planeNormal, planeDistance);
 
       // add appropriate annotations, based on segments
-      for (auto &segment : this->segments) {
-        rs::TransparentSegment tSegment = rs::create<rs::TransparentSegment>(tcas);
+      for (auto &segment : this->segments)
+      {
+        auto transparentSegment = rs::create<rs::TransparentSegment>(tcas);
 
-        tSegment.segment.set(rs::conversion::to(tcas, segment));
-        tSegment.maxSurfaceDepth.set(0); // TODO: get valid max surf depth
-        tSegment.source.set("TransparentSegmentation");
+        transparentSegment.segment.set(rs::conversion::to(tcas, segment));
+        transparentSegment.source.set("TransparentSegmentation");
 
-        scene.identifiables.append(tSegment);
+        scene.identifiables.append(transparentSegment);
       }
+
+      // finish until next pipeline run
+      hasRGBDData = false;
     }
 
     return UIMA_ERR_NONE;
@@ -138,159 +176,179 @@ public:
 protected:
   using Contour = std::vector<cv::Point>;
 
-  virtual void drawImageWithLock(cv::Mat &disp) override {
+  virtual void drawImageWithLock(cv::Mat &disp) override
+  {
     cv::Mat mask;
-    cv::cvtColor(search_mask, mask, CV_GRAY2BGR);
+    cv::cvtColor(this->searchMask, mask, CV_GRAY2BGR);
 
-    disp = image_rgb.mul(mask, 0.2/255)+image_rgb*0.3;
+    disp = this->imageRGB.mul(mask, 0.2 / 255) + this->imageRGB * 0.3;
     ImageSegmentation::drawSegments2D(disp, segments, {});
   }
 
-  cv::Mat getPlaneMaskClosed(rs::Plane &plane, sensor_msgs::CameraInfo &camInfo) {
-      cv::Mat plane_mask, mask;
-      cv::Rect plane_roi;
+  cv::Mat getPlaneMaskClosed(rs::Plane &plane,
+      sensor_msgs::CameraInfo const &cameraInfoMsg) const
+  {
+    cv::Mat planeMask, localPlaneMask;
+    cv::Rect planeROI;
 
-      rs::conversion::from(plane.mask(), mask);
-      rs::conversion::from(plane.roi(), plane_roi);
+    rs::conversion::from(plane.mask(), localPlaneMask);
+    rs::conversion::from(plane.roi(), planeROI);
 
-      plane_mask = cv::Mat::zeros(image_depth.size(), CV_8UC1);
-      mask.copyTo(plane_mask(plane_roi));//, plane_mask(plane_roi));
+    planeMask = cv::Mat::zeros(this->imageDepth.size(), CV_8UC1);
+    localPlaneMask.copyTo(planeMask(planeROI));
 
-      std::vector<Contour> contours;
-      std::vector<cv::Vec4i> hierarchy;
+    std::vector<Contour> planeContours;
+    std::vector<cv::Vec4i> contoursHierarchy;
 
-      cv::findContours(plane_mask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+    cv::findContours(planeMask, planeContours, contoursHierarchy,
+        CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
-      auto plane_it = std::max_element(contours.begin(), contours.end(),
-          [](const Contour &a, const Contour &b) {
-            return a.size() < b.size();});
+    auto longestPlaneContourIt =
+        std::max_element(
+            planeContours.begin(), planeContours.end(),
+            [](const Contour &a, const Contour &b) {
+              return a.size() < b.size();
+            });
 
-      Contour hull;
-      cv::convexHull(*plane_it, hull);
+    Contour hull;
+    cv::convexHull(*longestPlaneContourIt, hull);
 
-      std::vector<Contour> contour_list{hull};
-      cv::fillPoly(plane_mask, contour_list, cv::Scalar(255, 255, 255));
+    std::vector<Contour> contourVec{hull};
+    cv::fillPoly(planeMask, contourVec, cv::Scalar(255));
 
-      return plane_mask;
+    return planeMask;
   }
 
-  void preprocessFailedMask(cv::Mat &failed_depth) {
-    cv::Mat mkernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(morph_kernel_size, morph_kernel_size));
+  void preprocessFailedMask(cv::Mat &failedDepthMask) const
+  {
+    cv::Size mKernelSize(this->morphKernelSize, this->morphKernelSize);
+    cv::Mat mKernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, mKernelSize);
 
-    cv::morphologyEx(failed_depth, failed_depth, cv::MORPH_CLOSE, mkernel, cv::Point(-1,-1), close_iterations);
-    cv::morphologyEx(failed_depth, failed_depth, cv::MORPH_OPEN, mkernel, cv::Point(-1,-1), open_iterations);
+    cv::morphologyEx(failedDepthMask, failedDepthMask, cv::MORPH_CLOSE,
+                     mKernel, cv::Point(-1, -1), this->closeIterations);
+    cv::morphologyEx(failedDepthMask, failedDepthMask, cv::MORPH_OPEN,
+                     mKernel, cv::Point(-1, -1), this->openIterations);
 
     std::vector<Contour> contours;
-    cv::Mat contours_mat = failed_depth.clone();
+    cv::Mat contoursMat = failedDepthMask.clone();
     std::vector<Contour> hulls;
-    cv::findContours(contours_mat, contours, cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
+    cv::findContours(contoursMat, contours,
+                     cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
 
-    for (auto &contour : contours) {
-      std::vector<Contour> contour_list;
+    for (auto &contour : contours)
+    {
+      std::vector<Contour> contourVec;
 
-      if (convex_hull_segments) {
+      if (this->convexHullSegments)
+      {
         Contour hull;
         cv::convexHull(contour, hull);
-        contour_list.push_back(hull);
+        contourVec.push_back(hull);
       }
       else
-        contour_list.push_back(contour);
+        contourVec.push_back(contour);
 
-      cv::fillPoly(failed_depth, contour_list, cv::Scalar(255, 255, 255));
+      cv::fillPoly(failedDepthMask, contourVec, cv::Scalar(255));
     }
-
-    // TODO: apply sensor dead-zone mask
   }
 
-  std::vector<cv::Mat> getProbableCGRegions(cv::Mat &src) {
-    cv::Mat mkernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, cv::Size(morph_kernel_size, morph_kernel_size));
+  std::vector<cv::Mat> getProbableCGRegions(cv::Mat const &src) const
+  {
+    cv::Size mKernelSize(this->morphKernelSize, this->morphKernelSize);
+    cv::Mat mKernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, mKernelSize);
 
     cv::Mat eroded, dilated;
-    cv::erode(src, eroded, mkernel, cv::Point(-1, -1), gc_erode_iterations);
-    cv::dilate(src, dilated, mkernel, cv::Point(-1, -1), gc_dilate_iterations);
+    auto mkoffset = cv::Point(-1, -1);
+    cv::erode(src, eroded, mKernel, mkoffset, this->gcErodeIterations);
+    cv::dilate(src, dilated, mKernel, mkoffset, this->gcDilateIterations);
 
-    std::vector<Contour> contours;
-    cv::Mat contours_mat = src.clone();
-    cv::findContours(contours_mat, contours, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+    std::vector<Contour> regionContours;
+    cv::Mat contoursMat = src.clone();
+    cv::findContours(contoursMat, regionContours,
+                     cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
 
     std::vector<cv::Rect> rois;
-    std::vector<cv::Mat> roi_masks;
-    for (auto &contour : contours) {
-      if (cv::contourArea(contour) < min_contour_area)
+    std::vector<cv::Mat> roiMasks;
+    for (auto &contour : regionContours)
+    {
+      if (cv::contourArea(contour) < this->minContourArea)
         continue;
 
-      constexpr int margin = 20;
+      constexpr int kMargin = 20;
       cv::Rect roi = cv::boundingRect(contour);
-      roi.x = std::max(0, roi.x - margin);
-      roi.y = std::max(0, roi.y - margin);
-      roi.width = std::min(src.cols - roi.x, roi.width + 2*margin);
-      roi.height = std::min(src.rows - roi.y, roi.height + 2*margin);
+      roi.x = std::max(0, roi.x - kMargin);
+      roi.y = std::max(0, roi.y - kMargin);
+      roi.width = std::min(src.cols - roi.x, roi.width + 2 * kMargin);
+      roi.height = std::min(src.rows - roi.y, roi.height + 2 * kMargin);
 
-      cv::Mat c_mask(src.size(), CV_8UC1, cv::GC_BGD);
-      c_mask(roi).setTo(cv::GC_PR_BGD, dilated(roi));
-      c_mask(roi).setTo(cv::GC_PR_FGD, src(roi));
-      c_mask(roi).setTo(cv::GC_FGD, eroded(roi));
+      cv::Mat outRegionMask(src.size(), CV_8UC1, cv::GC_BGD);
+      outRegionMask(roi).setTo(cv::GC_PR_BGD, dilated(roi));
+      outRegionMask(roi).setTo(cv::GC_PR_FGD, src(roi));
+      outRegionMask(roi).setTo(cv::GC_FGD, eroded(roi));
 
-      roi_masks.push_back(c_mask(roi));
+      roiMasks.push_back(outRegionMask(roi));
     }
 
-    return roi_masks;
+    return roiMasks;
   }
 
-  void refineRegion(cv::Mat &gc_region_mask, cv::Mat &refined_mask, cv::Mat &rgb, cv::Mat &search_region_mask) {
-    cv::Size size;
-    cv::Point offset;
-
-    gc_region_mask.locateROI(size, offset);
-    cv::Rect roi(offset, gc_region_mask.size());
-
-    cv::Mat bgd_model, fgd_model;
-    cv::grabCut(rgb(roi), gc_region_mask, cv::Rect(),
-      bgd_model, fgd_model, grabcut_iterations, cv::GC_INIT_WITH_MASK);
-
-    cv::Mat refined_depth_roi = refined_mask(roi);
-    cv::Mat copy_mask = (gc_region_mask != cv::GC_BGD) & (gc_region_mask != cv::GC_PR_BGD) & search_region_mask(roi);
-
-    gc_region_mask.copyTo(refined_depth_roi, copy_mask);
-  }
-
-  void readCameraInfo(const sensor_msgs::CameraInfo &camInfo)
+  void gcRefineRegion(cv::Mat const &gcRegionMask, cv::Mat &refinedMask,
+                      cv::Mat const &rgb, cv::Mat const &searchRegionMask) const
   {
-    double *it = cameraMatrix.ptr<double>(0);
-    *it++ = camInfo.K[0];
-    *it++ = camInfo.K[1];
-    *it++ = camInfo.K[2];
-    *it++ = camInfo.K[3];
-    *it++ = camInfo.K[4];
-    *it++ = camInfo.K[5];
-    *it++ = camInfo.K[6];
-    *it++ = camInfo.K[7];
-    *it++ = camInfo.K[8];
+    cv::Size ROISize;
+    cv::Point ROIOffset;
 
-    distCoefficients = cv::Mat(1, camInfo.D.size(), CV_64F);
-    it = distCoefficients.ptr<double>(0);
-    for(size_t i = 0; i < camInfo.D.size(); ++i, ++it)
-    {
-      *it = camInfo.D[i];
-    }
+    gcRegionMask.locateROI(ROISize, ROIOffset);
+    cv::Rect roi(ROIOffset, gcRegionMask.size());
+
+    cv::Mat backgroundModel;
+    cv::Mat foregroundModel;
+
+    cv::grabCut(rgb(roi), gcRegionMask, cv::Rect(),
+        backgroundModel, foregroundModel,
+        this->grabcutIterations, cv::GC_INIT_WITH_MASK);
+
+    cv::Mat refinedMaskROI = refinedMask(roi);
+    cv::Mat copyMask = (gcRegionMask != cv::GC_BGD) &
+                       (gcRegionMask != cv::GC_PR_BGD) &
+                       searchRegionMask(roi);
+
+    gcRegionMask.copyTo(refinedMaskROI, copyMask);
+  }
+
+  static std::tuple<cv::Mat, cv::Mat> readCameraInfo(
+      sensor_msgs::CameraInfo const &cameraInfoMsg)
+  {
+    cv::Mat cameraMatrix(3, 3, CV_64F);
+
+    double *it = cameraMatrix.ptr<double>(0);
+    for (size_t i = 0; i < 8; ++i, ++it)
+      *it = cameraInfoMsg.K[i];
+
+    cv::Mat distortionCoefficients(1, cameraInfoMsg.D.size(), CV_64F);
+
+    it = distortionCoefficients.ptr<double>(0);
+    for(size_t i = 0; i < cameraInfoMsg.D.size(); ++i, ++it)
+      *it = cameraInfoMsg.D[i];
+
+    return std::tie(cameraMatrix, distortionCoefficients);
   }
 
 private:
-  int open_iterations = 6;
-  int close_iterations = 12;
-  int gc_erode_iterations = 6;
-  int gc_dilate_iterations = 12;
-  int grabcut_iterations = 2;
-  int morph_kernel_size = 3;
-  bool convex_hull_segments = false;
-  int min_contour_area = 100;
+  int openIterations{6};
+  int closeIterations{12};
+  int gcErodeIterations{6};
+  int gcDilateIterations{12};
+  int grabcutIterations{2};
+  int morphKernelSize{3};
+  bool convexHullSegments{false};
+  int minContourArea{100};
+  int minHoleSize{50};
 
-  cv::Mat image_rgb;
-  cv::Mat image_depth;
-  cv::Mat search_mask;
-
-  cv::Mat cameraMatrix = cv::Mat(3, 3, CV_64F);
-  cv::Mat distCoefficients = cv::Mat(1, 8, CV_64F);
+  bool hasRGBDData{false};
+  cv::Mat imageRGB;
+  cv::Mat imageDepth;
+  cv::Mat searchMask;
 
   std::vector<ImageSegmentation::Segment> segments;
 };
