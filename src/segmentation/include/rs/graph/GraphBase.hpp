@@ -1,5 +1,24 @@
-#ifndef GRAPH_BASE_HPP
-#define GRAPH_BASE_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __GRAPH_BASE_HPP__
+#define __GRAPH_BASE_HPP__
 
 #include <rs/graph/GraphBase.h>
 #include <rs/utils/output.h>
@@ -16,23 +35,30 @@ template<typename Vertex, typename Edge>
 GraphBase<Vertex, Edge>::~GraphBase() {}
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::addEdge(Edge& edge){
+inline bool GraphBase<Vertex, Edge>::addEdge(Edge& edge)
+{
   int v1_id = edge.v1;
   int v2_id = edge.v2;
 
   int v1_it, v2_it;
   if(!testConsistency(v1_id, v2_id, v1_it, v2_it))
+  {
     return false;
+  }
 
-  if(v1_id == v2_id){
+  if(v1_id == v2_id)
+  {
     outInfo("No loop edge allowed!");
     return false;
   }
 
-  if(v1_it == -1 && v2_it == -1){
+  if(v1_it == -1 && v2_it == -1)
+  {
     int max_id = std::max(v1_id, v2_id);
     if(getNumVertices() <= max_id)
+    {
       list_vertex.resize(max_id + 1);
+    }
 
     list_vertex[v1_id].neighbors.push_back(v2_id);
     list_vertex[v1_id].neighbor_edges.push_back(list_edge.size());
@@ -46,7 +72,8 @@ inline bool GraphBase<Vertex, Edge>::addEdge(Edge& edge){
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::addEdge(const int v1_id, const int v2_id){
+inline bool GraphBase<Vertex, Edge>::addEdge(const int v1_id, const int v2_id)
+{
   Edge edge;
   edge.v1 = v1_id;
   edge.v2 = v2_id;
@@ -54,25 +81,30 @@ inline bool GraphBase<Vertex, Edge>::addEdge(const int v1_id, const int v2_id){
 }
 
 template<typename Vertex, typename Edge>
-inline void GraphBase<Vertex, Edge>::clear(){
+inline void GraphBase<Vertex, Edge>::clear()
+{
   list_vertex.clear();
   list_edge.clear();
 }
 
 template<typename Vertex, typename Edge>
-inline void GraphBase<Vertex, Edge>::setVertices(const int numVertices){
+inline void GraphBase<Vertex, Edge>::setVertices(const int numVertices)
+{
   clear();
   list_vertex.resize(numVertices);
 }
 
 template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumVertices() const{
+inline int GraphBase<Vertex, Edge>::getNumVertices() const
+{
   return list_vertex.size();
 }
 
 template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumVertexNeighbors(const int v_id){
-  if(!testVertex(v_id)){
+inline int GraphBase<Vertex, Edge>::getNumVertexNeighbors(const int v_id)
+{
+  if(!testVertex(v_id))
+  {
     outError("Vertex ID out of bound!");
     return -1;
   }
@@ -80,29 +112,34 @@ inline int GraphBase<Vertex, Edge>::getNumVertexNeighbors(const int v_id){
 }
 
 template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumEdges() const{
+inline int GraphBase<Vertex, Edge>::getNumEdges() const
+{
   return list_edge.size();
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertex(const int v_id, Vertex& v)
+inline bool GraphBase<Vertex, Edge>::getVertex(const int v_id, Vertex &v)
 {
-  if(!testVertex(v_id)){
+  if(!testVertex(v_id))
+  {
     outError("Vertex ID out of bound!");
     return false;
   }
-  else{
+  else
+  {
     v = list_vertex[v_id];
     return true;
   }
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertexNeighbors(const int v_id, std::vector<int>& neighbors){
+inline bool GraphBase<Vertex, Edge>::getVertexNeighbors(const int v_id, std::vector<int> &neighbors)
+{
   Vertex v;
   bool valid = getVertex(v_id, v);
 
-  if(valid){
+  if(valid)
+  {
     neighbors = v.neighbors;
   }
 
@@ -110,23 +147,30 @@ inline bool GraphBase<Vertex, Edge>::getVertexNeighbors(const int v_id, std::vec
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getEdgeId(const int v1_id, const int v2_id, int& edge_id){
+inline bool GraphBase<Vertex, Edge>::getEdgeId(const int v1_id, const int v2_id, int &edge_id)
+{
   edge_id = -1;
 
   int v1_it, v2_it;
   if(!testConsistency(v1_id, v2_id, v1_it, v2_it))
+  {
     return false;
+  }
 
   if(v1_it == -1 && v2_it == -1)
+  {
     return false;
+  }
 
   edge_id = list_vertex[v1_id].neighbor_edges[v2_it];
   return true;
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getEdge(const int edge_id, Edge& edge){
-  if(!testEdge(edge_id)){
+inline bool GraphBase<Vertex, Edge>::getEdge(const int edge_id, Edge &edge)
+{
+  if(!testEdge(edge_id))
+  {
     outError("Edge ID is out of bound!");
     return false;
   }
@@ -136,8 +180,9 @@ inline bool GraphBase<Vertex, Edge>::getEdge(const int edge_id, Edge& edge){
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertexFromEdge(const int edge_id, int& v1_id, int& v2_id){
-  if(!testEdge(edge_id)){
+inline bool GraphBase<Vertex, Edge>::getVertexFromEdge(const int edge_id, int &v1_id, int &v2_id){
+  if(!testEdge(edge_id))
+  {
     outError("Edge ID is out of bound!");
     return false;
   }
@@ -147,20 +192,26 @@ inline bool GraphBase<Vertex, Edge>::getVertexFromEdge(const int edge_id, int& v
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testVertex(const int v_id){
+inline bool GraphBase<Vertex, Edge>::testVertex(const int v_id)
+{
   return v_id >= 0 && v_id < list_vertex.size();
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testEdge(const int edge_id){
+inline bool GraphBase<Vertex, Edge>::testEdge(const int edge_id)
+{
   return edge_id >= 0 && edge_id < list_edge.size();
 }
 
 template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testEdge(const int v1_id, const int v2_id){
-  for(size_t it = 0; it < list_edge.size(); it++){
+inline bool GraphBase<Vertex, Edge>::testEdge(const int v1_id, const int v2_id)
+{
+  for(size_t it = 0; it < list_edge.size(); it++)
+  {
     if((list_edge[it].v1 == v1_id && list_edge[it].v2 == v2_id) || (list_edge[it].v1 == v2_id && list_edge[it].v2 == v1_id))
+    {
       return true;
+    }
   }
   return false;
 }
@@ -171,12 +222,16 @@ inline int GraphBase<VertexT, EdgeT>::getVertexNeighborListPosition(const int sr
   int numNeighbors = getNumVertexNeighbors(src_v_id);
 
   if (numNeighbors == -1)
+  {
     return -1;
+  }
 
   for (size_t it = 0; it < numNeighbors; it++)
   {
     if (list_vertex[src_v_id].neighbors[it] == tgt_v_id)
+    {
       return it;
+    }
   }
 
   return -1;
@@ -209,4 +264,4 @@ inline bool GraphBase<VertexT, EdgeT>::testConsistency (const int v1_id, const i
   return true;
 }
 
-#endif
+#endif // __GRAPH_BASE_HPP__

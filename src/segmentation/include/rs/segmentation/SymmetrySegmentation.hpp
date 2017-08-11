@@ -1,5 +1,24 @@
-#ifndef SYMMETRY_SEGMENTATION_HPP
-#define SYMMETRY_SEGMENTATION_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __SYMMETRY_SEGMENTATION_HPP__
+#define __SYMMETRY_SEGMENTATION_HPP__
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -7,8 +26,8 @@
 #include <rs/utils/output.h>
 
 #include <rs/graph/WeightedGraph.hpp>
-#include <rs/occupancy_map/PointCloudMap.hpp>
-#include <rs/occupancy_map/DownsampleMap.hpp>
+#include <rs/mapping/PointCloudMap.hpp>
+#include <rs/mapping/DownsampleMap.hpp>
 
 #include <rs/segmentation/Geometry.hpp>
 #include <rs/segmentation/array_utils.hpp>
@@ -18,11 +37,11 @@
 
 //This function computes weights for smoothness term as in Symmetries Segmentation paper
 template<typename PointT>
-inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& cloud,
-                                        pcl::PointCloud<pcl::Normal>::Ptr& normals,
+inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                        pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                         const float radius,
                                         const int numNeighbors,
-                                        WeightedGraph& graph,
+                                        WeightedGraph &graph,
                                         const float scale_factor = 1.0f,
                                         const float sigmaConvex = 2.0f,
                                         const float sigmaConcave = 0.15f)
@@ -31,11 +50,13 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
 
   computeCloudMap<PointT, Vertex, WeightedEdge>(cloud, graph, radius, numNeighbors);
 
-  for(size_t edgeId = 0; edgeId < graph.getNumEdges(); edgeId++){
+  for(size_t edgeId = 0; edgeId < graph.getNumEdges(); edgeId++)
+  {
     float weight;
     int v1_id, v2_id;
 
-    if(!graph.getEdge(edgeId, v1_id, v2_id, weight)){
+    if(!graph.getEdge(edgeId, v1_id, v2_id, weight))
+    {
       outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
       return false;
     }
@@ -49,19 +70,26 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr& c
     angle = 1.0f - angle;
 
     if(n1.dot(p1 - p2) > 0)
+    {
       weight = std::exp(-angle / sigmaConvex) * scale_factor;
+    }
     else
+    {
       weight = std::exp(-angle / sigmaConcave) * scale_factor;
+    }
 
-    if(!graph.setEdgeWeight(edgeId, weight)){
+    if(!graph.setEdgeWeight(edgeId, weight))
+    {
       outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
       return false;
     }
   }
+
   return true;
 }
 
-class BoykovMinCut{
+class BoykovMinCut
+{
 public:
   typedef boost::adjacency_list_traits < boost::vecS, boost::vecS, boost::directedS > Traits;
   typedef boost::adjacency_list < boost::vecS, boost::vecS, boost::directedS,
@@ -78,30 +106,35 @@ public:
   typedef boost::property_map< GraphBoost, boost::edge_reverse_t >::type ReverseEdgeMap;
   typedef boost::property_map< GraphBoost, boost::vertex_color_t, boost::default_color_type >::type VertexColorMap;
 
-  static bool boost_add_edge(Traits::vertex_descriptor& v1, Traits::vertex_descriptor& v2, GraphBoost& graph, const float weight, CapacityMap& capacity_map, ReverseEdgeMap& reverse_edge_map){
+  static bool boost_add_edge(Traits::vertex_descriptor &v1, Traits::vertex_descriptor &v2, GraphBoost &graph, const float weight, CapacityMap &capacity_map, ReverseEdgeMap &reverse_edge_map)
+  {
     Traits::edge_descriptor edge, reverse_edge;
     bool addedEdge, addedReverseEdge;
 
     boost::tie(edge, addedEdge) = boost::add_edge(v1, v2, graph);
     boost::tie(reverse_edge, addedReverseEdge) = boost::add_edge(v2, v1, graph);
     if( !addedEdge || !addedReverseEdge)
+    {
       return false;
+    }
 
     capacity_map[edge] = weight;
     capacity_map[reverse_edge] = weight;
     reverse_edge_map[edge] = reverse_edge;
     reverse_edge_map[reverse_edge] = edge;
+
     return true;
   }
 
-  static float min_cut(const std::vector<float>& foreground_weights,
-                 const std::vector<float>& background_weights,
-                 WeightedGraph& adjacency_weights,
-                 std::vector<int>& foreground_ids,
-                 std::vector<int>& background_ids,
-                 float& min_cut_value)
+  static float min_cut(const std::vector<float> &foreground_weights,
+                 const std::vector<float> &background_weights,
+                 WeightedGraph &adjacency_weights,
+                 std::vector<int> &foreground_ids,
+                 std::vector<int> &background_ids,
+                 float &min_cut_value)
   {
-    if(! (foreground_weights.size() == background_weights.size()) && (foreground_weights.size() == adjacency_weights.getNumVertices()) ){
+    if(! (foreground_weights.size() == background_weights.size()) && (foreground_weights.size() == adjacency_weights.getNumVertices()) )
+    {
       outWarn("Input foreground_weights, background_weights and adjacency_weights is not consistent!");
       return false;
     }
@@ -117,21 +150,26 @@ public:
 
     vertices.resize(numVertices + 2); // plus 2 of source and sink vertex
     for(size_t it = 0; it < static_cast<size_t>(numVertices + 2); it++)
+    {
       vertices[it] = boost::add_vertex(graph);
+    }
 
     source = vertices[numVertices];
     sink = vertices[numVertices + 1];
 
-    for(size_t it = 0; it < static_cast<size_t>(numVertices); it++){
+    for(size_t it = 0; it < static_cast<size_t>(numVertices); it++)
+    {
       boost_add_edge(vertices[it], source, graph, foreground_weights[it], capacity, reverse_edge_map);
       boost_add_edge(vertices[it], sink, graph, background_weights[it], capacity, reverse_edge_map);
     }
 
-    for(size_t edge_id = 0; edge_id < adjacency_weights.getNumEdges(); edge_id++){
+    for(size_t edge_id = 0; edge_id < adjacency_weights.getNumEdges(); edge_id++)
+    {
       int v1_id, v2_id;
       float weight;
 
-      if(!adjacency_weights.getEdge(edge_id, v1_id, v2_id, weight)){
+      if(!adjacency_weights.getEdge(edge_id, v1_id, v2_id, weight))
+      {
         outError("Could not get edge from adjacency graph! Abort!");
         return false;
       }
@@ -147,19 +185,26 @@ public:
     foreground_ids.clear();
     background_ids.clear();
 
-    for(size_t it = 0; it < static_cast<size_t>(numVertices); it++){
+    for(size_t it = 0; it < static_cast<size_t>(numVertices); it++)
+    {
       if(vertex_color_map(vertices[it]) == vertex_color_map(source))
+      {
         foreground_ids.push_back(it);
+      }
       else
+      {
         background_ids.push_back(it);
+      }
     }
 
     //get min cut routine
     min_cut_value = 0.0f;
-    for(size_t edgeId = 0; edgeId < adjacency_weights.getNumEdges();edgeId++){
+    for(size_t edgeId = 0; edgeId < adjacency_weights.getNumEdges(); edgeId++)
+    {
       int v1_id, v2_id;
       float weight;
-      if(!adjacency_weights.getEdge(edgeId, v1_id, v2_id, weight)){
+      if(!adjacency_weights.getEdge(edgeId, v1_id, v2_id, weight))
+      {
         outWarn("EdgeID: " << edgeId << " not found, Cloud map is corrupted!");
         return max_flow;
       }
@@ -169,12 +214,13 @@ public:
       int v2 = vectorSearch(foreground_ids, v2_id, foundIndices);
 
       if((v1 > 0 && v2 == 0) || (v1 == 0 && v2 > 0))
+      {
         min_cut_value += weight;
+      }
     }
 
     return max_flow;
   }
-
 };
 
-#endif
+#endif // __SYMMETRY_SEGMENTATION_HPP__

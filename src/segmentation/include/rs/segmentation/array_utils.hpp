@@ -1,5 +1,24 @@
-#ifndef ARRAY_UTILS_HPP
-#define ARRAY_UTILS_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __ARRAY_UTILS_HPP__
+#define __ARRAY_UTILS_HPP__
 
 #include <algorithm>
 #include <iostream>
@@ -11,7 +30,8 @@
 #include <pcl/point_types.h>
 
 // return a vector with unique elements that are both in v1 and v2
-inline std::vector<int> Intersection(const std::vector<int>& v1, const std::vector<int>& v2){
+inline std::vector<int> Intersection(const std::vector<int> &v1, const std::vector<int> &v2)
+{
   std::vector<int> intersect;
   std::vector<int> sortedV1(v1);
   std::vector<int> sortedV2(v2);
@@ -25,7 +45,8 @@ inline std::vector<int> Intersection(const std::vector<int>& v1, const std::vect
 }
 
 // return a vector with all unique elements in v1 and v2
-inline std::vector<int> Union(const std::vector<int>& v1, const std::vector<int>& v2){
+inline std::vector<int> Union(const std::vector<int> &v1, const std::vector<int> &v2)
+{
   std::vector<int> union_vec;
   std::vector<int> sortedV1(v1);
   std::vector<int> sortedV2(v2);
@@ -61,21 +82,27 @@ inline std::vector<int> Difference(const std::vector<int> &v1, const std::vector
 
 // get linear subscript from 2D array
 template<typename Type>
-inline int matrixToLinear(std::vector< std::vector<Type> >& v, int row, int col){
+inline int matrixToLinear(std::vector< std::vector<Type> > &v, int row, int col)
+{
   int result = 0;
   for(size_t it = 0; it < row; it++)
+  {
     result += v[it].size();
+  }
   result += col;
+
   return result;
 }
 
 template<typename Type>
-inline bool linearToMatrix(std::vector< std::vector<Type> >& v, int linear_id, int& row, int& col){
+inline bool linearToMatrix(std::vector< std::vector<Type> > &v, int linear_id, int &row, int &col){
   int offset = 0;
   col = 0;
-  for(row = 0; row < v.size(); row++){
+  for(row = 0; row < v.size(); row++)
+  {
     offset += v[row].size();
-    if(offset > linear_id){
+    if(offset > linear_id)
+    {
       col = linear_id - (offset - v[row].size());
       return true;
     }
@@ -85,55 +112,98 @@ inline bool linearToMatrix(std::vector< std::vector<Type> >& v, int linear_id, i
 }
 
 template<typename Type>
-inline float mean(std::vector<Type>& v){
+inline float mean(std::vector<Type> &v)
+{
   Type sum = std::accumulate(v.begin(), v.end(), 0.0);
   return static_cast<float> (sum) / static_cast<float>(v.size());
 }
 
 template<typename Type>
-inline Type median(std::vector<Type>& v){
+inline Type median(std::vector<Type> &v)
+{
   std::vector<Type> copied(v);
   std::nth_element(copied.begin(), copied.begin() + copied.size()/2, copied.end());
   return copied[copied.size()/2];
 }
 
 template<typename Type>
-std::ostream& operator<<(std::ostream& output, std::vector< std::vector<Type> >& arr){
-  for(size_t it = 0; it < arr.size(); it++){
+std::ostream& operator<<(std::ostream &output, std::vector< std::vector<Type> > &arr)
+{
+  for(size_t it = 0; it < arr.size(); it++)
+  {
     output << "ID: ";
-    for(size_t subIt = 0; subIt < arr[it].size(); subIt++){
+    for(size_t subIt = 0; subIt < arr[it].size(); subIt++)
+    {
       output << arr[it][subIt] << ' ';
     }
     output << '\n';
   }
+
   return output;
 }
 
 template<typename Type>
-std::ostream& operator<<(std::ostream& output, std::vector<Type>& arr){
+std::ostream& operator<<(std::ostream &output, std::vector<Type> &arr)
+{
   output << "Data: ";
-  for(size_t it = 0; it < arr.size(); it++){
+  for(size_t it = 0; it < arr.size(); it++)
+  {
     output << arr[it] << " ";
   }
   output << '\n';
+
   return output;
 }
 
 template<typename Type>
-inline int vectorSearch(std::vector<Type>& arr, const Type target, std::vector<int>& searchIndices){
+inline int vectorSearch(std::vector<Type> &arr, const Type target, std::vector<int> &searchIndices){
   searchIndices.clear();
   auto it = arr.begin();
 
-  while(true){
+  while(true)
+  {
     it = std::find(it, arr.end(), target);
     if(it == arr.end())
+    {
       break;
-    else{
+    }
+    else
+    {
       searchIndices.push_back(it - arr.end());
       it++;
     }
   }
+
   return searchIndices.size();
 }
 
-#endif
+template<typename Type>
+inline void linearizeSegmentData(typename std::vector< std::vector<Type> > &segmentDataIn, typename std::vector<Type> &segmentDataOut, std::vector< std::vector<int> > indices = std::vector<int>(0))
+{ // for both scores and Symmetries
+  segmentDataOut.clear();
+
+  for(size_t segmentIt = 0; segmentIt < segmentDataIn.size(); segmentIt++)
+  {
+    if(indices.size() != 0)
+    {
+      int dataId;
+      for(size_t it = 0; it < indices[segmentIt].size(); it++)
+      {
+        dataId = indices[segmentIt][it];
+        if(dataId >= 0 && dataId < segmentDataIn[segmentIt].size())
+        {
+          segmentDataOut.push_back(segmentDataIn[segmentIt][dataId]);
+        }
+      }
+    }
+    else
+    {
+      for(size_t it = 0; it < segmentDataIn[segmentIt].size(); it++)
+      {
+        segmentDataOut.push_back(segmentDataIn[segmentIt][it]);
+      }
+    }
+  }
+}
+
+#endif // __ARRAY_UTILS_HPP__

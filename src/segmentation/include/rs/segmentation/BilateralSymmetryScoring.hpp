@@ -1,8 +1,27 @@
-#ifndef BILATERAL_SYMMETRY_SCORING_HPP
-#define BILATERAL_SYMMETRY_SCORING_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __BILATERAL_SYMMETRY_SCORING_HPP__
+#define __BILATERAL_SYMMETRY_SCORING_HPP__
 
 #include <rs/utils/output.h>
-#include <rs/occupancy_map/DistanceMap.hpp>
+#include <rs/mapping/DistanceMap.hpp>
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/BilateralSymmetry.hpp>
 
@@ -136,7 +155,7 @@ inline bool getCloudBilateralOcclusionScore(typename pcl::PointCloud<PointT>::Pt
   return true;
 }
 
-inline bool getCloudBilateralPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr normals,
+inline bool getCloudBilateralPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                                 BilateralSymmetry &symmetry,
                                                 std::vector<float> &point_perpendicular_scores,
                                                 float min_perpendicular_angle = 0.785f,
@@ -161,5 +180,4 @@ inline bool getCloudBilateralPerpendicularScore(pcl::PointCloud<pcl::Normal>::Pt
   return true;
 }
 
-
-#endif
+#endif // __BILATERAL_SYMMETRY_SCORING_HPP__

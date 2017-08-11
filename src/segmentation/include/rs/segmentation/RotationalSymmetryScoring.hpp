@@ -1,8 +1,27 @@
-#ifndef ROTATIONAL_SYMMETRY_SCORING_HPP
-#define ROTATIONAL_SYMMETRY_SCORING_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __ROTATIONAL_SYMMETRY_SCORING_HPP__
+#define __ROTATIONAL_SYMMETRY_SCORING_HPP__
 
 #include <rs/utils/output.h>
-#include <rs/occupancy_map/DistanceMap.hpp>
+#include <rs/mapping/DistanceMap.hpp>
 #include <rs/segmentation/array_utils.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
 
@@ -11,16 +30,17 @@
 
 
 template<typename PointT>
-inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
-                                   pcl::PointCloud<pcl::Normal>::Ptr& normals,
-                                   RotationalSymmetry& symmetry,
-                                   std::vector<float>& point_symmetry_scores,
+inline float getCloudRotationalSymmetryScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                   pcl::PointCloud<pcl::Normal>::Ptr &normals,
+                                   RotationalSymmetry &symmetry,
+                                   std::vector<float> &point_symmetry_scores,
                                    float min_fit_angle = 0.0f,
                                    float max_fit_angle = M_PI / 2)
 {
   point_symmetry_scores.resize(cloud->points.size());
 
-  for(size_t it = 0; it < cloud->points.size(); it++){
+  for(size_t it = 0; it < cloud->points.size(); it++)
+  {
     Eigen::Vector3f point =  cloud->points[it].getVector3fMap();
     Eigen::Vector3f normal( normals->points[it].normal_x, normals->points[it].normal_y, normals->points[it].normal_z);
 
@@ -35,10 +55,10 @@ inline float getCloudSymmetryScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
 }
 
 template<typename PointT>
-inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
-                                    DistanceMap<PointT>& dist_map,
-                                    RotationalSymmetry& symmetry,
-                                    std::vector<float>& point_occlusion_scores,
+inline float getCloudRotationalOcclusionScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                    DistanceMap<PointT> &dist_map,
+                                    RotationalSymmetry &symmetry,
+                                    std::vector<float> &point_occlusion_scores,
                                     float min_occlusion_dist = 0.0f,
                                     float max_occlusion_dist = 1.0f,
                                     int redundant_factor = 12)
@@ -48,10 +68,12 @@ inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>::Ptr& cloud
   typename pcl::PointCloud<PointT>::Ptr redundantCloud(new pcl::PointCloud<PointT>);
   symmetry.populateCloud(*cloud, *redundantCloud, 2.0f * M_PI / redundant_factor);
 
-  for(size_t pId = 0; pId < cloud->points.size(); pId++){
+  for(size_t pId = 0; pId < cloud->points.size(); pId++)
+  {
     float maxDist = 0.0f;
 
-    for(size_t redundantId = 0; redundantId < redundant_factor; redundantId++){
+    for(size_t redundantId = 0; redundantId < redundant_factor; redundantId++)
+    {
       int redundantPointId = (cloud->points.size() * redundantId) + pId;
 
       float currDist;
@@ -60,7 +82,9 @@ inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>::Ptr& cloud
       maxDist = std::max(maxDist, currDist);
 
       if(maxDist >= max_occlusion_dist)
+      {
         break;
+      }
     }
 
     float score = (maxDist - min_occlusion_dist) / (max_occlusion_dist - min_occlusion_dist);
@@ -71,19 +95,21 @@ inline float getCloudOcclusionScore(typename pcl::PointCloud<PointT>::Ptr& cloud
   return mean(point_occlusion_scores);
 }
 
-inline float getCloudPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr& normals,
-                                        RotationalSymmetry& symmetry,
-                                        std::vector<float>& point_perpendicular_scores,
+inline float getCloudRotationalPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr &normals,
+                                        RotationalSymmetry &symmetry,
+                                        std::vector<float> &point_perpendicular_scores,
                                         float threshold = M_PI / 2)
 {
-  if(normals->points.size() == 0){
+  if(normals->points.size() == 0)
+  {
     outError("Normal cloud is null, this will return score -1!");
     return -1.0f;
   }
 
   point_perpendicular_scores.resize(normals->points.size());
 
-  for(size_t it = 0; it < normals->points.size(); it++){
+  for(size_t it = 0; it < normals->points.size(); it++)
+  {
     Eigen::Vector3f normal(normals->points[it].normal_x, normals->points[it].normal_y, normals->points[it].normal_z);
     point_perpendicular_scores[it] = getRotSymPerpendicularity(normal, symmetry, threshold);
   }
@@ -92,15 +118,16 @@ inline float getCloudPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr& norma
 }
 
 template<typename PointT>
-inline float getCloudCoverageScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
-                                   RotationalSymmetry& symmetry
-                                  )
+inline float getCloudRotationalCoverageScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
+                                   RotationalSymmetry &symmetry)
 {
-  if(cloud->points.size() == 0){
+  if(cloud->points.size() == 0)
+  {
     outError("Cloud is null, this will return score -1!");
     return -1.0f;
   }
-  else if(cloud->points.size() == 1){
+  else if(cloud->points.size() == 1)
+  {
     outInfo("Cloud has only 1 point, return score 360 degree");
     return 0.0f;
   }
@@ -109,7 +136,8 @@ inline float getCloudCoverageScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
   std::vector<float> angles(cloud->points.size());
   angles[0] = 0.0f;
 
-  for(size_t it = 1; it < cloud->points.size(); it++){
+  for(size_t it = 1; it < cloud->points.size(); it++)
+  {
     Eigen::Vector3f currVec = cloud->points[it].getVector3fMap() - symmetry.projectPoint(cloud->points[it].getVector3fMap());
     angles[it] = vecVecAngleClockwise(referenceVec, currVec, symmetry.getOrientation());
   }
@@ -117,11 +145,12 @@ inline float getCloudCoverageScore(typename pcl::PointCloud<PointT>::Ptr& cloud,
   std::sort(angles.begin(), angles.end());
   std::vector<float> angleDiffs(angles.size());
   for(size_t it = 1; it < angles.size(); it++)
+  {
     angleDiffs[it] = angleDifferent(angles[it-1], angles[it]);
+  }
   angleDiffs[0] = angleDifferent(angles[angles.size() - 1], angles[0]);
 
   return 1.0f - *std::max_element(angleDiffs.begin(), angleDiffs.end()) / (2.0f * M_PI);
 }
 
-
-#endif
+#endif // __ROTATIONAL_SYMMETRY_SCORING_HPP__

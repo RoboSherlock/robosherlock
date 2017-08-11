@@ -1,5 +1,24 @@
-#ifndef BOUNDARY_SEGMENTATION_HPP
-#define BOUNDARY_SEGMENTATION_HPP
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef __BOUNDARY_SEGMENTATION_HPP__
+#define __BOUNDARY_SEGMENTATION_HPP__
 
 #include <vector>
 
@@ -15,9 +34,9 @@ template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,
   typename pcl::PointCloud<NormalT>::Ptr &normals,
-  std::vector<int>& indices,
-  std::vector<int>& boundary_indices,
-  std::vector<int>& non_boundary_indices,
+  std::vector<int> &indices,
+  std::vector<int> &boundary_indices,
+  std::vector<int> &non_boundary_indices,
   float radiusSearch = 0.01f,
   float differentAngleThreshold = 2.356f
 )
@@ -37,15 +56,21 @@ inline bool extractBoundaryCloud(
   be.compute(boundaries);
 
   //extract boundary cloud
-  for(size_t it = 0; it < indices.size(); it++){
+  for(size_t it = 0; it < indices.size(); it++)
+  {
     int pointId = indices[it];
     if(boundaries.points[pointId].boundary_point == 1)
-        boundary_indices.push_back(pointId);
+    {
+      boundary_indices.push_back(pointId);
+    }
     else
-        non_boundary_indices.push_back(pointId);
+    {
+      non_boundary_indices.push_back(pointId);
+    }
   }
 
-  if(boundary_indices.size() <= 0){
+  if(boundary_indices.size() <= 0)
+  {
     outError("Could not extract boundary points!");
     return false;
   }
@@ -56,17 +81,19 @@ template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,
   typename pcl::PointCloud<NormalT>::Ptr &normals,
-  std::vector<int>& boundary_indices,
-  std::vector<int>& non_boundary_indices,
+  std::vector<int> &boundary_indices,
+  std::vector<int> &non_boundary_indices,
   float radiusSearch = 0.01f,
   float differentAngleThreshold = 2.356f
 )
 {
   //create fake indices
   std::vector<int> indices(cloud->points.size());
-  for(size_t it = 0; it < cloud->points.size();it++){
+  for(size_t it = 0; it < cloud->points.size();it++)
+  {
     indices[it] = it;
   }
+
   return extractBoundaryCloud<PointT, NormalT>(cloud, normals, indices, boundary_indices, non_boundary_indices, radiusSearch, differentAngleThreshold);
 }
 
@@ -86,7 +113,8 @@ inline bool extractBoundaryCloud(
   std::vector<int> boundary_indices;
   std::vector<int> non_boundary_indices;
   bool success = extractBoundaryCloud<PointT, NormalT>(cloud, normals, boundary_indices, non_boundary_indices, radiusSearch, differentAngleThreshold);
-  if (success){
+  if (success)
+  {
     pcl::copyPointCloud(*cloud, boundary_indices, *boundary_cloud);
     pcl::copyPointCloud(*cloud, non_boundary_indices, *non_boundary_cloud);
   }
@@ -94,4 +122,4 @@ inline bool extractBoundaryCloud(
   return success;
 }
 
-#endif
+#endif // __BOUNDARY_SEGMENTATION_HPP__

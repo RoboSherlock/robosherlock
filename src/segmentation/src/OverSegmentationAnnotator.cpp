@@ -1,3 +1,22 @@
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <uima/api.hpp>
 #include <vector>
 #include <mutex>
@@ -12,25 +31,21 @@
 #include <pcl/features/normal_3d.h>
 #include <pcl/segmentation/region_growing.h>
 
-#include <rs/types/all_types.h>
 //RS
 #include <rs/DrawingAnnotator.h>
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
-
+#include <rs/types/all_types.h>
 
 //graph
 #include <rs/graph/GraphBase.hpp>
 #include <rs/graph/Graph.hpp>
 #include <rs/graph/GraphAlgorithms.hpp>
+
 #include <rs/segmentation/array_utils.hpp>
-#include <rs/occupancy_map/DownsampleMap.hpp>
-
-
 
 using namespace uima;
-
 
 class OverSegmentationAnnotator : public DrawingAnnotator
 {
@@ -222,12 +237,16 @@ public:
 
     // populate normal Threshold
     std::vector<float> normalThresholds;
-    if(numSegmentation == 1){
+    if(numSegmentation == 1)
+    {
       normalThresholds.push_back(minNormalThreshold);
     }
-    else{
+    else
+    {
       for(size_t i = 0 ; i < numSegmentation; i++)
+      {
         normalThresholds.push_back(i * (maxNormalThreshold - minNormalThreshold) / (numSegmentation - 1) + minNormalThreshold);
+      }
     }
 
     //container for segmentation Results
@@ -236,7 +255,8 @@ public:
 
     //main execution
     #pragma omp parallel for
-    for(size_t i = 0; i < numSegmentation; i++){
+    for(size_t i = 0; i < numSegmentation; i++)
+    {
       pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA>());
 
       rg[i].setMinClusterSize(minClusterSize);
@@ -258,19 +278,24 @@ public:
     Graph segmentGraph(numSegments);
     std::mutex graph_mutex;
 
-    for(size_t srcSegmentationIt = 0; srcSegmentationIt < numSegmentation - 1; srcSegmentationIt++){
+    for(size_t srcSegmentationIt = 0; srcSegmentationIt < numSegmentation - 1; srcSegmentationIt++)
+    {
       std::vector<pcl::PointIndices> src_segmentation = segmentations[srcSegmentationIt];
-      for(size_t tgtSegmentationIt = srcSegmentationIt + 1; tgtSegmentationIt < numSegmentation; tgtSegmentationIt++){
+      for(size_t tgtSegmentationIt = srcSegmentationIt + 1; tgtSegmentationIt < numSegmentation; tgtSegmentationIt++)
+      {
         std::vector<pcl::PointIndices> tgt_segmentation = segmentations[tgtSegmentationIt];
 
         #pragma omp parallel for
-        for(size_t srcSegmentIt = 0; srcSegmentIt < src_segmentation.size(); srcSegmentIt++){
-          for(size_t tgtSegmentIt = 0; tgtSegmentIt < tgt_segmentation.size(); tgtSegmentIt++){
+        for(size_t srcSegmentIt = 0; srcSegmentIt < src_segmentation.size(); srcSegmentIt++)
+        {
+          for(size_t tgtSegmentIt = 0; tgtSegmentIt < tgt_segmentation.size(); tgtSegmentIt++)
+          {
             int intersectSize = Intersection(src_segmentation[srcSegmentIt].indices, tgt_segmentation[tgtSegmentIt].indices).size();
             int unionSize = Union(src_segmentation[srcSegmentIt].indices, tgt_segmentation[tgtSegmentIt].indices).size();
             float ratio = (float) intersectSize / unionSize;
 
-            if(ratio > overlapThreshold){
+            if(ratio > overlapThreshold)
+            {
               int linearSrcSegmentSub = matrixToLinear(segmentations, srcSegmentationIt, srcSegmentIt);
               int linearTgtSegmentSub = matrixToLinear(segmentations, tgtSegmentationIt, tgtSegmentIt);
 
@@ -287,17 +312,20 @@ public:
 
     outInfo("Total segments after merging " << mergedSegmentIds.size() << " segments");
     linear_segments.resize(mergedSegmentIds.size());
-    for(size_t ccIt = 0; ccIt < mergedSegmentIds.size(); ccIt++){
+    for(size_t ccIt = 0; ccIt < mergedSegmentIds.size(); ccIt++)
+    {
       int maxSize = -1;
       int selectSegmentationIt = -1;
       int selectSegmentIt = -1;
-      for(size_t linSegmentIdIt = 0; linSegmentIdIt < mergedSegmentIds[ccIt].size(); linSegmentIdIt++){
+      for(size_t linSegmentIdIt = 0; linSegmentIdIt < mergedSegmentIds[ccIt].size(); linSegmentIdIt++)
+      {
         int segmentationIt, segmentIt;
         int linear_id = mergedSegmentIds[ccIt][linSegmentIdIt];
         linearToMatrix(segmentations, linear_id, segmentationIt, segmentIt);
 
         int currSegmentSize = segmentations[segmentationIt][segmentIt].indices.size();
-        if(currSegmentSize > maxSize){
+        if(currSegmentSize > maxSize)
+        {
           maxSize = currSegmentSize;
           selectSegmentationIt = segmentationIt;
           selectSegmentIt = segmentIt;
@@ -321,9 +349,11 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  bool callbackKey(const int key, const Source source){
+  bool callbackKey(const int key, const Source source)
+  {
     choose = (int) key - 48;
-    if(choose > numSegmentation - 1){
+    if(choose > numSegmentation - 1)
+    {
       choose = numSegmentation - 1;
     }
     return true;
@@ -334,13 +364,15 @@ public:
     const std::string cloudname = this->name + "_cloud";
     const std::string normalsname = this->name + "_normals";
 
-    if(firstRun){
+    if(firstRun)
+    {
       visualizer.addPointCloud(colored_cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.addPointCloudNormals<pcl::PointXYZRGB, pcl::Normal>(colored_cloud, normals, 50, 0.02f, normalsname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
     }
-    else{
+    else
+    {
       visualizer.updatePointCloud(colored_cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.removePointCloud(normalsname);
@@ -348,8 +380,6 @@ public:
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 0.0f, 0.0f, normalsname);
     }
   }
-
-
 
   void drawImageWithLock(cv::Mat& disp) {}
 };
