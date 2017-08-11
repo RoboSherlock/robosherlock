@@ -130,7 +130,12 @@
     <capabilities>
         <capability>
             <inputs/>
-            <outputs/>
+            <outputs>
+                <type allAnnotatorFeatures="true">rs.annotation.TransparentSegment</type>
+            </outputs>
+            <inputSofas>
+                <sofaName>rs.annotation.Plane</sofaName>
+            </inputSofas>
             <languagesSupported>
                 <language>x-unspecified</language>
             </languagesSupported>

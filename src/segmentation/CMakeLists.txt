@@ -15,5 +15,5 @@ rs_add_library(rs_PointCloudColorSegmentation src/PointCloudColorSegmentation.cp
 target_link_libraries(rs_PointCloudColorSegmentation rs_core)
 
 rs_add_library(rs_transparentSegmentationAnnotator src/TransparentSegmentationAnnotator.cpp)
-target_link_libraries(rs_transparentSegmentationAnnotator rs_core)
+target_link_libraries(rs_transparentSegmentationAnnotator rs_core rs_segmentation)
 
