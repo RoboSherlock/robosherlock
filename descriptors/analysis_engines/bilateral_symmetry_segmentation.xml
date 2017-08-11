@@ -61,9 +61,6 @@
     <delegateAnalysisEngine key="LinemodAnnotator">
       <import location="../annotators/recognition/LinemodAnnotator.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="LoadPointCloud">
-      <import location="../annotators/io/LoadPointCloud.xml"/>
-    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="MLNInferencer">
       <import location="../annotators/recognition/MLNInferencer.xml"/>
     </delegateAnalysisEngine>
@@ -117,9 +114,6 @@
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="SacModelAnnotator">
       <import location="../annotators/annotation/SacModelAnnotator.xml"/>
-    </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="SegmentFilterHelper">
-      <import location="../annotators/segmentation/SegmentFilterHelper.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="SegmentationResultDisplayer">
       <import location="../annotators/segmentation/SegmentationResultDisplayer.xml"/>
