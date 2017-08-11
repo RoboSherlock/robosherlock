@@ -269,13 +269,13 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>isDownsampled</name>
-        <description>Turn naive_detection for better performance but worse accuracy</description>
+        <name>bilSymAnn_isDownsampled</name>
+        <description>Turn downsample for better performance</description>
         <type>Boolean</type>
         <multiValued>false</multiValued>
         <mandatory>true</mandatory>
         <overrides>
-          <parameter>BilateralSymmetryAnnotator/isDownsampled</parameter>
+          <parameter>BilateralSymmetryAnnotator/bilSymAnn_isDownsampled</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -386,6 +386,16 @@
         <mandatory>true</mandatory>
         <overrides>
           <parameter>BilateralSymmetryAnnotator/min_corres_inlier_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>bilSymSeg_isDownsampled</name>
+        <description>Turn downsample for better performance</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>BilateralSymmetryAnnotator/bilSymSeg_isDownsampled</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -641,9 +651,9 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-          <name>isDownsampled</name>
+          <name>bilSymAnn_isDownsampled</name>
           <value>
-              <boolean>false</boolean>
+              <boolean>true</boolean>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -673,44 +683,50 @@
       <nameValuePair>
         <name>refine_min_inlier_sym_score</name>
         <value>
-          <float>0.1f</float>
+          <float>0.1</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>refine_max_inlier_sym_score</name>
         <value>
-          <float>0.7f</float>
+          <float>0.8f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>bilSymAnn_min_occlusion_dist</name>
         <value>
-          <float>0.01f</float>
+          <float>0.005f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>bilSymAnn_max_occlusion_dist</name>
         <value>
-          <float>0.07f</float>
+          <float>0.08f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>bilSymAnn_max_occlusion_score</name>
         <value>
-          <float>0.01f</float>
+          <float>0.05f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_segment_inlier_score</name>
         <value>
-          <float>0.25f</float>
+          <float>0.2f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>min_corres_inlier_score</name>
         <value>
-          <float>0.75f</float>
+          <float>0.7f</float>
         </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>bilSymSeg_isDownsampled</name>
+          <value>
+              <boolean>true</boolean>
+          </value>
       </nameValuePair>
       <nameValuePair>
         <name>bilSymSeg_adjacency_radius</name>
@@ -721,7 +737,7 @@
       <nameValuePair>
           <name>bilSymSeg_num_adjacency_neighbors</name>
           <value>
-              <integer>14</integer>
+              <integer>13</integer>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -739,7 +755,7 @@
       <nameValuePair>
           <name>bilSymSeg_max_fit_angle</name>
           <value>
-              <float>0.7f</float>
+              <float>0.65f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -751,19 +767,19 @@
       <nameValuePair>
           <name>bilSymSeg_max_occlusion_dist</name>
           <value>
-              <float>0.07f</float>
+              <float>0.075f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>bilSymSeg_min_perpendicular_angle</name>
           <value>
-              <float>0.5f</float>
+              <float>0.4f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>bilSymSeg_max_perpendicular_angle</name>
           <value>
-              <float>1.5f</float>
+              <float>1.65f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -781,7 +797,7 @@
       <nameValuePair>
           <name>bilSymSeg_bg_weight_factor</name>
           <value>
-              <float>3.0f</float>
+              <float>4.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -793,7 +809,7 @@
       <nameValuePair>
           <name>bilSymSeg_max_occlusion_score</name>
           <value>
-              <float>0.1f</float>
+              <float>1.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
@@ -805,13 +821,13 @@
       <nameValuePair>
           <name>min_sym_sypport_overlap</name>
           <value>
-              <float>0.1f</float>
+              <float>0.0f</float>
           </value>
       </nameValuePair>
       <nameValuePair>
           <name>min_segment_size</name>
           <value>
-              <integer>1000</integer>
+              <integer>100</integer>
           </value>
       </nameValuePair>
     </configurationParameterSettings>
