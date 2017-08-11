@@ -22,7 +22,7 @@ env:
   global:
     - ROS_DISTRO=indigo
     - ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
-    - ROS_PARALLEL_JOBS='-j6 -l6'
+    - ROS_PARALLEL_JOBS='-j4 -l4'
     - CI_SOURCE_PATH=$(pwd)
     - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
     - UIMA_HOME=$HOME/local/src/uimacpp/
