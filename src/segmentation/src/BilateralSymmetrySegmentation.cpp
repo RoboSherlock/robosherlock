@@ -80,7 +80,7 @@ private:
 
   std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segments;
   std::vector<int> filteredSegmentIds;
-  std::vector<int> mergedSymmetryIds;
+  std::vector<int> mergedSegmentIds;
 
   //parameters
   bool bilSymSeg_isDownsampled;
@@ -206,26 +206,26 @@ public:
     dsSegmentIds.clear();
     segments.clear();
     filteredSegmentIds.clear();
-    mergedSymmetryIds.clear();
+    mergedSegmentIds.clear();
 
 
     //get RGB objects cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
+    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr (new pcl::PointCloud<pcl::Normal>);
     cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
     if(cloud_ptr->size() == 0)
     {
       outInfo("Input Object cloud address is empty! Using scene cloud");
       cas.get(VIEW_CLOUD, *cloud_ptr);
-      cas.get(VIEW_NORMALS, *normals);
+      cas.get(VIEW_NORMALS, *normals_ptr);
     }
     else
     {
       //get normal cloud
-      cas.get(VIEW_NORMALS_OBJECTS, *normals);
+      cas.get(VIEW_NORMALS_OBJECTS, *normals_ptr);
     }
     sceneCloud = cloud_ptr;
-    sceneNormals = normals;
+    sceneNormals = normals_ptr;
 
     //get Rotational Symmteries
     std::vector<rs::BilateralSymmetry> casSymmetries;
@@ -509,9 +509,9 @@ public:
       }
     }
     std::vector<pcl::PointIndices> casSegments;
-    int finalSize = mergedSymmetryIds.size();
-    for(size_t segmentIdIt = 0; segmentIdIt < mergedSymmetryIds.size(); segmentIdIt++){
-      int segmentId = mergedSymmetryIds[segmentIdIt];
+    int finalSize = mergedSegmentIds.size();
+    for(size_t segmentIdIt = 0; segmentIdIt < mergedSegmentIds.size(); segmentIdIt++){
+      int segmentId = mergedSegmentIds[segmentIdIt];
       if(dispMode == SEGMENT)
       {
         pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -558,7 +558,7 @@ public:
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
         addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
-        visualizer.addText("Total Segment " + std::to_string(mergedSymmetryIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
       else if (dispMode == SEGMENT)
       {
@@ -623,7 +623,7 @@ private:
       }
       if(bestId != -1)
       {
-        mergedSymmetryIds.push_back(bestId);
+        mergedSegmentIds.push_back(bestId);
       }
     }
   }

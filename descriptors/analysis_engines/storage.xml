@@ -121,6 +121,9 @@
     <delegateAnalysisEngine key="SegmentFilterHelper">
       <import location="../annotators/segmentation/SegmentFilterHelper.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="SegmentationResultDisplayer">
+      <import location="../annotators/segmentation/SegmentationResultDisplayer.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="StorageWriter">
       <import location="../annotators/io/StorageWriter.xml"/>
     </delegateAnalysisEngine>

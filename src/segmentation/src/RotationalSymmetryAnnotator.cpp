@@ -133,14 +133,22 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    //get RGB cloud
+    //get RGB objects cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    cas.get(VIEW_CLOUD, *cloud_ptr);
-    cloud = cloud_ptr;
-
-    //get normal cloud
     pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_NORMALS, *normals);
+    cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
+    if(cloud_ptr->size() == 0)
+    {
+      outInfo("Input Object cloud address is empty! Using scene cloud");
+      cas.get(VIEW_CLOUD, *cloud_ptr);
+      cas.get(VIEW_NORMALS, *normals);
+    }
+    else
+    {
+      //get normal cloud
+      cas.get(VIEW_NORMALS_OBJECTS, *normals);
+    }
+    cloud = cloud_ptr;
 
     //get segments
     cas.get(VIEW_SEGMENT_IDS, segments);

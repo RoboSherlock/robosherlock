@@ -31,3 +31,6 @@ target_link_libraries(rs_bilateralSymmetrySegmentation rs_core)
 
 rs_add_library(rs_segmentFilterHelper src/SegmentFilterHelper.cpp)
 target_link_libraries(rs_segmentFilterHelper rs_core)
+
+rs_add_library(rs_segmentationResultDisplayer src/SegmentationResultDisplayer.cpp)
+target_link_libraries(rs_segmentationResultDisplayer rs_core)

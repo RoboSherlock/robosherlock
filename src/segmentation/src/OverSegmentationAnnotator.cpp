@@ -130,46 +130,95 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    //get cloud from CAS
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    cas.get(VIEW_CLOUD,*cloud_ptr);
-
-    //get point cloud normals from CAS
-    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_NORMALS, *normals_ptr);
-
-    //get plane indices if it has
-    std::vector<int> object_indices;
-    std::vector<int> plane_indices;
-    std::vector<int> cloudIds(cloud_ptr->size());
-    for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
+    //check routine to use scene cloud or object cloud
+    bool isObjectPassed = false;
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr (new pcl::PointCloud<pcl::Normal>);
+    cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
+    if(cloud_ptr->size() == 0)
     {
-      cloudIds[pointId] = pointId;
-    }
-
-    std::vector<rs::Plane> planes;
-    scene.annotations.filter(planes);
-    for(size_t planeId = 0; planeId < planes.size(); planeId++)
-    {
-      std::vector<int> currIds = planes[planeId].inliers();
-      plane_indices.insert(plane_indices.end(), currIds.begin(), currIds.end());
-    }
-
-    if(plane_indices.size() != 0)
-    {
-      object_indices = Difference(cloudIds, plane_indices);
+      outInfo("Input Object cloud address is empty! Using scene cloud");
+      cas.get(VIEW_CLOUD, *cloud_ptr);
+      cas.get(VIEW_NORMALS, *normals_ptr);
     }
     else
     {
-      object_indices = cloudIds;
+      //get normal cloud
+      cas.get(VIEW_NORMALS_OBJECTS, *normals_ptr);
+      isObjectPassed = true;
     }
 
-    //filter object cloud
-    pcl::copyPointCloud(*cloud_ptr, object_indices, *cloud);
-    pcl::copyPointCloud(*normals_ptr, object_indices, *normals);
+    //if cloud is passed, no need to segment planes from cloud
+    if(isObjectPassed)
+    {
+      cloud = cloud_ptr;
+      normals = normals_ptr;
+    }
+    else
+    {
+      //get plane indices if it has
+      std::vector<int> object_indices;
+      std::vector<int> plane_indices;
+      std::vector<int> cloudIds(cloud_ptr->size());
+      for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
+      {
+        cloudIds[pointId] = pointId;
+      }
 
-    outInfo("Cloud size: " << cloud->size());
-    outInfo("Normals size: " << normals->size());
+      std::vector<rs::Plane> planes;
+      scene.annotations.filter(planes);
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        std::vector<int> currIds = planes[planeId].inliers();
+        plane_indices.insert(plane_indices.end(), currIds.begin(), currIds.end());
+      }
+
+      if(plane_indices.size() != 0)
+      {
+        object_indices = Difference(cloudIds, plane_indices);
+      }
+      else
+      {
+        object_indices = cloudIds;
+      }
+
+      //filter object cloud
+      pcl::copyPointCloud(*cloud_ptr, object_indices, *cloud);
+      pcl::copyPointCloud(*normals_ptr, object_indices, *normals);
+    }
+
+    outInfo("Object Cloud size: " << cloud->size());
+    outInfo("Object Normals size: " << normals->size());
+
+    //for combining the two segmentation method purpose
+    std::vector<int> cloudObjectIds(cloud->size());
+    for(size_t pointId = 0; pointId < cloud->size(); pointId++)
+    {
+      cloudObjectIds[pointId] = pointId;
+    }
+    std::vector<int> remainedIds;
+    std::vector<int> segmentIds;
+    std::vector<pcl::PointIndices> rotational_segments;
+    std::vector<pcl::PointIndices> bilateral_segments;
+    cas.get(VIEW_ROTATIONAL_SEGMENTATION_IDS, rotational_segments);
+    cas.get(VIEW_BILATERAL_SEGMENTATION_IDS, bilateral_segments);
+    for(size_t segmentId = 0; segmentId < rotational_segments.size(); segmentId++)
+    {
+      segmentIds.insert(segmentIds.end(), rotational_segments[segmentId].indices.begin(), rotational_segments[segmentId].indices.end());
+    }
+
+    for(size_t segmentId = 0; segmentId < bilateral_segments.size(); segmentId++)
+    {
+      segmentIds.insert(segmentIds.end(), bilateral_segments[segmentId].indices.begin(), bilateral_segments[segmentId].indices.end());
+    }
+    if(!segmentIds.empty())
+    {
+      remainedIds = Difference(cloudObjectIds, segmentIds);
+    }
+    else
+    {
+      remainedIds = cloudObjectIds;
+    }
 
     // populate normal Threshold
     std::vector<float> normalThresholds;
@@ -198,6 +247,7 @@ public:
       rg[i].setSearchMethod(tree);
       rg[i].setInputCloud(cloud);
       rg[i].setInputNormals(normals);
+      rg[i].setIndices(boost::make_shared< std::vector<int> >(remainedIds));
       rg[i].extract(segmentations[i]);
     }
 
@@ -264,17 +314,9 @@ public:
     //publish clusters to CAS
     cas.set(VIEW_SEGMENT_IDS, linear_segments);
 
-    if(!object_pass_through)
-    {
-      cas.set(VIEW_CLOUD, *cloud);
-      cas.set(VIEW_NORMALS, *normals);
-    }
-    else
-    {
-      cas.set(VIEW_CLOUD_OBJECTS, *cloud);
-      cas.set(VIEW_NORMALS_OBJECTS, *normals);
-    }
-
+    //publish cloud that only has objects
+    cas.set(VIEW_CLOUD_OBJECTS, *cloud);
+    cas.set(VIEW_NORMALS_OBJECTS, *normals);
 
     return UIMA_ERR_NONE;
   }

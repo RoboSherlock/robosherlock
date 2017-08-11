@@ -123,6 +123,12 @@
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
+      <configurationParameter>
+          <name>overlap_threshold</name>
+          <type>Float</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -236,7 +242,13 @@
       <nameValuePair>
           <name>min_segment_size</name>
           <value>
-              <integer>800</integer>
+              <integer>400</integer>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>overlap_threshold</name>
+          <value>
+              <float>0.3f</float>
           </value>
       </nameValuePair>
     </configurationParameterSettings>

@@ -57,7 +57,7 @@ public:
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_CLOUD, *cloud_ptr);
+
     cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
     if(cloud_ptr->size() == 0)
     {
