@@ -21,6 +21,8 @@
 #define __GRAPH_PRIMITIVES_H__
 
 #include <vector>
+
+/** \brief Vertex struct, it contains all of its neighbor's indices. */
 struct Vertex
 {
   std::vector<int> neighbors;
@@ -30,6 +32,7 @@ struct Vertex
   void print() const;
 };
 
+/** \brief Edge struct, it contains its vertex indices. */
 struct Edge
 {
     int v1;
@@ -40,6 +43,7 @@ struct Edge
     void print() const;
 };
 
+/** \brief WeightedEdge struct, it contains its vertex indices and a weight. */
 struct WeightedEdge : public Edge
 {
   float weight;

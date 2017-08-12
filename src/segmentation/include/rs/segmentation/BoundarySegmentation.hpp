@@ -30,6 +30,17 @@
 
 #include <rs/utils/output.h>
 
+
+/** \brief Extract boundary point of segment cloud
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  normals                 original cloud normals
+ *  \param[in]  indices                 cloud indices
+ *  \param[out] boundary_indices        boundary point indices
+ *  \param[out] non_boundary_indices    non boundary point indices
+ *  \param[in]  radiusSearch            search radius for finding neighbors
+ *  \param[in]  differentAngleThreshold angle threshold to consider as boundary
+ *  \return false if cannot extract any boundary point
+ */
 template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,
@@ -77,6 +88,15 @@ inline bool extractBoundaryCloud(
   return true;
 }
 
+/** \brief Extract boundary point of segment cloud
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  normals                 original cloud normals
+ *  \param[out] boundary_indices        boundary point indices
+ *  \param[out] non_boundary_indices    non boundary point indices
+ *  \param[in]  radiusSearch            search radius for finding neighbors
+ *  \param[in]  differentAngleThreshold angle threshold to consider as boundary
+ *  \return false if cannot extract any boundary point
+ */
 template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,
@@ -97,6 +117,16 @@ inline bool extractBoundaryCloud(
   return extractBoundaryCloud<PointT, NormalT>(cloud, normals, indices, boundary_indices, non_boundary_indices, radiusSearch, differentAngleThreshold);
 }
 
+/** \brief Extract boundary point of segment cloud
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  normals                 original cloud normals
+ *  \param[in]  indices                 cloud indices
+ *  \param[out] boundary_cloud          boundary cloud
+ *  \param[out] non_boundary_cloud      non boundary cloud
+ *  \param[in]  radiusSearch            search radius for finding neighbors
+ *  \param[in]  differentAngleThreshold angle threshold to consider as boundary
+ *  \return false if cannot extract any boundary point
+ */
 template <typename PointT, typename NormalT>
 inline bool extractBoundaryCloud(
   typename pcl::PointCloud<PointT>::Ptr &cloud,

@@ -28,6 +28,25 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
+/** \brief Finding bilateral symmetric score of correspondences of original cloud and downsampled cloud.
+ *  The symmetric score is computed based on angle difference of normal correspondences. It is then scaled between
+ *  max and min inlier angle and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  cloud                  original cloud
+ *  \param[in]  normals                original cloud normals
+ *  \param[in]  dsCloud                downsampled cloud
+ *  \param[in]  dsNormals              downsampled cloud normals
+ *  \param[in]  tree                   search tree of scene cloud
+ *  \param[in]  symmetry               input symmetry
+ *  \param[out] correspondences        symmetric correspondences
+ *  \param[out] point_symmetry_scores  a vector to hold score for each point of correspondences
+ *  \param[in]  search_radius          search radius to find neighbors
+ *  \param[in]  max_normal_fit_error                      maximum error normal
+ *  \param[in]  min_sym_corresspondence_dist              minimum distance between correspondences to be considered
+ *  \param[in]  max_sym_corresspondence_reflected_dist    maximum distance between reflected point and original point to be considered
+ *  \param[in]  min_inlier_normal_angle
+ *  \param[in]  max_inlier_normal_angle
+ *  \return false if cloud size or dsCloud size is zero
+ */
 template<typename PointT>
 inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                            pcl::PointCloud<pcl::Normal>::Ptr &normals,
@@ -120,6 +139,17 @@ inline bool getCloudBilateralSymmetryScore(typename pcl::PointCloud<PointT>::Ptr
   return true;
 }
 
+/** \brief Finding bilateral occlusion score of each point of original cloud
+ *  The occlusion score is computed based on the nearest occlusion distance of DistanceMap. It is then scaled between
+ *  max and min occlusion dist and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  dist_map                distance map data structure of scene cloud
+ *  \param[in]  symmetry                input symmetry
+ *  \param[out] point_occlusion_scores  a vector to hold score for each point of cloud
+ *  \param[in]  min_occlusion_dist
+ *  \param[in]  max_occlusion_dist
+ *  \return false if cloud size is zero
+ */
 template<typename PointT>
 inline bool getCloudBilateralOcclusionScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                             DistanceMap<PointT> &distMap,
@@ -155,6 +185,16 @@ inline bool getCloudBilateralOcclusionScore(typename pcl::PointCloud<PointT>::Pt
   return true;
 }
 
+/** \brief Finding bilateral perpendicular score of each point of original cloud
+ *  The perpendicular score is computed based on the angle difference between each point normal and symmetry normal. It is then scaled between
+ *  max and min perpendicular angle and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  normals                     original normals
+ *  \param[in]  symmetry                    input symmetry
+ *  \param[out] point_perpendicular_scores  a vector to hold score for each point of cloud
+ *  \param[in]  min_perpendicular_angle
+ *  \param[in]  max_perpendicular_angle
+ *  \return false if normals size is zero
+ */
 inline bool getCloudBilateralPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                                 BilateralSymmetry &symmetry,
                                                 std::vector<float> &point_perpendicular_scores,

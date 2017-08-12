@@ -574,7 +574,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader.ini</string>
+            <string>config_data_loader_real_cloud_segmentation.ini</string>
           </array>
         </value>
       </nameValuePair>

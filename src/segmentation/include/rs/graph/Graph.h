@@ -23,6 +23,9 @@
 #include <rs/graph/GraphBase.hpp>
 #include <rs/graph/GraphPrimitives.hpp>
 
+/** \brief Data structure represents undirected and unweighted graph.
+ *  Self loop is not allowed.
+ */
 class Graph : public GraphBase<Vertex, Edge>
 {
 public:

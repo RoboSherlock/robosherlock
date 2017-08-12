@@ -28,11 +28,14 @@
 
 #include <pcl/registration/correspondence_rejection_one_to_one.h>
 
-//NOTE: This class was implemented for compatible use of Eigen NonLinearOptimization module
+/** \brief This supper struct (functor) was implemented for compatible use of Eigen NonLinearOptimization module.
+ *  Each model of non linear optimization must be overrived its own operator() as a child of this class, based on choosen Scalar*/
 template <typename _Scalar, int NX = Eigen::Dynamic, int NY = Eigen::Dynamic>
 struct OptimizationFunctor
 {
-  typedef _Scalar Scalar; // for compatible purpose with NumericalDiff class
+
+  /** \brief Type for compatible purpose with Eigen::NumericalDiff class. It represents type of variable for optimization (float, symmetries, etc) */
+  typedef _Scalar Scalar;
 
   enum
   {
@@ -53,17 +56,27 @@ struct OptimizationFunctor
   int values() const { return m_outputs; }
 };
 
-
+/** \brief Child struct (functor) of OptimizationFunctor, it is the model for optimizing RotationalSymmetry poses.
+ *  Given 3D pointcloud with normals and an initial 3D rotational symmetry axis refine the symmetry axis such that
+ * it minimizes the error of fit between the symmetry and the points.
+ * \note The result optimizing may have non-unit normals
+ */
 template<typename PointT>
 struct RotSymOptimizeFunctor : OptimizationFunctor<float>
 {
-
+  /** \brief input cloud. */
   typename pcl::PointCloud<PointT>::Ptr cloud;
+
+  /** \brief input normals. */
   typename pcl::PointCloud<pcl::Normal>::Ptr normals;
+
+  /** \brief max fit error of symmetry and point normal. */
   float max_fit_angle;
 
+  /** \brief Default constructor. */
   RotSymOptimizeFunctor() : max_fit_angle(1.0f) {}
 
+  /** \brief overrived method of optimization for RotationalSymmetry, it it minimizes the error of fit between the symmetry and the points */
   int operator()(const Eigen::VectorXf &x, Eigen::VectorXf &fvec) const
   {
     RotationalSymmetry symmetry(x.head(3), x.tail(3));
@@ -80,13 +93,23 @@ struct RotSymOptimizeFunctor : OptimizationFunctor<float>
     return 0;
   }
 
+  /** \brief Dimension of input parameter, in this case: 6 for position and orientation of RotationalSymmetry. */
   int inputs() const { return 6; }
+
+  /** \brief Cloud point size. */
   int values() const { return this->cloud->points.size(); }
 };
 
+/** \brief A dumb struct interfaces with Eigen::NonLinearOptimization */
 template <typename PointT>
 struct RotSymOptimizeFunctorDiff : Eigen::NumericalDiff< RotSymOptimizeFunctor<PointT> > {};
 
+
+/** \brief Child struct (functor) of OptimizationFunctor, it is the model for optimizing BilateralSymmetry poses.
+ *  Given 3D original cloud and downsampled cloud with normals and an initial 3D bilateral symmetry, refine the symmetry normal such that
+ * it minimizes the error of distance between downsampled point to plane of reflected original point and normal.
+ * \note The result optimizing may have non-unit normals
+ */
 template<typename PointT>
 struct BilSymOptimizeFunctor : OptimizationFunctor<float>
 {
@@ -125,6 +148,7 @@ struct BilSymOptimizeFunctor : OptimizationFunctor<float>
   }
 };
 
+/** \brief A dumb struct interfaces with Eigen::NonLinearOptimization */
 template <typename PointT>
 struct BilSymOptimizeFunctorDiff : Eigen::NumericalDiff< BilSymOptimizeFunctor<PointT> > {};
 

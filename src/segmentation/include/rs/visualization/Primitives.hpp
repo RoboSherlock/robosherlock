@@ -28,6 +28,13 @@
 
 #include <rs/segmentation/Geometry.hpp>
 
+/** \brief Add 3D bilateral symmetry plane to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetry         input symmetry
+ *  \param[in]  id               id
+ *  \param[in]  width            width of symmetry plane
+ *  \param[in]  height           height of symmetry plane
+ */
 inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)
 {
   Eigen::Affine3f pose;
@@ -53,6 +60,12 @@ inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, Bila
   visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_REPRESENTATION, pcl::visualization::PCL_VISUALIZER_REPRESENTATION_WIREFRAME, id + "_border");
 }
 
+/** \brief Add 3D bilateral symmetry planes to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetries       input vector of symmetries
+ *  \param[in]  width            width of symmetry plane
+ *  \param[in]  height           height of symmetry plane
+ */
 inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std::vector< std::vector<BilateralSymmetry> > &symmetries, float width, float height)
 {
   for(size_t segmentId = 0; segmentId < symmetries.size(); segmentId++)
@@ -65,6 +78,12 @@ inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std
   }
 }
 
+/** \brief Add 3D bilateral symmetry planes to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetries       input vector of vector of symmetries
+ *  \param[in]  width            width of symmetry plane
+ *  \param[in]  height           height of symmetry plane
+ */
 inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std::vector<BilateralSymmetry> &symmetries, float width, float height)
 {
   for(size_t symId = 0; symId < symmetries.size(); symId++)
@@ -74,6 +93,13 @@ inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std
   }
 }
 
+/** \brief Add 3D rotational symmetry axis to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetry       input symmetry
+ *  \param[in]  id               id
+ *  \param[in]  length           length of symmetry axis
+ *  \param[in]  lineWidth        line width of symmetry axis
+ */
 inline void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, RotationalSymmetry &symmetry, std::string &id, float length, float lineWidth){
   pcl::PointXYZ p1, p2;
   p1.getVector3fMap() = symmetry.getOrigin() + symmetry.getOrientation() * length / 2;
@@ -84,7 +110,12 @@ inline void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, Rotat
   visualizer.setShapeRenderingProperties(pcl::visualization::PCL_VISUALIZER_COLOR, 1.0f, 1.0f, 0.0f, id);
 }
 
-
+/** \brief Add 3D rotational symmetry axes to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetries       input vector of vector of symmetries
+ *  \param[in]  length           length of symmetry axis
+ *  \param[in]  lineWidth        line width of symmetry axis
+ */
 inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> >& symmetries, float length, float lineWidth){
   for(size_t segmentId = 0; segmentId < symmetries.size(); segmentId++)
   {
@@ -95,6 +126,12 @@ inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std:
   }
 }
 
+/** \brief Add 3D rotational symmetry axes to pcl::visualizer (color yellow)
+ *  \param[in]  visualizer       pcl visualizer
+ *  \param[in]  symmetries       input vector of symmetries
+ *  \param[in]  length           length of symmetry axis
+ *  \param[in]  lineWidth        line width of symmetry axis
+ */
 inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
   for(size_t symId = 0; symId < symmetries.size(); symId++){
     std::string symname = "RotSym" + std::to_string(symId);

@@ -35,7 +35,18 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/boykov_kolmogorov_max_flow.hpp>
 
-//This function computes weights for smoothness term as in Symmetries Segmentation paper
+/** \brief This function computes weighted adjacency graph from scene cloud
+ *  The method is based on this paper: http://www.umiacs.umd.edu/~aecins/projects/symseg/symmetry_segmentation_ICRA16.pdf
+ *  \param[in]  cloud                  original cloud
+ *  \param[in]  normals                original cloud normals
+ *  \param[in]  radius                 search radius for finding neighbors
+ *  \param[in]  numNeighbors           number of nearest neighbors
+ *  \param[out] graph                  adjacency graph
+ *  \param[in]  scale_factor           scaling weight in graph
+ *  \param[in]  sigmaConvex
+ *  \param[in]  sigmaConcave
+ *  \return false if any edge operation is error
+ */
 template<typename PointT>
 inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                         pcl::PointCloud<pcl::Normal>::Ptr &normals,
@@ -88,6 +99,10 @@ inline bool computeCloudAdjacencyWeight(typename pcl::PointCloud<PointT>::Ptr &c
   return true;
 }
 
+/** \brief Class defining several boost class type necessary for boost::boykov_kolmogorov_max_flow segmentation
+ *  It converts from this system graph type to boost graph type to perform segmentation.
+ *  More info: http://www.boost.org/doc/libs/1_54_0/libs/graph/doc/boykov_kolmogorov_max_flow.html
+ */
 class BoykovMinCut
 {
 public:
@@ -106,6 +121,15 @@ public:
   typedef boost::property_map< GraphBoost, boost::edge_reverse_t >::type ReverseEdgeMap;
   typedef boost::property_map< GraphBoost, boost::vertex_color_t, boost::default_color_type >::type VertexColorMap;
 
+  /** \brief Add edge on boost defined graph
+   *  \param[in]  v1                  first vertex
+   *  \param[in]  v2                  secon vertex
+   *  \param[out]  graph              boost defined graph
+   *  \param[in]  weight              weight of edge
+   *  \param[out] capacity_map
+   *  \param[out]  reverse_edge_map
+   *  \return false if any edge operation is error
+   */
   static bool boost_add_edge(Traits::vertex_descriptor &v1, Traits::vertex_descriptor &v2, GraphBoost &graph, const float weight, CapacityMap &capacity_map, ReverseEdgeMap &reverse_edge_map)
   {
     Traits::edge_descriptor edge, reverse_edge;
@@ -126,6 +150,16 @@ public:
     return true;
   }
 
+  /** \brief Perform min cut algorithm, this function segments foreground id and background id
+   *  from adjacency graph and output min cut and max flow value
+   *  \param[in]  foreground_weights
+   *  \param[in]  background_weights                
+   *  \param[in]  adjacency_weights
+   *  \param[out] foreground_ids
+   *  \param[out] background_ids
+   *  \param[out] min_cut_value
+   *  \return max flow value
+   */
   static float min_cut(const std::vector<float> &foreground_weights,
                  const std::vector<float> &background_weights,
                  WeightedGraph &adjacency_weights,

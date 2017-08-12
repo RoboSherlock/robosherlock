@@ -29,6 +29,14 @@
 #include <rs/graph/GraphBase.hpp>
 #include <rs/graph/GraphPrimitives.hpp>
 
+/** \brief Function compute a adjacency graph within radius or nearest neighbors from point cloud.
+ *  \param[in]  cloud             input cloud
+ *  \param[in]  indices           indices of input cloud
+ *  \param[out] graph             undirected adjacency graph
+ *  \param[in]  radius            search radius for neighbor points
+ *  \param[in]  numNeighbors      number of nearest neighbors
+ *  \return false if radius is negative
+ */
 template<typename PointT, typename VertexT, typename EdgeT>
 inline bool computeCloudMap(typename pcl::PointCloud<PointT>::Ptr &cloud,
                             std::vector<int> &indices,
@@ -74,6 +82,13 @@ inline bool computeCloudMap(typename pcl::PointCloud<PointT>::Ptr &cloud,
   return true;
 }
 
+/** \brief Function compute a adjacency graph within radius or nearest neighbors from point cloud.
+ *  \param[in]  cloud             input cloud
+ *  \param[out] graph             undirected adjacency graph
+ *  \param[in]  radius            search radius for neighbor points
+ *  \param[in]  numNeighbors      number of nearest neighbors
+ *  \return false if radius is negative
+ */
 template<typename PointT, typename VertexT, typename EdgeT>
 inline bool computeCloudMap(typename pcl::PointCloud<PointT>::Ptr &cloud,
                             GraphBase<VertexT, EdgeT> &graph,

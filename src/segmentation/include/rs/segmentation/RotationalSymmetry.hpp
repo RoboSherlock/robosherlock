@@ -29,6 +29,9 @@
 #include <rs/segmentation/Geometry.hpp>
 #include <rs/utils/output.h>
 
+/** \brief Class representing a rotational symmetry in 3D space. A symmetry
+ * is represented as a 3D axis.
+ */
 class RotationalSymmetry
 {
 private:
@@ -36,55 +39,95 @@ private:
   Eigen::Vector3f orientation;
 
 public:
+
+  /** \brief Default constructor. */
   RotationalSymmetry() : origin(Eigen::Vector3f::Zero()), orientation(Eigen::Vector3f::Zero()) {}
+
+  /** \brief Constructor to initialize origin point and symmetry axis. */
   RotationalSymmetry(const Eigen::Vector3f &point, const Eigen::Vector3f &vec) : origin(point), orientation(vec.normalized()) {}
 
+  /** \brief Destructor. */
+  ~RotationalSymmetry() {}
+
+  /** \brief Get origin point. */
   Eigen::Vector3f getOrigin() const
   {
     return origin;
   }
 
+  /** \brief Get orientation axis. */
   Eigen::Vector3f getOrientation() const
   {
     return orientation;
   }
 
+  /** \brief Set origin point.
+   *  \param[in]  point   input origin
+   */
   void setOrigin(Eigen::Vector3f &point)
   {
     origin = point;
   }
 
+  /** \brief Set projected point to symmetry line from input point as symmetry origin.
+   *  \param[in]  point   input point
+   */
   void setProjectedOrigin(Eigen::Vector3f &point)
   {
     origin = projectPoint(point);
   }
 
+  /** \brief Set orientation.
+   *  \param[in]  vec  input axis
+   */
   void setOrientation(Eigen::Vector3f &vec)
   {
     orientation = vec.normalized();
   }
 
+  /** \brief Project point to the symmetry line.
+   *  \param[in]  point   input point
+   *  \return projected point on the symmetry line
+   */
   Eigen::Vector3f projectPoint(const Eigen::Vector3f &point)
   {
     return pointToLineProjection<float>(point, origin, origin + orientation);
   }
 
+  /** \brief compute distance from point to symmetry line.
+   *  \param[in]  point   input point
+   *  \return distance
+   */
   float pointDistance(const Eigen::Vector3f &point)
   {
     return pointToLineNorm<float>(point, origin, origin + orientation);
   }
 
+  /** \brief get rotational matrix around symmetry axis
+   *  \param[in]  angle   rotational angle
+   *  \return 3x3 rotational matrix
+   */
   Eigen::Matrix3f getRotationMatrix(float angle)
   {
     return Eigen::AngleAxisf(angle, orientation).toRotationMatrix();
   }
 
+  /** \brief rotate point around symmetry axis
+   *  \param[in]  point   input point
+   *  \param[in]  angle   rotational angle
+   *  \return rotated point
+   */
   Eigen::Vector3f rotatePoint(const Eigen::Vector3f &point, float angle)
   {
     Eigen::Vector3f projectedPoint = projectPoint(point);
     return projectedPoint + getRotationMatrix(angle) * (point - projectedPoint);
   }
 
+  /** \brief rotate cloud around symmetry axis
+   *  \param[in]   cloud_in   input cloud
+   *  \param[out]  cloud_out  rotated cloud
+   *  \param[in]   angle      rotational angle
+   */
   template<typename PointT>
   void rotateCloud(typename pcl::PointCloud<PointT> &cloud_in, typename pcl::PointCloud<PointT> &cloud_out, float angle)
   {
@@ -96,6 +139,12 @@ public:
     }
   }
 
+  /** \brief rotate cloud around symmetry axis
+   *  \param[in]   cloud_in   input cloud
+   *  \param[in]   indices    input cloud indices
+   *  \param[out]  cloud_out  rotated cloud
+   *  \param[in]   angle      rotational angle
+   */
   template<typename PointT>
   void rotateCloud(typename pcl::PointCloud<PointT>& cloud_in, std::vector<int> &indices, typename pcl::PointCloud<PointT> &cloud_out, float angle)
   {
@@ -107,6 +156,12 @@ public:
     }
   }
 
+  /** \brief generate redundant cloud around symmetry axis by accumulating rotated cloud
+   *  \param[in]   cloud_in   input cloud
+   *  \param[in]   indices    input cloud indices
+   *  \param[out]  cloud_out  rotated cloud
+   *  \param[in]   step_angle
+   */
   template<typename PointT>
   inline void populateCloud(typename pcl::PointCloud<PointT> &cloud_in,
                             std::vector<int> &indices,
@@ -124,6 +179,11 @@ public:
     }
   }
 
+  /** \brief generate redundant cloud around symmetry axis by accumulating rotated cloud
+   *  \param[in]   cloud_in   input cloud
+   *  \param[out]  cloud_out  rotated cloud
+   *  \param[in]   step_angle
+   */
   template<typename PointT>
   inline void populateCloud(typename pcl::PointCloud<PointT> &cloud_in,
                             typename pcl::PointCloud<PointT> &cloud_out,
@@ -138,6 +198,11 @@ public:
     populateCloud(cloud_in, indices, cloud_out, step_angle);
   }
 
+  /** \brief get angle and distance difference between this symmetry and target symmetry
+   *  \param[in]   target      target symmetry
+   *  \param[out]  angle       angle difference
+   *  \param[out]  dist        distance difference
+   */
   inline void getRotSymDifference(const RotationalSymmetry &target, float &angle, float &dist)
   {
     angle = lineLineAngle<float>(orientation, target.getOrientation());
@@ -145,6 +210,12 @@ public:
   }
 };
 
+/** \brief get angle error between perpendicular line of point to axis and symmetry axis
+ *  \param[in]  point    input point
+ *  \param[in]  normal   input normal
+ *  \param[in]  symmetry RotationalSymmetry
+ *  \return angle error
+ */
 inline float getRotSymFitError(Eigen::Vector3f &point,
                                Eigen::Vector3f &normal,
                                RotationalSymmetry &symmetry)
@@ -158,6 +229,11 @@ inline float getRotSymFitError(Eigen::Vector3f &point,
   return std::asin(angle);
 }
 
+/** \brief calculate scaled angle error between point normal and symmetry axis
+ *  \param[in]  normal    input normal
+ *  \param[in]  symmetry  RotationalSymmetry
+ *  \param[in]  threshold denominator to scale
+ */
 inline float getRotSymPerpendicularity(Eigen::Vector3f &normal,
                                        RotationalSymmetry &symmetry,
                                        float threshold = M_PI / 2)

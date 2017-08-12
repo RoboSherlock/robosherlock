@@ -29,7 +29,11 @@
 #include <pcl/common/io.h>
 #include <pcl/point_types.h>
 
-// return a vector with unique elements that are both in v1 and v2
+/** \brief Find an intersection between two vectors. The return vector contains unique values that are present in both vectors.
+ *  \param[in] v1 first vector
+ *  \param[in] v2 second vector
+ *  \return vector intersection
+ */
 inline std::vector<int> Intersection(const std::vector<int> &v1, const std::vector<int> &v2)
 {
   std::vector<int> intersect;
@@ -44,7 +48,11 @@ inline std::vector<int> Intersection(const std::vector<int> &v1, const std::vect
   return intersect;
 }
 
-// return a vector with all unique elements in v1 and v2
+/** \brief Find a union of two vectors. The return vector contains unique values that are present in both vectors.
+ *  \param[in] v1 first vector
+ *  \param[in] v2 second vector
+ *  \return vector union
+ */
 inline std::vector<int> Union(const std::vector<int> &v1, const std::vector<int> &v2)
 {
   std::vector<int> union_vec;
@@ -62,7 +70,11 @@ inline std::vector<int> Union(const std::vector<int> &v1, const std::vector<int>
   return union_vec;
 }
 
-
+/** \brief Find a different of two vectors. The return vector contains unique values that are present in first vector but not second vector.
+ *  \param[in] v1 first vector
+ *  \param[in] v2 second vector
+ *  \return vector union
+ */
 inline std::vector<int> Difference(const std::vector<int> &v1, const std::vector<int> &v2)
 {
   std::vector<int> v_difference;
@@ -80,7 +92,12 @@ inline std::vector<int> Difference(const std::vector<int> &v1, const std::vector
   return v_difference;
 }
 
-// get linear subscript from 2D array
+/** \brief get linear subscript from 2D array from 2D subscript
+ *  \param[in] v    2D array
+ *  \param[in] row
+ *  \param[in] col
+ *  \return linear subscript of 2D array (row = 1, col = 1 in 2x2 => subscript = 3)
+ */
 template<typename Type>
 inline int matrixToLinear(std::vector< std::vector<Type> > &v, int row, int col)
 {
@@ -94,6 +111,13 @@ inline int matrixToLinear(std::vector< std::vector<Type> > &v, int row, int col)
   return result;
 }
 
+/** \brief get 2D subscript from 2D array from linear subscript
+ *  \param[in]   v           2D array
+ *  \param[in]   linear_id   linear subscript
+ *  \param[out]  row
+ *  \param[out]  col
+ *  \return false linear subscript is out of bound
+ */
 template<typename Type>
 inline bool linearToMatrix(std::vector< std::vector<Type> > &v, int linear_id, int &row, int &col){
   int offset = 0;
@@ -111,6 +135,10 @@ inline bool linearToMatrix(std::vector< std::vector<Type> > &v, int linear_id, i
   return false;
 }
 
+/** \brief get mean value from vector
+ *  \param[in]   v    vector
+ *  \return mean value of vector as float
+ */
 template<typename Type>
 inline float mean(std::vector<Type> &v)
 {
@@ -118,6 +146,10 @@ inline float mean(std::vector<Type> &v)
   return static_cast<float> (sum) / static_cast<float>(v.size());
 }
 
+/** \brief get median value from vector
+ *  \param[in]   v    vector
+ *  \return median value of vector as float
+ */
 template<typename Type>
 inline Type median(std::vector<Type> &v)
 {
@@ -126,6 +158,7 @@ inline Type median(std::vector<Type> &v)
   return copied[copied.size()/2];
 }
 
+/** \brief overrided function to output 2D array */
 template<typename Type>
 std::ostream& operator<<(std::ostream &output, std::vector< std::vector<Type> > &arr)
 {
@@ -142,6 +175,7 @@ std::ostream& operator<<(std::ostream &output, std::vector< std::vector<Type> > 
   return output;
 }
 
+/** \brief overrided function to output array */
 template<typename Type>
 std::ostream& operator<<(std::ostream &output, std::vector<Type> &arr)
 {
@@ -155,6 +189,12 @@ std::ostream& operator<<(std::ostream &output, std::vector<Type> &arr)
   return output;
 }
 
+/** \brief Search all instances of target in vector and output as vector of indices
+ *  \param[in]    arr              input vector
+ *  \param[in]    target           target value
+ *  \param[out]   searchIndices    instances indices
+ *  \return number of found instances
+ */
 template<typename Type>
 inline int vectorSearch(std::vector<Type> &arr, const Type target, std::vector<int> &searchIndices){
   searchIndices.clear();
@@ -177,6 +217,11 @@ inline int vectorSearch(std::vector<Type> &arr, const Type target, std::vector<i
   return searchIndices.size();
 }
 
+/** \brief Convert 2D array to linear array based on indices vector
+ *  \param[in]     segmentDataIn           input 2D vector
+ *  \param[out]    segmentDataOut          output linear vector
+ *  \param[in]     indices                 indices
+ */
 template<typename Type>
 inline void linearizeSegmentData(typename std::vector< std::vector<Type> > &segmentDataIn, typename std::vector<Type> &segmentDataOut, std::vector< std::vector<int> > indices = std::vector<int>(0))
 { // for both scores and Symmetries

@@ -28,7 +28,17 @@
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
-
+/** \brief Finding rotational symmetric score of each point of original cloud.
+ *  The symmetric score is computed based on angle difference of point normal and symmetry axis. It is then scaled between
+ *  max and min inlier angle and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  cloud                  original cloud
+ *  \param[in]  normals                original cloud normals
+ *  \param[in]  symmetry               input symmetry
+ *  \param[out] point_symmetry_scores  a vector to hold score for each point of correspondences
+ *  \param[in]  min_fit_angle
+ *  \param[in]  max_fit_angle
+ *  \return mean values of point_symmetry_scores, represents segment symmetric score
+ */
 template<typename PointT>
 inline float getCloudRotationalSymmetryScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                    pcl::PointCloud<pcl::Normal>::Ptr &normals,
@@ -54,6 +64,18 @@ inline float getCloudRotationalSymmetryScore(typename pcl::PointCloud<PointT>::P
   return mean(point_symmetry_scores);
 }
 
+/** \brief Finding rotational occlusion score of each point of original cloud
+ *  The occlusion score is computed based on the nearest occlusion distance of DistanceMap. It is then scaled between
+ *  max and min occlusion dist and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  dist_map                distance map data structure of scene cloud
+ *  \param[in]  symmetry                input symmetry
+ *  \param[out] point_occlusion_scores  a vector to hold score for each point of cloud
+ *  \param[in]  min_occlusion_dist
+ *  \param[in]  max_occlusion_dist
+ *  \param[in]  redundant_factor        factor to generate cloud rotationally
+ *  \return mean values of point_occlusion_scores, represents segment occlusion score
+ */
 template<typename PointT>
 inline float getCloudRotationalOcclusionScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
                                     DistanceMap<PointT> &dist_map,
@@ -95,6 +117,15 @@ inline float getCloudRotationalOcclusionScore(typename pcl::PointCloud<PointT>::
   return mean(point_occlusion_scores);
 }
 
+/** \brief Finding rotational perpendicular score of each point of original cloud
+ *  The perpendicular score is computed based on the angle difference between each point normal and symmetry axis. It is then scaled between
+ *  max and min perpendicular angle and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  normals                     original normals
+ *  \param[in]  symmetry                    input symmetry
+ *  \param[out] point_perpendicular_scores  a vector to hold score for each point of cloud
+ *  \param[in]  threshold
+ *  \return mean value of point_perpendicular_scores, represents segment perpendicular score
+ */
 inline float getCloudRotationalPerpendicularScore(pcl::PointCloud<pcl::Normal>::Ptr &normals,
                                         RotationalSymmetry &symmetry,
                                         std::vector<float> &point_perpendicular_scores,
@@ -117,9 +148,16 @@ inline float getCloudRotationalPerpendicularScore(pcl::PointCloud<pcl::Normal>::
   return mean(point_perpendicular_scores);
 }
 
+/** \brief Finding rotational coverage score of original cloud
+ *  The coverage score is computed as max angle between any point in segment cloud, represents coverage of the cloud. It is then scaled between
+ *  max and min perpendicular angle and clamped to 0.0f-1.0f. The lower score, the better.
+ *  \param[in]  cloud                   original cloud
+ *  \param[in]  symmetry                input symmetry
+ *  \return max angle between any point in cloud
+ */
 template<typename PointT>
 inline float getCloudRotationalCoverageScore(typename pcl::PointCloud<PointT>::Ptr &cloud,
-                                   RotationalSymmetry &symmetry)
+                                             RotationalSymmetry &symmetry)
 {
   if(cloud->points.size() == 0)
   {

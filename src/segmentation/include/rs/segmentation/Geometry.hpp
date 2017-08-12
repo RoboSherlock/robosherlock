@@ -28,6 +28,13 @@
 #include <pcl/search/kdtree.h>
 #include <pcl/registration/correspondence_rejection_one_to_one.h>
 
+/** \brief Clamp a value from above and below.
+ *  \param[in] value value to be clamped
+ *  \param[in] minValue minimum value
+ *  \param[in] maxValue maximum value
+ *  \return bounded value
+ *  \note behavior is undefined if maxValue < minValue
+ */
 template<typename Type>
 inline Type clamp(Type val, Type minVal, Type maxVal)
 {
@@ -37,18 +44,35 @@ inline Type clamp(Type val, Type minVal, Type maxVal)
   return result;
 }
 
+/** \brief Get the Euclidean distance between two N-dimensional points.
+ *  \param[in] point1 first point
+ *  \param[in] point2 second point
+ *  \return distance between points
+ */
 template<class Type>
 inline Type pointToPointNorm(const Eigen::Matrix<Type, 3, 1> &point1, const Eigen::Matrix<Type, 3, 1> &point2)
 {
   return (point2 - point1).norm();
 }
 
+/** \brief Get distance between a point and a line.
+ *  \param[in] point point
+ *  \param[in] linePoint1  first point of a line
+ *  \param[in] linePoint2  second point of a line
+ *  \return distance between point and line
+ */
 template<class Type>
 inline Type pointToLineNorm(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 3, 1> &linePoint1, const Eigen::Matrix<Type, 3, 1> &linePoint2)
 {
   return (point - linePoint1).cross(point - linePoint2).norm() / (linePoint2 - linePoint1).norm();
 }
 
+/** \brief Project point to line.
+ *  \param[in] point point
+ *  \param[in] linePoint1  first point of a line
+ *  \param[in] linePoint2  second point of a line
+ *  \return projected point on line
+ */
 template<class Type>
 inline Eigen::Matrix<Type, 3, 1> pointToLineProjection(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 3, 1> &linePoint1, const Eigen::Matrix<Type, 3, 1> &linePoint2)
 {
@@ -56,6 +80,11 @@ inline Eigen::Matrix<Type, 3, 1> pointToLineProjection(const Eigen::Matrix<Type,
   return linePoint1 + (point - linePoint1).dot(line) * line / line.norm();
 }
 
+/** \brief Convert plane coefficients to point normals
+ *  \param[in] plane       plane coefficients
+ *  \param[out] point       plane point
+ *  \param[out] normal      plane normal
+ */
 template<class Type>
 inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1> &plane, Eigen::Matrix<Type, 3, 1> &point, Eigen::Matrix<Type, 3, 1> &normal)
 {
@@ -65,6 +94,11 @@ inline void planeToPointNormal(const Eigen::Matrix<Type, 4, 1> &plane, Eigen::Ma
   point = normal * (- plane[3] / denom);
 }
 
+/** \brief Convert point normals to plane coefficients
+ *  \param[in] point       plane point
+ *  \param[in] normal      plane normal
+ *  \param[out] plane       plane coefficients
+ */
 template<class Type>
 inline void pointNormalToPlane(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 3, 1> &normal, Eigen::Matrix<Type, 4, 1> &plane)
 {
@@ -72,6 +106,12 @@ inline void pointNormalToPlane(const Eigen::Matrix<Type, 3, 1> &point, const Eig
   plane(3) = -normal.dot(point);
 }
 
+/** \brief Get signed distance from point to plane
+ *  \param[in] point           point
+ *  \param[in] planePoint      plane point
+ *  \param[in] planeNormal     plane normal
+ *  \return signed distance
+ */
 template<class Type>
 inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 3, 1> &planePoint, const Eigen::Matrix<Type, 3, 1> &planeNormal)
 {
@@ -79,6 +119,11 @@ inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1> &point, const
   return line.dot(planeNormal);
 }
 
+/** \brief Get signed distance from point to plane
+ *  \param[in] point           point
+ *  \param[in] plane           plane coefficients
+ *  \return signed distance
+ */
 template<class Type>
 inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 4, 1> &plane)
 {
@@ -87,6 +132,12 @@ inline Type pointToPlaneSignedNorm(const Eigen::Matrix<Type, 3, 1> &point, const
   return pointToPlaneSignedNorm(point, planePoint, planeNormal);
 }
 
+/** \brief project point to plane
+ *  \param[in] point           point
+ *  \param[in] planePoint      plane point
+ *  \param[in] planeNormal     plane normal
+ *  \return point on plane
+ */
 template<class Type>
 inline Eigen::Matrix<Type, 3, 1> pointToPlaneProjection(const Eigen::Matrix<Type, 3, 1> &point, const Eigen::Matrix<Type, 3, 1> &planePoint, const Eigen::Matrix<Type, 3, 1> &planeNormal)
 {
@@ -94,6 +145,12 @@ inline Eigen::Matrix<Type, 3, 1> pointToPlaneProjection(const Eigen::Matrix<Type
   return point - planeNormal * pointToPlaneSignedNorm(point, planePoint, planeNormal);
 }
 
+/** \brief project cloud to plane
+ *  \param[in] cloud_in        cloud
+ *  \param[in] planePoint      plane point
+ *  \param[in] planeNormal     plane normal
+ *  \param[out] cloud_out       projected cloud
+ */
 template<typename PointT>
 inline void cloudToPlaneProjection(typename pcl::PointCloud<PointT>::Ptr &cloud_in, const Eigen::Vector3f &planePoint, const Eigen::Vector3f &planeNormal, typename pcl::PointCloud<PointT>::Ptr &cloud_out)
 {
@@ -105,6 +162,13 @@ inline void cloudToPlaneProjection(typename pcl::PointCloud<PointT>::Ptr &cloud_
   }
 }
 
+/** \brief get distance between two lines
+ *  \param[in] line1Point1      first point of first line
+ *  \param[in] line1Point2      second point of first line
+ *  \param[in] line2Point1      first point of second line
+ *  \param[in] line2Point2      second point of second line
+ *  \param[in] eps              error eps
+ */
 template<class Type>
 inline Type lineToLineNorm(const Eigen::Matrix<Type, 3, 1> &line1Point1,
                            const Eigen::Matrix<Type, 3, 1> &line1Point2,
@@ -124,6 +188,11 @@ inline Type lineToLineNorm(const Eigen::Matrix<Type, 3, 1> &line1Point1,
   return std::abs(line3.dot(line1.cross(line2))) / denom;
 }
 
+/** \brief get angle between two vectors (radian)
+ *  \param[in] v1      first vector
+ *  \param[in] v2      second vector
+ *  \return angle
+ */
 template<class Type>
 inline Type vecVecAngle(const Eigen::Matrix<Type, 3, 1> &v1,
                         const Eigen::Matrix<Type, 3, 1> &v2)
@@ -134,7 +203,12 @@ inline Type vecVecAngle(const Eigen::Matrix<Type, 3, 1> &v1,
   return std::acos(clamp(v1.dot(v2), -1.0f, 1.0f));
 }
 
-//vecter vector angle clockwise
+/** \brief get angle between two vectors followed clockwise of normal(radian)
+ *  \param[in] v1      first vector
+ *  \param[in] v2      second vector
+ *  \param[in] normal  reference normal
+ *  \return angle
+ */
 template<class Type>
 inline Type vecVecAngleClockwise(const Eigen::Matrix<Type, 3, 1> &v1,
                                  const Eigen::Matrix<Type, 3, 1> &v2,
@@ -148,6 +222,11 @@ inline Type vecVecAngleClockwise(const Eigen::Matrix<Type, 3, 1> &v1,
   return std::atan2(nom, denom);
 }
 
+/** \brief get angle between two lines(radian)
+ *  \param[in] v1      first line
+ *  \param[in] v2      second line
+ *  \return angle
+ */
 template<class Type>
 inline Type lineLineAngle(const Eigen::Matrix<Type, 3, 1> &v1,
                           const Eigen::Matrix<Type, 3, 1> &v2)
@@ -168,6 +247,11 @@ inline Type angleDifferent(const Type angle1, const Type angle2)
   return result;
 }
 
+/** \brief generate unit hemisphere points such that to point is symmetric through center point
+ *  \param[in]  division    division factor to angle step
+ *  \param[out] points      output array of points
+ *  \return false if division < 2
+ */
 inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f> &points)
 {
   points.clear();
@@ -214,6 +298,11 @@ inline bool generateHemisphere (const int division, std::vector<Eigen::Vector3f>
   return true;
 }
 
+/** \brief Get transformation matrix to align source vector to target vector
+ *  \param[in]  source    source vector
+ *  \param[in]  target    target vector
+ *  \return 3x3 transformation matrix
+ */
 template<typename Type>
 inline Eigen::Matrix<Type, 3, 3> getAlignMatrix(Eigen::Vector3f source, Eigen::Vector3f target)
 {

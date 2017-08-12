@@ -34,6 +34,10 @@ enum DownsampleMethod
   NEAREST_NEIGHBOR
 };
 
+/** \brief Data structure inherited from VoxelGrid to downsample the cloud and generate
+ *  a mapping from downsampled cloud to original cloud and vice versa.
+ *  It also provides a vector of indices to nearest point in original cloud from each downsampled point.
+ */
 template<typename PointT>
 class DownsampleMap : public pcl::VoxelGrid<PointT>
 {
@@ -41,11 +45,17 @@ private:
   DownsampleMethod downsampleMethod;
 
   typename pcl::PointCloud<PointT>::Ptr dsCloud;
-  std::vector< std::vector<int> > downsampleMap; // from downsample indices to original indices
-  std::vector<int> reversedMap; // from original indices to downsample indices
 
-  std::vector<int> nearestIndices; // store nearest index of each point for NEAREST NEIGHBOR method
+  /** \brief Store mapping from downsample indices to original indices. */
+  std::vector< std::vector<int> > downsampleMap;
 
+  /** \brief Store mapping from original indices to downsample indices. */
+  std::vector<int> reversedMap;
+
+  /** \brief Store nearest index of each point for NEAREST NEIGHBOR method. */
+  std::vector<int> nearestIndices;
+
+  /** \brief Clear all mappings and downsampled cloud. */
   inline void reset()
   {
     dsCloud.reset(new pcl::PointCloud<PointT>);
@@ -53,7 +63,8 @@ private:
     nearestIndices.clear();
   }
 
-  //use when already set indices
+  /** \brief Compute mapping from downsample indices to original indices.
+   *  \return false if filter function is not run first*/
   inline bool initDownsampleMap()
   {
     if(downsampleMap.empty())
@@ -90,6 +101,8 @@ private:
     return true;
   }
 
+
+  /** \brief Compute mapping from original indices to downsample indices. */
   inline void initReversedMap()
   {
     if(reversedMap.empty())
@@ -108,6 +121,7 @@ private:
     }
   }
 
+  /** \brief Compute a vector of indices to nearest point in original cloud from each downsampled point. */
   inline void initNearestPointIndices()
   {
     if(nearestIndices.empty())
@@ -127,6 +141,9 @@ private:
     }
   }
 
+  /** \brief Apply downsample method to downsample cloud.
+   *  \param[out] output  downsampled cloud
+   */
   virtual void applyFilter(pcl::PointCloud<PointT>& output)
   {
     if(dsCloud->points.empty())
@@ -147,48 +164,71 @@ private:
 
 public:
 
+  /** \brief Default Constructor. */
   DownsampleMap() : downsampleMethod(AVERAGE), dsCloud(new pcl::PointCloud<PointT>), downsampleMap(), nearestIndices()
   {
     this->setSaveLeafLayout(true);
   }
 
+  /** \brief Destructor. */
   ~DownsampleMap() {}
 
+  /** \brief Set input cloud.
+   *  \param[in]  cloud   original cloud
+   */
   virtual void setInputCloud(typename pcl::PointCloud<PointT>::Ptr &cloud)
   {
     pcl::VoxelGrid<PointT>::setInputCloud(cloud);
     this->reset();
   }
 
+  /** \brief Set input indices.
+   *  \param[in]  indices   pointer of considered indices of input cloud
+   */
   virtual void setIndices(pcl::PointIndices::Ptr &indices)
   {
     pcl::VoxelGrid<PointT>::setIndices(indices);
     this->reset();
   }
 
+  /** \brief Set downsample method.
+   *  \param[in]  dsMethod   downsample method
+   */
   inline void setDownsampleMethod(DownsampleMethod dsMethod)
   {
     downsampleMethod = dsMethod;
   }
 
+  /** \brief Set resolution of downsample.
+   *  \param[in]  leafSize   downsample resolution
+   */
   inline void setLeafSize(const float leafSize)
   {
     pcl::VoxelGrid<PointT>::setLeafSize(leafSize, leafSize, leafSize);
     this->reset();
   }
 
+  /** \brief Get downsample map from downsample indices to original indices.
+   *  \param[in]  dsMap   a vector of vector of int
+   */
   inline void getDownsampleMap(std::vector< std::vector<int> > &dsMap)
   {
     initDownsampleMap();
     dsMap = downsampleMap;
   }
 
+  /** \brief Get downsample map from original indices to downsampled indices.
+   *  \param[in]  reversed_map   a vector of int
+   */
   inline void getReversedMap(std::vector<int> &reversed_map)
   {
     initReversedMap();
     reversed_map = reversedMap;
   }
 
+  /** \brief Get vector of indices to nearest point in original cloud from each downsampled point.
+   *  \param[in]  reversed_map   a vector of int
+   */
   inline void getNearestNeighborMap(std::vector< int > &dsNearestMap)
   {
     initNearestPointIndices();
@@ -196,6 +236,14 @@ public:
   }
 };
 
+/** \brief Function to compute downsample normal cloud by AVERAGE or NEAREST_NEIGHBOR method.
+ *  \param[in]   in_normals      original normal cloud
+ *  \param[in]   dsMap           mapping from downsampled indices to original indices
+ *  \param[in]   dsNearestMap    vector of indices to nearest point in original cloud from each downsampled point.
+ *  \param[in]   method          downsample method
+ *  \param[out]  out_normals     downsampled normal cloud
+ *  \return false if dsNearestMap size is not equal to dsMap size
+ */
 //NOTE: this normal downsample method can use AVERAGE or NEAREST_NEIGHBOR method
 inline bool computeDownsampleNormals(pcl::PointCloud<pcl::Normal>::Ptr &in_normals,
                                      std::vector< std::vector<int> > &dsMap,
@@ -260,6 +308,13 @@ inline bool computeDownsampleNormals(pcl::PointCloud<pcl::Normal>::Ptr &in_norma
   return true;
 }
 
+
+/** \brief Function to upsample from downsampled cloud to original cloud.
+ *  \param[in]  dsIndices   downsampled indices
+ *  \param[in]  dsMap       mapping from downsampled indices to original indices
+ *  \param[out] usIndices   upsampled indices
+ *  \return false if downsampled map is empty
+ */
 inline bool upsample_cloud(const std::vector<int> &dsIndices,
                            const std::vector< std::vector<int> > &dsMap,
                            std::vector<int> &usIndices)

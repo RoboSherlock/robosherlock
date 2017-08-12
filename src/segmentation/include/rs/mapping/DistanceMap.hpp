@@ -31,22 +31,36 @@
 
 #include <vector>
 
+/** \brief Data structure to compute nearest occlusion distance from a specified point to
+ *  other points. If the point is outside bounding planes, the distance is
+ *  closest to one of bounding planes, in case this distance is larger than closest distance to other point.
+ */
 template<typename PointT>
 class DistanceMap
 {
 private:
+
+  /** \brief search tree. */
   typename pcl::octree::OctreePointCloudSearch<PointT>::Ptr octree;
   float resolution;
 
+  /** \brief Bounding planes. */
   std::vector<Eigen::Vector4f> bounding_planes;
 public:
   typedef boost::shared_ptr< DistanceMap<PointT> > Ptr;
 
+  /** \brief Empty constructor. */
   DistanceMap() : resolution(0.0) {}
+
+  /** \brief Constructor to set resolution for OcTree. */
   DistanceMap(float res) : resolution(res) {}
 
+  /** \brief destructor. */
   ~DistanceMap() {}
 
+  /** \brief Set input cloud for search tree
+   *  \param[in] cloud  Point cloud
+   *  \return false if cloud size if lower than 3*/
   bool setInputCloud(typename pcl::PointCloud<PointT>::Ptr &cloud)
   {
     if(cloud->points.size() < 3)
@@ -62,6 +76,10 @@ public:
     return true;
   }
 
+  /** \brief Set bounding planes that cover the whole specified cloud
+   *  \param[in] planes    a vector of plane coefficients
+   *  \param[in] offsets   a vector of factor to translate planes along their normals
+   *  \return false if size of offsets and planes are not equal*/
   bool setBoundingPlanes(const std::vector<Eigen::Vector4f> &planes, const std::vector<float> &offset = std::vector<float>(0))
   {
     if(offset.size() == 0)
@@ -89,11 +107,20 @@ public:
     return true;
   }
 
+  /** \brief Set resolution for search tree
+   *  \param[in] resolution
+   */
   void setResolution(float res)
   {
     resolution = res;
   }
 
+  /** \brief Get nearest occlusion distance from specified point
+   *  \param[in]  point         specified point
+   *  \param[out] result_index  index of the nearest point, equal to -1 if it is a plane
+   *  \param[out] sqr_dist      nearest occlusion distance
+   *  \return false if input cloud is not set yet
+   */
   bool getNearestOccupiedDistance(PointT &point, int &result_index, float &sqr_dist)
   {
     if(!octree)
@@ -119,6 +146,11 @@ public:
   }
 
 private:
+
+  /** \brief Get nearest occlusion distance from specified point to bounding planes
+   *  \param[in]  point         specified point
+   *  \return nearest occlusion distance to planes
+   */
   float getMinDistToBoundingPlane(Eigen::Vector3f &point)
   {
     float dist = std::numeric_limits<float>::max();

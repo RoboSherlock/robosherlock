@@ -23,7 +23,10 @@
 #include <rs/graph/GraphBase.h>
 #include <rs/graph/GraphPrimitives.h>
 
-
+/** \brief Breadth first search algorithm to find connected components in a graph.
+ *  \param[in]  graph      GraphBase<Vertex, Edge>
+ *  \return a vector of vector of integer represents cluster of connected component indices
+ */
 template<typename Vertex, typename Edge>
 inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<Vertex, Edge> &graph);
 

@@ -40,6 +40,7 @@ class SegmentationResultDisplayer : public DrawingAnnotator
 
 private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
+  cv::Mat rgb_;
 
   int numSegments;
 
@@ -157,6 +158,8 @@ private:
       }
     }
 
+    cas.get(VIEW_COLOR_IMAGE,rgb_);
+
     return UIMA_ERR_NONE;
   }
 
@@ -177,6 +180,14 @@ private:
       visualizer.removeAllShapes();
       visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0);
     }
+  }
+
+  void drawImageWithLock(cv::Mat &disp)
+  {
+    if(cv::countNonZero(rgb_) > 0)
+    {
+      disp=rgb_.clone();
+    }    
   }
 
 };
