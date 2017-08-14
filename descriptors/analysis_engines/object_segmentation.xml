@@ -269,6 +269,226 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
+        <name>rotSymAnn_min_fit_angle</name>
+        <description>Minimum fit angle of a normal to symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_min_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_max_fit_angle</name>
+        <description>Maximum fit angle of a normal to symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_max_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_min_occlusion_dist</name>
+        <description>Lower bound for occlusion scoring</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_min_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_max_occlusion_dist</name>
+        <description>Upper bound for occlusion scoring</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_max_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_max_sym_score</name>
+        <description>Maximum symmetry score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_max_sym_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_max_occlusion_score</name>
+        <description>Maximum occlusion score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_max_occlusion_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_max_perpendicular_score</name>
+        <description>Maximum perpendicular score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_max_perpendicular_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymAnn_min_coverage_score</name>
+        <description>Minimum coverage score for a valid symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetryAnnotator/rotSymAnn_min_coverage_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_isDownsampled</name>
+        <description>A switch to turn downsample on or off</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_isDownsampled</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_adjacency_radius</name>
+        <description>Radius to search to construct point cloud map</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_adjacency_radius</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_num_adjacency_neighbors</name>
+        <description>Number of neighbor for construct point cloud map</description>
+        <type>Integer</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_num_adjacency_neighbors</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_adjacency_weight_factor</name>
+        <description>Weight importance of adjacency map</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_adjacency_weight_factor</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_min_fit_angle</name>
+        <description>Minimum fit angle for symmetry score for each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_min_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_fit_angle</name>
+        <description>Maximum fit angle for symmetry score for each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_fit_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_min_occlusion_dist</name>
+        <description>Lower bound for occlusion scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_min_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_occlusion_dist</name>
+        <description>Upper bound for occlusion scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_occlusion_dist</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_perpendicular_angle</name>
+        <description>Upper bound angle for perpendicular scores of each symmetry</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_perpendicular_angle</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_fg_weight_factor</name>
+        <description>Foreground weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_fg_weight_factor</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_bg_weight_factor</name>
+        <description>Background weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_bg_weight_factor</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_sym_score</name>
+        <description>Background weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_sym_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_occlusion_score</name>
+        <description>Background weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_occlusion_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>rotSymSeg_max_cut_score</name>
+        <description>Background weight importance</description>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>RotationalSymmetrySegmentation/rotSymSeg_max_cut_score</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
         <name>bilSymAnn_isDownsampled</name>
         <description>Turn downsample for better performance</description>
         <type>Boolean</type>
@@ -651,6 +871,138 @@
         </value>
       </nameValuePair>
       <nameValuePair>
+        <name>rotSymAnn_min_fit_angle</name>
+        <value>
+          <float>0.1f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_max_fit_angle</name>
+        <value>
+          <float>1.1f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_min_occlusion_dist</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_max_occlusion_dist</name>
+        <value>
+          <float>0.07f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_max_sym_score</name>
+        <value>
+          <float>0.6f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_max_occlusion_score</name>
+        <value>
+          <float>0.3f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_max_perpendicular_score</name>
+        <value>
+          <float>0.4f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymAnn_min_coverage_score</name>
+        <value>
+          <float>0.5f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_isDownsampled</name>
+        <value>
+          <boolean>true</boolean>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_adjacency_radius</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_num_adjacency_neighbors</name>
+        <value>
+          <integer>12</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_adjacency_weight_factor</name>
+        <value>
+          <float>5.0f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_min_fit_angle</name>
+        <value>
+          <float>0.1f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_max_fit_angle</name>
+        <value>
+          <float>1.1f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_min_occlusion_dist</name>
+        <value>
+          <float>0.01f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_max_occlusion_dist</name>
+        <value>
+          <float>0.175f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_max_perpendicular_angle</name>
+        <value>
+          <float>1.055f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_fg_weight_factor</name>
+        <value>
+          <float>2.5f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>rotSymSeg_bg_weight_factor</name>
+        <value>
+          <float>1.65f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>rotSymSeg_max_sym_score</name>
+          <value>
+              <float>0.4f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>rotSymSeg_max_occlusion_score</name>
+          <value>
+              <float>0.5f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
+          <name>rotSymSeg_max_cut_score</name>
+          <value>
+              <float>0.4f</float>
+          </value>
+      </nameValuePair>
+      <nameValuePair>
           <name>bilSymAnn_isDownsampled</name>
           <value>
               <boolean>true</boolean>
@@ -840,8 +1192,12 @@
        <node>PointNormalNaNFilter</node>
        <node>PlaneAnnotator</node>
        <node>OverSegmentationAnnotator</node>
+       <node>RotationalSymmetryAnnotator</node>
+       <node>RotationalSymmetrySegmentation</node>
+       <node>OverSegmentationAnnotator</node>
        <node>BilateralSymmetryAnnotator</node>
        <node>BilateralSymmetrySegmentation</node>
+       <node>SegmentationResultDisplayer</node>
        <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>
