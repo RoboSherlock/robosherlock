@@ -28,6 +28,7 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/io/CamInterface.h>
+
 #include <sensor_msgs/CameraInfo.h>
 
 //OpenCV
@@ -61,6 +62,7 @@ private:
   double depth_scaling_factor;
 
   int index_; // aka frameID, indexing for file list
+
   int data_size;
 
   double frameRate;
@@ -90,6 +92,5 @@ public:
     d = this->depth.clone();
   }
 };
-
 
 #endif //  __DATA_LOADER_BRIDGE_H__

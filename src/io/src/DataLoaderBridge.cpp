@@ -213,7 +213,6 @@ bool DataLoaderBridge::getListFile(std::string &path, std::vector<std::string> &
   return true;
 }
 
-
 bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
 {
   boost::optional< const boost::property_tree::ptree& > foundCloud;

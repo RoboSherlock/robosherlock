@@ -24,12 +24,14 @@ env:
     - ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
     - ROS_PARALLEL_JOBS='-j8 -l6'
     - CI_SOURCE_PATH=$(pwd)
+    - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
     - UIMA_HOME=$HOME/local/src/uimacpp/
     - MONGO_HOME=$HOME/local/src/mongo-cxx-driver/
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
+  - pip install --user cpp-coveralls
   - sudo apt-get update -qq
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
@@ -78,4 +80,9 @@ script:
   - source devel/setup.bash
   - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
-  - catkin_make
+  - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
+  - source devel/setup.bash
+  - catkin_make run_tests_robosherlock
+
+after_script:
+  - coveralls --root . -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
