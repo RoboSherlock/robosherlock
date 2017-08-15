@@ -251,4 +251,90 @@ inline void linearizeSegmentData(typename std::vector< std::vector<Type> > &segm
   }
 }
 
+inline bool readGroundTruth (const std::string &filename, std::vector< std::vector<int> > &segmentation)
+{
+  std::ifstream file(filename);
+  if (!file.is_open())
+  {
+    std::cout << "[readGroundTruth] Could not open file for reading ('" << filename << "')." << std::endl;
+    return false;
+  }
+
+  segmentation.resize(0);
+
+  int numSegments;
+  std::string line;
+  file >> numSegments;
+
+  if (numSegments < 0)
+  {
+    std::cout << "[readGroundTruth] Number of segments is smaller than 0, segmentation file is corrupted." << std::endl;
+    std::cout << "[readGroundTruth] In file: " << filename << std::endl;
+    return false;
+  }
+  else if (numSegments == 0)
+  {
+    std::cout << "[readGroundTruth] File contains 0 segments." << std::endl;
+    std::cout << "[readGroundTruth] In file: " << filename << std::endl;
+    return true;
+  }
+
+  file >> line;
+
+  // Read segment point indices
+  int numSegmentsRead = 0;
+  bool done = false;
+  file >> line;
+
+  while (!done)
+  {
+    // Read segment header
+    int segIdRead;
+    file >> segIdRead;
+
+    if (segIdRead != numSegmentsRead)
+    {
+      std::cout << "[readGroundTruth] Unexpected segment id. Expected " << numSegmentsRead << ", got " << segIdRead << std::endl;
+      std::cout << "[readGroundTruth] Segmentation file is corrupted." << std::endl;
+      std::cout << "[readGroundTruth] In file: " << filename << std::endl;
+      return false;
+    }
+
+    numSegmentsRead++;
+    segmentation.push_back(std::vector<int> ());
+    file >> line;
+
+    // Read point indices
+    while (!file.eof())
+    {
+      file >> line;
+      if (line == "--------------------" || line == "")
+      {
+        break;
+      }
+      else
+      {
+        int pointId = std::stoi(line);
+        segmentation[segIdRead].push_back(pointId);
+        line.clear();
+      }
+    }
+
+    if (file.eof())
+    {
+      done = true;
+    }
+  }
+
+  // Check that number of segments read is the same as number of segments in the header
+  if (numSegments != numSegmentsRead)
+  {
+    std::cout << "[readGroundTruth] Expected " << numSegments << " segments, was able to read " << numSegmentsRead << " segments." << std::endl;
+    std::cout << "[readGroundTruth] Segmentation file is corrupted." << std::endl;
+    std::cout << "[readGroundTruth] In file: " << filename << std::endl;
+  }
+
+  return true;
+}
+
 #endif // __ARRAY_UTILS_HPP__

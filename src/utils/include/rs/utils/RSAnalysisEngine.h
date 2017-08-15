@@ -23,6 +23,7 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
+#include <rs/utils/RSPipelineManager.h>
 
 #include <uima/api.hpp>
 
@@ -35,6 +36,7 @@ public:
 protected:
   uima::AnalysisEngine *engine;
   uima::CAS *cas;
+  RSPipelineManager *rspm;
 
 public:
 
@@ -44,6 +46,8 @@ public:
 
   virtual void init(const std::string &file);
 
+  void initPipelineManager();
+
   void stop();
 
   virtual void process();
@@ -52,9 +56,15 @@ public:
   {
     cas->reset();
   }
+
   uima::CAS* getCas()
   {
-      return cas;
+    return cas;
+  }
+
+  RSPipelineManager* getPipelineManager()
+  {
+    return rspm;
   }
 
 };
