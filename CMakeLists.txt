@@ -17,6 +17,7 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
 ################################################################################
 ## Configure project configuration files                                      ##
@@ -114,7 +115,7 @@ set(RS_LIBS
 
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS}
-  LIBRARIES ${RS_LIBS} 
+  LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge
   DEPENDS Boost OpenCV APR PCL Eigen UIMA ICUUC MongoClientLibrary
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
@@ -170,3 +171,12 @@ add_subdirectory(src/tracking)
 ################################################################################
 ## Testing                                                                    ##
 ################################################################################
+
+catkin_add_gtest(${PROJECT_NAME}-test
+    test/main.cpp
+    test/segmentation/symmetry_segmentation_test.cpp)
+target_link_libraries(${PROJECT_NAME}-test
+    rs_analysisEngineManager
+    rs_core
+    rs_io
+    rs_utils)
