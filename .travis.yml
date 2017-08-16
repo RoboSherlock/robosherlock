@@ -82,7 +82,10 @@ script:
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
   - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
+  - roscore&
   - catkin_make run_tests_robosherlock
+  - killall -9 roscore
+  - killall -9 rosmaster
 
 after_script:
   - coveralls --root . -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
