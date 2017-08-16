@@ -47,6 +47,8 @@ private:
 
 private:
   bool useThermal, useRGB;
+  bool receiveRGB;
+  float radiusSearch;
   cv::Mat rgb_;
   enum
   {
@@ -77,6 +79,16 @@ public:
     else
     {
       useRGB = true;
+    }
+
+    if(ctx.isParameterDefined("radiusSearch"))
+    {
+      ctx.extractValue("radiusSearch", radiusSearch);
+    }
+
+    if(ctx.isParameterDefined("receiveRGB"))
+    {
+      ctx.extractValue("receiveRGB", receiveRGB);
     }
 
     return UIMA_ERR_NONE;
@@ -110,7 +122,7 @@ public:
     if(useRGB && cas.get(VIEW_CLOUD, *cloud_ptr))
     {
       outInfo("Cloud Size: "<<cloud_ptr->points.size());
-      pcl::io::savePCDFileASCII("mycloud.pcd",*cloud_ptr);
+      //pcl::io::savePCDFileASCII("mycloud.pcd",*cloud_ptr);
       if(cloud_ptr->isOrganized())
       {
         compute_normals_pcl(cloud_ptr, normals_ptr);
@@ -122,7 +134,8 @@ public:
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
     }
-    cas.get(VIEW_COLOR_IMAGE,rgb_);
+    if(receiveRGB)
+      cas.get(VIEW_COLOR_IMAGE,rgb_);
 
     return UIMA_ERR_NONE;
   }
@@ -143,7 +156,8 @@ public:
     ne.setInputCloud(cloud_ptr);
     pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA>());
     ne.setSearchMethod(tree);
-    ne.setRadiusSearch(0.03);
+    ne.setRadiusSearch(radiusSearch);
+    outInfo("Normal Radius search = " << radiusSearch);
     ne.compute(*normals_ptr);
     outInfo("  Normal Cloud Size: " FG_BLUE << normals_ptr->points.size());
   }
@@ -199,7 +213,8 @@ public:
 
   void drawImageWithLock(cv::Mat &disp)
   {
-    disp=rgb_.clone();
+    if (receiveRGB)
+      disp=rgb_.clone();
   }
 };
 
