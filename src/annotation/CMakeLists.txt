@@ -30,6 +30,10 @@ target_link_libraries(rs_SuperVoxelAnnotator rs_core)
 rs_add_library(rs_pclDescriptorExtractor src/PCLDescriptorExtractor.cpp)
 target_link_libraries(rs_pclDescriptorExtractor rs_core)
 
+include_directories(BEFORE ${PCL_INCLUDE_DIRS})
+rs_add_library(rs_contourFittingClassifier src/ContourFittingClassifier.cpp)
+target_link_libraries(rs_contourFittingClassifier rs_core)
+
 if(Caffe_FOUND)
   rs_add_library(rs_CaffeAnnotator src/CaffeAnnotator.cpp)
   target_link_libraries(rs_CaffeAnnotator rs_core rs_caffeProxy)

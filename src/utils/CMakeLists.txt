@@ -1,8 +1,12 @@
 project(rs_utils)
 
+# TODO: get rid of it
+include_directories(BEFORE ${PCL_INCLUDE_DIRS})
 add_library(rs_utils SHARED
-  src/DepthImageProcessing.cpp
   src/BlurDetector.cpp
+  src/DepthImageProcessing.cpp
+  src/GeometryCV.cpp
+  src/Drawing.cpp
 )
 target_link_libraries(rs_utils rs_core)
 
