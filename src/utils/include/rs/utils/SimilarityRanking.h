@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <iterator>
 #include <set>
+#include <type_traits>
 #include <map>
 #include <mutex>
 #include <vector>
@@ -31,7 +32,8 @@
 /// \class RankingItem<ClassId, SampleId> SimilarityRanking.h
 template <typename ClassId, typename SampleId>
 class RankingItem {
-  static_assert(std::is_scalar<SampleId>::value, "`SampleId` is not a scalar type");
+  static_assert(std::is_scalar<SampleId>::value,
+                "`SampleId` is not a scalar type");
 
   /// \brief Type of item's class identifier
   public: using class_id_t = ClassId;
@@ -40,34 +42,40 @@ class RankingItem {
   public: using sample_id_t = SampleId;
 
   /// \brief Constructor
-  /// \param[in] c_id  Item's class identifier
-  /// \param[in] s_id  Item's sample identifier
+  /// \param[in] cId  Item's class identifier
+  /// \param[in] sId  Item's sample identifier
   /// \param[in] score Score of this item
-  public: RankingItem(const ClassId c_id, const SampleId s_id, const double score):
-      classId(c_id), sampleId(s_id), score(score) {
+  public: RankingItem(const ClassId cId, const SampleId sId,
+                      const double score):
+      classId(cId), sampleId(sId), score(score)
+  {
   }
 
   /// \brief Accessor for class id
   /// \return Class identifier
-  public: ClassId getClass() const noexcept {
+  public: ClassId getClass() const noexcept
+  {
     return this->classId;
   }
 
   /// \brief Accessor for sample id
   /// \return Sample identifier
-  public: SampleId getSampleId() const noexcept {
+  public: SampleId getSampleId() const noexcept
+  {
     return this->sampleId;
   }
 
   /// \brief Accessor for item's score
   /// \return Item's score
-  public: double getScore() const noexcept {
+  public: double getScore() const noexcept
+  {
     return this->score;
   }
 
   /// \brief Mutator for item's score
   /// \param[in] value New score
-  public: void setScore(double value) noexcept {
+  public: void setScore(double value) noexcept
+  {
     this->score = value;
   }
 
@@ -84,7 +92,8 @@ class RankingItem {
 template <typename RankingItem_t>
 class SimilarityRanking {
   // TODO: check if it is correct type
-  // static_assert(std::is_base_of<::RankingItem, RankingItem_t>::value, "`RankingItem_t` is not an instance of RankingItem<Cid, Sid>");
+  // static_assert(std::is_base_of<::RankingItem, RankingItem_t>::value,
+  //     "`RankingItem_t` is not an instance of RankingItem<Cid, Sid>");
 
   /// \brief Type of item's class identifier
   public: using ClassId = typename RankingItem_t::class_id_t;
@@ -97,7 +106,8 @@ class SimilarityRanking {
 
   /// \brief Get number of stored items
   /// \return Number of stored items
-  public: size_t size() noexcept {
+  public: size_t size() noexcept
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
     size_t count = 0;
 
@@ -108,27 +118,31 @@ class SimilarityRanking {
   }
 
   /// \brief Add new elemnt to the ranking
-  /// \param[in] ri A new ranking item to add
+  /// \param[in] newItem A new ranking item to add
   ///   Items of different class are stored in buckets, ordered by sample id
-  public: void addElement(const RankingItem_t &ri) {
+  public: void addElement(const RankingItem_t &newItem)
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
-    auto it = this->items.find(ri.getClass());
+    auto it = this->items.find(newItem.getClass());
     if (it != this->items.end())
-      it->second.push_back(ri);
+      it->second.push_back(newItem);
     else {
-      this->items.emplace(ri.getClass(), std::vector<RankingItem_t>{ri});
+      this->items.emplace(newItem.getClass(),
+                          std::vector<RankingItem_t>{newItem});
     }
   }
 
   /// \brief Get n items of the highest score
   /// \param[in] n=1 Number of items to get
   /// \return        Vector of ranking items
-  ///   Will return all the items it has if `n` is larger than number of items contained
-  public: std::vector<RankingItem_t> getTop(const size_t n = 1) {
+  ///   Will return all the items it has if `n` is larger than
+  ///   the number of items contained
+  public: std::vector<RankingItem_t> getTop(const size_t n = 1)
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
-    // put all classes in a big heap and get a top (not optimal, but will work for now)
+    // put all classes in a heap and get a top (hacky, but will work for now)
     std::set<RankingItem_t, LessScoreCmp> heap;
 
     for (auto &class_i : this->items)
@@ -136,22 +150,26 @@ class SimilarityRanking {
         heap.insert(ri);
 
     auto num = std::min(n, heap.size());
-    std::vector<RankingItem_t> result(heap.rbegin(), std::next(heap.rbegin(), num));
+    std::vector<RankingItem_t> result(heap.rbegin(),
+                                      std::next(heap.rbegin(), num));
 
     return result;
   }
 
   /// \brief Reject all items which are not local maxima in a neighborhood of given radius
   /// \param[in] radius Half of the neighborhood size to expect
-  ///   For each item, items of the same class and adjacent sample id's are expected,
-  ///   if for current item there are other items with higher score, the item is rejected
-  public: void supressNonMaximum(const SampleId radius) {
+  ///   For each item, neighboring sample id's are expected, if for current
+  ///   item there exist other item with higher score, the item is rejected
+  public: void supressNonMaximum(const SampleId radius)
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
-    for (auto &class_i : this->items) {
+    for (auto &class_i : this->items)
+    {
       auto &rankItems = class_i.second;
 
-      auto isNotLocalMaximum = [&radius, &rankItems] (const RankingItem_t &item) {
+      auto isNotLocalMaximum = [&radius, &rankItems] (const RankingItem_t &item)
+      {
         bool isMaximum = true;
         auto offset = &item - &*rankItems.cbegin();
         auto it = std::next(rankItems.begin(), offset);
@@ -164,17 +182,23 @@ class SimilarityRanking {
         return !isMaximum;
       };
 
-      rankItems.erase(std::remove_if(rankItems.begin(), rankItems.end(), isNotLocalMaximum), rankItems.end());
-      // non-maximum supression should't remove all items from soem class, so no empty classes cleanup needed
+      rankItems.erase(
+        std::remove_if(rankItems.begin(), rankItems.end(), isNotLocalMaximum),
+        rankItems.end());
+      // non-maximum supression should't remove all items from some class,
+      // so no empty classes cleanup needed
     }
   }
 
   /// \brief Finds the maximal score among stored items
   /// \return Maximal score
-  public: double getMaxScore() {
+  public: double getMaxScore()
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
-    double max_score = std::accumulate(this->begin(), this->end(), std::numeric_limits<double>::lowest(),
+    double max_score = std::accumulate(
+        this->begin(), this->end(),
+        std::numeric_limits<double>::lowest(),
         [](const double acc, const RankingItem_t &ri) {
           return std::max(ri.getScore(), acc);
         });
@@ -185,7 +209,8 @@ class SimilarityRanking {
   /// \brief Bring all items to common scale - [0, 1] range
   /// \return Maximal score
   ///   It's assumed that scores are non-negative
-  public: double normalize() {
+  public: double normalize()
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
     auto max_score = this->getMaxScore();
@@ -199,17 +224,21 @@ class SimilarityRanking {
 
   /// \brief Reject all items which score is lower than given threshold
   /// \param[in] minLevel Threshold value
-  public: void filter(const double minLevel) {
+  public: void filter(const double minLevel)
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
-    for (auto &class_i : this->items) {
+    for (auto &class_i : this->items)
+    {
       auto &rankItems = class_i.second;
       
-      auto isItemBad = [&minLevel] (const RankingItem_t &item) {
+      auto isItemBad = [&minLevel] (const RankingItem_t &item)
+      {
         return (item.getScore() < minLevel);
       };
 
-      rankItems.erase(std::remove_if(rankItems.begin(), rankItems.end(), isItemBad), rankItems.end());
+      rankItems.erase(std::remove_if(rankItems.begin(), rankItems.end(),
+                                     isItemBad), rankItems.end());
     }
 
     this->removeEmptyClasses();
@@ -217,50 +246,56 @@ class SimilarityRanking {
 
   /// \brief Create a table of all stored items
   /// \return Vector of items' scores
-  public: std::vector<double> getHistogram() {
+  public: std::vector<double> getHistogram()
+  {
     std::lock_guard<std::mutex> lock(this->itemsLock);
 
     std::vector<double> result;
-    for (auto sample_it = this->begin() ; sample_it != this->end(); ++sample_it) {
-      result.push_back(sample_it->getScore());
-    }
+    for (auto sampleIt = this->begin(); sampleIt != this->end(); ++sampleIt)
+      result.push_back(sampleIt->getScore());
 
     return result;
   }
 
   /// \class SimilarityRanking::Iterator SimilarityRanking.h
   /// \brief Forward Iterator for SimilarityRanking items
-  public: class Iterator : public std::iterator<std::forward_iterator_tag, RankingItem_t> {
+  public: class Iterator : public std::iterator<std::forward_iterator_tag,
+                                                RankingItem_t>
+  {
     /// \brief An iterator on class buckests
-    public: typename Container_t::iterator class_it;
+    public: typename Container_t::iterator classIt;
 
     /// \brief An iterator pointing to the end of the class buckets container
-    public: typename Container_t::iterator class_it_end;
+    public: typename Container_t::iterator classItEnd;
 
     /// \brief An iterator on the samples inside class bucket
-    public: typename Container_t::mapped_type::iterator sample_it;
+    public: typename Container_t::mapped_type::iterator sampleIt;
 
     /// \brief Constructor
     public: Iterator() = default;
 
     /// \brief Constructor
-    /// \param[in] c_it     An iterator on class buckests
-    /// \param[in] c_it_end An iterator pointing to the end of the class buckets container
-    /// \param[in] s_it     An iterator on the samples inside class bucket
-    public: Iterator(decltype(class_it) c_it, decltype(class_it) c_it_end, decltype(sample_it) s_it):
-        class_it(c_it), class_it_end(c_it_end), sample_it(s_it) {
+    /// \param[in] cIt    An iterator on class buckests
+    /// \param[in] cItEnd An iterator pointing to the end of the class buckets container
+    /// \param[in] sIt    An iterator on the samples inside class bucket
+    public: Iterator(decltype(classIt) cIt,
+                     decltype(classIt) cItEnd,
+                     decltype(sampleIt) sIt):
+        classIt(cIt), classItEnd(cItEnd), sampleIt(sIt)
+    {
     }
 
     /// \brief Iterator post-increment
     /// \return Reference to iterator pointing to current element
-    public: Iterator &operator ++ () {
-      if (this->sample_it != std::prev(this->class_it->second.end()))
-        ++(this->sample_it);
+    public: Iterator &operator ++ ()
+    {
+      if (this->sampleIt != std::prev(this->classIt->second.end()))
+        ++(this->sampleIt);
       else {
-        if (this->class_it != std::prev(this->class_it_end))
-          this->sample_it = (++this->class_it)->second.begin();
+        if (this->classIt != std::prev(this->classItEnd))
+          this->sampleIt = (++this->classIt)->second.begin();
         else
-          ++(this->sample_it); // go for end()
+          ++(this->sampleIt); // go for end()
       }
 
       return *this;
@@ -268,7 +303,8 @@ class SimilarityRanking {
 
     /// \brief Iterator pre-increment
     /// \return A new iterator pointing to the next element in collection
-    public: Iterator operator ++ (int) {
+    public: Iterator operator ++ (int)
+    {
       Iterator retval = *this;
       this->operator ++ ();
 
@@ -278,53 +314,63 @@ class SimilarityRanking {
     /// \brief Equality operator
     /// \param[in] it Another iterator to compare to
     /// \return       True if iterators point to the same element in collection
-    public: bool operator == (Iterator it) const {
-      return (this->class_it == it.class_it && this->sample_it == it.sample_it);
+    public: bool operator == (Iterator it) const
+    {
+      return (this->classIt == it.classIt && this->sampleIt == it.sampleIt);
     }
 
     /// \brief In equality operator
     /// \param[in] it Another iterator to compare to
     /// \return       True if iterators do not point to the same element in collection
-    public: bool operator != (Iterator it) const {
+    public: bool operator != (Iterator it) const
+    {
       return !(*this == it);
     }
 
     /// \brief Dereference operator
     /// \return A reference to item an iterator points to
-    RankingItem_t &operator * () const {
-      return *sample_it;
+    RankingItem_t &operator * () const
+    {
+      return *sampleIt;
     }
 
     /// \brief Arrow(Member access) operator
     /// \return A C pointer to an item iterator points to
-    RankingItem_t *operator -> () const {
-      return &*sample_it;
+    RankingItem_t *operator -> () const
+    {
+      return &*sampleIt;
     }
   };
 
   /// \brief Get an iterator to the first element in collection
   /// \return An iterator if the collection is nor empty
-  public: Iterator begin() {
+  public: Iterator begin()
+  {
     assert(!this->items.empty());
 
-    return Iterator{this->items.begin(), this->items.end(), this->items.begin()->second.begin()};
+    return Iterator{this->items.begin(),
+                    this->items.end(),
+                    this->items.begin()->second.begin()};
   }
 
   /// \brief Get an iterator to the element after the last one in collection
   /// \return An iterator if the collection is nor empty
-  public: Iterator end() {
+  public: Iterator end()
+  {
     assert(!this->items.empty());
 
     Iterator it;
-    it.class_it = std::prev(this->items.end());
-    it.sample_it = it.class_it->second.end();
+    it.classIt = std::prev(this->items.end());
+    it.sampleIt = it.classIt->second.end();
 
     return it;
   }
 
   /// \brief Removes buckets of the classes which no longer have samples
-  protected: void removeEmptyClasses() {
-    for(auto it = this->items.begin(); it != this->items.end();) {
+  protected: void removeEmptyClasses()
+  {
+    for(auto it = this->items.begin(); it != this->items.end();)
+    {
       if (it->second.size() == 0)
         it = this->items.erase(it);
       else
@@ -339,7 +385,9 @@ class SimilarityRanking {
     /// \param[in] a LHS item
     /// \param[in] b RHS item
     /// \return      True if a's score is less than b's score
-    public: bool operator()(const RankingItem_t &a, const RankingItem_t &b) const {
+    public: bool operator()(const RankingItem_t &a,
+                            const RankingItem_t &b) const
+    {
       return (a.getScore() < b.getScore());
     }
   };

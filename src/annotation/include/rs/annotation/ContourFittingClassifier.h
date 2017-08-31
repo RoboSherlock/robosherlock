@@ -56,7 +56,8 @@ using namespace uima;
 /** \struct Mesh ContourFittingClassifier.cpp
  *  \brief Holds a polygon mesh vertices, triangles and normals
  */
-struct Mesh {
+struct Mesh
+{
   /// \brief Vertices of the mesh
   std::vector<cv::Point3f> points;
 
@@ -79,23 +80,27 @@ struct Mesh {
 
 /// \brief Extracts edges from image region into an array of points
 /// \param[in] grayscale  An 8bit grayscale source image
-/// \param[in] input_roi  A region where to look for edges
+/// \param[in] inputROI   A region where to look for edges
 /// \return               std::vector of 2d points originating from the top-left corner of the image
 ///   Threshold for canny operator is chosen automatically
-std::vector<cv::Point2f> getCannyEdges(const cv::Mat &grayscale, const cv::Rect &input_roi);
+std::vector<cv::Point2f> getCannyEdges(const cv::Mat &grayscale,
+                                       const cv::Rect &inputROI);
 
 /// \brief Save 3d point to pcd file (for debug purposes)
 /// \param[in] filename Path to store file to
-/// \param[in] pts      std::vector of 3d points
-void saveToFile(const std::string filename, const std::vector<cv::Point3f> &pts);
+/// \param[in] points      std::vector of 3d points
+void saveToFile(const std::string filename,
+                const std::vector<cv::Point3f> &points);
 
 /// \brief Check if lookup tables are valid, and fill-in if not
 /// \param[in]  camera  A camera object to create tables for
 /// \param[in]  size    Size of the image produced by camera
 /// \param[out] lookupX Horisontal lookup table
 /// \param[out] lookupY Vertical lookup table
-///   Lookup tables are ussed to get 3d coordinates of each observed point on image, multiplying it's value from the lookup table on depth at given point
-void checkViewCloudLookup(const ::Camera &camera, const cv::Size size, cv::Mat &lookupX, cv::Mat &lookupY);
+///   Lookup tables are ussed to get 3d coordinates of each observed point on
+///   image, multiplying it's value from the lookup table on depth at given point
+void checkViewCloudLookup(const ::Camera &camera, const cv::Size size,
+                          cv::Mat &lookupX, cv::Mat &lookupY);
 
 /// \brief Convert [0,infinity) distance to to a score value, which is higher if the distance is smaller
 /// \param[in] distance Some value in range (0, +infinity)
@@ -112,7 +117,8 @@ std::tuple<pcl::PointCloud<pcl::PointXYZRGBA>::Ptr, std::vector<pcl::Vertices>>
 
 /// \class MeshFootprint ContourFittingClassifier.cpp
 /// \brief Stores an outer silhouette of a mesh at a specific pose using given camera
-class MeshFootprint {
+class MeshFootprint
+{
   /// \brief Outer silhouette of mesh
   public: std::vector<cv::Point2f> outerEdge;
 
@@ -123,18 +129,19 @@ class MeshFootprint {
   public: ::PoseRT pose;
 
   /// \brief Constructor
-  /// \param[in]  mesh    A mesh of which to create a footprint
-  /// \param[in]  pose    Transformation applied to mesh before projecting
-  /// \param[in]  camera  Camera which is used to project points
-  /// \param[in]  im_size Size of the image to rasterize image on (defines density of points)
-  /// \param[in]  offset  Shift mesh before rotation to median point if true
+  /// \param[in]  mesh      A mesh of which to create a footprint
+  /// \param[in]  pose      Transformation applied to mesh before projecting
+  /// \param[in]  camera    Camera which is used to project points
+  /// \param[in]  imageSize Size of the image to rasterize image on (defines density of points)
+  /// \param[in]  offset    Shift mesh before rotation to median point if true
   public: MeshFootprint(const ::Mesh &mesh, const ::PoseRT &pose,
-      ::Camera &camera, const int im_size, const bool offset = true);
+      ::Camera &camera, const int imageSize, const bool offset = true);
 };
 
 /// \class MeshEdgeModel ContourFittingClassifier.cpp
 /// \brief A container for footprint samples of a specific mesh
-class MeshEdgeModel {
+class MeshEdgeModel
+{
   /// \brief An identifier of the mesh
   public: std::string name;
 
@@ -147,7 +154,8 @@ class MeshEdgeModel {
   /// \brief Create and add footprint to the model
   /// \param[in] pose Pose to create footprint at
   /// \param[in] size Density of footprint points
-  public: void addFootprint(const ::PoseRT &pose, const size_t size) {
+  public: void addFootprint(const ::PoseRT &pose, const size_t size)
+  {
     this->items.emplace_back(this->mesh, pose, this->camera, size);
   }
 
@@ -155,7 +163,9 @@ class MeshEdgeModel {
   /// \param[in] rotationAxisSamples  number of rotation axis vector samples
   /// \param[in] rotationAngleSamples number of angle steps at each axis sample
   /// \param[in] size                 Density of footprint points
-  public: void addSampledFootprints(const size_t rotationAxisSamples, const size_t rotationAngleSamples, const size_t size);
+  public: void addSampledFootprints(const size_t rotationAxisSamples,
+                                    const size_t rotationAngleSamples,
+                                    const size_t size);
 
   /// \brief Save model to file
   /// \param[in] filename Path to model cache file
@@ -172,10 +182,13 @@ class MeshEdgeModel {
 
 /// \class PoseHypothsis ContourFittingClassifier.cpp
 /// \brief An implementation of ::RankingItem interface containing pose data
-class PoseHypothesis : public ::RankingItem<std::string, int> {
+class PoseHypothesis : public ::RankingItem<std::string, int>
+{
   /// \brief Constructor
-  public: PoseHypothesis(const std::string c_id, const int s_id, const double score): 
-    RankingItem<std::string, int>(c_id, s_id, score) {
+  public: PoseHypothesis(const std::string cId, const int sId,
+                         const double score) :
+    RankingItem<std::string, int>(cId, sId, score)
+  {
   }
 
   /// \brief A hypothesis assumes that a mesh might be at this pose
@@ -190,7 +203,8 @@ class ContourFittingClassifier : public DrawingAnnotator
   friend class ContourFittingUnitTest;
 
   /// \brief Constructor
-  public: ContourFittingClassifier(): DrawingAnnotator(__func__) {
+  public: ContourFittingClassifier() : DrawingAnnotator(__func__)
+  {
   }
 
   // Documentation inherited
@@ -200,51 +214,64 @@ class ContourFittingClassifier : public DrawingAnnotator
   public: TyErrorId destroy();
 
   // Documentation inherited
-  public: TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec);
+  public: TyErrorId processWithLock(CAS &tcas,
+                                    ResultSpecification const &res_spec);
 
   // Documentation inherited
   protected: void drawImageWithLock(cv::Mat &disp);
 
   // Documentation inherited
-  protected: void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);
+  protected: void fillVisualizerWithLock(
+      pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);
 
   /// \brief Write successfully classified hypothesis information to CAS
-  /// \param[in,out] tcas             CAS
-  /// \param[in,out] cas_image_depth  Depth map to repair and write to CAS
-  /// \param[in,out] cas_view_cloud   PCL cloud to repair and write to CAS
-  /// \param[in]     hypothesis       Hupothesis being writed
-  /// \param[in]     camera           Camera used to capture CAS image data
-  protected: void drawHypothesisToCAS(CAS &tcas, cv::Mat &cas_image_depth, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cas_view_cloud, const ::PoseHypothesis &hypothesis, const ::Camera &camera);
+  /// \param[in,out] tcas           CAS
+  /// \param[in,out] casImageDepth  Depth map to repair and write to CAS
+  /// \param[in,out] casViewCloud   PCL cloud to repair and write to CAS
+  /// \param[in]     hypothesis     Hupothesis being writed
+  /// \param[in]     camera         Camera used to capture CAS image data
+  protected: void drawHypothesisToCAS(
+      CAS &tcas, cv::Mat &casImageDepth,
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr casViewCloud,
+      const ::PoseHypothesis &hypothesis,
+      const ::Camera &camera);
 
   /// \brief Orients mesh that way, that it's top ditection is orthogonal to support plane, and the origin point of mesh is in plane
-  /// \param[in] initial_pose           Initial mesh pose
-  /// \param[in] mesh_anchor_point      A point in local meshes coordinates which is put on the plane
-  /// \param[in] support_plane_normal   A vector orthogonal to plane
-  /// \param[in] support_plane_distance A free term of plane equation
-  /// \return                           A new pose for the object
+  /// \param[in] initialPose          Initial mesh pose
+  /// \param[in] meshAnchorPoint      A point in local meshes coordinates which is put on the plane
+  /// \param[in] supportPlaneNormal   A vector orthogonal to plane
+  /// \param[in] supportPlaneDistance A free term of plane equation
+  /// \param[in] camera               Camera used to capture CAS image data
+  /// \param[in] jacobian             Jacobian of PoseRT -> 2d-edge errors
+  /// \return                         A new pose for the object
   ///   Assume that object's default orientation is bottom down.
   ///   The anchor point is aligned with plane along view ray.
-  protected: ::PoseRT alignObjectsPoseWithPlane(const ::PoseRT &initial_pose,const cv::Vec3f mesh_anchor_point,const cv::Vec3f support_plane_normal, const float support_plane_distance, ::Camera &camera, cv::Mat &jacobian);
+  protected: ::PoseRT alignObjectsPoseWithPlane(const ::PoseRT &initialPose,
+      const cv::Vec3f meshAnchorPoint, const cv::Vec3f supportPlaneNormal,
+      const float supportPlaneDistance, const ::Camera &camera,
+      const cv::Mat &jacobian);
 
   /// \brief Extract 3d points which corresponts to normal discontinuities visible on a mesh
   /// \param[in] mesh       Polygonal mesh
   /// \param[in] pose       Pose the mesh is observed at
   /// \param[in] camera     Camera to rasterize mesh
-  /// \param[in] image_size Size of the image to rasterize points to
+  /// \param[in] imageSize Size of the image to rasterize points to
   /// \return               std::vector of 3d points at default mesh's position
-  protected: std::vector<cv::Point3f> getMeshSurfaceEdgesAtPose(const ::Mesh &mesh, const ::PoseRT &pose, const ::Camera &camera, const cv::Size image_size);
+  protected: std::vector<cv::Point3f> getMeshSurfaceEdgesAtPose(
+      const ::Mesh &mesh, const ::PoseRT &pose,
+      const ::Camera &camera, const cv::Size imageSize);
 
   /// \brief Directory to store MeshEdgeModels at
-  private: std::string cache_path{"/tmp"};
+  private: std::string cachePath{"/tmp"};
 
   /// \brief Number of rotation axis samples for footprint generation
-  private: int rotation_axis_samples{10};
+  private: int rotationAxisSamples{10};
 
   /// \brief Number of rotation angle samples for footprint generation
-  private: int rotation_angle_samples{10};
+  private: int rotationAngleSamples{10};
 
   /// \brief Footprint generation image size
-  private: int footprint_image_size{240};
+  private: int footprintImageSize{240};
 
   /// \brief Reject all hypotheses which score is lower than value
   private: float rejectScoreLevel{0.001};
@@ -268,7 +295,7 @@ class ContourFittingClassifier : public DrawingAnnotator
   private: int icp2d3dIterationsLimit{100};
 
   /// \brief Trained edge models for meshes
-  private: std::map<std::string, ::MeshEdgeModel> edge_models;
+  private: std::map<std::string, ::MeshEdgeModel> edgeModels;
 
   /// \brief Currently visible segments
   private: std::vector<ImageSegmentation::Segment> segments;
@@ -277,28 +304,29 @@ class ContourFittingClassifier : public DrawingAnnotator
   private: std::vector<std::string> labels;
 
   /// \brief Good hypotheses to visualize
-  private: std::vector<std::vector<::PoseHypothesis>> pose_hypotheses;
+  private: std::vector<std::vector<::PoseHypothesis>> poseHypotheses;
 
   /// \brief Debug point set for visualisation
-  private: std::vector<std::vector<cv::Point2f>> fitted_silhouettes;
+  private: std::vector<std::vector<cv::Point2f>> fittedSilhouettes;
 
   /// \brief Debug point set for visualisation
-  private: std::vector<std::vector<cv::Point2f>> debug_points_red;
+  private: std::vector<std::vector<cv::Point2f>> debugPointsRed;
 
   /// \brief Debug point set for visualisation
-  private: std::vector<std::vector<cv::Point2f>> debug_points_blue;
+  private: std::vector<std::vector<cv::Point2f>> debugPointsBlue;
 
   /// \brief Histograms for hypotheses
   private: std::vector<cv::Mat> histograms;
 
   /// \brief Current RGB image resized to depth map size
-  private: cv::Mat image_rgb;
+  private: cv::Mat imageRGB;
 
   /// \brief Debug depth map for visualisation
-  private: cv::Mat distance_mat;
+  private: cv::Mat depthMap;
 
   /// \brief Current view cloud
-  private: pcl::PointCloud<pcl::PointXYZRGBA>::Ptr view_cloud{new pcl::PointCloud<pcl::PointXYZRGBA>};
+  private: pcl::PointCloud<pcl::PointXYZRGBA>::Ptr viewCloud{
+      new pcl::PointCloud<pcl::PointXYZRGBA>};
 
   /// \brief Horisontal camera lookup table
   private: cv::Mat lookupX;
@@ -310,7 +338,7 @@ class ContourFittingClassifier : public DrawingAnnotator
   private: ::Camera camera;
 
   /// \brief Camera used to generate mesh footprints
-  private: ::Camera footprint_camera;
+  private: ::Camera footprintCamera;
 };
 
 #endif /*__CONTOUR_FITTING_CLASSIFIER_H__*/
