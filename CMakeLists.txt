@@ -53,7 +53,10 @@ find_package(catkin REQUIRED
 find_package(cmake_modules QUIET)
 
 find_package(OpenCV 2.4 REQUIRED)
-find_package(PCL 1.8 REQUIRED PATHS /usr/local/lib)
+find_package(PCL 1.8 QUIET PATHS /usr/local/lib)
+if(NOT PCL_FOUND)
+  find_package(PCL REQUIRED)
+endif()
 find_package(Eigen REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
