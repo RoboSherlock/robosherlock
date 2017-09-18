@@ -61,6 +61,8 @@ public:
     rs::Scene scene = cas.getScene();
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     cas.get(VIEW_CLOUD,*cloud_ptr);
+    cv::Mat colorImage;
+    cas.get(VIEW_COLOR_IMAGE_HD, colorImage);
 
     std::stringstream filenameSS;
     std::string filename = "testData";
@@ -75,9 +77,13 @@ public:
         writeViewpointIni(tf::StampedTransform(tf_stamped_pose, tf_stamped_pose.stamp_, tf_stamped_pose.frame_id_,
                                                "head_mount_kinect_rgb_optical_frame"), path, filename);
     }
-    std::stringstream ss;
-    ss << path << "/samples/clouds/" <<filename << ".pcd";
-    pcl::io::savePCDFileASCII (ss.str(), *cloud_ptr);
+    std::stringstream ssIm;
+    ssIm << path << "/samples/images/" << filename << ".png";
+    cv::imwrite(ssIm.str(),colorImage);
+    std::stringstream ssCloud;
+    ssCloud << path << "/samples/clouds/" <<filename << ".pcd";
+    pcl::io::savePCDFileASCII (ssCloud.str(), *cloud_ptr);
+
 
     dataCount++;
 
