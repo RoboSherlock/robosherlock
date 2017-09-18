@@ -32,6 +32,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/progress.hpp>
 #include <boost/optional/optional.hpp>
+#include <boost/property_tree/ini_parser.hpp>
 
 #include <functional>
 #include <iterator>
@@ -49,10 +50,12 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree &pt) : CamI
   isCloudFile = true;
   isRGBFile = true;
   isDepthFile = true;
+  isViewpointFile = true;
 
   haveCloud = false;
   haveRGB = false;
   haveDepth = false;
+  haveViewpoint = false;
 
   index_ = 0;
 
@@ -255,6 +258,19 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     haveDepth = (data_size > 0);
   }
 
+  boost::optional< const boost::property_tree::ptree& > foundViewpoint;
+  foundViewpoint = pt.get_child_optional( "data_path.path_to_viewpoint" );
+  if(foundViewpoint)
+  {
+    this->path_to_viewpoint = pt.get<std::string>("data_path.path_to_viewpoint");
+    std::string viewpoint_extension = pt.get<std::string>("data_path.viewpoint_extension");
+    success = getListFile(path_to_viewpoint, viewpoints, viewpoint_extension, isViewpointFile);
+    std::sort(viewpoints.begin(), viewpoints.end());
+    data_size = viewpoints.size();
+    haveViewpoint = (data_size > 0);
+  }
+
+
   this->isLoop = pt.get<bool>("option.isLoop", true);
 
   if(!checkConsistency())
@@ -369,6 +385,52 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
     }
 
     cas.set(VIEW_DEPTH_IMAGE, depth);
+  }
+
+  if(haveViewpoint)
+  {
+      std::string path;
+      if(!isViewpointFile)
+      {
+        path = viewpoints[index_];
+      }
+      else
+      {
+        path = path_to_viewpoint;
+      }
+      boost::property_tree::ptree pt;
+      read_ini(path,pt);
+      double x,y,z,qx,qy,qz,qw;
+      double timeStamp;
+      std::string frame, childFrame;
+      tf::Quaternion q;
+      tf::Vector3 trans;
+      x = pt.get<double>("translation.x");
+      y = pt.get<double>("translation.y");
+      z = pt.get<double>("translation.z");
+      qx = pt.get<double>("rotation.x");
+      qy = pt.get<double>("rotation.y");
+      qz = pt.get<double>("rotation.z");
+      qw = pt.get<double>("rotation.w");
+      childFrame = pt.get<std::string>("frame.child_frame");
+      frame = pt.get<std::string>("frame.frame");
+      timeStamp = pt.get<double>("viewpoint.stamp");
+      q.setX(qx);
+      q.setY(qy);
+      q.setZ(qz);
+      q.setW(qw);
+      trans.setX(x);
+      trans.setY(y);
+      trans.setZ(z);
+
+      viewpoint.setRotation(q);
+      viewpoint.setOrigin(trans);
+      viewpoint.child_frame_id_ = childFrame;
+      viewpoint.frame_id_ = frame;
+      viewpoint.stamp_ = ros::Time(timeStamp);
+      rs::Scene scene = rs::SceneCas(cas).getScene();
+      rs::StampedTransform vp(rs::conversion::to(tcas, viewpoint));
+      scene.viewPoint.set(vp);
   }
 
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
