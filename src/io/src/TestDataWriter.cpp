@@ -10,15 +10,15 @@
 #include <boost/property_tree/ini_parser.hpp>
 #include <ros/package.h>
 #include <pcl/io/pcd_io.h>
+#include <ctime>
 
+#define LOGNAME_FORMAT "%Y%m%d_%H%M%S"
 
 using namespace uima;
 
 
 class TestDataWriter : public Annotator
 {
-private:
-  int dataCount = 0;
 public:
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -64,10 +64,9 @@ public:
     cv::Mat colorImage;
     cas.get(VIEW_COLOR_IMAGE_HD, colorImage);
 
-    std::stringstream filenameSS;
-    std::string filename = "testData";
-    filenameSS << filename << dataCount;
-    filename = filenameSS.str();
+    char filename[20];
+    time_t now = time(0);
+    strftime(filename, sizeof(filename), LOGNAME_FORMAT, localtime(&now));
 
     std::string path = ros::package::getPath("robosherlock");
 
@@ -83,9 +82,6 @@ public:
     std::stringstream ssCloud;
     ssCloud << path << "/samples/clouds/" <<filename << ".pcd";
     pcl::io::savePCDFileASCII (ssCloud.str(), *cloud_ptr);
-
-
-    dataCount++;
 
     return UIMA_ERR_NONE;
   }

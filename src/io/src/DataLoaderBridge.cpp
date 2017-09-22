@@ -85,66 +85,23 @@ DataLoaderBridge::~DataLoaderBridge()
   }
 }
 
-//NOTE: check if all are files or all size of data are equal
+//NOTE: All file amounts should be equal or 0
 bool DataLoaderBridge::checkConsistency()
 {
-  if(haveCloud && haveRGB)
-  {
-    if(isCloudFile && isRGBFile)
-    {
-      return true;
-    }
-    else if(!isCloudFile && !isRGBFile)
-    {
-      if(clouds.size() == images.size())
-      {
-        return true;
+  int shouldSize = 0;
+  std::vector<int> sizes;
+  sizes.push_back(images.size());
+  sizes.push_back(clouds.size());
+  sizes.push_back(depths.size());
+  sizes.push_back(viewpoints.size());
+  for(int size : sizes){
+      if(size != 0 && shouldSize == 0){
+          shouldSize = size;
       }
-    }
-    return false;
-  }
-  else if(haveCloud && haveDepth)
-  {
-    if(isCloudFile && isDepthFile)
-    {
-      return true;
-    }
-    else if(!isCloudFile && !isDepthFile)
-    {
-      if(clouds.size() == depths.size())
-        return true;
-    }
-    return false;
-  }
-  else if(haveRGB && haveDepth)
-  {
-    if(isRGBFile && isDepthFile)
-    {
-      return true;
-    }
-    else if(!isRGBFile && !isDepthFile)
-    {
-      if(images.size() == depths.size())
-      {
-        return true;
+      if(size != 0 && size != shouldSize){
+          outError("One of the sample data folders contains an unexpected amount of files. All folders that contain files should contain an equal amount.");
+          return false;
       }
-    }
-    return false;
-  }
-  else if(haveCloud && haveRGB && haveDepth)
-  {
-    if(isCloudFile && isRGBFile && isDepthFile)
-    {
-      return true;
-    }
-    else if(!isCloudFile && !isRGBFile && !isDepthFile)
-    {
-      if(clouds.size() == images.size() && clouds.size() == depths.size())
-      {
-        return true;
-      }
-    }
-    return false;
   }
   return true;
 }
@@ -177,7 +134,7 @@ bool DataLoaderBridge::getListFile(std::string &path, std::vector<std::string> &
   {
     if(!fs::exists(full_path))
     {
-      outError("Could not found relative path: " << relative_path << " and full path: " << full_path);
+      outError("Could find neither relative path: " << relative_path << " nor full path: " << full_path);
       return false;
     }
   }
@@ -228,10 +185,13 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   {
     this->path_to_cloud = pt.get<std::string>("data_path.path_to_cloud");
     std::string cloud_extension = pt.get<std::string>("data_path.cloud_extension");
-    success = getListFile(path_to_cloud, clouds, cloud_extension, isCloudFile);
+    getListFile(path_to_cloud, clouds, cloud_extension, isCloudFile);
     std::sort(clouds.begin(), clouds.end());
     data_size = clouds.size();
     haveCloud = (data_size > 0);
+    if(!haveCloud){
+        outWarn("No clouds were found in the cloud data folder.");
+    }
   }
 
   boost::optional< const boost::property_tree::ptree& > foundRGB;
@@ -240,10 +200,13 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   {
     this->path_to_rgb = pt.get<std::string>("data_path.path_to_rgb");
     std::string rgb_extension = pt.get<std::string>("data_path.rgb_extension");
-    success = getListFile(path_to_rgb, images, rgb_extension, isRGBFile);
+    getListFile(path_to_rgb, images, rgb_extension, isRGBFile);
     std::sort(images.begin(), images.end());
     data_size = images.size();
     haveRGB = (data_size > 0);
+    if(!haveRGB){
+        outWarn("No images were found in the rgb data folder.");
+    }
   }
 
   boost::optional< const boost::property_tree::ptree& > foundDepth;
@@ -252,10 +215,13 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   {
     this->path_to_depth = pt.get<std::string>("data_path.path_to_depth");
     std::string depth_extension = pt.get<std::string>("data_path.depth_extension");
-    success = getListFile(path_to_depth, depths, depth_extension, isDepthFile);
+    getListFile(path_to_depth, depths, depth_extension, isDepthFile);
     std::sort(depths.begin(), depths.end());
     data_size = depths.size();
     haveDepth = (data_size > 0);
+    if(!haveDepth){
+        outWarn("No depth images were found in the depth data folder.");
+    }
   }
 
   boost::optional< const boost::property_tree::ptree& > foundViewpoint;
@@ -264,18 +230,20 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   {
     this->path_to_viewpoint = pt.get<std::string>("data_path.path_to_viewpoint");
     std::string viewpoint_extension = pt.get<std::string>("data_path.viewpoint_extension");
-    success = getListFile(path_to_viewpoint, viewpoints, viewpoint_extension, isViewpointFile);
+    getListFile(path_to_viewpoint, viewpoints, viewpoint_extension, isViewpointFile);
     std::sort(viewpoints.begin(), viewpoints.end());
     data_size = viewpoints.size();
     haveViewpoint = (data_size > 0);
+    if(!haveViewpoint){
+        outWarn("No viewpoints were found in the viewpoint data folder.");
+    }
   }
-
 
   this->isLoop = pt.get<bool>("option.isLoop", true);
 
   if(!checkConsistency())
   {
-    outError("Provided data is not consistent, all must be a file or size of each kind of data must be equal!");
+    outError("Provided data is not consistent.");
     success = false;
   }
 
