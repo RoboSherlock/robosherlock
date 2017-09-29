@@ -96,14 +96,20 @@ private:
 
   std::string tfFrom, tfTo;
 
-  //total hack for Sherpa so we do not rewrite the unreal bridg to go through ROS
   tf::TransformBroadcaster broadcaster;
+
+  uint32_t mantissaTable[2048];
+  uint32_t exponentTable[64];
+  uint16_t offsetTable[64];
 
   void readConfig(const boost::property_tree::ptree &pt);
   void convertDepth(const uint16_t *in, __m128 *out) const;
+  void convertDepth(const uint16_t *in, uint32_t *out) const;
   void connectToServer();
   void receive();
 
+  void createLookupTables();
+  uint32_t convertMantissa(const uint32_t i) const;
 public:
   UnrealVisionBridge(const boost::property_tree::ptree &pt);
   ~UnrealVisionBridge();
