@@ -49,7 +49,6 @@ using namespace rs;
 
 Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS), first(true)
 {
-  prevTS=0;
 }
 
 Storage::Storage(const Storage &other)
@@ -211,7 +210,6 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
     outDebug("storing sofas to " << dbCollection << ".");
     db.insert(dbCollection, object);
   }
-
 
   return true;
 }

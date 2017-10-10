@@ -35,10 +35,8 @@ private:
   std::string db;
   rs::Storage storage;
 
-  uint64_t prevTS;
-
 public:
-  StorageWriter() : host(DB_HOST), db(DB_NAME), prevTS(0)
+  StorageWriter() : host(DB_HOST), db(DB_NAME)
   {
   }
 
@@ -104,12 +102,7 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     const uint64_t timestamp = (uint64_t)scene.timestamp();
-    if(prevTS != 0 && timestamp - prevTS == 0)
-    {
-      outWarn("Catching bug: previous timestamp same as current one!!! This can not be!!! Exiting");
-      return UIMA_ERR_NONE;
-    }
-    prevTS = timestamp;
+
     if(scene.id().empty())
     {
       storage.storeScene(*tcas.getBaseCas(), timestamp);

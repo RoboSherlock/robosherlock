@@ -24,7 +24,7 @@
 // Implementation
 
 ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
-  : CamInterface(pt), spinner(0), nodeHandle("~"), prevTS(0)
+  : CamInterface(pt), spinner(0), nodeHandle("~")
 {
   listener = new tf::TransformListener(nodeHandle, ros::Duration(10.0));
   tfFrom = pt.get<std::string>("tf.from");
@@ -89,14 +89,5 @@ void ROSCamInterface::setTransformAndTime(uima::CAS &tcas)
     scene.viewPoint.set(vp);
     outInfo("added viewpoint to scene");
   }
-  uint64 currentTS = timestamp.toNSec();
-  uint64 diff = currentTS-prevTS;
-  outDebug("Diff: "<<diff<<" (ns)" );
-  if(prevTS != 0 && currentTS - prevTS == 0)
-  {
-    outError("Waht the fuck just happened?");
-  }
-  prevTS = currentTS;
-
   scene.timestamp.set(timestamp.toNSec());
 }

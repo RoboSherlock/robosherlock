@@ -101,8 +101,6 @@ public:
   void loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
 
   std::vector<Cluster> getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids);
-
-  uint64_t prevTS;
 };
 
 } // namespace rs

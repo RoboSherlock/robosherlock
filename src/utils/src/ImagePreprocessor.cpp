@@ -77,11 +77,9 @@ private:
   ros::NodeHandle nh_;
   ros::Publisher pub_;
 
-  uint64_t prevTS_;
-
 public:
   ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(6), borderDilation(12),
-    pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD), nh_("~"),prevTS_(0)
+    pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD), nh_("~")
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -145,13 +143,6 @@ public:
     MEASURE_TIME;
     outInfo("process start");
     rs::SceneCas cas(tcas);
-
-    const uint64_t timestamp = (uint64_t)cas.getScene().timestamp();
-    if(prevTS_ != 0 && timestamp - prevTS_ == 0)
-    {
-      outWarn("Catching bug: previous timestamp same as current one!!! This can not be!!! Exiting");
-    }
-    prevTS_=timestamp;
 
     if(useKinect)
     {
