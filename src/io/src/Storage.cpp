@@ -49,6 +49,7 @@ using namespace rs;
 
 Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS), first(true)
 {
+  prevTS=0;
 }
 
 Storage::Storage(const Storage &other)
@@ -353,8 +354,7 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
     const std::string sofaId = sofa.getSofaID().asUTF8();
 
-    //if sofa should not be stored or it's the cam info and it has already been stored
-    if(!storeViews[sofaId]) //|| ((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first))
+    if(!storeViews[sofaId])
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
@@ -396,6 +396,7 @@ bool Storage::removeScene(const uint64_t &timestamp)
       if(name[0] != '_')
       {
         outDebug("removing view: " << name);
+
         removeView(elem);
       }
     }
