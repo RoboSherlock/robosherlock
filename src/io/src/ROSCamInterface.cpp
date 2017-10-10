@@ -49,8 +49,6 @@ ROSCamInterface::~ROSCamInterface()
 
 bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
 {
-  this->timestamp = timestamp;
-
   if(lookUpViewpoint)
   {
     try

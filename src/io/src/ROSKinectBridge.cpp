@@ -66,9 +66,9 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   image_transport::TransportHints hintsColor(color_hints);
   image_transport::TransportHints hintsDepth(depth_hints);
 
-  depthImageSubscriber = new image_transport::SubscriberFilter(it, depth_topic, 5, hintsDepth);
-  rgbImageSubscriber = new image_transport::SubscriberFilter(it, color_topic, 5, hintsColor);
-  cameraInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, cam_info_topic, 5);
+  depthImageSubscriber = new image_transport::SubscriberFilter(it, depth_topic, 1, hintsDepth);
+  rgbImageSubscriber = new image_transport::SubscriberFilter(it, color_topic, 1, hintsColor);
+  cameraInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, cam_info_topic, 1);
 
   outInfo("  Depth topic: " FG_BLUE << depth_topic);
   outInfo("  Color topic: " FG_BLUE << color_topic);
@@ -203,6 +203,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
 
   lock.lock();
 
+  this->timestamp = cameraInfo.header.stamp;
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
@@ -211,7 +212,6 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
     this->cameraInfoHD = cameraInfoHD;
   }
   _newData = true;
-  //  outWarn("new data");
 
   lock.unlock();
 }
@@ -236,10 +236,9 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
     cameraInfoHD = this->cameraInfoHD;
   }
   _newData = false;
-  lock.unlock();
-
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
+  lock.unlock();
 
   if(scale && color.cols >= 1280)
   {
