@@ -49,14 +49,12 @@ ROSCamInterface::~ROSCamInterface()
 
 bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
 {
-  this->timestamp = timestamp;
-
   if(lookUpViewpoint)
   {
     try
     {
       outDebug("lookup viewpoint: " << timestamp);
-      listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(10));
+      listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(2));
       listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
     }
     catch(tf::TransformException &ex)

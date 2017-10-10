@@ -193,6 +193,7 @@ void ROSTangoBridge::cb_(const sensor_msgs::Image::ConstPtr color_img_msg,
     }
 
     lock.lock();
+    this->timestamp = colorCameraInfo.header.stamp;
     this->color = color;
     this->colorCameraInfo = colorCameraInfo;
     this->cloud_color = cloud_color;
@@ -260,11 +261,12 @@ bool ROSTangoBridge::setData(uima::CAS &tcas, uint64_t ts)
   outInfo("  Cloud Width: " FG_BLUE << cloud_color.width);
   outInfo("  Cloud Height: " FG_BLUE << cloud_color.height);
   outInfo("  Number of Point Cloud: " FG_BLUE << cloud_color.size());
+
   _newData = false;
-  lock.unlock();
 
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
+  lock.unlock();
 
   cas.set(VIEW_CLOUD, cloud_color);
   cas.set(VIEW_COLOR_IMAGE, color);
