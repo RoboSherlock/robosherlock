@@ -170,7 +170,7 @@ add_subdirectory(src/core)
 #add_subdirectory(src/filter)
 add_subdirectory(src/io)
 #add_subdirectory(src/recognition)
-add_subdirectory(src/segmentation)
+#add_subdirectory(src/segmentation)
 add_subdirectory(src/utils)
 #add_subdirectory(src/tracking)
 
