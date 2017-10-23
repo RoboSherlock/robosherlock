@@ -52,13 +52,13 @@ find_package(catkin REQUIRED
  cv_bridge image_transport image_geometry message_filters)
 
 
-find_package(Eigen3)
+find_package(Eigen3 QUIET)
 if(NOT EIGEN3_FOUND)
   #Fallback to deprecated cmake_modules
   find_package(cmake_modules REQUIRED)
-  find_package(EIGEN REQUIRED)
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN_INCLUDE_DIRS})
-  set(EIGEN3_LIBRARIES ${EIGEN_LIBRAIES})
+  find_package(Eigen REQUIRED)
+  set(EIGEN3_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS})
+  set(EIGEN3_LIBRARIES ${Eigen_LIBRAIES})
 else()
   set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
