@@ -166,7 +166,7 @@ find_additional_files(3rdparty)
 
 #add_subdirectory(src/annotation)
 add_subdirectory(src/core)
-#add_subdirectory(src/detection)
+add_subdirectory(src/detection)
 add_subdirectory(src/filter)
 add_subdirectory(src/io)
 add_subdirectory(src/recognition)
