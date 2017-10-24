@@ -30,7 +30,11 @@
 
 using namespace uima;
 
+#if CV_MAJOR_VERSION == 3
 class KNNClassifier : public Classifier<cv::ml::KNearest>
+#elif CV_MAJOR_VERSION == 2
+class KNNClassifier : public Classifier<cv::KNearest>
+#endif
 {
 private:
   int kNN;
@@ -61,7 +65,7 @@ protected:
     cv::Ptr<cv::ml::TrainData> data;
     data->create(descriptors,cv::ml::ROW_SAMPLE,responses);
     model->train(data);
-#elif
+#elif CV_MAJOR_VERSION ==2
     model->train(descriptors, responses, cv::Mat(), isRegression, maxK);
 #endif
     return UIMA_ERR_NONE;

@@ -45,8 +45,8 @@ public:
 #if CV_MAJOR_VERSION == 3
    outInfo("Something needs to happen here");
    model = T::create();
-#elif
-   model = cv::makePtr<T>();
+#elif CV_MAJOR_VERSION == 2
+   model = new T();
 #endif
   }
 

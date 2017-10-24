@@ -267,7 +267,7 @@ private:
   }
 #endif
 
-#if CV_VERSION_MAJOR == 2
+#if CV_MAJOR_VERSION == 2
   void printParams(cv::Algorithm *algorithm)
   {
     outInfo("Alogrithm: " << algorithm->name());
