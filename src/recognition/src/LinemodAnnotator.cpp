@@ -85,7 +85,7 @@ public:
     outDebug("Templates: " << linemod.detector->numTemplates());
     outDebug("Pyramid levels: " << linemod.detector->pyramidLevels());
 
-    const std::vector<std::string> &classes = linemod.detector->classIds();
+    const std::vector<cv::String> &classes = linemod.detector->classIds();
     for(size_t i = 0; i < classes.size(); ++i)
     {
       outDebug("Class: " << classes[i] << " Templates: " << linemod.detector->numTemplates(classes[i]));
@@ -138,7 +138,7 @@ private:
       return;
     }
 
-    std::vector<std::string> classes;
+    std::vector<cv::String> classes;
 
     final_res.clear();
     linemod.process(color, depth, res_vector, minResponse, classes, mask);

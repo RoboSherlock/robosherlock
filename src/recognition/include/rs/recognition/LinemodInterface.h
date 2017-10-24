@@ -28,6 +28,10 @@
 // OpenCV
 #include <opencv2/opencv.hpp>
 
+#if CV_MAJOR_VERSION == 3
+#include <opencv2/rgbd/linemod.hpp>
+#endif
+
 struct Result
 {
   std::string name;
@@ -52,8 +56,8 @@ public:
   /*
    * Processes a frame
    */
-  void process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, const float minResponse = 85.0f,
-               const std::vector<std::string> &classes = std::vector<std::string>(), const cv::Mat &mask = cv::Mat());
+  void process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, float minResponse = 85.0f,
+               const std::vector<cv::String> &classes = std::vector<cv::String>(), const cv::Mat &mask = cv::Mat());
 
   /*
    * Reading models from resource directory

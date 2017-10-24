@@ -41,8 +41,8 @@ LinemodInterface::LinemodInterface() : detector(), matches()
 /*
  * Processes a frame
  */
-void LinemodInterface::process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, const float minResponse,
-                               const std::vector<std::string> &classes, const cv::Mat &mask)
+void LinemodInterface::process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, float minResponse,
+                               const std::vector<cv::String> &classes, const cv::Mat &mask)
 {
   cv::Mat _depth;
 
@@ -58,9 +58,7 @@ void LinemodInterface::process(const cv::Mat &color, const cv::Mat &depth, std::
     return;
   }
 
-  std::vector<cv::Mat>
-  sources(2),
-          masks;
+  std::vector<cv::Mat> sources(2), masks;
   sources[0] = color;
   sources[1] = _depth;
 
@@ -154,7 +152,7 @@ void LinemodInterface::readModel(const std::string &filename)
  */
 void LinemodInterface::writeModels(const std::string &resourcePath)
 {
-  const std::vector<std::string> ids = detector->classIds();
+  const std::vector<cv::String> ids = detector->classIds();
   const std::string
   basePath = resourcePath[resourcePath.size() - 1] == '/' ? resourcePath : resourcePath + '/',
   file = "/linemod.yml",

@@ -15,8 +15,8 @@ target_link_libraries(rs_PointCloudDownsampler rs_core)
 rs_add_library(rs_ClusterMerger src/ClusterMerger.cpp)
 target_link_libraries(rs_ClusterMerger rs_core)
 
-#rs_add_library(rs_ImagePreprocessor src/ImagePreprocessor.cpp)
-#target_link_libraries(rs_ImagePreprocessor rs_core rs_utils rs_segmentation)
+rs_add_library(rs_ImagePreprocessor src/ImagePreprocessor.cpp)
+target_link_libraries(rs_ImagePreprocessor rs_core rs_utils rs_segmentation)
 
 rs_add_library(rs_Trigger src/Trigger.cpp)
 target_link_libraries(rs_Trigger rs_core rs_io)

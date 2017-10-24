@@ -46,7 +46,7 @@ public:
    outInfo("Something needs to happen here");
    model = T::create();
 #elif
-   model = new T();
+   model = cv::makePtr<T>();
 #endif
   }
 
