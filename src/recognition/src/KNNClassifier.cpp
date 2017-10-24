@@ -30,7 +30,7 @@
 
 using namespace uima;
 
-class KNNClassifier : public Classifier<cv::KNearest>
+class KNNClassifier : public Classifier<cv::ml::KNearest>
 {
 private:
   int kNN;
@@ -57,8 +57,13 @@ protected:
     {
       ctx.extractValue("isRegression", isRegression);
     }
-
+#if CV_MAJOR_VERSION == 3
+    cv::Ptr<cv::ml::TrainData> data;
+    data->create(descriptors,cv::ml::ROW_SAMPLE,responses);
+    model->train(data);
+#elif
     model->train(descriptors, responses, cv::Mat(), isRegression, maxK);
+#endif
     return UIMA_ERR_NONE;
   }
 
@@ -70,7 +75,7 @@ protected:
       return;
     }
     cv::Mat neighborResponses, bestResponse;
-    model->find_nearest(descriptors, kNN, bestResponse, neighborResponses, distances);
+//    model->find_nearest(descriptors, kNN, bestResponse, neighborResponses, distances);
     responses = neighborResponses;
   }
 };
