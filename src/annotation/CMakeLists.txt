@@ -9,8 +9,8 @@ target_link_libraries(rs_ClusterColorHistogramCalculator rs_core )
 rs_add_library(rs_ClusterTFLocationAnnotator src/ClusterTFLocationAnnotator.cpp)
 target_link_libraries(rs_ClusterTFLocationAnnotator rs_core)
 
-#rs_add_library(rs_FeatureAnnotator src/FeatureAnnotator.cpp)
-#target_link_libraries(rs_FeatureAnnotator rs_core)
+rs_add_library(rs_FeatureAnnotator src/FeatureAnnotator.cpp)
+target_link_libraries(rs_FeatureAnnotator rs_core)
 
 rs_add_library(rs_NormalEstimator src/NormalEstimator.cpp)
 target_link_libraries(rs_NormalEstimator rs_core)

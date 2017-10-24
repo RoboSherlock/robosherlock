@@ -20,6 +20,11 @@
 
 // OpenCV
 #include <opencv2/opencv.hpp>
+
+#if CV_VERSION_MAJOR == 3
+#include <opencv2/xfeatures2d.hpp>
+#endif
+
 //#include <opencv2/nonfree/nonfree.hpp>
 
 // RS
@@ -43,7 +48,7 @@ private:
   cv::Mat color;
 
 public:
-  FeatureAnnotator() : DrawingAnnotator(__func__), detector(NULL), extractor(NULL)
+  FeatureAnnotator() : DrawingAnnotator(__func__)
   {
     //cv::initModule_nonfree();
   }
@@ -76,30 +81,38 @@ public:
     }
 
     outDebug("creating " << keypointDetector << " key points detector...");
-    detector = cv::FeatureDetector::create(keypointDetector);
+
+#if CV_MAJOR_VERSION == 2
+    detector = cv::BRISK::create(keypointDetector);
+
     if(detector.empty())
     {
       outError("creation failed!");
       return UIMA_ERR_ANNOTATOR_MISSING_INIT;
     }
-
+    setupAlgorithm(detector);
 #if OUT_LEVEL == OUT_LEVEL_DEBUG
     printParams(detector);
 #endif
-    setupAlgorithm(detector);
+#elif CV_MAJOR_VERSION == 3
+    setupAlgorithm(detector, keypointDetector);
+#endif
 
     outDebug("creating " << featureExtractor << " feature extractor...");
+#if CV_MAJOR_VERSION ==2
     extractor = cv::DescriptorExtractor::create(featureExtractor);
     if(extractor.empty())
     {
       outError("creation failed!");
       return UIMA_ERR_ANNOTATOR_MISSING_INIT;
     }
-
+    setupAlgorithm(extractor);
 #if OUT_LEVEL == OUT_LEVEL_DEBUG
     printParams(extractor);
 #endif
-    setupAlgorithm(extractor);
+#elif CV_MAJOR_VERSION == 3
+    setupAlgorithm(extractor, keypointDetector);
+#endif
 
     if(featureExtractor == "SIFT" || featureExtractor == "SURF")
     {
@@ -127,7 +140,7 @@ public:
   }
 
 private:
-
+#if CV_MAJOR_VERSION == 2
   void setupAlgorithm(cv::Algorithm *algorithm)
   {
     const std::string &name = algorithm->name();
@@ -137,7 +150,7 @@ private:
       algorithm->set("thres", 30);
     }
     else if(name == "Feature2D.ORB")
-    {
+    {            
       algorithm->set("nFeatures", 30);
       algorithm->set("scaleFactor", 1.2);
       algorithm->set("nLevels", 8);
@@ -208,7 +221,53 @@ private:
       algorithm->set("suppressNonmaxSize", 5);
     }
   }
+#elif CV_MAJOR_VERSION ==3
+  void setupAlgorithm(cv::Algorithm *algorithm, std::string name)
+  {
+    if(name == "BRISK")
+    {
+      algorithm = cv::BRISK::create();
+    }
+    else if(name == "ORB")
+    {
+      algorithm = cv::ORB::create(30);
+    }
+    else if(name == "SIFT")
+    {
+      algorithm = cv::xfeatures2d::SIFT::create(30,3,0.04,10,1.6);
+    }
+    else if(name == "SURF")
+    {
+      algorithm = cv::xfeatures2d::SURF::create();
+    }
+    else if(name == "FREAK")
+    {
+      algorithm = cv::xfeatures2d::FREAK::create(false, false);
+    }
+    else if(name == "FAST")
+    {
+      algorithm = cv::FastFeatureDetector::create();
+    }
+    else if(name == "GFTT")
+    {
+      algorithm = cv::GFTTDetector::create(1000,0.1);
+    }
+    else if(name == "BRIEF")
+    {
+      algorithm = cv::xfeatures2d::BriefDescriptorExtractor::create();
+    }
+    else if(name == "MSER")
+    {
+      algorithm = cv::MSER::create();
+    }
+    else if(name == "STAR")
+    {
+      algorithm = cv::xfeatures2d::StarDetector::create();
+    }
+  }
+#endif
 
+#if CV_VERSION_MAJOR == 2
   void printParams(cv::Algorithm *algorithm)
   {
     outInfo("Alogrithm: " << algorithm->name());
@@ -274,7 +333,7 @@ private:
       }
     }
   }
-
+#endif
   /*
    * Processes a frame
    */
