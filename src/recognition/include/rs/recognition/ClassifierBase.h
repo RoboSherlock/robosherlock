@@ -40,8 +40,14 @@ protected:
   std::vector<std::string> classNames;
 
 public:
-  Classifier(const std::string &classifierName) : Annotator(), model(new T()), classifierName(classifierName)
+  Classifier(const std::string &classifierName) : Annotator(), classifierName(classifierName)
   {
+#if CV_MAJOR_VERSION == 3
+   outInfo("Something needs to happen here");
+   model = T::create();
+#elif CV_MAJOR_VERSION == 2
+   model = new T();
+#endif
   }
 
   uima::TyErrorId initialize(uima::AnnotatorContext &ctx)
@@ -53,7 +59,11 @@ public:
     cv::Mat descriptors, responses;
 
     cv::FileStorage file(modelFile, cv::FileStorage::READ);
-    file["classnames"] >> classNames;
+    cv::FileNode node = file["classnames"];
+    for(auto it = node.begin();it!=node.end();++it)
+    {
+      classNames.push_back(*it);
+    }
     file["descriptors"] >> descriptors;
     file["responses"] >> responses;
     file.release();

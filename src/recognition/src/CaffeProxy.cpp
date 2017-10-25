@@ -163,7 +163,7 @@ std::vector<float> CaffeProxy::extractFeature(const cv::Mat &img, std::string la
   }
   else
   {
-    std::cerr << "Layer has no blob named: " << layer << std::cerr;
+    std::cerr << "Layer has no blob named: " << layer << std::endl;
     return std::vector<float>();
   }
 }

@@ -169,9 +169,13 @@ private:
 
     outInfo("Path to semantic map file: " FG_BLUE << mapFile);
     cv::FileStorage fs(mapFile, cv::FileStorage::READ);
-
     std::vector<std::string> names;
-    fs["names"] >> names;
+
+    cv::FileNode n = fs["names"];
+    for(cv::FileNodeIterator it = n.begin(); it != n.end(); ++it)
+    {
+      names.push_back((std::string)(*it));
+    }
 
     semanticMapItems.resize(names.size());
     for(size_t i = 0; i < names.size(); ++i)
