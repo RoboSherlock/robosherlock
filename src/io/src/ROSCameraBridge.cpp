@@ -99,6 +99,7 @@ void ROSCameraBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   color = orig_rgb_img->image.clone();
 
   lock.lock();
+  this->timestamp = cameraInfo.header.stamp;
   this->color = color;
   this->cameraInfo = cameraInfo;
   _newData = true;
@@ -120,10 +121,9 @@ bool ROSCameraBridge::setData(uima::CAS &tcas, uint64_t ts)
   color = this->color;
   cameraInfo = this->cameraInfo;
   _newData = false;
-  lock.unlock();
-
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
+  lock.unlock();
 
   cas.set(VIEW_COLOR_IMAGE_HD, color);
   cas.set(VIEW_COLOR_IMAGE, color);
