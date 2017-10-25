@@ -56,7 +56,7 @@ public:
   /*
    * Processes a frame
    */
-  void process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, float minResponse = 85.0f,
+  void process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, const float minResponse = 85.0f,
                const std::vector<cv::String> &classes = std::vector<cv::String>(), const cv::Mat &mask = cv::Mat());
 
   /*

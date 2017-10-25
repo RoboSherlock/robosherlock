@@ -41,7 +41,7 @@ LinemodInterface::LinemodInterface() : detector(), matches()
 /*
  * Processes a frame
  */
-void LinemodInterface::process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, float minResponse,
+void LinemodInterface::process(const cv::Mat &color, const cv::Mat &depth, std::vector<Result> &results, const float minResponse,
                                const std::vector<cv::String> &classes, const cv::Mat &mask)
 {
   cv::Mat _depth;

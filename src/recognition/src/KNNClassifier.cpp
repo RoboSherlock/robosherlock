@@ -79,7 +79,11 @@ protected:
       return;
     }
     cv::Mat neighborResponses, bestResponse;
-//    model->find_nearest(descriptors, kNN, bestResponse, neighborResponses, distances);
+#if CV_MAJOR_VERSION == 2
+    model->find_nearest(descriptors, kNN, bestResponse, neighborResponses, distances);
+#elif CV_MAJOR_VERSION ==3
+    model->findNearest(descriptors,kNN,bestResponse,neighborResponses,distances);
+#endif
     responses = neighborResponses;
   }
 };
