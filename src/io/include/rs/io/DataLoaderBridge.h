@@ -39,21 +39,26 @@ private:
   std::string path_to_cloud;
   std::string path_to_rgb;
   std::string path_to_depth;
+  std::string path_to_viewpoint;
 
   std::vector<std::string> clouds;
   std::vector<std::string> images;
   std::vector<std::string> depths;
+  std::vector<std::string> viewpoints;
 
   bool isLoop;
 
   bool isCloudFile;
   bool isRGBFile;
   bool isDepthFile;
+  bool isViewpointFile;
 
   bool haveCloud;
   bool haveRGB;
   bool haveDepth;
   bool haveCameraInfo;
+  bool haveViewpoint;
+
 
   cv::Mat color;
   cv::Mat depth;
@@ -65,6 +70,8 @@ private:
 
   double frameRate;
   sensor_msgs::CameraInfo cameraInfo;
+
+  tf::StampedTransform viewpoint;
 
   bool done; // we are done reading files, no new data to be posted
   std::thread updateTimerThread;
