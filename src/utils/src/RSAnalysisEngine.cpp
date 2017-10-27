@@ -20,7 +20,7 @@
 #include <rs/utils/RSAnalysisEngine.h>
 
 
-RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL)
+RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL), rspm(NULL)
 {
 }
 
@@ -35,6 +35,11 @@ RSAnalysisEngine::~RSAnalysisEngine()
   {
     delete engine;
     engine = NULL;
+  }
+  if(rspm)
+  {
+    delete rspm;
+    rspm = NULL;	
   }
 }
 
@@ -70,6 +75,11 @@ void RSAnalysisEngine::init(const std::string &file)
 
   outInfo("initialization done: " << name << std::endl
           << std::endl << FG_YELLOW << "********************************************************************************" << std::endl);
+}
+
+void RSAnalysisEngine::initPipelineManager()
+{
+  rspm = new RSPipelineManager(engine);
 }
 
 void RSAnalysisEngine::stop()
