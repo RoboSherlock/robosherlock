@@ -5,4 +5,3 @@ scripts/.*.modified
 scripts/*.pyc
 src/core/include/rs/types/*.h
 descriptors/typesystem/all_types.xml
-CMakeLists.txt.user

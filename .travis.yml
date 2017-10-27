@@ -85,4 +85,4 @@ script:
   - catkin_make run_tests_robosherlock
 
 after_script:
-  - coveralls --root . -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
+  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
