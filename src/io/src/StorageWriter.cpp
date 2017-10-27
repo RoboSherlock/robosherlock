@@ -82,7 +82,7 @@ public:
     for(size_t i = 0; i < enableViews.size(); ++i)
     {
       storage.enableViewStoring(*enableViews[i], true);
-      outInfo(i<<" : "<<*enableViews[i]);
+      outInfo(i << " : " << *enableViews[i]);
     }
 
     return UIMA_ERR_NONE;

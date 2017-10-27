@@ -36,6 +36,11 @@ RSAnalysisEngine::~RSAnalysisEngine()
     delete engine;
     engine = NULL;
   }
+  if(rspm)
+  {
+    delete rspm;
+    rspm = NULL;	
+  }
 }
 
 void RSAnalysisEngine::init(const std::string &file)

@@ -11,33 +11,45 @@
 #include <pcl/point_types.h>
 #include <ros/ros.h>
 
-class ExampleTest : public ::testing::Test
+class ExampleTest : public testing::Test 
 {
 protected:
     virtual void SetUp()
     {
-        rs::common::getAEPaths("test",engineFile);
-        engine.init(engineFile);
-        engine.initPipelineManager();
-        engine.getPipelineManager()->setPipelineOrdering(engineList);
+      rs::common::getAEPaths("u_test",engineFile);
+      engine.init(engineFile);
+      engine.initPipelineManager();
     }
 
-    virtual void TearDown(){}
+    virtual void TearDown()
+    {
+       engine.stop();	
+    } 
     std::string engineFile;
     RSAnalysisEngine engine;
-
-    std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
-
 };
 
-
-TEST_F(ExampleTest, ProcessTest){
-
+TEST_F(ExampleTest, ProcessTest)
+{
+  std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
+  engine.getPipelineManager()->setPipelineOrdering(engineList);
   engine.process();
   uima::CAS* tcas = engine.getCas();
   rs::SceneCas cas(*tcas);
   pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
 
   cas.get(VIEW_NORMALS, *normal_ptr);
-  EXPECT_TRUE(normal_ptr->points.size()>0);
+  EXPECT_TRUE(normal_ptr->points.size()>0); 
+}
+
+TEST_F(ExampleTest, PlaneEstimatorTest)
+{
+  std::vector<std::string> engineList = {"CollectionReader","PlaneAnnotator"};
+  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.process();
+  rs::SceneCas cas(*engine.getCas());
+  rs::Scene scene = cas.getScene();
+  std::vector< rs::Plane > planes;
+  scene.annotations.filter(planes);
+  EXPECT_TRUE(planes.size() >0);
 }

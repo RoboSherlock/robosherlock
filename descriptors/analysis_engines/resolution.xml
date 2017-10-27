@@ -106,9 +106,6 @@
     <delegateAnalysisEngine key="TFBroadcaster">
       <import location="../annotators/io/TFBroadcaster.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="TestDataWriter">
-      <import location="../annotators/io/TestDataWriter.xml"/>
-    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="Trigger">
       <import location="../annotators/utils/Trigger.xml"/>
     </delegateAnalysisEngine>

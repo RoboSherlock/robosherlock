@@ -48,7 +48,6 @@ protected:
   double maxViewpointDistance, maxViewpointRotation;
 
   std::mutex lock;
-
 public:
   ~ROSCamInterface();
 

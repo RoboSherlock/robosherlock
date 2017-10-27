@@ -77,6 +77,7 @@ private:
 
   void removeView(const ::mongo::BSONElement &elem);
 
+
 public:
   Storage();
   Storage(const Storage &other);

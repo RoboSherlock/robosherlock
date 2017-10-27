@@ -110,7 +110,6 @@ public:
     if(useRGB && cas.get(VIEW_CLOUD, *cloud_ptr))
     {
       outInfo("Cloud Size: "<<cloud_ptr->points.size());
-      pcl::io::savePCDFileASCII("mycloud.pcd",*cloud_ptr);
       if(cloud_ptr->isOrganized())
       {
         compute_normals_pcl(cloud_ptr, normals_ptr);

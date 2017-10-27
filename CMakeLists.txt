@@ -52,11 +52,22 @@ find_package(catkin REQUIRED
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  cv_bridge image_transport image_geometry message_filters)
-find_package(cmake_modules QUIET)
 
-find_package(OpenCV 2.4 REQUIRED)
+
+find_package(Eigen3 QUIET)
+if(NOT EIGEN3_FOUND)
+  #Fallback to deprecated cmake_modules
+  find_package(cmake_modules REQUIRED)
+  find_package(Eigen REQUIRED)
+  set(EIGEN3_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS})
+  set(EIGEN3_LIBRARIES ${Eigen_LIBRAIES})
+else()
+  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+endif()
+
+
+find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
-find_package(Eigen REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
@@ -115,10 +126,10 @@ set(RS_LIBS
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS}
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS} 
   CATKIN_DEPENDS pcl_ros cv_bridge
-  DEPENDS Boost OpenCV APR PCL Eigen UIMA ICUUC MongoClientLibrary
+  DEPENDS Boost OpenCV APR PCL UIMA ICUUC MongoClientLibrary
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
@@ -133,7 +144,7 @@ include_directories(
   ${OpenCV_INCLUDE_DIRS}
   ${PCL_INCLUDE_DIRS}
   ${Boost_INCLUDE_DIRS}
-  ${Eigen_INCLUDE_DIRS}
+  ${EIGEN3_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 )

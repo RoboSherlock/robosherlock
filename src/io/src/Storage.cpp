@@ -105,13 +105,13 @@ void Storage::setupDBScripts()
   DIR *dp;
   struct dirent *dirp;
 
-  if((dp  = opendir(DB_SCRIPTS_DIR)) ==  NULL)
+  if((dp  = opendir(DB_SCRIPTS_DIR)) ==  nullptr)
   {
     outDebug("MongoDB script directory does not exist.");
     return;
   }
 
-  while((dirp = readdir(dp)) != NULL)
+  while((dirp = readdir(dp)) != nullptr)
   {
     if(dirp->d_type != DT_REG)
     {
@@ -211,14 +211,13 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
     db.insert(dbCollection, object);
   }
 
-
   return true;
 }
 
 void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   const std::string &viewName = elem.fieldName();
-  uima::CAS *view = NULL;
+  uima::CAS *view = nullptr;
   try
   {
     outDebug("try to get view " << viewName);
@@ -353,8 +352,7 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
     const std::string sofaId = sofa.getSofaID().asUTF8();
 
-    //if sofa should not be stored or it's the cam info and it has already been stored
-    if(!storeViews[sofaId]) //|| ((sofaId == "camera_info" || sofaId == "camera_info_hd") && !first))
+    if(!storeViews[sofaId])
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
@@ -396,6 +394,7 @@ bool Storage::removeScene(const uint64_t &timestamp)
       if(name[0] != '_')
       {
         outDebug("removing view: " << name);
+
         removeView(elem);
       }
     }
@@ -486,7 +485,7 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
     ids.push_back(elem.OID());
   }
 
-  uima::CAS *_view = NULL;
+  uima::CAS *_view = nullptr;
   try
   {
     outDebug("try to get view " << view);
