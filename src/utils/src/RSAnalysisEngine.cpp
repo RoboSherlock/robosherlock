@@ -31,6 +31,11 @@ RSAnalysisEngine::~RSAnalysisEngine()
     delete cas;
     cas = NULL;
   }
+  if(rspm)
+  {
+    delete rspm;
+    rspm = NULL;
+  }
   if(engine)
   {
     delete engine;

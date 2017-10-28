@@ -56,13 +56,15 @@ public:
   {
     cas->reset();
   }
+
   uima::CAS* getCas()
   {
-      return cas;
+    return cas;
   }
 
-  RSPipelineManager* getPipelineManager(){
-      return rspm;
+  RSPipelineManager* getPipelineManager()
+  {
+    return rspm;
   }
 
 };
