@@ -1198,7 +1198,6 @@
        <node>BilateralSymmetryAnnotator</node>
        <node>BilateralSymmetrySegmentation</node>
        <node>SegmentationResultDisplayer</node>
-       <node>ResultAdvertiser</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
