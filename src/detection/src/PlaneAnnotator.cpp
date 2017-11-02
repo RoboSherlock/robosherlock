@@ -79,7 +79,7 @@ private:
 
   //Drawing
   bool foundPlane, saveToFile;
-  cv::Mat image;
+  cv::Mat image_;
   double pointSize;
 
   //params
@@ -169,7 +169,7 @@ private:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    cas.get(VIEW_COLOR_IMAGE_HD, image);
+    cas.get(VIEW_COLOR_IMAGE_HD, image_);
 
     foundPlane = false;
 
@@ -386,15 +386,15 @@ private:
       }
       else
       {
-          planeModel[0] = -plane_coefficients->values[0];
-          planeModel[1] = -plane_coefficients->values[1];
-          planeModel[2] = -plane_coefficients->values[2];
-          planeModel[3] = -plane_coefficients->values[3];
+        planeModel[0] = -plane_coefficients->values[0];
+        planeModel[1] = -plane_coefficients->values[1];
+        planeModel[2] = -plane_coefficients->values[2];
+        planeModel[3] = -plane_coefficients->values[3];
       }
 
       if(saveToFile)
       {
-        outInfo("Saving Plane to file: "<<pathToModelFile);
+        outInfo("Saving Plane to file: " << pathToModelFile);
         cv::Mat coeffs = cv::Mat_<float>(4, 1);
         for(size_t i = 0; i < planeModel.size(); ++i)
         {
@@ -439,7 +439,7 @@ private:
     plane_inliers = pcl::PointIndices::Ptr(new pcl::PointIndices);
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
     pcl::PointCloud <pcl::PointXYZRGBA>::Ptr cloudFiltered(new pcl::PointCloud<pcl::PointXYZRGBA>());
-    cas.get(VIEW_CLOUD,*cloud);
+    cas.get(VIEW_CLOUD, *cloud);
 
     cv::Mat planeCoeffs;
     cv::FileStorage fs;
@@ -577,7 +577,12 @@ private:
   {
     if(!foundPlane)
     {
-      disp = cv::Mat::zeros(image.rows, image.cols, CV_8UC3);
+      disp = cv::Mat::zeros(image_.rows, image_.cols, CV_8UC3);
+      return;
+    }
+    else if(foundPlane && image_.size().area() !=cloud->size())
+    {
+      disp = cv::Mat::zeros(480, 640, CV_8UC3);
       return;
     }
     std::vector<cv::Point2f> pointsImage;
@@ -586,7 +591,7 @@ private:
     switch(mode)
     {
     case BOARD:
-      disp = image.clone();
+      disp = image_.clone();
 
       axis[0] = cv::Point3f(0, 0, 0);
       axis[1] = cv::Point3f(0.02, 0, 0);
@@ -658,7 +663,7 @@ private:
       output->width = output->points.size();
       output->height = 1;
       output->is_dense = 1;
-      break;    
+      break;
     }
 
     if(firstRun)
