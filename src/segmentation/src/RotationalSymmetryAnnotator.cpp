@@ -327,7 +327,6 @@ public:
     {
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      visualizer.removeAllShapes();
       addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
     }
   }

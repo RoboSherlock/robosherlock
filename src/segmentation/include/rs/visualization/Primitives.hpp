@@ -22,6 +22,7 @@
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl/visualization/common/actor_map.h>
 
 #include <rs/segmentation/BilateralSymmetry.hpp>
 #include <rs/segmentation/RotationalSymmetry.hpp>
@@ -37,6 +38,12 @@
  */
 inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)
 {
+  pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
+  if(shapeActorMap->find(id) != shapeActorMap->end())
+  {
+    visualizer.removeShape(id);
+    visualizer.removeShape(id+"_border");
+  }
   Eigen::Affine3f pose;
   pose.translation() = symmetry.getOrigin();
   pose.linear() = getAlignMatrix<float>(Eigen::Vector3f::UnitZ(), symmetry.getNormal());
@@ -100,7 +107,13 @@ inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std
  *  \param[in]  length           length of symmetry axis
  *  \param[in]  lineWidth        line width of symmetry axis
  */
-inline void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, RotationalSymmetry &symmetry, std::string &id, float length, float lineWidth){
+inline void addSymmetryLine(pcl::visualization::PCLVisualizer &visualizer, RotationalSymmetry &symmetry, std::string &id, float length, float lineWidth)
+{
+  pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
+  if(shapeActorMap->find(id) != shapeActorMap->end())
+  {
+    visualizer.removeShape(id);
+  }
   pcl::PointXYZ p1, p2;
   p1.getVector3fMap() = symmetry.getOrigin() + symmetry.getOrientation() * length / 2;
   p2.getVector3fMap() = symmetry.getOrigin() - symmetry.getOrientation() * length / 2;
@@ -116,10 +129,12 @@ inline void addSymmetryLine(pcl::visualization::PCLVisualizer& visualizer, Rotat
  *  \param[in]  length           length of symmetry axis
  *  \param[in]  lineWidth        line width of symmetry axis
  */
-inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std::vector< std::vector<RotationalSymmetry> >& symmetries, float length, float lineWidth){
+inline void addSymmetryLines(pcl::visualization::PCLVisualizer &visualizer, std::vector< std::vector<RotationalSymmetry> > &symmetries, float length, float lineWidth)
+{
   for(size_t segmentId = 0; segmentId < symmetries.size(); segmentId++)
   {
-    for(size_t symId = 0; symId < symmetries[segmentId].size(); symId++){
+    for(size_t symId = 0; symId < symmetries[segmentId].size(); symId++)
+    {
       std::string symname = "RotSym" + std::to_string(segmentId * symmetries[segmentId].size() + symId);
       addSymmetryLine(visualizer, symmetries[segmentId][symId], symname, length, lineWidth);
     }
@@ -132,8 +147,10 @@ inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std:
  *  \param[in]  length           length of symmetry axis
  *  \param[in]  lineWidth        line width of symmetry axis
  */
-inline void addSymmetryLines(pcl::visualization::PCLVisualizer& visualizer, std::vector<RotationalSymmetry>& symmetries, float length, float lineWidth){
-  for(size_t symId = 0; symId < symmetries.size(); symId++){
+inline void addSymmetryLines(pcl::visualization::PCLVisualizer &visualizer, std::vector<RotationalSymmetry> &symmetries, float length, float lineWidth)
+{
+  for(size_t symId = 0; symId < symmetries.size(); symId++)
+  {
     std::string symname = "RotSym" + std::to_string(symId);
     addSymmetryLine(visualizer, symmetries[symId], symname, length, lineWidth);
   }

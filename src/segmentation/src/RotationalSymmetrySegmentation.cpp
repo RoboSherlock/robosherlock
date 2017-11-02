@@ -429,13 +429,19 @@ public:
       {
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       }
-      visualizer.removeAllShapes();
       visualizer.removeAllPointClouds();
       if(dispMode == ALL)
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
         addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
-        visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        if(firstRun)
+        {
+          visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "rot_segments_text");
+        }
+        else
+        {
+          visualizer.updateText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, "rot_segments_text");
+        }
       }
       else if (dispMode == SEGMENT)
       {

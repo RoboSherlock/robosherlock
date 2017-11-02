@@ -147,14 +147,14 @@ private:
   } dispMode;
 
 public:
-  BilateralSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0), dispMode(ALL)
+  BilateralSymmetrySegmentation() : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0), dispMode(ALL)
   {
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
     dsSceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     dsSceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
 
-    srand (time(NULL));
+    srand(time(NULL));
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -234,8 +234,8 @@ public:
 
 
     //get RGB objects cloud
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr (new pcl::PointCloud<pcl::Normal>);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
     cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
     if(cloud_ptr->size() == 0)
     {
@@ -573,7 +573,7 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
 
@@ -583,20 +583,26 @@ public:
       {
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       }
-      visualizer.removeAllShapes();
       visualizer.removeAllPointClouds();
       if(dispMode == ALL)
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
         addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
-        visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        if(firstRun)
+        {
+          visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "bilat_segments_text");
+        }
+        else
+        {
+          visualizer.updateText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, "bilat_segments_text");
+        }
       }
-      else if (dispMode == SEGMENT)
+      else if(dispMode == SEGMENT)
       {
-        std::string symname = "sym" + std::to_string(segVisIt+1);
+        std::string symname = "sym" + std::to_string(segVisIt + 1);
         visualizer.addPointCloud(segments[segVisIt], cloudname);
         addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
-        visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
+        visualizer.addText("Segment " + std::to_string(segVisIt + 1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
     }
   }
@@ -606,11 +612,11 @@ private:
   {
     for(size_t symId = 0; symId < numSymmetries; symId++)
     {
-      if( symmetryScores[symId] < bilSymSeg_max_sym_score &&
-          occlusionScores[symId] < bilSymSeg_max_occlusion_score &&
-          cutScores[symId] < bilSymSeg_max_cut_score &&
-          segmentIds[symId].size() > min_segment_size &&
-          symmetrySupportOverlapScores[symId] > min_sym_sypport_overlap)
+      if(symmetryScores[symId] < bilSymSeg_max_sym_score &&
+         occlusionScores[symId] < bilSymSeg_max_occlusion_score &&
+         cutScores[symId] < bilSymSeg_max_cut_score &&
+         segmentIds[symId].size() > min_segment_size &&
+         symmetrySupportOverlapScores[symId] > min_sym_sypport_overlap)
       {
         filteredSegmentIds.push_back(symId);
       }
@@ -624,7 +630,7 @@ private:
     for(size_t srcSegmentIdIt = 0; srcSegmentIdIt < filteredSegmentIds.size(); srcSegmentIdIt++)
     {
       int srcSegmentId = filteredSegmentIds[srcSegmentIdIt];
-      for(size_t tgtSegmentIdIt = srcSegmentIdIt+1; tgtSegmentIdIt < filteredSegmentIds.size(); tgtSegmentIdIt++)
+      for(size_t tgtSegmentIdIt = srcSegmentIdIt + 1; tgtSegmentIdIt < filteredSegmentIds.size(); tgtSegmentIdIt++)
       {
         int tgtSegmentId = filteredSegmentIds[tgtSegmentIdIt];
 
@@ -668,12 +674,16 @@ private:
     case 'a':
       segVisIt--;
       if(segVisIt < 0)
+      {
         segVisIt = segments.size() - 1;
+      }
       break;
     case 'd':
       segVisIt++;
       if(segVisIt >= segments.size())
+      {
         segVisIt = 0;
+      }
       break;
     case '1':
       dispMode = ALL;
