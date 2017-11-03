@@ -1185,7 +1185,7 @@
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-       <node>Trigger</node>
+       <!--<node>Trigger</node>-->
        <node>CollectionReader</node>
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>

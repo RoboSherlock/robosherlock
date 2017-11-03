@@ -56,7 +56,7 @@
       <nameValuePair>
         <name>receiveRGB</name>
         <value>
-          <boolean>false</boolean>
+          <boolean>true</boolean>
         </value>
       </nameValuePair>
 

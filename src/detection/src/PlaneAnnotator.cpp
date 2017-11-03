@@ -370,7 +370,11 @@ private:
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
     pcl::ModelCoefficients::Ptr plane_coefficients(new pcl::ModelCoefficients);
 
-    cas.get(VIEW_CLOUD, *cloud);
+    cas.get(VIEW_CLOUD_NON_NAN, *cloud);
+    if(cloud->size() == 0)
+    {
+      cas.get(VIEW_CLOUD, *cloud);
+    }
 
     std::vector<float> planeModel(4);
     if(process_cloud(plane_coefficients))

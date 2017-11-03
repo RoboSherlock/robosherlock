@@ -1043,6 +1043,7 @@
       <fixedFlow>
        <node>CollectionReader</node>
        <node>NormalEstimator</node>
+       <node>PointNormalNaNFilter</node>
        <node>OverSegmentationAnnotator</node>
        <node>RotationalSymmetryAnnotator</node>
        <node>RotationalSymmetrySegmentation</node>

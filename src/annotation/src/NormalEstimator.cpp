@@ -133,8 +133,12 @@ public:
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
     }
+
     if(receiveRGB)
+    {
       cas.get(VIEW_COLOR_IMAGE,rgb_);
+    }
+
 
     return UIMA_ERR_NONE;
   }
@@ -213,7 +217,9 @@ public:
   void drawImageWithLock(cv::Mat &disp)
   {
     if (receiveRGB)
+    {
       disp=rgb_.clone();
+    }      
   }
 };
 

@@ -173,8 +173,8 @@ public:
     if(cloud_ptr->size() == 0)
     {
       outInfo("Input Object cloud address is empty! Using scene cloud");
-      cas.get(VIEW_CLOUD, *cloud_ptr);
-      cas.get(VIEW_NORMALS, *normals);
+      cas.get(VIEW_CLOUD_NON_NAN, *cloud_ptr);
+      cas.get(VIEW_NORMALS_NON_NAN, *normals);
     }
     else
     {

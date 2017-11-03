@@ -75,8 +75,12 @@ public:
     outInfo("Cloud size after filter: " << non_NaN_ids.size());
     pcl::copyPointCloud(*cloud_ptr, non_NaN_ids, *cloud);
 
-    cas.set(VIEW_CLOUD, *cloud);
-    cas.set(VIEW_NORMALS, *normals);
+    pcl::PointIndices cas_non_NaN_ids;
+    cas_non_NaN_ids.indices = non_NaN_ids;
+
+    cas.set(VIEW_CLOUD_NON_NAN, *cloud);
+    cas.set(VIEW_NORMALS_NON_NAN, *normals);
+    cas.set(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, cas_non_NaN_ids);
 
     return UIMA_ERR_NONE;
   }

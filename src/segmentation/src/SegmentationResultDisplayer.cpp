@@ -79,7 +79,7 @@ private:
     rs::Scene scene = cas.getScene();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
-    cas.get(VIEW_CLOUD, *cloud_ptr);
+    cas.get(VIEW_CLOUD_NON_NAN, *cloud_ptr);
 
     //get plane indices if it has
     std::vector<rs::Plane> planes;
@@ -186,7 +186,7 @@ private:
     if(cv::countNonZero(rgb_) > 0)
     {
       disp=rgb_.clone();
-    }    
+    }
   }
 
 };
