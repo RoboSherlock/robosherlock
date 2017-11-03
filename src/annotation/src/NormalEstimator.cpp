@@ -86,11 +86,6 @@ public:
       ctx.extractValue("radiusSearch", radiusSearch);
     }
 
-    if(ctx.isParameterDefined("receiveRGB"))
-    {
-      ctx.extractValue("receiveRGB", receiveRGB);
-    }
-
     return UIMA_ERR_NONE;
   }
 
@@ -133,12 +128,6 @@ public:
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
     }
-
-    if(receiveRGB)
-    {
-      cas.get(VIEW_COLOR_IMAGE,rgb_);
-    }
-
 
     return UIMA_ERR_NONE;
   }
@@ -214,13 +203,7 @@ public:
     return true;
   }
 
-  void drawImageWithLock(cv::Mat &disp)
-  {
-    if (receiveRGB)
-    {
-      disp=rgb_.clone();
-    }      
-  }
+  void drawImageWithLock(cv::Mat &disp)  {}
 };
 
 MAKE_AE(NormalEstimator)

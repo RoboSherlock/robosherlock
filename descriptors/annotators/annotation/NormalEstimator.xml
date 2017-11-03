@@ -24,13 +24,6 @@
       </configurationParameter>
 
       <configurationParameter>
-        <name>receiveRGB</name>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-
-      <configurationParameter>
         <name>radiusSearch</name>
         <type>Float</type>
         <multiValued>false</multiValued>
@@ -48,13 +41,6 @@
 
       <nameValuePair>
         <name>useRGB</name>
-        <value>
-          <boolean>true</boolean>
-        </value>
-      </nameValuePair>
-
-      <nameValuePair>
-        <name>receiveRGB</name>
         <value>
           <boolean>true</boolean>
         </value>

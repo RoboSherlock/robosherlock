@@ -32,6 +32,7 @@
 
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
 
 using namespace uima;
 
@@ -41,6 +42,9 @@ class SegmentationResultDisplayer : public DrawingAnnotator
 private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
   cv::Mat rgb_;
+
+  std::vector<int> object_indices;
+  pcl::PointIndices mapping_to_original;
 
   int numSegments;
 
@@ -79,14 +83,19 @@ private:
     rs::Scene scene = cas.getScene();
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
+
+
     cas.get(VIEW_CLOUD_NON_NAN, *cloud_ptr);
+    cas.get(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, mapping_to_original);
+    cas.get(VIEW_COLOR_IMAGE, rgb_);
+
+    std::cout << cloud_ptr->size() << '\n';
 
     //get plane indices if it has
     std::vector<rs::Plane> planes;
     scene.annotations.filter(planes);
     if(!planes.empty())
     {
-      std::vector<int> object_indices;
       std::vector<int> plane_indices;
       std::vector<int> cloudIds(cloud_ptr->size());
       for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
@@ -130,35 +139,8 @@ private:
       cloud->points[pointId].b = 30;
     }
 
-    for(size_t segmentId = 0; segmentId < rotational_segments.size(); segmentId++)
-    {
-      int r = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      int g = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      int b = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      for(size_t pointIdIt = 0; pointIdIt < rotational_segments[segmentId].indices.size(); pointIdIt++)
-      {
-        int pointId = rotational_segments[segmentId].indices[pointIdIt];
-        cloud->points[pointId].r = r;
-        cloud->points[pointId].g = g;
-        cloud->points[pointId].b = b;
-      }
-    }
-
-    for(size_t segmentId = 0; segmentId < bilateral_segments.size(); segmentId++)
-    {
-      int r = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      int g = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      int b = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
-      for(size_t pointIdIt = 0; pointIdIt < bilateral_segments[segmentId].indices.size(); pointIdIt++)
-      {
-        int pointId = bilateral_segments[segmentId].indices[pointIdIt];
-        cloud->points[pointId].r = r;
-        cloud->points[pointId].g = g;
-        cloud->points[pointId].b = b;
-      }
-    }
-
-    cas.get(VIEW_COLOR_IMAGE,rgb_);
+    processSegment(rotational_segments);
+    processSegment(bilateral_segments);
 
     return UIMA_ERR_NONE;
   }
@@ -166,26 +148,57 @@ private:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
+    const std::string text = "segment_results";
 
     if(firstRun)
     {
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0,"segment_results");
+      visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0, text);
     }
     else
     {
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0,"segment_results");
+      visualizer.removeShape(text);
+      visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0, text);
     }
   }
 
   void drawImageWithLock(cv::Mat &disp)
   {
-    if(cv::countNonZero(rgb_) > 0)
+    disp=rgb_.clone();
+  }
+
+  cv::Point indexToCoordinates(int index, cv::Mat& rgb)
+  {
+	   int row = index / rgb.size().width + 1;
+	   int col = index % rgb.size().width + 1;
+
+     return cv::Point(col, row);
+  }
+
+  void processSegment(std::vector<pcl::PointIndices>& segments)
+  {
+    for(size_t segmentId = 0; segmentId < segments.size(); segmentId++)
     {
-      disp=rgb_.clone();
+      int r = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
+      int g = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
+      int b = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
+
+      for(size_t pointIdIt = 0; pointIdIt < segments[segmentId].indices.size(); pointIdIt++)
+      {
+        int pointId = segments[segmentId].indices[pointIdIt];
+        cloud->points[pointId].r = r;
+        cloud->points[pointId].g = g;
+        cloud->points[pointId].b = b;
+
+        cv::Point current = indexToCoordinates(mapping_to_original.indices[object_indices[pointId]], rgb_);
+
+        rgb_.at<cv::Vec3b>(current)[0] = r;
+        rgb_.at<cv::Vec3b>(current)[1] = g;
+        rgb_.at<cv::Vec3b>(current)[2] = b;
+      }
     }
   }
 
