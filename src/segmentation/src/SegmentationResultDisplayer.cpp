@@ -40,6 +40,13 @@ class SegmentationResultDisplayer : public DrawingAnnotator
 {
 
 private:
+  struct Cluster
+  {
+    pcl::PointIndices indices;
+    cv::Rect roi, roiHires;
+    cv::Mat mask, maskHires;
+  };
+
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
   cv::Mat rgb_;
 
@@ -84,12 +91,9 @@ private:
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-
     cas.get(VIEW_CLOUD_NON_NAN, *cloud_ptr);
     cas.get(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, mapping_to_original);
     cas.get(VIEW_COLOR_IMAGE, rgb_);
-
-    std::cout << cloud_ptr->size() << '\n';
 
     //get plane indices if it has
     std::vector<rs::Plane> planes;
@@ -139,8 +143,8 @@ private:
       cloud->points[pointId].b = 30;
     }
 
-    processSegment(rotational_segments);
-    processSegment(bilateral_segments);
+    processSegment(rotational_segments, tcas, scene);
+    processSegment(bilateral_segments, tcas, scene);
 
     return UIMA_ERR_NONE;
   }
@@ -178,13 +182,15 @@ private:
      return cv::Point(col, row);
   }
 
-  void processSegment(std::vector<pcl::PointIndices>& segments)
+  void processSegment(std::vector<pcl::PointIndices>& segments, uima::CAS& tcas, rs::Scene& scene)
   {
     for(size_t segmentId = 0; segmentId < segments.size(); segmentId++)
     {
       int r = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
       int g = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
       int b = (255 / (numSegments + 4)) * (rand() % (numSegments + 4));
+
+      pcl::PointIndices original_indices;
 
       for(size_t pointIdIt = 0; pointIdIt < segments[segmentId].indices.size(); pointIdIt++)
       {
@@ -193,13 +199,70 @@ private:
         cloud->points[pointId].g = g;
         cloud->points[pointId].b = b;
 
-        cv::Point current = indexToCoordinates(mapping_to_original.indices[object_indices[pointId]], rgb_);
+        int original_index = mapping_to_original.indices[object_indices[pointId]];
+        original_indices.indices.push_back(original_index);
+        cv::Point current = indexToCoordinates(original_index, rgb_);
 
         rgb_.at<cv::Vec3b>(current)[0] = r;
         rgb_.at<cv::Vec3b>(current)[1] = g;
         rgb_.at<cv::Vec3b>(current)[2] = b;
       }
+
+      //publish Clusters to CAS
+      rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
+      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+      rs::PointIndices uimaIndices = rs::conversion::to(tcas, original_indices);
+
+      Cluster currentCluster;
+      currentCluster.indices = original_indices;
+      createImageRoi(currentCluster, rgb_);
+
+      rcp.indices.set(uimaIndices);
+      rs::ImageROI imageRoi = rs::create<rs::ImageROI>(tcas);
+      imageRoi.mask(rs::conversion::to(tcas, currentCluster.mask));
+      imageRoi.mask_hires(rs::conversion::to(tcas, currentCluster.maskHires));
+      imageRoi.roi(rs::conversion::to(tcas, currentCluster.roi));
+      imageRoi.roi_hires(rs::conversion::to(tcas, currentCluster.roiHires));
+
+      uimaCluster.points.set(rcp);
+      uimaCluster.rois.set(imageRoi);
+      uimaCluster.source.set("SymmetryClustering");
+      scene.identifiables.append(uimaCluster);
     }
+  }
+
+  //reuse function from PointCloudClusterExtractor
+  void createImageRoi(Cluster &cluster, cv::Mat rgb) const
+  {
+    size_t width = rgb.size().width;
+    size_t height = rgb.size().height;
+
+    int min_x = width;
+    int max_x = -1;
+    int min_y = height;
+    int max_y = -1;
+
+    cv::Mat mask_full = cv::Mat::zeros(height, width, CV_8U);
+
+    // get min / max extents (rectangular bounding box in image (pixel) coordinates)
+    for(size_t i = 0; i < cluster.indices.indices.size(); ++i)
+    {
+      const int idx = cluster.indices.indices[i];
+      const int x = idx % width;
+      const int y = idx / width;
+
+      min_x = std::min(min_x, x);
+      min_y = std::min(min_y, y);
+      max_x = std::max(max_x, x);
+      max_y = std::max(max_y, y);
+
+      mask_full.at<uint8_t>(y, x) = 255;
+    }
+
+    cluster.roi = cv::Rect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1);
+    cluster.roiHires = cv::Rect(cluster.roi.x << 1, cluster.roi.y << 1, cluster.roi.width << 1, cluster.roi.height << 1);
+    mask_full(cluster.roi).copyTo(cluster.mask);
+    cv::resize(cluster.mask, cluster.maskHires, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
   }
 
 };
