@@ -58,8 +58,6 @@ private:
 
   std::vector< std::vector<int> > dsMap;
 
-  bool object_pass_through;
-
   float minNormalThreshold;
   float maxNormalThreshold;
   float curvatureThreshold;
@@ -84,11 +82,6 @@ public:
   {
     outInfo("initialize");
 
-
-    if(ctx.isParameterDefined("object_pass_through"))
-    {
-      ctx.extractValue("object_pass_through", object_pass_through);
-    }
     if(ctx.isParameterDefined("minNormalThreshold"))
     {
       ctx.extractValue("minNormalThreshold", minNormalThreshold);

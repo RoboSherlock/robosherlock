@@ -12,48 +12,56 @@
         <configurationParameter>
             <name>rotSymAnn_min_fit_angle</name>
             <type>Float</type>
+            <description>Lower bound range for scaling symmetric scoring</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_max_fit_angle</name>
             <type>Float</type>
+            <description>Upper bound range for scaling symmetric scoring</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_min_occlusion_dist</name>
             <type>Float</type>
+            <description>Lower bound for measuring occlusion in a segment</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_max_occlusion_dist</name>
             <type>Float</type>
+            <description>Upper bound for measuring occlusion in a segment</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_max_sym_score</name>
             <type>Float</type>
+            <description>Maximum bound for passing segments more symmetric property </description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_max_occlusion_score</name>
             <type>Float</type>
+            <description>Maximum bound for passing segments with enough point closeness </description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_max_perpendicular_score</name>
             <type>Float</type>
+            <description>Some trick for keeping more valued segments</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>rotSymAnn_min_coverage_score</name>
             <type>Float</type>
+            <description>Coverage scoring for a segment, if segment does not cover over this threshold based on symmetry axis, segment is filtered out</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
@@ -78,12 +86,14 @@
         <configurationParameter>
             <name>max_angle_diff</name>
             <type>Float</type>
+            <description>Maximum angle between two symmetry to be consider two distinct sym</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>max_dist_diff</name>
             <type>Float</type>
+            <description>Maximum distance between two symmetry to be consider two distinct sym</description>
             <multiValued>false</multiValued>
             <mandatory>true</mandatory>
         </configurationParameter>

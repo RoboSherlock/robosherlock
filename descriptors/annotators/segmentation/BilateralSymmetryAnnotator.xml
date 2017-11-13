@@ -12,12 +12,14 @@
       <configurationParameter>
           <name>bilSymAnn_isDownsampled</name>
           <type>Boolean</type>
+          <description>Option to downsample the cloud for faster processing.</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>naive_detection</name>
           <type>Boolean</type>
+          <description>Option to use naive basis vectors of point cloud as raw symmetries</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
@@ -30,6 +32,7 @@
       <configurationParameter>
           <name>angle_division</name>
           <type>Integer</type>
+          <description>Angle denominator for generating symmetry axes over hemisphere</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
@@ -42,84 +45,98 @@
       <configurationParameter>
           <name>correspondence_search_radius</name>
           <type>Float</type>
+          <description>Angle denominator for generating symmetry axes over hemisphere</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>correspondence_max_normal_fit_error</name>
           <type>Float</type>
+          <description>Maximum normal difference for evaluating correspondence of two point over symmetry plane</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>correspondence_min_sym_dist</name>
           <type>Float</type>
+          <description>Minimum distance between two point over symmetry plane to be correspondence</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>correspondence_max_sym_reflected_dist</name>
           <type>Float</type>
+          <description>Maximum distance between reflected point and other point over symmetry plane to be correspondence</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>refine_max_iteration</name>
           <type>Integer</type>
+          <description>Iteration to refine symmetries based on Levenberg-Maxquart algorithm</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>refine_min_inlier_sym_score</name>
           <type>Float</type>
+          <description>Lower bound range for scaling scoring symmetric segments</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>refine_max_inlier_sym_score</name>
           <type>Float</type>
+          <description>Upper bound range for scaling scoring symmetric segments</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>bilSymAnn_min_occlusion_dist</name>
           <type>Float</type>
+          <description>Lower bound for measuring occlusion in a segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>bilSymAnn_max_occlusion_dist</name>
           <type>Float</type>
+          <description>Upper bound for measuring occlusion in a segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>bilSymAnn_max_occlusion_score</name>
           <type>Float</type>
+          <description>Maximum bound for passing segments with enough point closeness </description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>min_segment_inlier_score</name>
           <type>Float</type>
+          <description>Minimum bound for passing segments more symmetric property </description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>min_corres_inlier_score</name>
           <type>Float</type>
+          <description>Minimum bound for passing segments more symmetric property over correspondences size</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>sym_angle_diff</name>
           <type>Float</type>
+          <description>Maximum angle between two symmetry to be consider two distinct sym</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>sym_dist_diff</name>
           <type>Float</type>
+          <description>Maximum distance between two symmetry to be consider two distinct sym</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>

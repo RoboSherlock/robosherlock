@@ -12,6 +12,7 @@
       <configurationParameter>
           <name>rotSymSeg_isDownsampled</name>
           <type>Boolean</type>
+          <description>Option to downsample the cloud for faster processing.</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
@@ -30,54 +31,63 @@
       <configurationParameter>
           <name>rotSymSeg_adjacency_radius</name>
           <type>Float</type>
+          <description>Max radius to find adjacent neighbors of a point</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_num_adjacency_neighbors</name>
           <type>Integer</type>
+          <description>Number of finding adjacent neighbors of a point</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>adjacency_sigma_convex</name>
           <type>Float</type>
+          <description>Please refer Symmetry Segmentation paper. http://www.umiacs.umd.edu/%7Eaecins/projects/symseg/symmetry_segmentation_ICRA16.pdf</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>adjacency_sigma_concave</name>
           <type>Float</type>
+          <description>Please refer Symmetry Segmentation paper. http://www.umiacs.umd.edu/%7Eaecins/projects/symseg/symmetry_segmentation_ICRA16.pdf</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_adjacency_weight_factor</name>
           <type>Float</type>
+          <description>Scaling weight of adjacency neighbors for favoring Region Growing effect</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_min_fit_angle</name>
           <type>Float</type>
+          <description>Lower bound range for scaling scoring symmetric segments</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_max_fit_angle</name>
           <type>Float</type>
+          <description>Upper bound range for scaling scoring symmetric segments</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_min_occlusion_dist</name>
           <type>Float</type>
+          <description>Lower bound for measuring occlusion in a segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_max_occlusion_dist</name>
           <type>Float</type>
+          <description>Upper bound for measuring occlusion in a segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
@@ -90,42 +100,49 @@
       <configurationParameter>
           <name>rotSymSeg_fg_weight_factor</name>
           <type>Float</type>
+          <description>Scaling weight of foreground point for keeping more points in segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_bg_weight_factor</name>
           <type>Float</type>
+          <description>Scaling weight of background point for cutting more points in segment</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_max_sym_score</name>
           <type>Float</type>
+          <description>Maximum bound for passing segments more symmetric property </description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_max_occlusion_score</name>
           <type>Float</type>
+          <description>Maximum bound for passing segments with enough point closeness </description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>rotSymSeg_max_cut_score</name>
           <type>Float</type>
+          <description>Maximum bound for passing segments enough cut score per segment point</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>min_segment_size</name>
           <type>Integer</type>
+          <description>Minimum segment size to pass</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
           <name>overlap_threshold</name>
           <type>Float</type>
+          <description>Overlap Ratio between two segment to be merged</description>
           <multiValued>false</multiValued>
           <mandatory>true</mandatory>
       </configurationParameter>

@@ -10,20 +10,16 @@
     <vendor/>
     <configurationParameters>
         <configurationParameter>
-            <name>object_pass_through</name>
-            <type>Boolean</type>
-            <multiValued>false</multiValued>
-            <mandatory>true</mandatory>
-        </configurationParameter>
-        <configurationParameter>
             <name>minNormalThreshold</name>
             <type>Float</type>
+            <description>Lower bound of Smoothness Threshold angle range, for parallel running OverSegmentation with different Smoothness Threshold</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>maxNormalThreshold</name>
             <type>Float</type>
+            <description>Upper bound of Smoothness Threshold angle range, for parallel running OverSegmentation with different Smoothness Threshold</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
@@ -36,41 +32,40 @@
         <configurationParameter>
             <name>overlapThreshold</name>
             <type>Float</type>
+            <description>Overlap Ratio Threshold (Intersection Points over Union Points) criteria to merge two segments</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>minClusterSize</name>
             <type>Integer</type>
+            <description>Min cluster size to filter out too small segments</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>maxClusterSize</name>
             <type>Integer</type>
+            <description>Max cluster size to filter out too large segments</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>neighborNumber</name>
             <type>Integer</type>
+            <description>Total number of searching surrounding neighbor points</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
         <configurationParameter>
             <name>numSegmentation</name>
             <type>Integer</type>
+            <description>Number of instances to parallel run OverSegmentation</description>
             <multiValued>false</multiValued>
             <mandatory>false</mandatory>
         </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
-        <nameValuePair>
-            <name>object_pass_through</name>
-            <value>
-                <boolean>true</boolean>
-              </value>
-        </nameValuePair>
         <nameValuePair>
             <name>minNormalThreshold</name>
             <value>
