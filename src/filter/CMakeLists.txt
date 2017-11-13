@@ -8,6 +8,3 @@ target_link_libraries(rs_RegionFilter rs_core)
 
 rs_add_library(rs_ClusterFilter src/ClusterFilter.cpp)
 target_link_libraries(rs_ClusterFilter rs_core)
-
-rs_add_library(rs_pointNormalNaNFilter src/PointNormalNaNFilter.cpp)
-target_link_libraries(rs_pointNormalNaNFilter rs_core)

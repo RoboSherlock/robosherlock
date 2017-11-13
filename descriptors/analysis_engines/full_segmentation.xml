@@ -94,9 +94,6 @@
     <delegateAnalysisEngine key="PointCloudFilter">
       <import location="../annotators/filter/PointCloudFilter.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="PointNormalNaNFilter">
-      <import location="../annotators/filter/PointNormalNaNFilter.xml"/>
-    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PrimitiveShapeAnnotator">
       <import location="../annotators/annotation/PrimitiveShapeAnnotator.xml"/>
     </delegateAnalysisEngine>
@@ -698,6 +695,16 @@
           <parameter>BilateralSymmetrySegmentation/min_sym_sypport_overlap</parameter>
         </overrides>
       </configurationParameter>
+      <configurationParameter>
+        <name>processCorrespondence</name>
+        <description>Turn on or off processing correspondences for dataset organized cloud or not</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>SegmentationResultDisplayer/processCorrespondence</parameter>
+        </overrides>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
@@ -1038,12 +1045,17 @@
               <float>0.1f</float>
           </value>
       </nameValuePair>
+      <nameValuePair>
+          <name>processCorrespondence</name>
+          <value>
+              <boolean>false</boolean>
+          </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
        <node>CollectionReader</node>
        <node>NormalEstimator</node>
-       <node>PointNormalNaNFilter</node>
        <node>OverSegmentationAnnotator</node>
        <node>RotationalSymmetryAnnotator</node>
        <node>RotationalSymmetrySegmentation</node>

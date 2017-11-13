@@ -8,8 +8,20 @@
     <description>Display all segment computed from RotationalSymmetrySegmentation and BilateralSymmetrySegmentation</description>
     <version>1.0</version>
     <configurationParameters>
+      <configurationParameter>
+          <name>processCorrespondence</name>
+          <type>Boolean</type>
+          <multiValued>false</multiValued>
+          <mandatory>true</mandatory>
+      </configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
+      <nameValuePair>
+          <name>processCorrespondence</name>
+          <value>
+              <boolean>true</boolean>
+          </value>
+      </nameValuePair>
     </configurationParameterSettings>
     <typeSystemDescription>
       <imports>

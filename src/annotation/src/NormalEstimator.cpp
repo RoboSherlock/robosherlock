@@ -26,6 +26,8 @@
 #include <pcl/features/integral_image_normal.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/io/pcd_io.h>
+#include <pcl/filters/filter.h>
+#include <pcl/filters/voxel_grid.h>
 
 #include <rs/DrawingAnnotator.h>
 #include <rs/scene_cas.h>
@@ -38,8 +40,10 @@ class NormalEstimator : public DrawingAnnotator
 {
 private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr;
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_non_nan;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr thermal_cloud_ptr;
   pcl::PointCloud<pcl::Normal>::Ptr normals_ptr;
+  pcl::PointCloud<pcl::Normal>::Ptr normals_non_nan;
   pcl::PointCloud<pcl::Normal>::Ptr thermal_normals_ptr;
 
   double pointSize;
@@ -103,9 +107,13 @@ public:
 
     // create necessary pcl objects
     cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    cloud_non_nan.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermal_cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
     normals_ptr.reset(new pcl::PointCloud<pcl::Normal>);
+    normals_non_nan.reset(new pcl::PointCloud<pcl::Normal>);
     thermal_normals_ptr.reset(new pcl::PointCloud<pcl::Normal>);
+
+    pcl::PointIndices non_NaN_ids;
 
     // create scene cas wrapper for cas and get kinect frame
     rs::SceneCas cas(tcas);
@@ -127,6 +135,11 @@ public:
         compute_normals_unOrganizedCloud(cloud_ptr, normals_ptr);
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
+
+      filter_NaN_points(cloud_ptr, normals_ptr, cloud_non_nan, normals_non_nan, non_NaN_ids.indices);
+      cas.set(VIEW_CLOUD_NON_NAN, *cloud_non_nan);
+      cas.set(VIEW_NORMALS_NON_NAN, *normals_non_nan);
+      cas.set(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, non_NaN_ids);    
     }
 
     return UIMA_ERR_NONE;
@@ -153,6 +166,18 @@ public:
     ne.compute(*normals_ptr);
     outInfo("  Normal Cloud Size: " FG_BLUE << normals_ptr->points.size());
   }
+
+  void filter_NaN_points(pcl::PointCloud< pcl::PointXYZRGBA>::Ptr &in_cloud,
+                         pcl::PointCloud< pcl::Normal>::Ptr &in_normals,
+                         pcl::PointCloud< pcl::PointXYZRGBA>::Ptr &out_cloud,
+                         pcl::PointCloud< pcl::Normal>::Ptr &out_normals,
+                         std::vector<int> &non_NaN_ids)
+  {
+    pcl::removeNaNNormalsFromPointCloud(*in_normals, *out_normals, non_NaN_ids);
+    outInfo("Cloud size after filter: " << non_NaN_ids.size());
+    pcl::copyPointCloud(*in_cloud, non_NaN_ids, *out_cloud);
+  }
+
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";

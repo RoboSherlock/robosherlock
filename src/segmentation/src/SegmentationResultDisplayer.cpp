@@ -54,6 +54,7 @@ private:
   pcl::PointIndices mapping_to_original;
 
   int numSegments;
+  bool processCorrespondence;
 
   double pointSize;
 
@@ -64,6 +65,8 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("Initialize");
+
+    ctx.extractValue("processCorrespondence", processCorrespondence);
 
     cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
     srand (time(NULL));
@@ -171,7 +174,10 @@ private:
 
   void drawImageWithLock(cv::Mat &disp)
   {
-    disp=rgb_.clone();
+    if(processCorrespondence)
+    {
+      disp=rgb_.clone();
+    }
   }
 
   cv::Point indexToCoordinates(int index, cv::Mat& rgb)
@@ -199,35 +205,41 @@ private:
         cloud->points[pointId].g = g;
         cloud->points[pointId].b = b;
 
-        int original_index = mapping_to_original.indices[object_indices[pointId]];
-        original_indices.indices.push_back(original_index);
-        cv::Point current = indexToCoordinates(original_index, rgb_);
+        if (processCorrespondence)
+        {
+          int original_index = mapping_to_original.indices[object_indices[pointId]];
+          original_indices.indices.push_back(original_index);
+          cv::Point current = indexToCoordinates(original_index, rgb_);
 
-        rgb_.at<cv::Vec3b>(current)[0] = r;
-        rgb_.at<cv::Vec3b>(current)[1] = g;
-        rgb_.at<cv::Vec3b>(current)[2] = b;
+          rgb_.at<cv::Vec3b>(current)[0] = r;
+          rgb_.at<cv::Vec3b>(current)[1] = g;
+          rgb_.at<cv::Vec3b>(current)[2] = b;
+        }
       }
 
       //publish Clusters to CAS
-      rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
-      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-      rs::PointIndices uimaIndices = rs::conversion::to(tcas, original_indices);
+      if(processCorrespondence)
+      {
+        rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
+        rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+        rs::PointIndices uimaIndices = rs::conversion::to(tcas, original_indices);
 
-      Cluster currentCluster;
-      currentCluster.indices = original_indices;
-      createImageRoi(currentCluster, rgb_);
+        Cluster currentCluster;
+        currentCluster.indices = original_indices;
+        createImageRoi(currentCluster, rgb_);
 
-      rcp.indices.set(uimaIndices);
-      rs::ImageROI imageRoi = rs::create<rs::ImageROI>(tcas);
-      imageRoi.mask(rs::conversion::to(tcas, currentCluster.mask));
-      imageRoi.mask_hires(rs::conversion::to(tcas, currentCluster.maskHires));
-      imageRoi.roi(rs::conversion::to(tcas, currentCluster.roi));
-      imageRoi.roi_hires(rs::conversion::to(tcas, currentCluster.roiHires));
+        rcp.indices.set(uimaIndices);
+        rs::ImageROI imageRoi = rs::create<rs::ImageROI>(tcas);
+        imageRoi.mask(rs::conversion::to(tcas, currentCluster.mask));
+        imageRoi.mask_hires(rs::conversion::to(tcas, currentCluster.maskHires));
+        imageRoi.roi(rs::conversion::to(tcas, currentCluster.roi));
+        imageRoi.roi_hires(rs::conversion::to(tcas, currentCluster.roiHires));
 
-      uimaCluster.points.set(rcp);
-      uimaCluster.rois.set(imageRoi);
-      uimaCluster.source.set("SymmetryClustering");
-      scene.identifiables.append(uimaCluster);
+        uimaCluster.points.set(rcp);
+        uimaCluster.rois.set(imageRoi);
+        uimaCluster.source.set("SymmetryClustering");
+        scene.identifiables.append(uimaCluster);
+      }
     }
   }
 
