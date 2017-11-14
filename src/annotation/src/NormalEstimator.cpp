@@ -137,9 +137,13 @@ public:
       }
 
       filter_NaN_points(cloud_ptr, normals_ptr, cloud_non_nan, normals_non_nan, non_NaN_ids.indices);
-      cas.set(VIEW_CLOUD_NON_NAN, *cloud_non_nan);
+
+      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+      rcp.indices.set(rs::conversion::to(tcas, non_NaN_ids));
+      rcp.cloud.set(rs::conversion::to(tcas, *cloud_non_nan));
+
+      cas.set(VIEW_CLOUD_NON_NAN, rcp);
       cas.set(VIEW_NORMALS_NON_NAN, *normals_non_nan);
-      cas.set(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, non_NaN_ids);    
     }
 
     return UIMA_ERR_NONE;

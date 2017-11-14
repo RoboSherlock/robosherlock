@@ -94,8 +94,12 @@ private:
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
 
-    cas.get(VIEW_CLOUD_NON_NAN, *cloud_ptr);
-    cas.get(VIEW_MAPPING_NON_NAN_TO_ORIGINAL, mapping_to_original);
+    rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+    cas.get(VIEW_CLOUD_NON_NAN, rcp);
+    rs::conversion::from(rcp.cloud(), *cloud_ptr);
+    rs::conversion::from(rcp.indices.get(), mapping_to_original);
+
+
     cas.get(VIEW_COLOR_IMAGE, rgb_);
 
     //get plane indices if it has

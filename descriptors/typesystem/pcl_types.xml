@@ -112,6 +112,11 @@
           <description/>
           <rangeTypeName>rs.pcl.PointIndices</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>cloud</name>
+          <description/>
+          <rangeTypeName>rs.pcl.PointCloud</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>

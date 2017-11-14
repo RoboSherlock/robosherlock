@@ -370,7 +370,9 @@ private:
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
     pcl::ModelCoefficients::Ptr plane_coefficients(new pcl::ModelCoefficients);
 
-    cas.get(VIEW_CLOUD_NON_NAN, *cloud);
+    rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+    cas.get(VIEW_CLOUD_NON_NAN, rcp);
+    rs::conversion::from(rcp.cloud(), *cloud);
     if(cloud->size() == 0)
     {
       cas.get(VIEW_CLOUD, *cloud);
