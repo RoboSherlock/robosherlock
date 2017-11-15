@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #include <errno.h>
 #include <math.h>
+#include <map>
 
 #include <opencv/highgui.h>
 
@@ -65,6 +66,13 @@ static const uint32_t colors[] =
   0x808000,
   0x800080,
   0x008080
+};
+
+static const std::map<std::string, cv::Vec3b> colorMap
+{
+	{"red",COLOR_TO_VEC3B(0)},
+	{"green",COLOR_TO_VEC3B(1)},
+	{"blue",COLOR_TO_VEC3B(2)}
 };
 
 static const cv::Scalar cvScalarColors[] =
