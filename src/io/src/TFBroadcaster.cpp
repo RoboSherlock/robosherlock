@@ -19,13 +19,16 @@
 
 #include <uima/api.hpp>
 
+//ROS
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <actionlib/server/simple_action_server.h>
 
+//Boost
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
 
+//PCL
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/ModelCoefficients.h>
@@ -36,8 +39,10 @@
 #include <pcl/filters/extract_indices.h>
 #include <pcl/common/centroid.h>
 
+//RS
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
+#include <rs/io/TFBroadcasterWrapper.hpp>
 
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
@@ -48,55 +53,6 @@
 #include <mutex>
 #include <chrono>
 
-/**
-*Gets the clusters that have poses and broadcasts them to tf
-*/
-class BroadcasterWrapper
-{
-
-private:
-  std::vector<tf::StampedTransform> transforms;
-  bool updated;
-  std::chrono::milliseconds sleepTime;
-public:
-
-  std::mutex mutex;
-
-  BroadcasterWrapper(): transforms(), updated(false)
-  {
-    sleepTime = std::chrono::milliseconds(1000 / 30);
-  }
-
-  void run()
-  {
-    tf::TransformBroadcaster br;
-    while(ros::ok())
-    {
-      mutex.lock();
-      if(!transforms.empty())
-      {
-        ros::Time t = ros::Time::now();
-        for(int i = 0; i < transforms.size(); ++i)
-        {
-          transforms[i].stamp_ = t;
-        }
-        br.sendTransform(transforms);
-      }
-      mutex.unlock();
-      std::this_thread::sleep_for(sleepTime);
-    }
-  }
-
-  void addTransforms(const std::vector<tf::StampedTransform> &ts)
-  {
-    mutex.lock();
-    transforms.clear();
-    transforms.insert(transforms.end(), ts.begin(), ts.end());
-    updated = true;
-    mutex.unlock();
-  }
-};
-
 
 typedef pcl::PointXYZRGBA PointT;
 using namespace uima;
@@ -106,10 +62,9 @@ class TFBroadcaster : public Annotator
 
 private:
   ros::NodeHandle nh_;
-  ros::Publisher pub;
 
   std::thread thread;
-  BroadcasterWrapper broadCasterObject;
+  TFBroadcasterWrapper broadCasterObject;
   sensor_msgs::CameraInfo cam_info_;
 
 public:
@@ -122,7 +77,7 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    thread = std::thread(&BroadcasterWrapper::run, &broadCasterObject);
+    thread = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject);
     return UIMA_ERR_NONE;
   }
 
