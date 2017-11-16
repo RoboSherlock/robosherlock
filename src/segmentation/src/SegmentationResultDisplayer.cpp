@@ -95,7 +95,7 @@ private:
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
 
     rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-    cas.get(VIEW_CLOUD_NON_NAN, rcp);
+    cas.getFS(VIEW_CLOUD_NON_NAN, rcp);
     rs::conversion::from(rcp.cloud(), *cloud_ptr);
     rs::conversion::from(rcp.indices.get(), mapping_to_original);
 

@@ -147,9 +147,9 @@ public:
     {
       outInfo("Input Object cloud address is empty! Using cleaned cloud");
       rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-      cas.get(VIEW_CLOUD_NON_NAN, rcp);
-      cas.get(VIEW_NORMALS_NON_NAN, *normals_ptr);
+      cas.getFS(VIEW_CLOUD_NON_NAN, rcp);
       rs::conversion::from(rcp.cloud(), *cloud_ptr);
+      rs::conversion::from(rcp.normals(), *normals_ptr);
     }
     else
     {

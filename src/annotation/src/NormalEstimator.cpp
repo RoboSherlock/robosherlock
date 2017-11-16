@@ -141,9 +141,8 @@ public:
       rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
       rcp.indices.set(rs::conversion::to(tcas, non_NaN_ids));
       rcp.cloud.set(rs::conversion::to(tcas, *cloud_non_nan));
-
+      rcp.normals.set(rs::conversion::to(tcas, *normals_non_nan));
       cas.set(VIEW_CLOUD_NON_NAN, rcp);
-      cas.set(VIEW_NORMALS_NON_NAN, *normals_non_nan);
     }
 
     return UIMA_ERR_NONE;

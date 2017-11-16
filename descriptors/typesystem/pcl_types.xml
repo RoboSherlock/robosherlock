@@ -117,6 +117,11 @@
           <description/>
           <rangeTypeName>rs.pcl.PointCloud</rangeTypeName>
         </featureDescription>
+        <featureDescription>
+          <name>normals</name>
+          <description/>
+          <rangeTypeName>rs.pcl.NormalsCloud</rangeTypeName>
+        </featureDescription>
       </features>
     </typeDescription>
     <typeDescription>
