@@ -99,8 +99,8 @@ private:
 
 public:
   ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME),
-      invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2),
-      fastMatchThreshold(0.4), lastTimestamp(0), nh("~")
+    invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2),
+    fastMatchThreshold(0.4), lastTimestamp(0), nh("~")
   {
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
@@ -112,7 +112,7 @@ public:
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Detection>,      1.0));
 
-    marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers",1,true);
+    marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers", 1, true);
   }
 
   /*
@@ -293,7 +293,7 @@ private:
   {
     visualization_msgs::MarkerArray markers;
     int idx = 0;
-    for (rs::Object obj:objects)
+    for(rs::Object obj : objects)
     {
       visualization_msgs::Marker marker;
       marker.header.frame_id = "map";
@@ -307,47 +307,67 @@ private:
       obj.annotations.filter(shapes);
       obj.annotations.filter(detections);
 
+      marker.type = visualization_msgs::Marker::CUBE;
+//      marker.lifetime = ros::Duration(2, 0);
       if(!detections.empty())
       {
         marker.type = visualization_msgs::Marker::MESH_RESOURCE;
         std::string name = detections[0].name();
-        marker.mesh_resource = "package://rs_resources/object_dataset/cad_models/"+name+"/"+name+".dae";
+        marker.mesh_resource = "package://rs_resources/object_dataset/cad_models/" + name + "/" + name + ".dae";
       }
       else if(!shapes.empty())
       {
         rs::Shape &s = shapes[0];
         if(s.shape() == "round")
         {
-          marker.type == visualization_msgs::Marker::CYLINDER;
+          marker.type = visualization_msgs::Marker::CYLINDER;
         }
-      }
-      else
-      {
-        marker.type == visualization_msgs::Marker::CUBE;
       }
       std::vector<rs::Geometry> geom;
       obj.annotations.filter(geom);
       if(!geom.empty())
       {
-          rs::Geometry &g = geom[0];
-          tf::Stamped<tf::Pose> pose;
-          rs::conversion::from(g.world(),pose);
-          marker.pose.position.x = pose.getOrigin().x();
-          marker.pose.position.y = pose.getOrigin().y();
-          marker.pose.position.z = pose.getOrigin().z();
-          marker.pose.orientation.x = pose.getRotation().x();
-          marker.pose.orientation.y = pose.getRotation().y();
-          marker.pose.orientation.z = pose.getRotation().z();
-          marker.pose.orientation.w = pose.getRotation().w();
+        rs::Geometry &g = geom[0];
+        tf::Stamped<tf::Pose> pose;
+        rs::conversion::from(g.world(), pose);
+        marker.pose.position.x = pose.getOrigin().x();
+        marker.pose.position.y = pose.getOrigin().y();
+        marker.pose.position.z = pose.getOrigin().z();
+        marker.pose.orientation.x = pose.getRotation().x();
+        marker.pose.orientation.y = pose.getRotation().y();
+        marker.pose.orientation.z = pose.getRotation().z();
+        marker.pose.orientation.w = pose.getRotation().w();
 
-          marker.scale.x = g.boundingBox().height();
-          marker.scale.y = g.boundingBox().width();
-          marker.scale.z = g.boundingBox().depth();
+        marker.scale.x = g.boundingBox().width();
+        marker.scale.y = g.boundingBox().height();
+        marker.scale.z = g.boundingBox().depth();
       }
-      marker.color.a = 1.0; // Don't forget to set the alpha!
-      marker.color.r = 0.0;
-      marker.color.g = 1.0;
-      marker.color.b = 0.0;
+
+      //add color if we have some
+      std::vector<rs::SemanticColor> colors;
+      obj.annotations.filter(colors);
+      if(color.empty()) //default color green
+      {
+        marker.color.a = 1.0; // Don't forget to set the alpha!
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+      }
+      else
+      {
+        rs::SemanticColor &c = colors[0];
+
+        auto iterator = rs::common::colorMap.find(c.color()[0]);
+        if(iterator!=rs::common::colorMap.end())
+        {
+          cv::Scalar color = iterator->second;
+          marker.color.a = 1.0;
+          marker.color.r = color[2]/255;
+          marker.color.g = color[1]/255;
+          marker.color.b = color[0]/255;
+        }
+      }
+
 
       markers.markers.push_back(marker);
     }

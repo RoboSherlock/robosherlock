@@ -45,7 +45,7 @@ namespace common
 
 #define COLOR_TO_SCALAR(i) CV_RGB((colors[i] >> 16) & 0xFF, (colors[i] >> 8) & 0xFF, colors[i] & 0xFF)
 #define COLOR_TO_VEC3B(i) cv::Vec3b(colors[i] & 0xFF, (colors[i] >> 8) & 0xFF, (colors[i] >> 16) & 0xFF)
-
+//BGR
 static const uint32_t colors[] =
 {
   0xFF0000,
@@ -68,11 +68,17 @@ static const uint32_t colors[] =
   0x008080
 };
 
-static const std::map<std::string, cv::Vec3b> colorMap
+static const std::map<std::string, cv::Scalar> colorMap
 {
-	{"red",COLOR_TO_VEC3B(0)},
-	{"green",COLOR_TO_VEC3B(1)},
-	{"blue",COLOR_TO_VEC3B(2)}
+  {"red", CV_RGB(255,0,0)},
+  {"yellow", CV_RGB(255, 255, 0)},
+  {"green", CV_RGB(0, 255, 0)},
+  {"cyan", CV_RGB(0, 255, 255)},
+  {"blue", CV_RGB(0, 0, 255)},
+  {"magenta",CV_RGB(255, 0, 255)},
+  {"white",CV_RGB(255, 255, 255)},
+  {"black",CV_RGB(0, 0, 0)},
+  {"grey",CV_RGB(127, 127, 127)}
 };
 
 static const cv::Scalar cvScalarColors[] =
