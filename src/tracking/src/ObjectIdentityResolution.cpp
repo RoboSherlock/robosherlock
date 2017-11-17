@@ -36,8 +36,10 @@
 #include <rs/utils/common.h>
 
 // ROS
-#include "ros/ros.h"
+#include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
+#include <resource_retriever/retriever.h>
+
 
 //#undef OUT_LEVEL
 //#define OUT_LEVEL OUT_LEVEL_DEBUG
@@ -307,22 +309,6 @@ private:
       obj.annotations.filter(shapes);
       obj.annotations.filter(detections);
 
-      marker.type = visualization_msgs::Marker::CUBE;
-//      marker.lifetime = ros::Duration(2, 0);
-      if(!detections.empty())
-      {
-        marker.type = visualization_msgs::Marker::MESH_RESOURCE;
-        std::string name = detections[0].name();
-        marker.mesh_resource = "package://rs_resources/object_dataset/cad_models/" + name + "/" + name + ".dae";
-      }
-      else if(!shapes.empty())
-      {
-        rs::Shape &s = shapes[0];
-        if(s.shape() == "round")
-        {
-          marker.type = visualization_msgs::Marker::CYLINDER;
-        }
-      }
       std::vector<rs::Geometry> geom;
       obj.annotations.filter(geom);
       if(!geom.empty())
@@ -341,6 +327,39 @@ private:
         marker.scale.x = g.boundingBox().width();
         marker.scale.y = g.boundingBox().height();
         marker.scale.z = g.boundingBox().depth();
+      }
+
+      marker.type = visualization_msgs::Marker::CUBE;
+//      marker.lifetime = ros::Duration(2, 0);
+      if(!detections.empty())
+      {
+        marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+        std::string name = detections[0].name();
+        
+	resource_retriever::Retriever r;
+	std::string mesh_resource = "package://rs_resources/objects_dataset/cad_models/" + name + "/" + name + ".dae";
+        try
+ 	{
+	  r.get(mesh_resource); 
+          marker.mesh_resource = mesh_resource;
+          marker.mesh_use_embedded_materials = true;
+    	  marker.scale.x = 1.0f;
+	  marker.scale.y = 1.0f;
+	  marker.scale.z = 1.0f;
+	}
+	catch (resource_retriever::Exception& e)
+	{
+	outError(e.what());
+	}
+
+      }
+      else if(!shapes.empty())
+      {
+        rs::Shape &s = shapes[0];
+        if(s.shape() == "round")
+        {
+          marker.type = visualization_msgs::Marker::CYLINDER;
+        }
       }
 
       //add color if we have some
