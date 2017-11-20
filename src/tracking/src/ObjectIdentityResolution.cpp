@@ -299,7 +299,7 @@ private:
     {
       visualization_msgs::Marker marker;
       marker.header.frame_id = "map";
-      marker.header.stamp = ros::Time();
+      marker.header.stamp = ros::Time::now();
       marker.ns = "rs";
       marker.id = idx++;
       marker.action = visualization_msgs::Marker::ADD;
@@ -330,27 +330,28 @@ private:
       }
 
       marker.type = visualization_msgs::Marker::CUBE;
-//      marker.lifetime = ros::Duration(2, 0);
+      marker.lifetime = ros::Duration(30, 0);
       if(!detections.empty())
       {
         marker.type = visualization_msgs::Marker::MESH_RESOURCE;
         std::string name = detections[0].name();
-        
-	resource_retriever::Retriever r;
-	std::string mesh_resource = "package://rs_resources/objects_dataset/cad_models/" + name + "/" + name + ".dae";
+
+        resource_retriever::Retriever r;
+        std::string mesh_resource = "package://rs_resources/objects_dataset/cad_models/" + name + "/" + name + ".dae";
         try
- 	{
-	  r.get(mesh_resource); 
+        {
+          r.get(mesh_resource);
           marker.mesh_resource = mesh_resource;
           marker.mesh_use_embedded_materials = true;
-    	  marker.scale.x = 1.0f;
-	  marker.scale.y = 1.0f;
-	  marker.scale.z = 1.0f;
-	}
-	catch (resource_retriever::Exception& e)
-	{
-	outError(e.what());
-	}
+          marker.scale.x = 1.0f;
+          marker.scale.y = 1.0f;
+          marker.scale.z = 1.0f;
+          marker.color.a = 1.0;
+        }
+        catch (resource_retriever::Exception& e)
+        {
+          outWarn(e.what());
+        }
 
       }
       else if(!shapes.empty())
@@ -390,6 +391,7 @@ private:
 
       markers.markers.push_back(marker);
     }
+    outInfo("Publishgin "<<markers.markers.size()<<" markers");
     marker_pub_.publish(markers);
   }
 
