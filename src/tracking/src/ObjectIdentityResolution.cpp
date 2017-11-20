@@ -290,12 +290,12 @@ private:
     publishMarkers(objects);
     cas.set(VIEW_OBJECTS, objects);
   }
-
-  void publishMarkers(const std::vector<rs::Object> &objects)
+  template <class T>
+  void publishMarkers(const std::vector<T> &objects)
   {
     visualization_msgs::MarkerArray markers;
     int idx = 0;
-    for(rs::Object obj : objects)
+    for(T obj : objects)
     {
       visualization_msgs::Marker marker;
       marker.header.frame_id = "map";
