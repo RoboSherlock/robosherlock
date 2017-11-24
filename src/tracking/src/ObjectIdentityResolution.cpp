@@ -366,7 +366,7 @@ private:
       //add color if we have some
       std::vector<rs::SemanticColor> colors;
       obj.annotations.filter(colors);
-      if(color.empty()) //default color green
+      if(colors.empty()) //default color green
       {
         marker.color.a = 1.0; // Don't forget to set the alpha!
         marker.color.r = 0.0;
