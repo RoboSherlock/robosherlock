@@ -116,10 +116,14 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
     timestamp = frames[actualFrame];
     outInfo("setting data from frame: " << actualFrame << " (" << timestamp << ")");
   }
-  else if(timestamp<frames.size())
+  else if(timestamp < frames.size())
   {
     timestamp = frames[timestamp];
     outInfo("setting data from frame with timestamp: (" << timestamp << ")");
+  }
+  else if(timestamp >= frames.size())
+  {
+    timestamp = frames[timestamp % frames.size()];
   }
 
   if(!storage.loadScene(*tcas.getBaseCas(), timestamp))
