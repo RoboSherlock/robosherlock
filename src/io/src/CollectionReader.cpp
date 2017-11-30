@@ -107,7 +107,8 @@ private:
     const std::string &configFile = getFilePath(file);
     if(configFile.empty())
     {
-      throw_exception_message("Camera config file not found: " + file);
+      outError("Camera config file not found: " + file);
+      throw std::runtime_error("Camera config file not found: " + file);
     }
 
     outInfo("Path to config file: " FG_BLUE << configFile);
