@@ -39,7 +39,7 @@ RSAnalysisEngine::~RSAnalysisEngine()
   if(rspm)
   {
     delete rspm;
-    rspm = NULL;	
+    rspm = NULL;
   }
 }
 
@@ -49,13 +49,11 @@ void RSAnalysisEngine::init(const std::string &file)
 
   size_t pos = file.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
-
   engine = uima::Framework::createAnalysisEngine(file.c_str(), errorInfo);
-
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
-    throw uima::Exception(errorInfo);
+    throw std::runtime_error("An error occured during initializations;");
   }
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name);

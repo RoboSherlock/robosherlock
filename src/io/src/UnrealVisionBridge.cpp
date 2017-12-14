@@ -363,6 +363,9 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   // setting cas
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
   cas.set(VIEW_COLOR_IMAGE, color);
+
+
+  depth.convertTo(depth, CV_16U, 1000);
   cas.set(VIEW_DEPTH_IMAGE, depth);
   cas.set(VIEW_OBJECT_IMAGE, object);
   cas.set(VIEW_OBJECT_MAP, objectMap);
