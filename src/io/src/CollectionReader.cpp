@@ -39,6 +39,7 @@
 #include <rs/io/ROSThermalCamBridge.h>
 #include <rs/io/MongoDBBridge.h>
 #include <rs/io/UnrealVisionBridge.h>
+#include <rs/io/UnrealROSIntegrationVisionBridge.h>
 #include <rs/io/DataLoaderBridge.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
@@ -148,6 +149,10 @@ private:
       else if(interface_ == "UnrealVision")
       {
         cameras_.push_back(new UnrealVisionBridge(pt));
+      }
+      else if(interface_ == "UnrealROSIntegrationVision")
+      {
+        cameras_.push_back(new UnrealROSIntegrationVisionBridge(pt));
       }
       else if(interface_ == "DataLoader")
       {
