@@ -329,7 +329,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   // setting camera info
   sensor_msgs::CameraInfo cameraInfo;
   const double halfFOVX = packet.header.fieldOfViewX * M_PI / 360.0;
-  const double halfFOVY = packet.header.fieldOfViewY * M_PI / 360.0;
+  //const double halfFOVY = packet.header.fieldOfViewY * M_PI / 360.0;
   const double cX = packet.header.width / 2.0;
   const double cY = packet.header.height / 2.0;
 
