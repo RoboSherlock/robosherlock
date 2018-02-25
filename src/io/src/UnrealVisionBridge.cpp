@@ -326,7 +326,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   }
 
   // setting camera info
-  sensor_msgs::CameraInfo cameraInfo;
+  sensor_msgs::CameraInfo cameraInfo, cameraInfoHD;
   const double halfFOVX = packet.header.fieldOfViewX * M_PI / 360.0;
   //const double halfFOVY = packet.header.fieldOfViewY * M_PI / 360.0;
   const double cX = packet.header.width / 2.0;
@@ -337,6 +337,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cameraInfo.height = packet.header.height;
   cameraInfo.width = packet.header.width;
 
+  outError("Image size:" <<packet.header.height <<"*"<<packet.header.width);
   cameraInfo.K.assign(0.0);
   cameraInfo.K[0] = cX / std::tan(halfFOVX);
   cameraInfo.K[2] = cX;
@@ -360,23 +361,78 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cameraInfo.D.resize(5, 0.0);
 
   // setting cas
+
+  if(packet.header.width == 640)
+  {
+    cameraInfoHD = cameraInfo;
+    cameraInfoHD.height *= 2.0;
+    cameraInfoHD.width *= 2.0;
+    cameraInfoHD.roi.height *= 2.0;
+    cameraInfoHD.roi.width *= 2.0;
+    cameraInfoHD.roi.x_offset *= 2.0;
+    cameraInfoHD.roi.y_offset *= 2.0;
+    cameraInfoHD.K[0] *= 2.0;
+    cameraInfoHD.K[2] *= 2.0;
+    cameraInfoHD.K[4] *= 2.0;
+    cameraInfoHD.K[5] *= 2.0;
+    cameraInfoHD.P[0] *= 2.0;
+    cameraInfoHD.P[2] *= 2.0;
+    cameraInfoHD.P[5] *= 2.0;
+    cameraInfoHD.P[6] *= 2.0;
+
+    cas.set(VIEW_COLOR_IMAGE, color);
+//    cv::resize(color, color, cv::Size(), 2, 2, cv::INTER_AREA);
+//    cas.set(VIEW_COLOR_IMAGE_HD, color);
+    depth.convertTo(depth, CV_16U, 1000);
+    cas.set(VIEW_DEPTH_IMAGE, depth);
+//    cv::resize(depth, depth, cv::Size(), 2, 2, cv::INTER_NEAREST);
+//    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+    cas.set(VIEW_OBJECT_IMAGE, object);
+    cv::resize(object, object, cv::Size(), 2, 2, cv::INTER_NEAREST);
+    cas.set(VIEW_OBJECT_IMAGE_HD, object);
+  }
+  else if(packet.header.width == 1280)
+  {  
+    cameraInfoHD = cameraInfo;
+    cameraInfo.height /= 2.0;
+    cameraInfo.width /= 2.0;
+    cameraInfo.roi.height /= 2.0;
+    cameraInfo.roi.width /= 2.0;
+    cameraInfo.roi.x_offset /= 2.0;
+    cameraInfo.roi.y_offset /= 2.0;
+    cameraInfo.K[0] /= 2.0;
+    cameraInfo.K[2] /= 2.0;
+    cameraInfo.K[4] /= 2.0;
+    cameraInfo.K[5] /= 2.0;
+    cameraInfo.P[0] /= 2.0;
+    cameraInfo.P[2] /= 2.0;
+    cameraInfo.P[5] /= 2.0;
+    cameraInfo.P[6] /= 2.0;
+
+    cas.set(VIEW_COLOR_IMAGE_HD, color);
+    cv::resize(color, color, cv::Size(), 0.5, 0.5, cv::INTER_AREA);
+    cas.set(VIEW_COLOR_IMAGE, color);
+
+    depth.convertTo(depth, CV_16U, 1000);
+    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+    cv::resize(depth, depth, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
+    cas.set(VIEW_DEPTH_IMAGE, depth);
+
+    cas.set(VIEW_OBJECT_IMAGE_HD, object);
+    cv::resize(object, object, cv::Size(), 0.5, 0.5, cv::INTER_NEAREST);
+    cas.set(VIEW_OBJECT_IMAGE, object);
+  }
+
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
-  cas.set(VIEW_COLOR_IMAGE, color);
+  cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
 
 
-  depth.convertTo(depth, CV_16U, 1000);
-  cas.set(VIEW_DEPTH_IMAGE, depth);
-  cv::resize(depth,depth,cv::Size(),2,2,cv::INTER_NEAREST);
-  cas.set(VIEW_DEPTH_IMAGE_HD, depth);
-
-  cas.set(VIEW_OBJECT_IMAGE, object);
   cas.set(VIEW_OBJECT_MAP, objectMap);
 
   //so we can run other annotators on the image
-  cas.set(VIEW_CAMERA_INFO_HD, cameraInfo);
 
-  cv::resize(color,color,cv::Size(),2,2,cv::INTER_AREA);
-  cas.set(VIEW_COLOR_IMAGE_HD, color);
+
+
 
   return true;
 }
