@@ -295,7 +295,6 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
     broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
   }
 
-
   rs::StampedTransform vp(rs::conversion::to(tcas, tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom)));
   scene.viewPoint.set(vp);
   scene.timestamp.set(stamp.toNSec());
@@ -367,11 +366,16 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   depth.convertTo(depth, CV_16U, 1000);
   cas.set(VIEW_DEPTH_IMAGE, depth);
+  cv::resize(depth,depth,cv::Size(),2,2,cv::INTER_NEAREST);
+  cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+
   cas.set(VIEW_OBJECT_IMAGE, object);
   cas.set(VIEW_OBJECT_MAP, objectMap);
 
   //so we can run other annotators on the image
   cas.set(VIEW_CAMERA_INFO_HD, cameraInfo);
+
+  cv::resize(color,color,cv::Size(),2,2,cv::INTER_AREA);
   cas.set(VIEW_COLOR_IMAGE_HD, color);
 
   return true;
