@@ -32,12 +32,14 @@
 #include <boost/property_tree/ini_parser.hpp>
 
 // RS
+#include <rs/io/TFBroadcasterWrapper.hpp>
 #include <rs/io/ROSKinectBridge.h>
 #include <rs/io/ROSTangoBridge.h>
 #include <rs/io/ROSCameraBridge.h>
 #include <rs/io/ROSThermalCamBridge.h>
 #include <rs/io/MongoDBBridge.h>
 #include <rs/io/UnrealVisionBridge.h>
+#include <rs/io/UnrealROSIntegrationVisionBridge.h>
 #include <rs/io/DataLoaderBridge.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
@@ -57,9 +59,12 @@ private:
     double width, height, depth;
     tf::Transform transform;
   };
-  std::vector<SemanticMapItem> semanticMapItems;
+  std::vector<SemanticMapItem> semanticMapItems_;
+  std::vector<CamInterface *> cameras_;
+  std::string interface_;
 
-  std::vector<CamInterface *> cameras;
+  std::thread thread_;
+  TFBroadcasterWrapper broadCasterObject_;
 
   uint64_t convertToInt(const std::string &s) const
   {
@@ -103,7 +108,8 @@ private:
     const std::string &configFile = getFilePath(file);
     if(configFile.empty())
     {
-      throw_exception_message("Camera config file not found: " + file);
+      outError("Camera config file not found: " + file);
+      throw std::runtime_error("Camera config file not found: " + file);
     }
 
     outInfo("Path to config file: " FG_BLUE << configFile);
@@ -118,35 +124,39 @@ private:
         readSemanticMap(semanticMapFile.get());
       }
 
-      const std::string &interface = pt.get<std::string>("camera.interface");
+      interface_ = pt.get<std::string>("camera.interface");
 
-      if(interface == "MongoDB")
+      if(interface_ == "MongoDB")
       {
-        cameras.push_back(new MongoDBBridge(pt));
+        cameras_.push_back(new MongoDBBridge(pt));
       }
-      else if(interface == "Kinect")
+      else if(interface_ == "Kinect")
       {
-        cameras.push_back(new ROSKinectBridge(pt));
+        cameras_.push_back(new ROSKinectBridge(pt));
       }
-      else if(interface == "Tango")
+      else if(interface_ == "Tango")
       {
-        cameras.push_back(new ROSTangoBridge(pt));
+        cameras_.push_back(new ROSTangoBridge(pt));
       }
-      else if(interface == "Thermal")
+      else if(interface_ == "Thermal")
       {
-        cameras.push_back(new ROSThermalCamBridge(pt));
+        cameras_.push_back(new ROSThermalCamBridge(pt));
       }
-      else if(interface == "Camera")
+      else if(interface_ == "Camera")
       {
-        cameras.push_back(new ROSCameraBridge(pt));
+        cameras_.push_back(new ROSCameraBridge(pt));
       }
-      else if(interface == "UnrealVision")
+      else if(interface_ == "UnrealVision")
       {
-        cameras.push_back(new UnrealVisionBridge(pt));
+        cameras_.push_back(new UnrealVisionBridge(pt));
       }
-      else if(interface == "DataLoader")
+      else if(interface_ == "UnrealROSIntegrationVision")
       {
-        cameras.push_back(new DataLoaderBridge(pt));
+        cameras_.push_back(new UnrealROSIntegrationVisionBridge(pt));
+      }
+      else if(interface_ == "DataLoader")
+      {
+        cameras_.push_back(new DataLoaderBridge(pt));
       }
       else
       {
@@ -177,10 +187,10 @@ private:
       names.push_back((std::string)(*it));
     }
 
-    semanticMapItems.resize(names.size());
+    semanticMapItems_.resize(names.size());
     for(size_t i = 0; i < names.size(); ++i)
     {
-      SemanticMapItem &item = semanticMapItems[i];
+      SemanticMapItem &item = semanticMapItems_[i];
       cv::FileNode entry = fs[names[i]];
 
       item.name = names[i];
@@ -219,7 +229,6 @@ public:
       ros::init(ros::M_string(), std::string("RS_CollectionReader"));
     }
     outInfo("initialize");
-
     if(ctx.isParameterDefined("camera_config_files"))
     {
       std::vector<std::string *> configs;
@@ -229,14 +238,17 @@ public:
         readConfig(*configs[i]);
       }
     }
+
+    thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
+
     return UIMA_ERR_NONE;
   }
 
   TyErrorId destroy()
   {
-    for(size_t i = 0; i < cameras.size(); ++i)
+    for(size_t i = 0; i < cameras_.size(); ++i)
     {
-      delete cameras[i];
+      delete cameras_[i];
     }
     outInfo("destroy");
     return UIMA_ERR_NONE;
@@ -250,10 +262,10 @@ public:
     rs::SceneCas cas(tcas);
 
     std::vector<rs::SemanticMapObject> semanticMap;
-    semanticMap.reserve(semanticMapItems.size());
-    for(size_t i = 0; i < semanticMapItems.size(); ++i)
+    semanticMap.reserve(semanticMapItems_.size());
+    for(size_t i = 0; i < semanticMapItems_.size(); ++i)
     {
-      SemanticMapItem &item = semanticMapItems[i];
+      SemanticMapItem &item = semanticMapItems_[i];
       rs::SemanticMapObject obj = rs::create<rs::SemanticMapObject>(tcas);
       obj.name(item.name);
       obj.typeName(item.type);
@@ -276,9 +288,9 @@ public:
 
     outInfo("waiting for all cameras to have new data...");
     double t1 = clock.getTime();
-    for(size_t i = 0; i < cameras.size(); ++i)
+    for(size_t i = 0; i < cameras_.size(); ++i)
     {
-      while(!cameras[i]->newData())
+      while(!cameras_[i]->newData())
       {
         usleep(100);
         check_ros();
@@ -286,10 +298,21 @@ public:
     }
     outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
 
-    for(size_t i = 0; i < cameras.size(); ++i)
+    for(size_t i = 0; i < cameras_.size(); ++i)
     {
-      bool ret = cameras[i]->setData(tcas, timestamp);
+      bool ret = cameras_[i]->setData(tcas, timestamp);
       check_expression(ret, "Could not receive data from camera.");
+    }
+
+    if(interface_ == "MongoDB")
+    {
+      outInfo("Broadcasting TF for cameraPose");
+      rs::SceneCas scenecas(tcas);
+      rs::Scene scene = scenecas.getScene();
+      tf::StampedTransform camToWorld;
+      rs::conversion::from(scene.viewPoint(), camToWorld);
+      broadCasterObject_.clear();
+      broadCasterObject_.addTransform(camToWorld);
     }
 
     return UIMA_ERR_NONE;

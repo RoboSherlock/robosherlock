@@ -35,6 +35,12 @@
 #include <rs/io/Storage.h>
 #include <rs/utils/common.h>
 
+// ROS
+#include <ros/ros.h>
+#include <visualization_msgs/MarkerArray.h>
+#include <resource_retriever/retriever.h>
+
+
 //#undef OUT_LEVEL
 //#define OUT_LEVEL OUT_LEVEL_DEBUG
 
@@ -42,6 +48,7 @@ using namespace uima;
 
 class ObjectIdentityResolution : public DrawingAnnotator
 {
+
 private:
   typedef double(*matchFunction)(rs::Cluster &cluster, rs::Object &object, double &factor);
   typedef std::tuple<matchFunction, double> matchEntry;
@@ -61,6 +68,9 @@ private:
   uint64_t timestamp;
 
   cv::Mat color;
+
+  ros::NodeHandle nh;
+  ros::Publisher marker_pub_;
 
   template<class T>
   static double matchAnnotation(rs::Cluster &cluster, rs::Object &object, double &factor)
@@ -90,17 +100,21 @@ private:
   }
 
 public:
-  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME), invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2), fastMatchThreshold(0.4), lastTimestamp(0)
+  ObjectIdentityResolution() : DrawingAnnotator(__func__), host(DB_HOST), db(DB_NAME),
+    invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2),
+    fastMatchThreshold(0.4), lastTimestamp(0), nh("~")
   {
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          1.0));
-    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Geometry>,       1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::SemanticColor>,  1.0));
+    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Geometry>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::ColorHistogram>, 1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Features>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Detection>,      1.0));
+
+    marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers", 1, true);
   }
 
   /*
@@ -273,9 +287,114 @@ private:
     {
       object.disappeared(object.inView() && object.lastSeen() != timestamp);
     }
-
+    publishMarkers(objects);
     cas.set(VIEW_OBJECTS, objects);
   }
+  template <class T>
+  void publishMarkers(const std::vector<T> &objects)
+  {
+    visualization_msgs::MarkerArray markers;
+    int idx = 0;
+    for(T obj : objects)
+    {
+      visualization_msgs::Marker marker;
+      marker.header.frame_id = "map";
+      marker.header.stamp = ros::Time::now();
+      marker.ns = "rs";
+      marker.id = idx++;
+      marker.action = visualization_msgs::Marker::ADD;
+
+      std::vector<rs::Shape> shapes;
+      std::vector<rs::Detection> detections;
+      obj.annotations.filter(shapes);
+      obj.annotations.filter(detections);
+
+      std::vector<rs::Geometry> geom;
+      obj.annotations.filter(geom);
+      if(!geom.empty())
+      {
+        rs::Geometry &g = geom[0];
+        tf::Stamped<tf::Pose> pose;
+        rs::conversion::from(g.world(), pose);
+        marker.pose.position.x = pose.getOrigin().x();
+        marker.pose.position.y = pose.getOrigin().y();
+        marker.pose.position.z = pose.getOrigin().z();
+        marker.pose.orientation.x = pose.getRotation().x();
+        marker.pose.orientation.y = pose.getRotation().y();
+        marker.pose.orientation.z = pose.getRotation().z();
+        marker.pose.orientation.w = pose.getRotation().w();
+
+        marker.scale.x = g.boundingBox().width();
+        marker.scale.y = g.boundingBox().height();
+        marker.scale.z = g.boundingBox().depth();
+      }
+
+      marker.type = visualization_msgs::Marker::CUBE;
+      marker.lifetime = ros::Duration(30, 0);
+      if(!detections.empty())
+      {
+        marker.type = visualization_msgs::Marker::MESH_RESOURCE;
+        std::string name = detections[0].name();
+
+        resource_retriever::Retriever r;
+        std::string mesh_resource = "package://rs_resources/objects_dataset/cad_models/" + name + "/" + name + ".dae";
+        try
+        {
+          r.get(mesh_resource);
+          marker.mesh_resource = mesh_resource;
+          marker.mesh_use_embedded_materials = true;
+          marker.scale.x = 1.0f;
+          marker.scale.y = 1.0f;
+          marker.scale.z = 1.0f;
+          marker.color.a = 1.0;
+        }
+        catch (resource_retriever::Exception& e)
+        {
+          outWarn(e.what());
+        }
+
+      }
+      else if(!shapes.empty())
+      {
+        rs::Shape &s = shapes[0];
+        if(s.shape() == "round")
+        {
+          marker.type = visualization_msgs::Marker::CYLINDER;
+        }
+      }
+
+      //add color if we have some
+      std::vector<rs::SemanticColor> colors;
+      obj.annotations.filter(colors);
+      if(colors.empty()) //default color green
+      {
+        marker.color.a = 1.0; // Don't forget to set the alpha!
+        marker.color.r = 0.0;
+        marker.color.g = 1.0;
+        marker.color.b = 0.0;
+      }
+      else
+      {
+        rs::SemanticColor &c = colors[0];
+
+        auto iterator = rs::common::colorMap.find(c.color()[0]);
+        if(iterator!=rs::common::colorMap.end())
+        {
+          cv::Scalar color = iterator->second;
+          marker.color.a = 1.0;
+          marker.color.r = color[2]/255;
+          marker.color.g = color[1]/255;
+          marker.color.b = color[0]/255;
+        }
+      }
+
+
+      markers.markers.push_back(marker);
+    }
+    outInfo("Publishgin "<<markers.markers.size()<<" markers");
+    marker_pub_.publish(markers);
+  }
+
 
   void matchFast(std::vector<rs::Object> &objects, std::vector<rs::Cluster> &clusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
   {

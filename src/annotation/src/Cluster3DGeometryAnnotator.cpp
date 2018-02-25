@@ -350,7 +350,7 @@ public:
     project2D(cloud, points, min, max);
 
     cv::RotatedRect rect = cv::minAreaRect(points);
-    if(rect.size.width > rect.size.height)
+    if(rect.size.width < rect.size.height)
     {
       rect.angle += 90;
       rect.size = cv::Size2f(rect.size.height, rect.size.width);
@@ -365,7 +365,6 @@ public:
 
     tf::Matrix3x3 rot;
     rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
-
 
     tf::Transform objectToWorld;
     objectToWorld.setOrigin(trans);

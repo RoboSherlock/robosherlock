@@ -37,7 +37,7 @@ class ImageSegmentationAnnotator : public DrawingAnnotator
 {
 
 private:
-  cv::Mat color, hsv, grey, bin, mask, maskPlane, dilatedCanny;
+  cv::Mat color, hsv, grey, bin, mask, maskPlane, dilatedCanny,hBinned;
   std::vector<ImageSegmentation::Segment> segments;
   float threshold;
   float hsvThreshold;
@@ -202,7 +202,8 @@ private:
     segments.clear();
     bin = cv::Mat::zeros(color.rows, color.cols, CV_8U);
     mask = cv::Mat::zeros(color.rows, color.cols, CV_8U);
-
+    hBinned = cv::Mat::zeros(color.rows, color.cols, CV_8U);
+    
     camToWorld.setIdentity();
     if(scene.viewPoint.has())
     {
@@ -284,7 +285,7 @@ private:
       {
         cv::Mat edge, blurred;
         cv::medianBlur(grey, blurred, 5);
-        cv::Canny(blurred, edge, 25, 75);
+        cv::Canny(blurred, edge, 10, 30);
         edge.setTo(0, mask);
         cv::Mat element = getStructuringElement(cv::MORPH_CROSS,
                                                 cv::Size(5, 5),
@@ -306,9 +307,9 @@ private:
           std::vector<cv::Mat> channels;
           std::vector<ImageSegmentation::Segment> additional_segments;
           cv::split(hsv, channels);
-          ImageSegmentation::thresholding(channels[1], bin, hsvThreshold, cv::THRESH_BINARY);
-          bin.setTo(0, mask);
-          ImageSegmentation::segment(bin, additional_segments, minSize, minHoleSize, planeRoiHires);
+          ImageSegmentation::thresholding(channels[1], hBinned, hsvThreshold, cv::THRESH_BINARY);
+          hBinned.setTo(0, mask);
+          ImageSegmentation::segment(hBinned, additional_segments, minSize, minHoleSize, planeRoiHires);
           ImageSegmentation::computePose(additional_segments, cameraMatrix, distCoefficients, planeNormal, planeDistance);
           segments.insert(segments.end(), additional_segments.begin(), additional_segments.end());
         }
@@ -356,9 +357,10 @@ private:
       break;
     case HUE:
       {
-        std::vector<cv::Mat> channels;
-        cv::split(hsv, channels);
-        cv::cvtColor(channels[0], disp, CV_GRAY2BGR);
+        disp = hBinned.clone();
+        //std::vector<cv::Mat> channels;
+        //cv::split(hsv, channels);
+        //cv::cvtColor(channels[0], disp, CV_GRAY2BGR);
         break;
       }
     case SATURATION:
