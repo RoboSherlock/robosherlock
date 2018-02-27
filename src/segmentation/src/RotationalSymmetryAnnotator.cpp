@@ -318,6 +318,7 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
+    const std::string annotatorName = "RotationalSymmetryAnnotator";
 
     if(firstRun)
     {
@@ -329,7 +330,9 @@ public:
     {
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      visualizer.removeAllShapes();
       addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
+      visualizer.addText(annotatorName, 2, 20, 12, 1, 1, 1, annotatorName);
     }
   }
 

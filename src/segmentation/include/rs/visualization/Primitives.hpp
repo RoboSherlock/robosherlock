@@ -38,12 +38,12 @@
  */
 inline void addSymmetryPlane(pcl::visualization::PCLVisualizer &visualizer, BilateralSymmetry &symmetry, std::string &id, float width, float height)
 {
-  pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
+  /*pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
   if(shapeActorMap->find(id) != shapeActorMap->end())
   {
     visualizer.removeShape(id);
     visualizer.removeShape(id+"_border");
-  }
+  }*/
   Eigen::Affine3f pose;
   pose.translation() = symmetry.getOrigin();
   pose.linear() = getAlignMatrix<float>(Eigen::Vector3f::UnitZ(), symmetry.getNormal());
@@ -109,11 +109,11 @@ inline void addSymmetryPlanes(pcl::visualization::PCLVisualizer &visualizer, std
  */
 inline void addSymmetryLine(pcl::visualization::PCLVisualizer &visualizer, RotationalSymmetry &symmetry, std::string &id, float length, float lineWidth)
 {
-  pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
+  /*pcl::visualization::ShapeActorMapPtr shapeActorMap = visualizer.getShapeActorMap();
   if(shapeActorMap->find(id) != shapeActorMap->end())
   {
     visualizer.removeShape(id);
-  }
+  }*/ // for backward compability with PCL 1.7 on ROS Indigo
   pcl::PointXYZ p1, p2;
   p1.getVector3fMap() = symmetry.getOrigin() + symmetry.getOrientation() * length / 2;
   p2.getVector3fMap() = symmetry.getOrigin() - symmetry.getOrientation() * length / 2;

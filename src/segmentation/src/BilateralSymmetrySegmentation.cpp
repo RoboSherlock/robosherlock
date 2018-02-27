@@ -578,6 +578,7 @@ public:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name + "_cloud";
+    const std::string annotatorName = "BilateralSymmetrySegmentation";
 
     if(numSymmetries > 0)
     {
@@ -586,26 +587,21 @@ public:
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       }
       visualizer.removeAllPointClouds();
+      visualizer.removeAllShapes();
       if(dispMode == ALL)
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
         addSymmetryPlanes(visualizer, finalSymmetries, 0.05f, 0.05f);
-        if(firstRun)
-        {
-          visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "bilat_segments_text");
-        }
-        else
-        {
-          visualizer.updateText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, "bilat_segments_text");
-        }
+        visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "bilat_segments_text");
       }
       else if(dispMode == SEGMENT)
       {
         std::string symname = "sym" + std::to_string(segVisIt + 1);
-        visualizer.addPointCloud(segments[segVisIt], cloudname);
+        visualizer.addPointCloud(segments[segVisIt], cloudname);        
         addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
         visualizer.addText("Segment " + std::to_string(segVisIt + 1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
+      visualizer.addText(annotatorName, 2, 20, 12, 1, 1, 1, annotatorName);
     }
   }
 
