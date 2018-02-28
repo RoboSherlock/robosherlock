@@ -239,7 +239,7 @@ public:
       }
     }
 
-    thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
+    //thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
 
     return UIMA_ERR_NONE;
   }
