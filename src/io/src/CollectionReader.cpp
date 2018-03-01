@@ -221,6 +221,11 @@ private:
     }
   }
 
+  ~CollectionReader()
+  {
+    broadCasterObject_.terminate();
+  }
+
 public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
@@ -239,7 +244,8 @@ public:
       }
     }
 
-    //thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
+    thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
+    thread_.detach();
 
     return UIMA_ERR_NONE;
   }

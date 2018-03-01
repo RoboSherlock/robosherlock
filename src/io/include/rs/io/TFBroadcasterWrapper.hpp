@@ -20,8 +20,9 @@ class TFBroadcasterWrapper
 private:
   std::vector<tf::StampedTransform> transforms;
   std::chrono::milliseconds sleepTime;
-public:
 
+  bool volatile terminate_flag = false;
+public:
   std::mutex mutex;
 
   TFBroadcasterWrapper(): transforms()
@@ -40,7 +41,7 @@ public:
   void run()
   {
     tf::TransformBroadcaster br;
-    while(ros::ok())
+    while(ros::ok() && !terminate_flag)
     {
       mutex.lock();
       if(!transforms.empty())
@@ -88,7 +89,11 @@ public:
     transforms.clear();
     mutex.unlock();
   }
-};
 
+  void terminate()
+  {
+    terminate_flag = true;
+  }
+};
 
 #endif // TFBROADCASTERWRAPPER_HPP
