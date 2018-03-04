@@ -103,7 +103,7 @@ private:
     return "";
   }
 
-  void readConfig(const std::string &file)
+  void  readConfig(const std::string &file)
   {
     const std::string &configFile = getFilePath(file);
     if(configFile.empty())
@@ -241,6 +241,30 @@ public:
 
     thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
 
+    //this needs to be set in order to rewrite parameters
+    setAnnotatorContext(ctx);
+
+    return UIMA_ERR_NONE;
+  }
+
+
+  TyErrorId reconfigure()
+  {
+    outError("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    if(ctx.isParameterDefined("camera_config_files"))
+    {
+      for(size_t i = 0; i < cameras_.size(); ++i)
+        delete cameras_[i];
+
+      std::vector<std::string *> configs;
+      ctx.extractValue("camera_config_files", configs);
+      for(size_t i = 0; i < configs.size(); ++i)
+      {
+        outError(*configs[i]);
+        readConfig(*configs[i]);
+      }
+    }
     return UIMA_ERR_NONE;
   }
 
@@ -317,6 +341,7 @@ public:
 
     return UIMA_ERR_NONE;
   }
+
 };
 
 // This macro exports an entry point that is used to create the annotator.

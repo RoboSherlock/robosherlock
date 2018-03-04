@@ -29,3 +29,6 @@ target_link_libraries(rs_analysisEngineManager rs_core rs_io ${LIBAPR_LIBRARY} $
 rs_add_executable(run src/run.cpp)
 target_link_libraries(run rs_analysisEngineManager)
 
+rs_add_executable(test_reconfig src/test_reconfig.cpp)
+target_link_libraries(test_reconfig rs_analysisEngineManager)
+
