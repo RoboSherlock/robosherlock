@@ -45,6 +45,7 @@ class RegionFilter : public DrawingAnnotator
     tf::Transform transform;
     float width, depth, height;
     std::string name;
+    std::string type;
   };
 
   typedef pcl::PointXYZRGBA PointT;
@@ -199,6 +200,7 @@ private:
         region.depth = semanticRegions[i].depth();
         region.height = semanticRegions[i].height();
         region.name = semanticRegions[i].name();
+        region.type = semanticRegions[i].typeName();
         rs::conversion::from(semanticRegions[i].transform(), region.transform);
       }
     }
@@ -407,12 +409,17 @@ private:
     float minY = -(region.height / 2) + border;
     const float maxY = (region.height / 2) - border;
     const float minZ = -(region.depth / 2);
-    float maxZ = 0.5;
+    float maxZ = +(region.depth / 2);
     if (region.name == "drawer_sinkblock_upper_open")
     {
         maxZ = 0.08;
     }
     //needed because of crappy sem map
+
+    if(region.type == "CounterTop")
+    {
+        maxZ=0.04;
+    }
     if(region.name == "kitchen_sink_block_counter_top")
     {
       minY += 1;//don't get points for the sink
@@ -526,7 +533,9 @@ private:
       tf::vectorTFToEigen(transform.getOrigin(), translation);
       tf::quaternionTFToEigen(transform.getRotation(), rotation);
 
-      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(), region.width, region.height, region.depth, oss.str());
+      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(),
+                         region.width, region.height, region.depth, oss.str());
+        visualizer.setRepresentationToWireframeForAllActors ();
     }
   }
 };
