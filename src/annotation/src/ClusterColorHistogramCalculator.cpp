@@ -151,7 +151,7 @@ private:
       outWarn("json query: " << qs.asJson());
     }
 
-    std::size_t found = jsonQuery.find("COLOR") || jsonQuery.find("DETECTION");
+    std::size_t found = jsonQuery.find("color") || jsonQuery.find("detection");
 
 
     scene.identifiables.filter(clusters);

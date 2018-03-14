@@ -295,7 +295,7 @@
       <features>
         <featureDescription>
           <name>classification_type</name>
-          <description/>
+          <description>INSTANCE or CLASS or SHAPE</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
@@ -315,7 +315,7 @@
         </featureDescription>
         <featureDescription>
           <name>parameters</name>
-          <description>params used during testing</description>
+          <description>parameters of the trained classifiers, preferably as a json string</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>

@@ -410,6 +410,7 @@ private:
     const float maxY = (region.height / 2) - border;
     const float minZ = -(region.depth / 2);
     float maxZ = +(region.depth / 2);
+
     if (region.name == "drawer_sinkblock_upper_open")
     {
         maxZ = 0.08;
@@ -418,7 +419,7 @@ private:
 
     if(region.type == "CounterTop")
     {
-        maxZ=0.04;
+        maxZ=0.4;
     }
     if(region.name == "kitchen_sink_block_counter_top")
     {
