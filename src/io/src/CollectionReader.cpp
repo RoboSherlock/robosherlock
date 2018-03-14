@@ -306,8 +306,9 @@ public:
     rs::Query qs = rs::create<rs::Query>(tcas);
     if(cas.getFS("QUERY", qs))
     {
-      outWarn("TIMESTAMP SET IN runAE: " << qs.timestamp());
-      timestamp = qs.timestamp();
+      // TODO:: rapidJSON integration
+      // outWarn("TIMESTAMP SET IN runAE: " << qs.timestamp());
+      // timestamp = qs.timestamp();
     }
 
     outInfo("waiting for all cameras to have new data...");

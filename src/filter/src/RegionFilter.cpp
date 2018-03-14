@@ -176,13 +176,29 @@ private:
     std::vector<std::string> regionsToLookAt;
     regionsToLookAt.assign(defaultRegions.begin(),defaultRegions.end());
     regions.clear();
-    if(cas.getFS("QUERY", qs))
+
+    if(cas.getFS("QUERY", qs) && qs.asJson()!="")
     {
-      outWarn("loaction set in query: " << qs.location());
-      if(std::find(defaultRegions.begin(), defaultRegions.end(), qs.location()) == std::end(defaultRegions) && qs.location()!="")
+      std::string jsonString  = qs.asJson();
+      int loc = jsonString.find("shelf_system_");
+      std::string newLocation;
+      if (loc != std::string::npos)
       {
+        newLocation = jsonString.substr(loc, 14);
+      }
+      outWarn("query in CAS : " << qs.asJson());
+      outWarn("location set: "<<newLocation);
+      if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation !="")
+      {
+        outInfo("new location not in default Regions");
         regionsToLookAt.clear();
-        regionsToLookAt.push_back(qs.location());
+        regionsToLookAt.push_back(newLocation);
+        if (jsonString.find("scan"))
+        {
+          outInfo("Scanning action defined: filter location set permanently");
+          defaultRegions.clear();
+          defaultRegions.push_back(newLocation);
+        }
       }
     }
 
