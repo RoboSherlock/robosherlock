@@ -277,15 +277,29 @@ public:
           for(auto conf : c.confidences())
             if(c.classname() == conf.name())
               confidence = conf.score();
-          atoms.push_back(generateAtom("class", index, c.classname(), confidence));
-          mlnDatabase << generateAtom("class", index, c.classname(), confidence) << std::endl;
+          std::string cType = c.classification_type();
+          if(cType == "SHAPE")
+          {
+            atoms.push_back(generateAtom("shape", index, c.classname(), confidence));
+            mlnDatabase << generateAtom("shape", index, c.classname(), confidence)     << std::endl;
+          }
+          else if(cType == "CLASS")
+          {
+            atoms.push_back(generateAtom("class", index, c.classname(), confidence));
+            mlnDatabase << generateAtom("class", index, c.classname(), confidence)     << std::endl;
+          }
+          else if(cType == "INSTANCE")
+          {
+            atoms.push_back(generateAtom("instance", index, c.classname(), confidence));
+            mlnDatabase << generateAtom("instance", index, c.classname(), confidence)     << std::endl;
+          }
         }
       }
       if(gt.size() > 0)
       {
         rs::GroundTruth groundTruth = gt[0];
         std::string classNameGT = groundTruth.classificationGT().classname();
-        atoms.push_back(generateAtom("object",index,classNameGT,1.0));
+        atoms.push_back(generateAtom("object", index, classNameGT, 1.0));
       }
 
       mln_atoms.atoms.append(atoms);
