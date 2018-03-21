@@ -106,6 +106,9 @@
     <delegateAnalysisEngine key="TFBroadcaster">
       <import location="../annotators/io/TFBroadcaster.xml"/>
     </delegateAnalysisEngine>
+    <delegateAnalysisEngine key="TransparentSegmentationAnnotator">
+      <import location="../annotators/segmentation/TransparentSegmentationAnnotator.xml"/>
+    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="Trigger">
       <import location="../annotators/utils/Trigger.xml"/>
     </delegateAnalysisEngine>
