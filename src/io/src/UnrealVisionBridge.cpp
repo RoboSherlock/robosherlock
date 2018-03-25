@@ -218,7 +218,7 @@ void UnrealVisionBridge::receive()
         // make it 1 mb bigger that the actual package size, so that the buffer does not need to be resized often
         bufferActive.resize(header.size + 1024 * 1024);
         pPackage = &bufferActive[0];
-        outInfo("resized buffer to: " << bufferActive.size());
+        outError("resized buffer to: " << bufferActive.size());
       }
       left = header.size - written;
     }
@@ -280,8 +280,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   // set transform and timestamp
   uint64_t now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   ros::Time stamp;
-  stamp.fromNSec((ros::Time::now() - ros::Time().fromNSec(now - packet.header.timestampCapture)).toNSec());
-
+  stamp.fromNSec(packet.header.timestampCapture);
   rs::SceneCas cas(tcas);
   rs::Scene scene = cas.getScene();
   tf::Vector3 translation(packet.header.translation.x, packet.header.translation.y, packet.header.translation.z);
@@ -336,33 +335,32 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cameraInfo.header.stamp = stamp;
   cameraInfo.height = packet.header.height;
   cameraInfo.width = packet.header.width;
-
-  outError("Image size:" <<packet.header.height <<"*"<<packet.header.width);
+  
   cameraInfo.K.assign(0.0);
   cameraInfo.K[0] = cX / std::tan(halfFOVX);
   cameraInfo.K[2] = cX;
   cameraInfo.K[4] = cX / std::tan(halfFOVX); //pretty weird that this is true cY / std::tan(halfFOVY);
   cameraInfo.K[5] = cY;
   cameraInfo.K[8] = 1;
-
+  
   cameraInfo.R.assign(0.0);
   cameraInfo.R[0] = 1;
   cameraInfo.R[4] = 1;
   cameraInfo.R[8] = 1;
-
+  
   cameraInfo.P.assign(0.0);
   cameraInfo.P[0] = cameraInfo.K[0];
   cameraInfo.P[2] = cameraInfo.K[2];
   cameraInfo.P[5] = cameraInfo.K[4];
   cameraInfo.P[6] = cameraInfo.K[5];
   cameraInfo.P[10] = 1;
-
+  
   cameraInfo.distortion_model = "plumb_bob";
   cameraInfo.D.resize(5, 0.0);
 
   // setting cas
 
-  if(packet.header.width == 640)
+  if(packet.header.width == 640 || packet.header.width == 960)
   {
     cameraInfoHD = cameraInfo;
     cameraInfoHD.height *= 2.0;
@@ -381,18 +379,19 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
     cameraInfoHD.P[6] *= 2.0;
 
     cas.set(VIEW_COLOR_IMAGE, color);
-//    cv::resize(color, color, cv::Size(), 2, 2, cv::INTER_AREA);
-//    cas.set(VIEW_COLOR_IMAGE_HD, color);
+    //    cv::resize(color, color, cv::Size(), 2, 2, cv::INTER_AREA);
+    //    cas.set(VIEW_COLOR_IMAGE_HD, color);
     depth.convertTo(depth, CV_16U, 1000);
     cas.set(VIEW_DEPTH_IMAGE, depth);
-//    cv::resize(depth, depth, cv::Size(), 2, 2, cv::INTER_NEAREST);
-//    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+
+    //    cv::resize(depth, depth, cv::Size(), 2, 2, cv::INTER_NEAREST);
+    //    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
     cas.set(VIEW_OBJECT_IMAGE, object);
     cv::resize(object, object, cv::Size(), 2, 2, cv::INTER_NEAREST);
     cas.set(VIEW_OBJECT_IMAGE_HD, object);
   }
-  else if(packet.header.width == 1280)
-  {  
+  else if(packet.header.width == 1280 || packet.header.width == 1920)
+  {
     cameraInfoHD = cameraInfo;
     cameraInfo.height /= 2.0;
     cameraInfo.width /= 2.0;
