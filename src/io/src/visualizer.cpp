@@ -179,7 +179,7 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
-  cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE| CV_WINDOW_KEEPRATIO);
+  cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
   //cv::moveWindow(windowImage, 0, 0);
   cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
 
@@ -257,39 +257,35 @@ void Visualizer::cloudViewer()
 
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
-  const int key = cv::waitKey(10);
+
+  int key = cv::waitKeyEx(10);
 
   if(key == 0)
   {
     return;
   }
-
-  if(key & 0xFF00) // Special keys
+  switch(key)
   {
-    switch(key & 0xFF)
-    {
-    case 81: // right arrow
-      nextAnnotator();
-      break;
-    case 83: // left arrow
-      prevAnnotator();
-      break;
-    case 99: // insert
-      saveImage(disp);
-      break;
-    }
+  case 110: // next (n)
+    nextAnnotator();
+    break;
+  case 112: // previous (p)
+    prevAnnotator();
+    break;
+  case 99: // insert
+    saveImage(disp);
+    break;
+  }
+
+  if((key & 0xFF) == 27) //Escape
+  {
+    shutdown();
   }
   else
   {
-    if((key & 0xFF) == 27) //Escape
-    {
-      shutdown();
-    }
-    else
-    {
-      callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
-    }
+    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
   }
+
 }
 
 void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
