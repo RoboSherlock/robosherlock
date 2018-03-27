@@ -210,9 +210,18 @@ void from(const uima::FeatureStructure &fs, pcl::PointIndices &output)
 
   const uima::Feature &feature = fs.getType().getFeatureByBaseName("indices");
   const uima::IntArrayFS &arrayFS = fs.getIntArrayFSValue(feature);
-  const size_t size = arrayFS.size();
-  output.indices.resize(size);
-  arrayFS.copyToArray(0, output.indices.data(), 0, size);
+  try
+  {
+    const size_t size = arrayFS.size();
+    output.indices.resize(size);
+    arrayFS.copyToArray(0, output.indices.data(), 0, size);
+  }
+  catch(uima::InvalidFSObjectException ex)
+  {
+    //this is fine. We can have clusters that don't have 3D points
+    outDebug("No point indices to convert");
+  }
+
 }
 
 template<>
@@ -229,9 +238,11 @@ uima::FeatureStructure to(uima::CAS &cas, const pcl::PointIndices &input)
   const uima::Feature &feature = fs.getType().getFeatureByBaseName("indices");
   const size_t size = input.indices.size();
   uima::IntArrayFS arrayFS = cas.createIntArrayFS(size);
-  arrayFS.copyFromArray(input.indices.data(), 0, size, 0);
-  fs.setFSValue(feature, arrayFS);
-
+  if(input.indices.size()>0)
+  {
+    arrayFS.copyFromArray(input.indices.data(), 0, size, 0);
+    fs.setFSValue(feature, arrayFS);
+  }
   return pi;
 }
 

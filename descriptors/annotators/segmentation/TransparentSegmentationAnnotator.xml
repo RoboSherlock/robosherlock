@@ -118,7 +118,7 @@
         <nameValuePair>
             <name>min_contour_area</name>
             <value>
-                <integer>1000</integer>
+                <integer>1500</integer>
             </value>
         </nameValuePair>
     </configurationParameterSettings>
