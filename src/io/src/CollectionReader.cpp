@@ -306,9 +306,18 @@ public:
     rs::Query qs = rs::create<rs::Query>(tcas);
     if(cas.getFS("QUERY", qs))
     {
-      // TODO:: rapidJSON integration
-      // outWarn("TIMESTAMP SET IN runAE: " << qs.timestamp());
-      // timestamp = qs.timestamp();
+        std::string jsonString  = qs.asJson();
+        int loc = jsonString.find("timestamp");
+        std::string newTS;
+
+        if (loc != std::string::npos)
+        {
+          std::string temp = jsonString.substr(loc+12, jsonString.size());
+          newTS = temp.substr(0,temp.find_first_of("\""));
+          outInfo(newTS);
+          if(newTS!="")
+            timestamp = atoi(newTS.c_str());
+        }
     }
 
     outInfo("waiting for all cameras to have new data...");
