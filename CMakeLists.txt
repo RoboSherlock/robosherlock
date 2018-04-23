@@ -103,6 +103,12 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   set(RS_WEB_LIB rs_web)
 endif()
 
+find_package(RapidJSON REQUIRED)
+if(${RapidJSON_FOUND})
+    add_definitions(-DWITH_JSON -DRAPIDJSON_HAS_STDSTRING)
+endif()
+
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################

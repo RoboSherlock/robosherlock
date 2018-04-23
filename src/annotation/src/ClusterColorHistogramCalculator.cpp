@@ -26,6 +26,8 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 
+#include <rapidjson/document.h>
+
 #define DEBUG_OUTPUT 0
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_INFO
@@ -144,14 +146,27 @@ private:
 
     cas.get(VIEW_COLOR_IMAGE_HD, color);
     rs::Query qs = rs::create<rs::Query>(tcas);
+    rapidjson::Document jsonDoc;
     std::string jsonQuery;
+    bool found = false;
     if(cas.getFS("QUERY", qs))
     {
       jsonQuery = qs.asJson();
+      jsonDoc.Parse(jsonQuery);
+      //TODO first level of json is currently only detect, needs to be done differently when there are
+      //multiple modes
+      rapidjson::Value &detectQuery = jsonDoc["detect"];
       outWarn("json query: " << qs.asJson());
-    }
 
-    std::size_t found = jsonQuery.find("color") || jsonQuery.find("detection");
+      //TODO How do we know what keywords can be found at what level in the json?
+      rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");
+      rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
+
+      if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd())
+      {
+        found = true;
+      }
+    }
 
 
     scene.identifiables.filter(clusters);
@@ -180,7 +195,7 @@ private:
       countColors(hsv, mask, colorCount, sum);
 
       //======================= Calculate Semantic Color ==========================
-      if(found != std::string::npos)
+      if(found)
       {
         rs::SemanticColor color_annotation = rs::create<rs::SemanticColor>(tcas);
         std::vector<std::tuple<int, int>> colorsVec(COUNT);

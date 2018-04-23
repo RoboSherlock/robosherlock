@@ -45,6 +45,10 @@
 #include <rs/utils/exception.h>
 #include <rs/scene_cas.h>
 
+// RapidJson
+#include <rapidjson/document.h>
+#include <rapidjson/pointer.h>
+
 
 using namespace uima;
 
@@ -255,7 +259,9 @@ public:
     if(ctx.isParameterDefined("camera_config_files"))
     {
       for(size_t i = 0; i < cameras_.size(); ++i)
+      {
         delete cameras_[i];
+      }
 
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);
@@ -306,53 +312,61 @@ public:
     rs::Query qs = rs::create<rs::Query>(tcas);
     if(cas.getFS("QUERY", qs))
     {
-        std::string jsonString  = qs.asJson();
-        int loc = jsonString.find("timestamp");
-        std::string newTS;
+      rapidjson::Document jsonDoc;
+      std::string jsonString  = qs.asJson();
+      jsonDoc.Parse(jsonString);
 
-        if (loc != std::string::npos)
-        {
-          std::string temp = jsonString.substr(loc+12, jsonString.size());
-          newTS = temp.substr(0,temp.find_first_of("\""));
-          outInfo(newTS);
-          if(newTS!="")
-            timestamp = atoi(newTS.c_str());
-        }
-    }
+      //TODO Is timestamp nested in something or right under detect?
+      rapidjson::Pointer framePointer("/detect/timestamp");
+      rapidjson::Value &tsJson = framePointer.Get(jsonDoc);
 
-    outInfo("waiting for all cameras to have new data...");
-    double t1 = clock.getTime();
-    for(size_t i = 0; i < cameras_.size(); ++i)
-    {
-      while(!cameras_[i]->newData())
+      std::string newTS;
+      if(!tsJson.IsString())
       {
-        usleep(100);
-        check_ros();
+        {
+          newTS = tsJson.GetString();
+          newTS = newTS.substr(0, newTS.find_first_of("\""));
+          outInfo(newTS);
+          if(newTS != "")
+          {
+            timestamp = atoi(newTS.c_str());
+          }
+        }
       }
+
+      outInfo("waiting for all cameras to have new data...");
+      double t1 = clock.getTime();
+      for(size_t i = 0; i < cameras_.size(); ++i)
+      {
+        while(!cameras_[i]->newData())
+        {
+          usleep(100);
+          check_ros();
+        }
+      }
+      outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
+
+      for(size_t i = 0; i < cameras_.size(); ++i)
+      {
+        bool ret = cameras_[i]->setData(tcas, timestamp);
+        check_expression(ret, "Could not receive data from camera.");
+      }
+
+      if(interface_ == "MongoDB")
+      {
+        outInfo("Broadcasting TF for cameraPose");
+        rs::SceneCas scenecas(tcas);
+        rs::Scene scene = scenecas.getScene();
+        tf::StampedTransform camToWorld;
+        rs::conversion::from(scene.viewPoint(), camToWorld);
+        broadCasterObject_.clear();
+        broadCasterObject_.addTransform(camToWorld);
+      }
+
+      return UIMA_ERR_NONE;
     }
-    outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
 
-    for(size_t i = 0; i < cameras_.size(); ++i)
-    {
-      bool ret = cameras_[i]->setData(tcas, timestamp);
-      check_expression(ret, "Could not receive data from camera.");
-    }
+  };
 
-    if(interface_ == "MongoDB")
-    {
-      outInfo("Broadcasting TF for cameraPose");
-      rs::SceneCas scenecas(tcas);
-      rs::Scene scene = scenecas.getScene();
-      tf::StampedTransform camToWorld;
-      rs::conversion::from(scene.viewPoint(), camToWorld);
-      broadCasterObject_.clear();
-      broadCasterObject_.addTransform(camToWorld);
-    }
-
-    return UIMA_ERR_NONE;
-  }
-
-};
-
-// This macro exports an entry point that is used to create the annotator.
-MAKE_AE(CollectionReader)
+  // This macro exports an entry point that is used to create the annotator.
+  MAKE_AE(CollectionReader)
