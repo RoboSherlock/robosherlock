@@ -189,11 +189,11 @@ private:
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes (Maybe save query mode in FS?)
       rapidjson::Pointer framePointer("/detect/location/frame");
-      rapidjson::Value &frameJson = framePointer.Get(jsonDoc);
+      rapidjson::Value* frameJson = framePointer.Get(jsonDoc);
       std::string newLocation;
 
-      if(!frameJson.IsNull()){
-          newLocation = frameJson.GetString();
+      if(frameJson && !frameJson->IsString()){
+          newLocation = frameJson->GetString();
       }
 
       /*int loc = jsonString.find("shelf_system_");

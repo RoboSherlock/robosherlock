@@ -318,55 +318,55 @@ public:
 
       //TODO Is timestamp nested in something or right under detect?
       rapidjson::Pointer framePointer("/detect/timestamp");
-      rapidjson::Value &tsJson = framePointer.Get(jsonDoc);
+      rapidjson::Value *tsJson = framePointer.Get(jsonDoc);
 
       std::string newTS;
-      if(!tsJson.IsString())
+      if(tsJson && !tsJson->IsString())
       {
+
+        newTS = tsJson->GetString();
+        newTS = newTS.substr(0, newTS.find_first_of("\""));
+        outInfo(newTS);
+        if(newTS != "")
         {
-          newTS = tsJson.GetString();
-          newTS = newTS.substr(0, newTS.find_first_of("\""));
-          outInfo(newTS);
-          if(newTS != "")
-          {
-            timestamp = atoi(newTS.c_str());
-          }
+          timestamp = atoi(newTS.c_str());
         }
       }
-
-      outInfo("waiting for all cameras to have new data...");
-      double t1 = clock.getTime();
-      for(size_t i = 0; i < cameras_.size(); ++i)
-      {
-        while(!cameras_[i]->newData())
-        {
-          usleep(100);
-          check_ros();
-        }
-      }
-      outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
-
-      for(size_t i = 0; i < cameras_.size(); ++i)
-      {
-        bool ret = cameras_[i]->setData(tcas, timestamp);
-        check_expression(ret, "Could not receive data from camera.");
-      }
-
-      if(interface_ == "MongoDB")
-      {
-        outInfo("Broadcasting TF for cameraPose");
-        rs::SceneCas scenecas(tcas);
-        rs::Scene scene = scenecas.getScene();
-        tf::StampedTransform camToWorld;
-        rs::conversion::from(scene.viewPoint(), camToWorld);
-        broadCasterObject_.clear();
-        broadCasterObject_.addTransform(camToWorld);
-      }
-
-      return UIMA_ERR_NONE;
     }
 
-  };
+    outInfo("waiting for all cameras to have new data...");
+    double t1 = clock.getTime();
+    for(size_t i = 0; i < cameras_.size(); ++i)
+    {
+      while(!cameras_[i]->newData())
+      {
+        usleep(100);
+        check_ros();
+      }
+    }
+    outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
 
-  // This macro exports an entry point that is used to create the annotator.
-  MAKE_AE(CollectionReader)
+    for(size_t i = 0; i < cameras_.size(); ++i)
+    {
+      bool ret = cameras_[i]->setData(tcas, timestamp);
+      check_expression(ret, "Could not receive data from camera.");
+    }
+
+    if(interface_ == "MongoDB")
+    {
+      outInfo("Broadcasting TF for cameraPose");
+      rs::SceneCas scenecas(tcas);
+      rs::Scene scene = scenecas.getScene();
+      tf::StampedTransform camToWorld;
+      rs::conversion::from(scene.viewPoint(), camToWorld);
+      broadCasterObject_.clear();
+      broadCasterObject_.addTransform(camToWorld);
+    }
+
+    return UIMA_ERR_NONE;
+  }
+
+};
+
+// This macro exports an entry point that is used to create the annotator.
+MAKE_AE(CollectionReader)
