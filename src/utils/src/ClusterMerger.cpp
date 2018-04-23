@@ -34,7 +34,9 @@ private:
   cv::Mat color;
   double pointSize;
 
+  //for visualization
   std::vector<std::vector<int> > clusterIndices;
+  std::vector<cv::Rect> clusterRois;
 public:
 
   ClusterMerger(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0)
@@ -81,12 +83,13 @@ public:
 
     std::vector<bool> keepCluster(clusters.size(), true);
 
+    clusterRois.clear();
 
     clusterIndices.clear();
     clusterIndices.reserve(clusters.size());
 
     outInfo("Scene has " << clusters.size() << " clusters");
-    for(size_t i = 0; i < clusters.size(); ++i)
+   for(size_t i = 0; i < clusters.size(); ++i)
     {
       rs::Cluster &cluster1 = clusters[i];
       rs::ImageROI cluster1ImageRoi = cluster1.rois();
@@ -99,6 +102,7 @@ public:
         for(size_t j = i + 1; j < clusters.size(); ++j)
         {
           rs::Cluster &cluster2 = clusters[j];
+          outInfo("Source: "<<cluster2.source());
           pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
           rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
 
@@ -182,6 +186,9 @@ public:
           rs::conversion::from(((rs::ReferenceClusterPoints)clusters[i].points.get()).indices.get(), *clusterIndices);
           this->clusterIndices.push_back(clusterIndices->indices);
         }
+        cv::Rect roi;
+        rs::conversion::from(clusters[i].rois().roi(), roi);
+        this->clusterRois.push_back(roi);
       }
     }
     scene.identifiables.set(mergedClusters);
@@ -203,6 +210,11 @@ public:
         disp.at<cv::Vec3b>(index) = rs::common::cvVec3bColors[i % rs::common::numberOfColors];
       }
     }
+    for(size_t i = 0; i < clusterRois.size(); ++i)
+    {
+        cv::rectangle(disp,clusterRois[i], rs::common::cvScalarColors[i % rs::common::numberOfColors]);
+    }
+
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)

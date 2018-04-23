@@ -36,8 +36,8 @@ public:
   RSAnalysisEngineManager(const bool useVisualizer, const std::string &savePath): useVisualizer(useVisualizer), visualizer(savePath)
   {
     // Create/link up to a UIMACPP resource manager instance (singleton)
-    outInfo("Creating resource manager"); // TODO: DEBUG
-    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock"); // TODO: change topic?
+    outInfo("Creating resource manager");
+    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
     switch(OUT_LEVEL)
     {

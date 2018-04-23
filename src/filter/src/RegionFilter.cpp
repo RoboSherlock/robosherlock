@@ -45,6 +45,7 @@ class RegionFilter : public DrawingAnnotator
     tf::Transform transform;
     float width, depth, height;
     std::string name;
+    std::string type;
   };
 
   typedef pcl::PointXYZRGBA PointT;
@@ -175,13 +176,29 @@ private:
     std::vector<std::string> regionsToLookAt;
     regionsToLookAt.assign(defaultRegions.begin(),defaultRegions.end());
     regions.clear();
-    if(cas.getFS("QUERY", qs))
+
+    if(cas.getFS("QUERY", qs) && qs.asJson()!="")
     {
-      outWarn("loaction set in query: " << qs.location());
-      if(std::find(defaultRegions.begin(), defaultRegions.end(), qs.location()) == std::end(defaultRegions) && qs.location()!="")
+      std::string jsonString  = qs.asJson();
+      int loc = jsonString.find("shelf_system_");
+      std::string newLocation;
+      if (loc != std::string::npos)
       {
+        newLocation = jsonString.substr(loc, 14);
+      }
+      outWarn("query in CAS : " << qs.asJson());
+      outWarn("location set: "<<newLocation);
+      if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation !="")
+      {
+        outInfo("new location not in default Regions");
         regionsToLookAt.clear();
-        regionsToLookAt.push_back(qs.location());
+        regionsToLookAt.push_back(newLocation);
+        if (jsonString.find("scan"))
+        {
+          outInfo("Scanning action defined: filter location set permanently");
+          defaultRegions.clear();
+          defaultRegions.push_back(newLocation);
+        }
       }
     }
 
@@ -199,6 +216,7 @@ private:
         region.depth = semanticRegions[i].depth();
         region.height = semanticRegions[i].height();
         region.name = semanticRegions[i].name();
+        region.type = semanticRegions[i].typeName();
         rs::conversion::from(semanticRegions[i].transform(), region.transform);
       }
     }
@@ -407,12 +425,18 @@ private:
     float minY = -(region.height / 2) + border;
     const float maxY = (region.height / 2) - border;
     const float minZ = -(region.depth / 2);
-    float maxZ = 0.5;
+    float maxZ = +(region.depth / 2);
+
     if (region.name == "drawer_sinkblock_upper_open")
     {
         maxZ = 0.08;
     }
     //needed because of crappy sem map
+
+    if(region.type == "CounterTop")
+    {
+        maxZ=0.4;
+    }
     if(region.name == "kitchen_sink_block_counter_top")
     {
       minY += 1;//don't get points for the sink
@@ -526,7 +550,9 @@ private:
       tf::vectorTFToEigen(transform.getOrigin(), translation);
       tf::quaternionTFToEigen(transform.getRotation(), rotation);
 
-      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(), region.width, region.height, region.depth, oss.str());
+      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(),
+                         region.width, region.height, region.depth, oss.str());
+        visualizer.setRepresentationToWireframeForAllActors ();
     }
   }
 };

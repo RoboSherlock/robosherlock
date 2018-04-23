@@ -118,7 +118,7 @@
         <nameValuePair>
             <name>min_contour_area</name>
             <value>
-                <integer>1000</integer>
+                <integer>1500</integer>
             </value>
         </nameValuePair>
     </configurationParameterSettings>
@@ -131,10 +131,12 @@
         <capability>
             <inputs/>
             <outputs>
-                <type allAnnotatorFeatures="true">rs.annotation.TransparentSegment</type>
+              <type allAnnotatorFeatures="true">rs.scene.Cluster</type>
             </outputs>
             <inputSofas>
-                <sofaName>rs.annotation.Plane</sofaName>
+              <sofaName>rs.pcl.PointCloud</sofaName>
+              <sofaName>rs.annotation.Plane</sofaName>
+              <sofaName>rs.pcl.RegionPointCloud</sofaName>
             </inputSofas>
             <languagesSupported>
                 <language>x-unspecified</language>

@@ -1,6 +1,6 @@
 /**
  * Copyright 2017 University of Bremen, Institute for Artificial Intelligence
- * Author(s): 
+ * Author(s):
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,25 +57,30 @@ TyErrorId TransparentSegmentationAnnotator::destroy()
 }
 
 TyErrorId TransparentSegmentationAnnotator::processWithLock(
-    CAS &tcas, ResultSpecification const &res_spec)
+  CAS &tcas, ResultSpecification const &res_spec)
 {
   outInfo("process start");
   rs::SceneCas cas(tcas);
-
-  if (!this->hasRGBDData)
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
+  if(!this->hasRGBDData)
   {
     cv::Mat casImageRGB;
     cv::Mat casImageDepth;
 
-    if (!cas.get(VIEW_DEPTH_IMAGE, casImageDepth))
+    if(!cas.get(VIEW_DEPTH_IMAGE, casImageDepth))
     {
       outError("No depth image");
       return UIMA_ERR_NONE;
     }
 
-    if (!cas.get(VIEW_COLOR_IMAGE, casImageRGB))
+    if(!cas.get(VIEW_COLOR_IMAGE, casImageRGB))
     {
       outError("No color image");
+      return UIMA_ERR_NONE;
+    }
+    if(!cas.get(VIEW_CLOUD, *cloud))
+    {
+      outError("No Point cloud in CAS: did you run an ImagepreProcesor?");
       return UIMA_ERR_NONE;
     }
 
@@ -103,7 +108,10 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
   std::vector<float> planeModel = plane.model();
 
   if(planeModel.empty() || planeModel.size() != 4)
+  {
     outInfo("Plane is incorrect");
+    return UIMA_ERR_NONE;
+  }
   else
   {
     sensor_msgs::CameraInfo cameraInfoMsg;
@@ -112,7 +120,7 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
     cv::Mat cameraMatrix;
     cv::Mat distortionCoefficients;
     std::tie(cameraMatrix, distortionCoefficients) =
-        readCameraInfo(cameraInfoMsg);
+      readCameraInfo(cameraInfoMsg);
 
     cv::Mat planeNormal(3, 1, CV_64F);
     planeNormal.at<double>(0) = planeModel[0];
@@ -130,8 +138,10 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
 
     cv::Mat refinedFailedMask(depthFailedMask.size(), CV_8UC1, cv::GC_BGD);
 
-    for (auto &region : roiMasks)
+    for(auto & region : roiMasks)
+    {
       gcRefineRegion(region, refinedFailedMask, this->imageRGB, searchMask);
+    }
 
     refinedFailedMask = ((refinedFailedMask == cv::GC_FGD) |
                          (refinedFailedMask == cv::GC_PR_FGD));
@@ -139,20 +149,58 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
     this->segments.clear();
 
     ImageSegmentation::segment(refinedFailedMask, this->segments,
-        this->minContourArea, this->minHoleSize,
-        cv::Rect(0, 0, refinedFailedMask.cols, refinedFailedMask.rows));
+                               this->minContourArea, this->minHoleSize,
+                               cv::Rect(0, 0, refinedFailedMask.cols, refinedFailedMask.rows));
     ImageSegmentation::computePose(this->segments, cameraMatrix,
-        distortionCoefficients, planeNormal, planeDistance);
+                                   distortionCoefficients, planeNormal, planeDistance);
 
-    // add appropriate annotations, based on segments
-    for (auto &segment : this->segments)
+
+    for(size_t i = 0; i < segments.size(); ++i)
     {
-      auto transparentSegment = rs::create<rs::TransparentSegment>(tcas);
+      ImageSegmentation::Segment &seg = segments[i];
+      cv::Rect roi_hires(seg.rect.x * 2, seg.rect.y * 2, seg.rect.width * 2, seg.rect.height * 2);
+      cv::Mat mask, mask_hires;
 
-      transparentSegment.segment.set(rs::conversion::to(tcas, segment));
-      transparentSegment.source.set("TransparentSegmentation");
+      mask = cv::Mat::zeros(seg.rect.height, seg.rect.width, CV_8U);
+      ImageSegmentation::drawSegment(mask, CV_RGB(255, 255, 255), CV_RGB(0, 0, 0), seg, 0, 1, true, 4, -seg.rect.tl());
 
-      scene.identifiables.append(transparentSegment);
+      cv::resize(mask, mask_hires, roi_hires.size(), 0, 0, cv::INTER_NEAREST);
+
+      rs::ImageROI roi = rs::create<rs::ImageROI>(tcas);
+      roi.roi_hires(rs::conversion::to(tcas, roi_hires));
+      roi.roi(rs::conversion::to(tcas, seg.rect));
+      roi.mask(rs::conversion::to(tcas, mask));
+      roi.mask_hires(rs::conversion::to(tcas, mask_hires));
+
+      rs::ReferenceClusterPoints points = rs::create<rs::ReferenceClusterPoints>(tcas);
+      pcl::PointIndices indices;
+      indices.header = cloud->header;
+
+      for(int r = 0; r < mask.rows; ++r)
+      {
+        size_t index = (seg.rect.y + r) * cloud->width + seg.rect.x;
+        const uint8_t *itM = mask.ptr<uint8_t>(r);
+        const pcl::PointXYZRGBA *itP = &cloud->points[index];
+
+        for(int c = 0; c < mask.cols; ++c, ++itM, ++itP, ++index)
+        {
+          if(*itM > 0 && itP->z > 0)
+          {
+            indices.indices.push_back(index);
+          }
+        }
+      }
+
+      outInfo("3D points for object: " << indices.indices.size());
+      rs::PointIndices pIndices = rs::create<rs::PointIndices>(tcas);
+      pIndices = rs::conversion::to(tcas, indices);
+      points.indices(pIndices);
+
+      rs::Cluster cluster = rs::create<rs::Cluster>(tcas);
+      cluster.rois(roi);
+      cluster.points(points);
+      cluster.source.set("TransparentSegmentation");
+      scene.identifiables.append(cluster);
     }
 
     // finish until next pipeline run
@@ -189,26 +237,27 @@ cv::Mat TransparentSegmentationAnnotator::getPlaneMaskClosed(
   std::vector<cv::Vec4i> contoursHierarchy;
 
   cv::findContours(planeMask, planeContours, contoursHierarchy,
-      CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+                   CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
   auto longestPlaneContourIt =
-      std::max_element(
-          planeContours.begin(), planeContours.end(),
-          [](const Contour &a, const Contour &b) {
-            return a.size() < b.size();
-          });
+    std::max_element(
+      planeContours.begin(), planeContours.end(),
+      [](const Contour & a, const Contour & b)
+  {
+    return a.size() < b.size();
+  });
 
   Contour hull;
   cv::convexHull(*longestPlaneContourIt, hull);
 
-  std::vector<Contour> contourVec{hull};
+  std::vector<Contour> contourVec {hull};
   cv::fillPoly(planeMask, contourVec, cv::Scalar(255));
 
   return planeMask;
 }
 
 void TransparentSegmentationAnnotator::preprocessFailedMask(
-    cv::Mat &failedDepthMask) const
+  cv::Mat &failedDepthMask) const
 {
   cv::Size mKernelSize(this->morphKernelSize, this->morphKernelSize);
   cv::Mat mKernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, mKernelSize);
@@ -224,25 +273,27 @@ void TransparentSegmentationAnnotator::preprocessFailedMask(
   cv::findContours(contoursMat, contours,
                    cv::RETR_LIST, cv::CHAIN_APPROX_NONE);
 
-  for (auto &contour : contours)
+  for(auto & contour : contours)
   {
     std::vector<Contour> contourVec;
 
-    if (this->convexHullSegments)
+    if(this->convexHullSegments)
     {
       Contour hull;
       cv::convexHull(contour, hull);
       contourVec.push_back(hull);
     }
     else
+    {
       contourVec.push_back(contour);
+    }
 
     cv::fillPoly(failedDepthMask, contourVec, cv::Scalar(255));
   }
 }
 
 std::vector<cv::Mat> TransparentSegmentationAnnotator::getProbableCGRegions(
-    cv::Mat const &src) const
+  cv::Mat const &src) const
 {
   cv::Size mKernelSize(this->morphKernelSize, this->morphKernelSize);
   cv::Mat mKernel = cv::getStructuringElement(cv::MORPH_ELLIPSE, mKernelSize);
@@ -259,10 +310,12 @@ std::vector<cv::Mat> TransparentSegmentationAnnotator::getProbableCGRegions(
 
   std::vector<cv::Rect> rois;
   std::vector<cv::Mat> roiMasks;
-  for (auto &contour : regionContours)
+  for(auto & contour : regionContours)
   {
-    if (cv::contourArea(contour) < this->minContourArea)
+    if(cv::contourArea(contour) < this->minContourArea)
+    {
       continue;
+    }
 
     constexpr int kMargin = 20;
     cv::Rect roi = cv::boundingRect(contour);
@@ -283,8 +336,8 @@ std::vector<cv::Mat> TransparentSegmentationAnnotator::getProbableCGRegions(
 }
 
 void TransparentSegmentationAnnotator::gcRefineRegion(
-    cv::Mat const &gcRegionMask, cv::Mat &refinedMask,
-    cv::Mat const &rgb, cv::Mat const &searchMask) const
+  cv::Mat const &gcRegionMask, cv::Mat &refinedMask,
+  cv::Mat const &rgb, cv::Mat const &searchMask) const
 {
   cv::Size ROISize;
   cv::Point ROIOffset;
@@ -296,8 +349,8 @@ void TransparentSegmentationAnnotator::gcRefineRegion(
   cv::Mat foregroundModel;
 
   cv::grabCut(rgb(roi), gcRegionMask, cv::Rect(),
-      backgroundModel, foregroundModel,
-      this->grabcutIterations, cv::GC_INIT_WITH_MASK);
+              backgroundModel, foregroundModel,
+              this->grabcutIterations, cv::GC_INIT_WITH_MASK);
 
   cv::Mat refinedMaskROI = refinedMask(roi);
   cv::Mat copyMask = (gcRegionMask != cv::GC_BGD) &
@@ -308,19 +361,23 @@ void TransparentSegmentationAnnotator::gcRefineRegion(
 }
 
 std::tuple<cv::Mat, cv::Mat> TransparentSegmentationAnnotator::readCameraInfo(
-    sensor_msgs::CameraInfo const &cameraInfoMsg)
+  sensor_msgs::CameraInfo const &cameraInfoMsg)
 {
   cv::Mat cameraMatrix(3, 3, CV_64F);
 
   double *it = cameraMatrix.ptr<double>(0);
-  for (size_t i = 0; i < 8; ++i, ++it)
+  for(size_t i = 0; i < 8; ++i, ++it)
+  {
     *it = cameraInfoMsg.K[i];
+  }
 
   cv::Mat distortionCoefficients(1, cameraInfoMsg.D.size(), CV_64F);
 
   it = distortionCoefficients.ptr<double>(0);
   for(size_t i = 0; i < cameraInfoMsg.D.size(); ++i, ++it)
+  {
     *it = cameraInfoMsg.D[i];
+  }
 
   return std::tie(cameraMatrix, distortionCoefficients);
 }
