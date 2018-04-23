@@ -186,11 +186,6 @@ private:
       std::string jsonString  = qs.asJson();
       jsonDoc.Parse(jsonString);
 
-      /*rapidjson::Value &detectQuery = jsonDoc["detect"];
-
-      rapidjson::Value::ConstMemberIterator locationMember = detectQuery.FindMember("location");
-      const rapidjson::Value& location = locationMember->value;*/
-
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes (Maybe save query mode in FS?)
       rapidjson::Pointer framePointer("/detect/location/frame");
