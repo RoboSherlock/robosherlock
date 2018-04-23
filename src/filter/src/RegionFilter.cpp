@@ -192,7 +192,7 @@ private:
       rapidjson::Value* frameJson = framePointer.Get(jsonDoc);
       std::string newLocation;
 
-      if(frameJson && !frameJson->IsString()){
+      if(frameJson && frameJson->IsString()){
           newLocation = frameJson->GetString();
       }
 

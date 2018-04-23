@@ -321,7 +321,7 @@ public:
       rapidjson::Value *tsJson = framePointer.Get(jsonDoc);
 
       std::string newTS;
-      if(tsJson && !tsJson->IsString())
+      if(tsJson && tsJson->IsString())
       {
 
         newTS = tsJson->GetString();
