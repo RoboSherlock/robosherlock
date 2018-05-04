@@ -21,14 +21,6 @@ target_link_libraries(rs_ImagePreprocessor rs_core rs_utils rs_segmentation)
 rs_add_library(rs_Trigger src/Trigger.cpp)
 target_link_libraries(rs_Trigger rs_core rs_io)
 
-add_library(rs_analysisEngineManager
-    src/RSAnalysisEngine.cpp 
-    src/RSPipelineManager.cpp)
-target_link_libraries(rs_analysisEngineManager rs_core rs_io ${LIBAPR_LIBRARY} ${UIMA_LIBRARY} ${ICUUC_LIBRARY} ${catkin_LIBRARIES})
-
-rs_add_executable(run src/run.cpp)
-target_link_libraries(run rs_analysisEngineManager)
-
 rs_add_executable(test_reconfig src/test_reconfig.cpp)
 target_link_libraries(test_reconfig rs_analysisEngineManager)
 
