@@ -23,7 +23,7 @@ private:
 
   bool volatile terminate_flag = false;
 public:
-  std::mutex mutex;
+  //std::mutex mutex;
 
   TFBroadcasterWrapper(): transforms()
   {
@@ -43,7 +43,7 @@ public:
     tf::TransformBroadcaster br;
     while(ros::ok() && !terminate_flag)
     {
-      mutex.lock();
+      //mutex.lock();
       if(!transforms.empty())
       {
         ros::Time t = ros::Time::now();
@@ -53,7 +53,7 @@ public:
         }
         br.sendTransform(transforms);
       }
-      mutex.unlock();
+      //mutex.unlock();
       std::this_thread::sleep_for(sleepTime);
     }
   }
@@ -63,10 +63,10 @@ public:
    */
   void addTransforms(const std::vector<tf::StampedTransform> &ts)
   {
-    mutex.lock();
+    //mutex.lock();
     transforms.clear();
     transforms.insert(transforms.end(), ts.begin(), ts.end());
-    mutex.unlock();
+    //mutex.unlock();
   }
 
   /**
@@ -75,9 +75,9 @@ public:
    */
   void addTransform(tf::StampedTransform &ts)
   {
-    mutex.lock();
+    //mutex.lock();
     transforms.push_back(ts);
-    mutex.unlock();
+    //mutex.unlock();
   }
 
   /**
@@ -85,9 +85,9 @@ public:
    */
   void clear()
   {
-    mutex.lock();
+    //mutex.lock();
     transforms.clear();
-    mutex.unlock();
+    //mutex.unlock();
   }
 
   void terminate()
