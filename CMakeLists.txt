@@ -52,8 +52,7 @@ find_package(catkin REQUIRED
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
- image_geometry message_filters resource_retriever
- iai_robosherlock_msgs)
+ image_geometry message_filters resource_retriever)
 
 
 find_package(Eigen3 QUIET)
