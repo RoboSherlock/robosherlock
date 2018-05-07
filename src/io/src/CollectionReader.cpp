@@ -310,7 +310,7 @@ public:
     uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
     rs::Query qs = rs::create<rs::Query>(tcas);
-    if(cas.getFS("QUERY", qs))
+    if(cas.getFS("QUERY", qs) && qs.asJson() != "")
     {
       rapidjson::Document jsonDoc;
       std::string jsonString  = qs.asJson();
@@ -329,7 +329,7 @@ public:
         outInfo(newTS);
         if(newTS != "")
         {
-          timestamp = atoi(newTS.c_str());
+          timestamp = atol(newTS.c_str());
         }
       }
     }
