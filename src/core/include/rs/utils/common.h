@@ -257,6 +257,13 @@ inline double pointToPointDistanceSqrt(const double x1, const double y1, const d
   return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
 
+inline double pointToPointDistance2DSqrt(const double x1, const double y1, const double x2, const double y2 )
+{
+
+  return std::sqrt( (x1-x2)*(x1-x2)+ (y1-y2)*(y1-y2));
+}
+
+
 }//end common namespace
 
 }//end rs namespace

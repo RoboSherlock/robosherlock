@@ -283,7 +283,7 @@ private:
         }
       }
     }
-    for(rs::Object & object : objects)
+    for(rs::Object &object : objects)
     {
       object.disappeared(object.inView() && object.lastSeen() != timestamp);
     }
@@ -348,7 +348,7 @@ private:
           marker.scale.z = 1.0f;
           marker.color.a = 1.0;
         }
-        catch (resource_retriever::Exception& e)
+        catch(resource_retriever::Exception &e)
         {
           outWarn(e.what());
         }
@@ -378,20 +378,20 @@ private:
         rs::SemanticColor &c = colors[0];
 
         auto iterator = rs::common::colorMap.find(c.color()[0]);
-        if(iterator!=rs::common::colorMap.end())
+        if(iterator != rs::common::colorMap.end())
         {
           cv::Scalar color = iterator->second;
           marker.color.a = 1.0;
-          marker.color.r = color[2]/255;
-          marker.color.g = color[1]/255;
-          marker.color.b = color[0]/255;
+          marker.color.r = color[2] / 255;
+          marker.color.g = color[1] / 255;
+          marker.color.b = color[0] / 255;
         }
       }
 
 
       markers.markers.push_back(marker);
     }
-    outInfo("Publishgin "<<markers.markers.size()<<" markers");
+    outInfo("Publishgin " << markers.markers.size() << " markers");
     marker_pub_.publish(markers);
   }
 
@@ -413,7 +413,7 @@ private:
       // ignore objects that are located not located on planes on inside drawers
       std::vector<rs::TFLocation> locations;
       object.annotations.filter(locations);
-      for(rs::TFLocation & location : locations)
+      for(rs::TFLocation &location : locations)
       {
         if(location.reference_desc() == "on" && !(location.frame_id() == "plane" || location.frame_id() == "drawer"))
         {
@@ -610,6 +610,7 @@ private:
     object.annotations.filter(poses);
 
     outAssert(!poses.empty(), "no pose found!");
+    if(poses.empty()) return false;
 
     tf::Stamped<tf::Pose> poseWorld;
     rs::conversion::from(poses[0].world(), poseWorld);

@@ -61,28 +61,39 @@ public:
   bool getFS(const char *name, uima::FeatureStructure &fs);
   void setFS(const char *name, const uima::FeatureStructure &fs);
 
+  void reset()
+  {
+    cas.reset();
+  }
+
+  void setText(std::string t)
+  {
+    cas.setDocumentText(uima::UnicodeStringRef(t.c_str()));
+  }
+
+
   template <class T>
   bool get(const char *name, T &output)
   {
-    return get(name, output, std::is_base_of<rs::FeatureStructureProxy,T>());
+    return get(name, output, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
   template <class T>
   void set(const char *name, const T &input)
   {
-    set(name, input, std::is_base_of<rs::FeatureStructureProxy,T>());
+    set(name, input, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
   template <class T>
   bool get(const char *name, std::vector<T> &output)
   {
-    return get(name, output, std::is_base_of<rs::FeatureStructureProxy,T>());
+    return get(name, output, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
   template <class T>
   void set(const char *name, const std::vector<T> &input)
   {
-    set(name, input, std::is_base_of<rs::FeatureStructureProxy,T>());
+    set(name, input, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
 private:

@@ -81,6 +81,7 @@ private:
   cv::Mat searchMask;
 
   std::vector<ImageSegmentation::Segment> segments;
+
 };
 
 // This macro exports an entry point that is used to create the annotator.

@@ -78,7 +78,7 @@
       <nameValuePair>
         <name>minSize</name>
         <value>
-          <integer>3500</integer>
+          <integer>1200</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -91,7 +91,7 @@
       <nameValuePair>
         <name>hsvFilter</name>
         <value>
-          <boolean>false</boolean>
+          <boolean>true</boolean>
         </value>
       </nameValuePair>
 
@@ -105,7 +105,7 @@
       <nameValuePair>
         <name>segmMode</name>
         <value>
-          <string>BINARY</string>
+          <string>INVBINARY</string>
         </value>
       </nameValuePair>
 
