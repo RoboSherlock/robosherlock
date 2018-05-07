@@ -1,5 +1,6 @@
 project(rs_queryanswering)
 
+
 add_library(rs_queryanswering SHARED
         src/DesignatorWrapper.cpp
         src/PrologInterface.cpp

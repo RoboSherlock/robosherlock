@@ -1,3 +1,5 @@
+
+#ifdef WITH_JSON_PROLOG
 //json
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
@@ -6,8 +8,8 @@
 #include <rs/utils/output.h>
 
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
+
 #include <rs/queryanswering/PrologInterface.h>
-#include <json_prolog/prolog.h>
 
 #include <std_srvs/Trigger.h>
 
@@ -15,6 +17,7 @@
 class QueryInterface
 {
 private:
+
     PrologInterface* prologInterface;
 
     bool handleDetect(std::vector<std::string> &newPipelineOrder);
@@ -47,3 +50,4 @@ public:
   bool checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower);
 
 };
+#endif //WITH_JSON_PROLOG

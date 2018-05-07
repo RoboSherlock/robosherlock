@@ -1,4 +1,7 @@
+
 #include<rs/queryanswering/QueryInterface.h>
+
+#ifdef WITH_JSON_PROLOG
 #include<rs/queryanswering/DesignatorWrapper.h>
 
 // Boost
@@ -121,7 +124,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 bool getConfigForKey(std::string key, std::string &location, std::string &check, double &thresh, bool &keepLower)
 {
-  const std::string &configFile = ros::package::getPath("rs_queryanswering") + "/config/filter_config.ini";
+  const std::string &configFile = ros::package::getPath("robosherlock") + "/config/filter_config.ini";
 
   outInfo("Path to config file: " FG_BLUE << configFile);
   boost::property_tree::ptree pt;
@@ -289,3 +292,4 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
 }
+#endif //WITH_JSON_PROLOG

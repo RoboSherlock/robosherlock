@@ -18,7 +18,6 @@
 #include <tf_conversions/tf_eigen.h>
 
 #include <rs/queryanswering/DesignatorWrapper.h>
-
 class RSControledAnalysisEngine: public RSAnalysisEngine
 {
 

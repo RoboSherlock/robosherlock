@@ -3,13 +3,14 @@
 
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 
-#include <rs/queryanswering/DesignatorWrapper.h>
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 #include <rs/queryanswering/KRDefinitions.h>
 
 #ifdef WITH_JSON_PROLOG
 #include <rs/queryanswering/QueryInterface.h>
 #endif
+
+#include <rs/queryanswering/DesignatorWrapper.h>
 
 #include <iai_robosherlock_msgs/SetRSContext.h>
 #include <iai_robosherlock_msgs/RSQueryService.h>
@@ -69,12 +70,13 @@ public:
 
   bool resetAECallback(iai_robosherlock_msgs::SetRSContext::Request &req,
                        iai_robosherlock_msgs::SetRSContext::Response &res);
+#ifdef WITH_JSON_PROLOG
 
   bool jsonQueryCallback(iai_robosherlock_msgs::RSQueryService::Request &req,
                          iai_robosherlock_msgs::RSQueryService::Response &res);
 
   virtual bool handleQuery(std::string& req, std::vector<std::string>& res);
-
+#endif
   //special case for offscreen rendering the beliefstate using Unreal Engine
   bool renderOffscreen(std::string object);
 

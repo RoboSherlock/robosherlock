@@ -52,7 +52,8 @@ find_package(catkin REQUIRED
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
- image_geometry message_filters resource_retriever)
+ image_geometry message_filters resource_retriever
+ iai_robosherlock_msgs)
 
 
 find_package(Eigen3 QUIET)
@@ -142,9 +143,8 @@ set(RS_LIBS
   rs_io
   rs_segmentation
   rs_recognition
-  rs_utils
-  rs_analysisEngineManager
   rs_queryanswering
+  rs_utils
   ${RS_CAFFE_LIB}
   ${RS_WEB_LIB}
 )
@@ -199,9 +199,8 @@ add_subdirectory(src/recognition)
 add_subdirectory(src/segmentation)
 add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
-add_subdirectory(src/queryanswering)
 add_subdirectory(src/flowcontrol)
-
+add_subdirectory(src/queryanswering)
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
@@ -214,7 +213,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test.cpp)
 target_link_libraries(${PROJECT_NAME}-test
-    rs_analysisEngineManager
+    rs_flowcontrol
     rs_core
     rs_io
     rs_utils)
