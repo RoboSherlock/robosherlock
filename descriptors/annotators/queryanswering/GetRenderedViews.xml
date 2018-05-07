@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_getRenderedViews</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>GetRenderedViews</name>
+    <description/>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+        <configurationParameter>
+            <name>test_param</name>
+            <type>Float</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+        </configurationParameter>
+    </configurationParameters>
+    <configurationParameterSettings>
+        <nameValuePair>
+            <name>test_param</name>
+            <value>
+                <float>0.01</float>
+            </value>
+        </nameValuePair>
+    </configurationParameterSettings>
+    <typeSystemDescription>
+        <imports>
+            <import location="../../typesystem/all_types.xml"/>
+        </imports>
+    </typeSystemDescription>
+    <capabilities>
+        <capability>
+            <inputs/>
+            <outputs/>
+            <languagesSupported>
+                <language>x-unspecified</language>
+            </languagesSupported>
+        </capability>
+    </capabilities>
+    <operationalProperties>
+        <modifiesCas>true</modifiesCas>
+        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+        <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>
