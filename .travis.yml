@@ -32,7 +32,7 @@ before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
   - pip install --user cpp-coveralls
-  - sudo add-apt-repository ppa:surxz/rapidjson1.1.0 -y
+  - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
