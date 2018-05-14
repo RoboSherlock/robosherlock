@@ -258,8 +258,12 @@ void Visualizer::cloudViewer()
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
 
-  int key = cv::waitKeyEx(10);
-
+int key;
+#if CV_MAJOR_VERSION==3
+  key = cv::waitKeyEx(10);
+#else
+  key = cv::waitKey(10);
+#endif  
   if(key == 0)
   {
     return;
