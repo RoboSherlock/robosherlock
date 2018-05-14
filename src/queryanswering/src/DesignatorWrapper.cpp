@@ -417,7 +417,7 @@ void DesignatorWrapper::convert(rs::ClusterPart &input, rapidjson::Document *obj
   object->AddMember("contains",substance,object->GetAllocator());
 }*/
 
-iai_robosherlock_msgs::PerceivedObjects DesignatorWrapper::getObjectsMsgs()
+robosherlock_msgs::PerceivedObjects DesignatorWrapper::getObjectsMsgs()
 {
   return objects_;
 }

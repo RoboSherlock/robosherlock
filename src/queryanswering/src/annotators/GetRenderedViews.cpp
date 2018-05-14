@@ -18,7 +18,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf/transform_broadcaster.h>
 #include <tf_conversions/tf_eigen.h>
-#include <iai_robosherlock_msgs/UpdateObjects.h>
+#include <robosherlock_msgs/UpdateObjects.h>
 
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -79,7 +79,7 @@ private:
 public:
   GetRenderedViews(): DrawingAnnotator(__func__), nh_("~"), it_(nh_),publishAsMarkers_(false)
   {
-    client_ = nh_.serviceClient<iai_robosherlock_msgs::UpdateObjects>("/update_objects");
+    client_ = nh_.serviceClient<robosherlock_msgs::UpdateObjects>("/update_objects");
     std::string configFile = ros::package::getPath("robosherlock") + "/config/config_unreal_vision.ini";
     boost::property_tree::ptree pt;
     boost::property_tree::ini_parser::read_ini(configFile, pt);
@@ -217,7 +217,7 @@ public:
     tf::Stamped<tf::Pose> poseStamped;
     poseStamped.setOrigin(mapToPoint.getOrigin());
     poseStamped.setRotation(mapToPoint.getRotation());
-    iai_robosherlock_msgs::UpdateObjects updateCameraPose;
+    robosherlock_msgs::UpdateObjects updateCameraPose;
     updateCameraPose.request.name = "ARGBDCamera";
     tf::poseStampedTFToMsg(poseStamped, updateCameraPose.request.pose_stamped);
     if(client_.call(updateCameraPose))

@@ -14,7 +14,7 @@
 #include <boost/signals2.hpp>
 #include <map>
 
-#include <iai_robosherlock_msgs/PerceivedObjects.h>
+#include <robosherlock_msgs/PerceivedObjects.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
@@ -41,7 +41,7 @@ public:
   static rapidjson::Document *res_designator;
 
   //designator_integration_msgs::DesignatorResponse res;
-  iai_robosherlock_msgs::PerceivedObjects objects_;
+  robosherlock_msgs::PerceivedObjects objects_;
 
   uint64_t now;
   uima::CAS *tcas;
@@ -61,7 +61,7 @@ public:
   //  void notifyObserversDesignatorAdded(Designator d);
 
   //designator_integration_msgs::DesignatorResponse getDesignatorResponseMsg();
-  iai_robosherlock_msgs::PerceivedObjects getObjectsMsgs();
+  robosherlock_msgs::PerceivedObjects getObjectsMsgs();
 
   bool getObjectDesignators(std::vector<std::string> &);
 
@@ -127,7 +127,7 @@ public:
       convertAll(classification, &objectDesignator);
 
 
-      iai_robosherlock_msgs::PerceivedObject object;
+      robosherlock_msgs::PerceivedObject object;
       if(!detections.empty() && !poses.empty())
       {
         rs::Detection a = detections[0];

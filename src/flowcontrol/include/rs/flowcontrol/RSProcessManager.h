@@ -12,8 +12,8 @@
 
 #include <rs/queryanswering/DesignatorWrapper.h>
 
-#include <iai_robosherlock_msgs/SetRSContext.h>
-#include <iai_robosherlock_msgs/RSQueryService.h>
+#include <robosherlock_msgs/SetRSContext.h>
+#include <robosherlock_msgs/RSQueryService.h>
 
 
 #include <rapidjson/rapidjson.h>
@@ -68,12 +68,12 @@ public:
   void stop();
 
 
-  bool resetAECallback(iai_robosherlock_msgs::SetRSContext::Request &req,
-                       iai_robosherlock_msgs::SetRSContext::Response &res);
+  bool resetAECallback(robosherlock_msgs::SetRSContext::Request &req,
+                       robosherlock_msgs::SetRSContext::Response &res);
 #ifdef WITH_JSON_PROLOG
 
-  bool jsonQueryCallback(iai_robosherlock_msgs::RSQueryService::Request &req,
-                         iai_robosherlock_msgs::RSQueryService::Response &res);
+  bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
+                         robosherlock_msgs::RSQueryService::Response &res);
 
   virtual bool handleQuery(std::string& req, std::vector<std::string>& res);
 #endif

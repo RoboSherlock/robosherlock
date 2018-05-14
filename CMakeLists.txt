@@ -53,7 +53,7 @@ find_package(catkin REQUIRED
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
- iai_robosherlock_msgs)
+ robosherlock_msgs)
 
 
 find_package(Eigen3 QUIET)

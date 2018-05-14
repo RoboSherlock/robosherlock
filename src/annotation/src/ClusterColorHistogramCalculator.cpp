@@ -149,7 +149,7 @@ private:
     rapidjson::Document jsonDoc;
     std::string jsonQuery;
     bool found = false;
-    if(cas.getFS("QUERY", qs))
+    if(cas.getFS("QUERY", qs) && qs.asJson()!="")
     {
       jsonQuery = qs.asJson();
       jsonDoc.Parse(jsonQuery);
@@ -157,14 +157,15 @@ private:
       //multiple modes
       rapidjson::Value &detectQuery = jsonDoc["detect"];
       outWarn("json query: " << qs.asJson());
+      if(detectQuery.IsObject()){
+          //TODO How do we know what keywords can be found at what level in the json?
+          rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");
+          rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
 
-      //TODO How do we know what keywords can be found at what level in the json?
-      rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");
-      rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
-
-      if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd())
-      {
-        found = true;
+          if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd())
+          {
+            found = true;
+          }
       }
     }
 

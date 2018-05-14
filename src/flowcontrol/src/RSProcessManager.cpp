@@ -24,7 +24,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
     break;
   }
 
-  desig_pub_ = nh_.advertise<iai_robosherlock_msgs::PerceivedObjects>(std::string("result_advertiser"), 5);
+  desig_pub_ = nh_.advertise<robosherlock_msgs::PerceivedObjects>(std::string("result_advertiser"), 5);
 
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
 #ifdef WITH_JSON_PROLOG
@@ -119,8 +119,8 @@ void RSProcessManager::stop()
   engine_.stop();
 }
 
-bool RSProcessManager::resetAECallback(iai_robosherlock_msgs::SetRSContext::Request &req,
-                                       iai_robosherlock_msgs::SetRSContext::Response &res)
+bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request &req,
+                                       robosherlock_msgs::SetRSContext::Response &res)
 {
   std::string newContextName = req.newAe;
 
@@ -175,8 +175,8 @@ bool RSProcessManager::resetAE(std::string newContextName)
   }
 }
 #ifdef WITH_JSON_PROLOG
-bool RSProcessManager::jsonQueryCallback(iai_robosherlock_msgs::RSQueryService::Request &req,
-    iai_robosherlock_msgs::RSQueryService::Response &res)
+bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
+    robosherlock_msgs::RSQueryService::Response &res)
 {
   handleQuery(req.query, res.answer);
   return true;
