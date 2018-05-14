@@ -73,7 +73,7 @@ public:
   bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
                          robosherlock_msgs::RSQueryService::Response &res);
 
-  virtual bool handleQuery(std::string& req, std::vector<std::string>& res);
+  bool handleQuery(std::string& req, std::vector<std::string>& res);
 #endif
   //special case for offscreen rendering the beliefstate using Unreal Engine
   bool renderOffscreen(std::string object);
