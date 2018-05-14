@@ -43,7 +43,6 @@ public:
   bool waitForServiceCall_;
   const bool useVisualizer_;
 
-  bool withJsonProlog_;
   bool useIdentityResolution_;
   bool pause_;
   bool inspectFromAR_;
@@ -91,11 +90,6 @@ public:
   {
     useIdentityResolution_ = useIdentityResoltuion;
     engine_.useIdentityResolution(useIdentityResoltuion);
-  }
-
-  inline void setUseJsonPrologInterface(bool useJsonProlog)
-  {
-    withJsonProlog_ = useJsonProlog;
   }
 
   inline void setInspectFromAR(bool b)

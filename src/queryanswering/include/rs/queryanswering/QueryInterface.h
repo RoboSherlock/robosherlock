@@ -30,9 +30,9 @@ public:
 
   rapidjson::Document query;
 
-  QueryInterface(bool withJsonProlog){
+  QueryInterface(){
       query = rapidjson::Document(rapidjson::kObjectType);
-      prologInterface = new PrologInterface(withJsonProlog);
+      prologInterface = new PrologInterface();
   }
   ~QueryInterface()
   {

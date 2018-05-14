@@ -63,6 +63,7 @@ void help()
               << "              _vis:=true|false     shorter version for _visualization" << std::endl
               << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
               << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
+              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
               << std::endl
               << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
               << "Options:" << std::endl
@@ -71,7 +72,8 @@ void help()
               << "     visualization:=true|false     Enable/disable visualization" << std::endl
               << "               vis:=true|false     shorter version for visualization" << std::endl
               << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl;
+              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
+              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl;
 
 }
 

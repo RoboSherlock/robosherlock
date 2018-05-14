@@ -33,12 +33,11 @@ class PrologInterface
   typedef std::shared_ptr<PlEngine> PlEnginePtr;
   PlEnginePtr engine;
 #endif
-  bool useJsonProlog;
 
   std::vector<std::string> krNamespaces;
 
 public:
-  PrologInterface(bool json_prolog = true);
+  PrologInterface();
   ~PrologInterface()
   {
   }

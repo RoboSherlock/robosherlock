@@ -3,7 +3,7 @@
 RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
                                    ros::NodeHandle n, const std::string& savePath):
   engine_(n), inspectionEngine_(n), nh_(n), waitForServiceCall_(waitForServiceCall),
-  useVisualizer_(useVisualizer), withJsonProlog_(true), useIdentityResolution_(false),
+  useVisualizer_(useVisualizer), useIdentityResolution_(false),
   pause_(true), inspectFromAR_(false), visualizer_(savePath)
 {
 
@@ -43,7 +43,7 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
   outInfo("initializing");
 
 #ifdef WITH_JSON_PROLOG
-  queryInterface = new QueryInterface(withJsonProlog_);
+  queryInterface = new QueryInterface();
 #endif
   this->configFile_ = configFile;
 
