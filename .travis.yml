@@ -51,7 +51,6 @@ install:
   - catkin_make
   - source devel/setup.bash
   - cd ~/catkin_ws/src
-  - git clone
   - ln -s $CI_SOURCE_PATH .
 
 before_script:
