@@ -158,7 +158,6 @@ PREDICATE(cpp_init_rs, 2)
       pm = new RSProcessManager(false, waitForService, nh);
       //      pm->setLowLvlPipeline(lowLvlPipeline);
       pm->setUseIdentityResolution(false);
-      pm->setUseJsonPrologInterface(true);
       pm->init(pipelinePath, configPath);
       thread = std::thread(&RSProcessManager::run, &(*pm));
       return A2 = (void *)pm;

@@ -9,7 +9,7 @@
 
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
-#include <rs/queryanswering/PrologInterface.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
 
 #include <std_srvs/Trigger.h>
 
@@ -18,7 +18,7 @@ class QueryInterface
 {
 private:
 
-    PrologInterface* prologInterface;
+    JsonPrologInterface* jsonPrologInterface;
 
     bool handleDetect(std::vector<std::string> &newPipelineOrder);
     bool handleInspect(std::vector<std::string> &newPipelineOrder);
@@ -32,7 +32,7 @@ public:
 
   QueryInterface(){
       query = rapidjson::Document(rapidjson::kObjectType);
-      prologInterface = new PrologInterface();
+      jsonPrologInterface = new JsonPrologInterface();
   }
   ~QueryInterface()
   {

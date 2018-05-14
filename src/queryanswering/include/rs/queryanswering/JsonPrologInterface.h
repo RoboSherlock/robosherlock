@@ -26,7 +26,7 @@
 #include <rapidjson/document.h>
 
 //wrapper class for Prolog Engine based on SWI-C++
-class PrologInterface
+class JsonPrologInterface
 {
 #ifdef WITH_JSON_PROLOG
 
@@ -37,8 +37,8 @@ class PrologInterface
   std::vector<std::string> krNamespaces;
 
 public:
-  PrologInterface();
-  ~PrologInterface()
+  JsonPrologInterface();
+  ~JsonPrologInterface()
   {
   }
 

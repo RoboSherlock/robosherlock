@@ -1,14 +1,14 @@
-#include <rs/queryanswering/PrologInterface.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
 #ifdef WITH_JSON_PROLOG
 
-PrologInterface::PrologInterface()
+JsonPrologInterface::JsonPrologInterface()
 {
 
   outInfo("Creating ROS Service client for json_prolog");
 
 }
 
-void PrologInterface::init()
+void JsonPrologInterface::init()
 {
   outInfo("Initializing Prolog Engine");
   PlTerm av("rs_prolog_interface");
@@ -22,7 +22,7 @@ void PrologInterface::init()
   }
 }
 
-bool PrologInterface::extractQueryKeysFromDesignator(std::string *desig,
+bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
     std::vector<std::string> &keys)
 {
   if(!desig)
@@ -76,7 +76,7 @@ bool PrologInterface::extractQueryKeysFromDesignator(std::string *desig,
 }
 
 
-bool PrologInterface::buildPrologQueryFromDesignator(std::string *desig,
+bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string *desig,
     std::string &prologQuery)
 {
   prologQuery = "build_single_pipeline_from_predicates([";
@@ -95,7 +95,7 @@ bool PrologInterface::buildPrologQueryFromDesignator(std::string *desig,
 }
 
 
-std::string PrologInterface::buildPrologQueryFromKeys(const std::vector<std::string> &keys)
+std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std::string> &keys)
 {
   std::string prologQuery = "build_single_pipeline_from_predicates([";
   for(int i = 0; i < keys.size(); i++)
@@ -110,7 +110,7 @@ std::string PrologInterface::buildPrologQueryFromKeys(const std::vector<std::str
   return prologQuery;
 }
 
-bool PrologInterface::planPipelineQuery(const std::vector<std::string> &keys,
+bool JsonPrologInterface::planPipelineQuery(const std::vector<std::string> &keys,
                                         std::vector<std::string> &pipeline)
 {
 
@@ -130,7 +130,7 @@ bool PrologInterface::planPipelineQuery(const std::vector<std::string> &keys,
 
 }
 
-std::vector< std::string > PrologInterface::createPipelineFromPrologResult(std::string queryResult)
+std::vector< std::string > JsonPrologInterface::createPipelineFromPrologResult(std::string queryResult)
 {
   std::vector<std::string> new_pipeline;
 
@@ -160,7 +160,7 @@ std::vector< std::string > PrologInterface::createPipelineFromPrologResult(std::
   return new_pipeline;
 }
 
-bool PrologInterface::q_subClassOf(std::string child, std::string parent)
+bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
 {
 
   std::stringstream prologQuery;
@@ -188,7 +188,7 @@ bool PrologInterface::q_subClassOf(std::string child, std::string parent)
 
 }
 
-bool PrologInterface::addNamespace(std::string &entry)
+bool JsonPrologInterface::addNamespace(std::string &entry)
 {
   json_prolog::Prolog pl;
   for(auto ns : rs_queryanswering::krNamespaces)
@@ -205,7 +205,7 @@ bool PrologInterface::addNamespace(std::string &entry)
   return false;
 }
 
-bool PrologInterface::q_classProperty(std::string className, std::string property, std::string value)
+bool JsonPrologInterface::q_classProperty(std::string className, std::string property, std::string value)
 {
 
   outInfo("Calling Json Prolog");

@@ -74,10 +74,10 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
   std::vector<std::string> keys;
   std::vector<std::string> new_pipeline_order;
-  prologInterface->extractQueryKeysFromDesignator(&req, keys);
+  jsonPrologInterface->extractQueryKeysFromDesignator(&req, keys);
   try
   {
-    prologInterface->planPipelineQuery(keys, new_pipeline_order);
+    jsonPrologInterface->planPipelineQuery(keys, new_pipeline_order);
   }
   catch(std::exception e)
   {
@@ -154,7 +154,7 @@ bool QueryInterface::checkSubClass(const std::string &resultValue, const std::st
   bool ok = false;
   try
   {
-    ok = prologInterface->q_subClassOf(resultValue, queryValue);
+    ok = jsonPrologInterface->q_subClassOf(resultValue, queryValue);
   }
   catch(std::exception &e)
   {
