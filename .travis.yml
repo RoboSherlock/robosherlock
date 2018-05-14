@@ -51,11 +51,14 @@ install:
   - catkin_make
   - source devel/setup.bash
   - cd ~/catkin_ws/src
+  - git clone
   - ln -s $CI_SOURCE_PATH .
 
 before_script:
   - cd ~/catkin_ws
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
+  - cd ~/catkin_ws/src
+  - git clone https://github.com/RoboSherlock/robosherlock_msgs.git
   - mkdir -p ~/local/src && cd ~/local/src/
   - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
   - cd ~/local/src/uimacpp
