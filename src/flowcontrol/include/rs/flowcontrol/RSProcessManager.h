@@ -36,7 +36,6 @@ public:
   #endif
 
   ros::NodeHandle nh_;
-  ros::Publisher desig_pub_;
   ros::ServiceServer service, singleService, setContextService, jsonService;
 
 

@@ -24,8 +24,6 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
     break;
   }
 
-  desig_pub_ = nh_.advertise<robosherlock_msgs::PerceivedObjects>(std::string("result_advertiser"), 5);
-
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("json_query", &RSProcessManager::jsonQueryCallback, this);
