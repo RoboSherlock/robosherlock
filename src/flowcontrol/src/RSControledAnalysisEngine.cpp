@@ -29,7 +29,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   rspm->aengine->getNbrOfAnnotators();
   outInfo("*** Number of Annotators in AnnotatorManager: " << rspm->aengine->getNbrOfAnnotators());
 
-  if(!pervasive){
+  if(pervasive){
       // After all annotators have been initialized, pick the default pipeline
       //this stores the pipeline
       rspm->setDefaultPipelineOrdering(lowLvlPipeline);
