@@ -26,7 +26,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
 
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
 #ifdef WITH_JSON_PROLOG
-  jsonService = nh_.advertiseService("json_query", &RSProcessManager::jsonQueryCallback, this);
+  jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
 #endif
 }
 
