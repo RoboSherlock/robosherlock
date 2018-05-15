@@ -34,6 +34,8 @@
   <depend>image_transport            </depend>
   <depend>image_geometry             </depend>
 
+  <depend>robosherlock_msgs          </depend>
+
   <export>
   </export>
 </package>
