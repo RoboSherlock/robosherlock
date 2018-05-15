@@ -16,9 +16,6 @@
 //json_prolog interface
 #include <json_prolog/prolog.h>
 
-//SWI Prolog
-#include <SWI-cpp.h>
-
 //STD
 #include <memory>
 
@@ -30,8 +27,8 @@ class JsonPrologInterface
 {
 #ifdef WITH_JSON_PROLOG
 
-  typedef std::shared_ptr<PlEngine> PlEnginePtr;
-  PlEnginePtr engine;
+//  typedef std::shared_ptr<PlEngine> PlEnginePtr;
+//  PlEnginePtr engine;
 #endif
 
   std::vector<std::string> krNamespaces;

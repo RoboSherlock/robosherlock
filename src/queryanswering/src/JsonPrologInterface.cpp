@@ -10,16 +10,7 @@ JsonPrologInterface::JsonPrologInterface()
 
 void JsonPrologInterface::init()
 {
-  outInfo("Initializing Prolog Engine");
-  PlTerm av("rs_prolog_interface");
-  try
-  {
-    PlCall("register_ros_package", av);
-  }
-  catch(PlException &ex)
-  {
-    outInfo((char *)ex);
-  }
+  outInfo("Initializing Prolog Engine(Deprecated)");
 }
 
 bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,

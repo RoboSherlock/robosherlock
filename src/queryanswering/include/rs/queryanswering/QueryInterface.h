@@ -36,6 +36,7 @@ public:
   }
   ~QueryInterface()
   {
+   delete jsonPrologInterface;
   }
 
   bool parseQuery(std::string query);
