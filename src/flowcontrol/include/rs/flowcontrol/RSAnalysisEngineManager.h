@@ -20,7 +20,7 @@
 #ifndef RSANALYSISENGINEMANAGER_H
 #define RSANALYSISENGINEMANAGER_H
 
-#include <rs/utils/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/io/visualizer.h>
 
 template <class AEType>

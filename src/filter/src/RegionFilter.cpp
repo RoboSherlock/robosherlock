@@ -36,6 +36,9 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/exception.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/pointer.h>
+
 using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
@@ -179,13 +182,25 @@ private:
 
     if(cas.getFS("QUERY", qs) && qs.asJson()!="")
     {
+      rapidjson::Document jsonDoc;
       std::string jsonString  = qs.asJson();
-      int loc = jsonString.find("shelf_system_");
+      jsonDoc.Parse(jsonString);
+
+      //TODO first level of json is currently only detect, needs to be done differently when there are
+      //multiple modes (Maybe save query mode in FS?)
+      rapidjson::Pointer framePointer("/detect/location/frame");
+      rapidjson::Value* frameJson = framePointer.Get(jsonDoc);
       std::string newLocation;
+
+      if(frameJson && frameJson->IsString()){
+          newLocation = frameJson->GetString();
+      }
+
+      /*int loc = jsonString.find("shelf_system_");
       if (loc != std::string::npos)
       {
         newLocation = jsonString.substr(loc, 14);
-      }
+      }*/
       outWarn("query in CAS : " << qs.asJson());
       outWarn("location set: "<<newLocation);
       if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation !="")

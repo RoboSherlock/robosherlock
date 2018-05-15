@@ -45,6 +45,10 @@
 #include <rs/utils/exception.h>
 #include <rs/scene_cas.h>
 
+// RapidJson
+#include <rapidjson/document.h>
+#include <rapidjson/pointer.h>
+
 
 using namespace uima;
 
@@ -255,7 +259,9 @@ public:
     if(ctx.isParameterDefined("camera_config_files"))
     {
       for(size_t i = 0; i < cameras_.size(); ++i)
+      {
         delete cameras_[i];
+      }
 
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);
@@ -304,20 +310,28 @@ public:
     uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
     rs::Query qs = rs::create<rs::Query>(tcas);
-    if(cas.getFS("QUERY", qs))
+    if(cas.getFS("QUERY", qs) && qs.asJson() != "")
     {
-        std::string jsonString  = qs.asJson();
-        int loc = jsonString.find("timestamp");
-        std::string newTS;
+      rapidjson::Document jsonDoc;
+      std::string jsonString  = qs.asJson();
+      jsonDoc.Parse(jsonString);
 
-        if (loc != std::string::npos)
+      //TODO Is timestamp nested in something or right under detect?
+      rapidjson::Pointer framePointer("/detect/timestamp");
+      rapidjson::Value *tsJson = framePointer.Get(jsonDoc);
+
+      std::string newTS;
+      if(tsJson && tsJson->IsString())
+      {
+
+        newTS = tsJson->GetString();
+        newTS = newTS.substr(0, newTS.find_first_of("\""));
+        outInfo(newTS);
+        if(newTS != "")
         {
-          std::string temp = jsonString.substr(loc+12, jsonString.size());
-          newTS = temp.substr(0,temp.find_first_of("\""));
-          outInfo(newTS);
-          if(newTS!="")
-            timestamp = atoi(newTS.c_str());
+          timestamp = atol(newTS.c_str());
         }
+      }
     }
 
     outInfo("waiting for all cameras to have new data...");

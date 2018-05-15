@@ -31,7 +31,7 @@
 
 #include <ros/ros.h>
 
-#include <rs/utils/RSAnalysisEngineManager.h>
+#include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
 
 #include <ros/ros.h>

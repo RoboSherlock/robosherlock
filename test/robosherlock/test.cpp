@@ -1,9 +1,9 @@
 #include <string>
 #include <gtest/gtest.h>
-#include "rs/utils/RSAnalysisEngineManager.h"
-#include "rs/utils/RSPipelineManager.h"
+#include "rs/flowcontrol/RSAnalysisEngineManager.h"
+#include "rs/flowcontrol/RSPipelineManager.h"
 
-#include "rs/utils/RSAnalysisEngine.h"
+#include "rs/flowcontrol/RSAnalysisEngine.h"
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
