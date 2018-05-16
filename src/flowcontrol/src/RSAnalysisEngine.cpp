@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/utils/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 
 
 RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL), rspm(NULL)

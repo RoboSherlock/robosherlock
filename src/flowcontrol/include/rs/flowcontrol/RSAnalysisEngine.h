@@ -23,7 +23,7 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
-#include <rs/utils/RSPipelineManager.h>
+#include <rs/flowcontrol/RSPipelineManager.h>
 
 #include <uima/api.hpp>
 
