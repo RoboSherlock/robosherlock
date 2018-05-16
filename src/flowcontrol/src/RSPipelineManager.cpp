@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include <rs/utils/RSPipelineManager.h>
+#include <rs/flowcontrol/RSPipelineManager.h>
 
 
 std::vector<icu::UnicodeString> &RSPipelineManager::getFlowConstraintNodes()

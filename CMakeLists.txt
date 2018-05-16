@@ -53,7 +53,8 @@ find_package(catkin REQUIRED
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
- image_geometry message_filters resource_retriever)
+ image_geometry message_filters resource_retriever
+ robosherlock_msgs std_srvs)
 
 
 find_package(Eigen3 QUIET)
@@ -104,6 +105,21 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   set(RS_WEB_LIB rs_web)
 endif()
 
+find_package(RapidJSON REQUIRED)
+if(${RapidJSON_FOUND})
+    add_definitions(-DWITH_JSON -DRAPIDJSON_HAS_STDSTRING)
+endif()
+
+find_package(json_prolog QUIET)
+if(json_prolog_FOUND)
+    message(STATUS "json_prolog FOUND")
+    add_definitions(-DWITH_JSON_PROLOG)
+    include_directories(${json_prolog_INCLUDE_DIRS})
+else()
+    message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
+
+endif()
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
@@ -118,17 +134,18 @@ add_definitions(${PCL_DEFINITIONS})
 # libraries to export
 set(RS_LIBS
   rs_core
+  rs_flowcontrol
   rs_io
   rs_segmentation
   rs_recognition
+  rs_queryanswering
   rs_utils
-  rs_analysisEngineManager
   ${RS_CAFFE_LIB}
   ${RS_WEB_LIB}
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge
   DEPENDS Boost OpenCV APR PCL UIMA ICUUC MongoClientLibrary
@@ -177,7 +194,8 @@ add_subdirectory(src/recognition)
 add_subdirectory(src/segmentation)
 add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
-
+add_subdirectory(src/flowcontrol)
+add_subdirectory(src/queryanswering)
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
@@ -191,7 +209,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/robosherlock/test.cpp
     test/segmentation/symmetry_segmentation_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test
-    rs_analysisEngineManager
+    rs_flowcontrol
     rs_core
     rs_io
     rs_utils)
