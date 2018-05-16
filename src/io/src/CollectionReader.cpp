@@ -247,6 +247,7 @@ public:
 
     //this needs to be set in order to rewrite parameters
     setAnnotatorContext(ctx);
+    mongo::client::initialize();
 
     return UIMA_ERR_NONE;
   }
