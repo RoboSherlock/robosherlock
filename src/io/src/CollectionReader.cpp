@@ -291,6 +291,7 @@ public:
     rs::StopWatch clock;
     rs::SceneCas cas(tcas);
 
+    mongo::OID oid = mongo::OID::gen();
     std::vector<rs::SemanticMapObject> semanticMap;
     semanticMap.reserve(semanticMapItems_.size());
     for(size_t i = 0; i < semanticMapItems_.size(); ++i)

@@ -299,7 +299,13 @@ void fromArrayFS##_NAME_##Native(const uima::_NAME_##ArrayFS &arrayFS, const siz
 uima::FeatureStructure toArrayFS##_NAME_##Native(uima::CAS &cas, const mongo::BSONElement &elem)\
 {\
   std::vector<_CAST_> data;\
-  elem.Obj().Vals(data);\
+  mongo::BSONObjIterator i(elem.Obj());\
+  while( i.more() )\
+  {\
+    _CAST_ t;\
+    i.next().Val(t);\
+    data.push_back(t);\
+  }\
   uima::_NAME_##ArrayFS arrayFS = cas.create##_NAME_##ArrayFS(data.size());\
   if(!data.empty())\
   {\
@@ -336,7 +342,13 @@ void fromArrayFS##_NAME_##Native(const uima::_NAME_##ArrayFS &arrayFS, const siz
 uima::FeatureStructure toArrayFS##_NAME_##Native(uima::CAS &cas, const mongo::BSONElement &elem)\
 {\
   std::vector<_CAST_> data;\
-  elem.Obj().Vals(data);\
+  mongo::BSONObjIterator i(elem.Obj());\
+  while( i.more() )\
+  {\
+    _CAST_ t;\
+    i.next().Val(t);\
+    data.push_back(t);\
+  }\
   uima::_NAME_##ArrayFS arrayFS = cas.create##_NAME_##ArrayFS(data.size());\
   if(!data.empty())\
   {\
@@ -457,7 +469,15 @@ void fromArrayFSString(const uima::FeatureStructure &fs, const std::string &fiel
 uima::FeatureStructure toArrayFSString(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::vector<std::string> data;
-  elem.Obj().Vals(data);
+//  elem.Obj().Vals(data);
+
+  mongo::BSONObjIterator i(elem.Obj());
+  while( i.more() )
+  {
+    std::string t;
+    i.next().Val(t);
+    data.push_back(t);
+  }
   uima::StringArrayFS arrayFS = cas.createStringArrayFS(data.size());
   for(size_t i = 0; i < data.size(); ++i)
   {
@@ -490,7 +510,14 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
 uima::FeatureStructure toArrayFSFeatureStructure(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::vector<mongo::BSONObj> objects;
-  elem.Obj().Vals(objects);
+  //elem.Obj().Vals(objects);
+  mongo::BSONObjIterator i(elem.Obj());
+  while( i.more() )
+  {
+    mongo::BSONObj t;
+    i.next().Val(t);
+    objects.push_back(t);
+  }
   uima::ArrayFS arrayFS = cas.createArrayFS(objects.size());
   for(size_t i = 0; i < objects.size(); ++i)
   {
@@ -517,7 +544,13 @@ void fromListFS##_NAME_##Native(uima::_NAME_##ListFS &listFS, const size_t &size
 uima::FeatureStructure toListFS##_NAME_##Native(uima::CAS &cas, const mongo::BSONElement &elem)\
 {\
   std::vector<_CAST_> data;\
-  elem.Obj().Vals(data);\
+  mongo::BSONObjIterator i(elem.Obj());\
+  while( i.more() )\
+  {\
+    _CAST_ t;\
+    i.next().Val(t);\
+    data.push_back(t);\
+  }\
   uima::_NAME_##ListFS listFS = cas.create##_NAME_##ListFS();\
   for(int i = data.size() - 1; i >= 0; --i)\
   {\
@@ -632,7 +665,14 @@ void fromListFSString(const uima::FeatureStructure &fs, const std::string &field
 uima::FeatureStructure toListFSString(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::vector<std::string> data;
-  elem.Obj().Vals(data);
+  //elem.Obj().Vals(data);
+  mongo::BSONObjIterator i(elem.Obj());
+  while( i.more() )
+  {
+    std::string t;
+    i.next().Val(t);
+    data.push_back(t);
+  }
   uima::StringListFS listFS = cas.createStringListFS();
   for(int i = data.size() - 1; i >= 0; --i)
   {
@@ -666,7 +706,14 @@ void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::str
 uima::FeatureStructure toListFSFeatureStructure(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::vector<mongo::BSONObj> objects;
-  elem.Obj().Vals(objects);
+  //elem.Obj().Vals(objects);
+  mongo::BSONObjIterator i(elem.Obj());
+  while( i.more() )
+  {
+    mongo::BSONObj t;
+    i.next().Val(t);
+    objects.push_back(t);
+  }
   uima::ListFS listFS = cas.createListFS();
   for(int i = objects.size() - 1; i >= 0; --i)
   {

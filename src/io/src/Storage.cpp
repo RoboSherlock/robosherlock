@@ -254,7 +254,7 @@ void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 uima::FeatureStructure Storage::loadArrayFS(uima::CAS *view, const std::string &viewName, const std::vector<mongo::OID> &ids)
 {
   mongo::Query query(BSON("_id" << BSON("$in" << ids)));
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, ids.size());
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, ids.size());
 
   uima::ArrayFS array = view->createArrayFS(ids.size());
   size_t i = 0;
@@ -270,7 +270,7 @@ uima::FeatureStructure Storage::loadArrayFS(uima::CAS *view, const std::string &
 uima::FeatureStructure Storage::loadFS(uima::CAS *view, const std::string &viewName, const mongo::OID &id)
 {
   mongo::Query query(BSON("_id" << id));
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, 1);
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, 1);
 
   if(cursor->more())
   {
@@ -315,7 +315,7 @@ void Storage::getScenes(std::vector<uint64_t> &timestamps)
 {
   timestamps.clear();
 
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, mongo::Query());
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, mongo::Query());
 
   while(cursor->more())
   {
@@ -379,7 +379,7 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 bool Storage::removeScene(const uint64_t &timestamp)
 {
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
 
   if(cursor->more())
   {
@@ -417,7 +417,7 @@ bool Storage::loadScene(uima::CAS &cas, const uint64_t &timestamp)
 {
   const bool loadAll = loadViews.empty();
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
+ std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
 
   if(cursor->more())
   {
@@ -474,7 +474,7 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
 {
   const std::string dbCollection = dbBase + collection;
   mongo::Query query;
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, query);
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, query);
   std::vector<mongo::OID> ids;
 
   while(cursor->more())
@@ -507,7 +507,7 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
 std::vector<rs::Cluster> Storage::getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids)
 {
   const std::string dbCollection = dbBase + collection;
-  mongo::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, mongo::Query());
+  std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, mongo::Query());
 
   std::vector<rs::Cluster> clusters;
 
@@ -522,7 +522,7 @@ std::vector<rs::Cluster> Storage::getClusters(uima::CAS &cas, const std::string 
       mongo::BSONElement elem;
       identifiable.getObjectID(elem);
 
-      if(std::any_of(ids.begin(), ids.end(), std::bind2nd(std::equal_to<std::string>(), elem.OID().str())))
+      if(std::any_of(ids.begin(), ids.end(), std::bind2nd(std::equal_to<std::string>(), elem.OID().toString())))
       {
         clusters.push_back(rs::Cluster(rs::conversion::toFeatureStructure(cas, identifiable)));
       }
