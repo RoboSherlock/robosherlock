@@ -20,7 +20,7 @@
 #ifndef __DISTANCE_MAP_HPP__
 #define __DISTANCE_MAP_HPP__
 
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 #include <rs/segmentation/Geometry.hpp>
 #include <rs/utils/output.h>
 

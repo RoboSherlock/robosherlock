@@ -43,7 +43,7 @@
 #include <rs/graph/Graph.hpp>
 #include <rs/graph/GraphAlgorithms.hpp>
 
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 
 using namespace uima;
 

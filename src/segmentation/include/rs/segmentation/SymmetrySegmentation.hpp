@@ -30,7 +30,7 @@
 #include <rs/mapping/DownsampleMap.hpp>
 
 #include <rs/segmentation/Geometry.hpp>
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/boykov_kolmogorov_max_flow.hpp>
@@ -153,7 +153,7 @@ public:
   /** \brief Perform min cut algorithm, this function segments foreground id and background id
    *  from adjacency graph and output min cut and max flow value
    *  \param[in]  foreground_weights
-   *  \param[in]  background_weights                
+   *  \param[in]  background_weights
    *  \param[in]  adjacency_weights
    *  \param[out] foreground_ids
    *  \param[out] background_ids

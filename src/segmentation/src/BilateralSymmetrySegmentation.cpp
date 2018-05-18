@@ -35,7 +35,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 #include <rs/segmentation/BoundarySegmentation.hpp>
 #include <rs/segmentation/BilateralSymmetry.hpp>
 #include <rs/segmentation/BilateralSymmetryScoring.hpp>
@@ -597,7 +597,7 @@ public:
       else if(dispMode == SEGMENT)
       {
         std::string symname = "sym" + std::to_string(segVisIt + 1);
-        visualizer.addPointCloud(segments[segVisIt], cloudname);        
+        visualizer.addPointCloud(segments[segVisIt], cloudname);
         addSymmetryPlane(visualizer, finalSymmetries[segVisIt], symname, 0.05f, 0.05f);
         visualizer.addText("Segment " + std::to_string(segVisIt + 1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }

@@ -22,7 +22,7 @@
 
 #include <rs/utils/output.h>
 #include <rs/mapping/DistanceMap.hpp>
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 #include <rs/segmentation/BilateralSymmetry.hpp>
 
 #include <pcl/point_cloud.h>

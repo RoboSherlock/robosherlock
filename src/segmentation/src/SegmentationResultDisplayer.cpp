@@ -23,7 +23,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 
 // PCL
 #include <pcl/point_cloud.h>

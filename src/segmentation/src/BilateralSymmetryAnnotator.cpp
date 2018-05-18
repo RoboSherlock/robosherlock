@@ -33,7 +33,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/segmentation/array_utils.hpp>
+#include <rs/utils/array_utils.hpp>
 #include <rs/segmentation/BilateralSymmetry.hpp>
 #include <rs/segmentation/BilateralSymmetryScoring.hpp>
 #include <rs/segmentation/BoundarySegmentation.hpp>
