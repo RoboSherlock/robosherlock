@@ -227,6 +227,11 @@ private:
     }
   }
 
+  ~CollectionReader()
+  {
+    broadCasterObject_.terminate();
+  }
+
 public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
@@ -246,6 +251,7 @@ public:
     }
 
     thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
+    thread_.detach();
 
     //this needs to be set in order to rewrite parameters
     setAnnotatorContext(ctx);

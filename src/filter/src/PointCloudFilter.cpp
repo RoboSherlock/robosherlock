@@ -44,6 +44,8 @@ private:
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
 
+  cv::Mat rgb_;
+
 public:
 
   PointCloudFilter(): DrawingAnnotator(__func__), pointSize(1)
@@ -83,6 +85,7 @@ public:
     (new pcl::PointCloud<PointT>);
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
+    cas.get(VIEW_COLOR_IMAGE, rgb_);
 
     pcl::PassThrough<PointT> pass;
     pass.setInputCloud(cloud_ptr);
@@ -108,7 +111,7 @@ public:
 
   void drawImageWithLock(cv::Mat &disp)
   {
-
+    disp = rgb_.clone();
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)

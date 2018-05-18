@@ -42,6 +42,8 @@ private:
   double pointSize;
   Type cloud_type;
 
+  bool pass_through;
+
 public:
 
   PointCloudDownsampler(): DrawingAnnotator(__func__), leaf_size(0.02), pointSize(1)
@@ -53,7 +55,7 @@ public:
   {
     outInfo("initialize");
     ctx.extractValue("leaf_size", leaf_size);
-
+    ctx.extractValue("pass_through", pass_through);
     return UIMA_ERR_NONE;
   }
 
@@ -84,9 +86,18 @@ public:
     outInfo("Downsampled size: " << cloud_filtered->points.size());
     outInfo("Downsampled dim: " << cloud_filtered->width << ", " << cloud_filtered->height);
 
-    cloud_filtered->width = cloud_ptr->width;
-    cloud_filtered->height = cloud_ptr->height;
-    cas.set(VIEW_CLOUD_DOWNSAMPLED, *cloud_filtered);
+    //cloud_filtered->width = cloud_ptr->width;
+    //cloud_filtered->height = cloud_ptr->height;
+
+    if(pass_through)
+    {
+      cas.set(VIEW_CLOUD, *cloud_filtered);
+    }
+    else
+    {
+      cas.set(VIEW_CLOUD_DOWNSAMPLED, *cloud_filtered);
+    }
+
 
     return UIMA_ERR_NONE;
   }
