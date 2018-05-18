@@ -17,6 +17,7 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+
 # Code Coverage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
@@ -205,7 +206,8 @@ add_subdirectory(src/queryanswering)
 
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
-    test/robosherlock/test.cpp)
+    test/robosherlock/test.cpp
+    test/segmentation/symmetry_segmentation_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol
     rs_core

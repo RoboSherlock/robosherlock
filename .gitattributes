@@ -1,0 +1,4 @@
+*.lbl binary
+*.pcd binary
+*.ply binary
+samples/low_noise_dataset/ground_truth/* binary
