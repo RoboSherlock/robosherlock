@@ -43,17 +43,18 @@ public:
     tf::TransformBroadcaster br;
     while(ros::ok() && !terminate_flag)
     {
-      std::lock_guard<std::mutex> lock(mutex);
-      if(!transforms.empty())
       {
-        ros::Time t = ros::Time::now();
-        for(int i = 0; i < transforms.size(); ++i)
+        std::lock_guard<std::mutex> lock(mutex);
+        if(!transforms.empty())
         {
-          transforms[i].stamp_ = t;
+          ros::Time t = ros::Time::now();
+          for(int i = 0; i < transforms.size(); ++i)
+          {
+            transforms[i].stamp_ = t;
+          }
+          br.sendTransform(transforms);
         }
-        br.sendTransform(transforms);
       }
-
       std::this_thread::sleep_for(sleepTime);
     }
   }
