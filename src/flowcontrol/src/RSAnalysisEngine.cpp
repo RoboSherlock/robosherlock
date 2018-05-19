@@ -31,15 +31,15 @@ RSAnalysisEngine::~RSAnalysisEngine()
     delete cas;
     cas = NULL;
   }
-  if(engine)
-  {
-    delete engine;
-    engine = NULL;
-  }
   if(rspm)
   {
     delete rspm;
     rspm = NULL;
+  }
+  if(engine)
+  {
+    delete engine;
+    engine = NULL;
   }
 }
 

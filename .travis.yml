@@ -85,6 +85,7 @@ script:
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
   - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
+  - sudo  ln /dev/null /dev/raw1394
   - catkin_make run_tests_robosherlock
 
 after_script:
