@@ -19,6 +19,27 @@
 #ifndef RSPARALLEL_PIPELINE_PLANNER_H
 #define RSPARALLEL_PIPELINE_PLANNER_H
 
+#include <rs/utils/common.h>
+#include <rs/scene_cas.h>
 
+#include <rs/queryanswering/JsonPrologInterface.h>
+
+#include <vector>
+#include <map>
+#include <utility>
+
+class RSParallelPipelinePlanner : public JsonPrologInterface
+{
+private:
+  std::vector<std::string> annotatorLists;
+  std::vector< std::vector<std::string> > plannedPipeline;
+  std::map< std::string,
+            std::pair< std::vector <std::string>,
+                       std::vector <std::string> > > dependencies;
+
+public:
+
+
+};
 
 #endif

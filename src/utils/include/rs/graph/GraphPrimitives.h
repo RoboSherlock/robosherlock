@@ -32,6 +32,17 @@ struct Vertex
   void print() const;
 };
 
+struct DirectedVertex
+{
+  std::vector<int> parents;
+  std::vector<int> children;
+  std::vector<int> in_edges;
+  std::vector<int> out_edges;
+
+  DirectedVertex();
+  void print() const;
+};
+
 /** \brief Edge struct, it contains its vertex indices. */
 struct Edge
 {
@@ -50,6 +61,14 @@ struct WeightedEdge : public Edge
 
   WeightedEdge();
   WeightedEdge(const int v1, const int v2, const float weight);
+
+  void print() const;
+};
+
+struct DirectedEdge : public Edge
+{
+  DirectedEdge();
+  DirectedEdge(const int v1, const int v2);
 
   void print() const;
 };

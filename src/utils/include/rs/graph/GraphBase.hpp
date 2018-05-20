@@ -25,17 +25,17 @@
 
 #include <algorithm>
 
-template<typename Vertex, typename Edge>
-GraphBase<Vertex, Edge>::GraphBase() : list_vertex(0), list_edge(0) {}
+template<typename VertexT, typename EdgeT>
+GraphBase<VertexT, EdgeT>::GraphBase() : list_vertex(0), list_edge(0) {}
 
-template<typename Vertex, typename Edge>
-GraphBase<Vertex, Edge>::GraphBase(const int numVertices) : list_vertex(numVertices), list_edge(0) {}
+template<typename VertexT, typename EdgeT>
+GraphBase<VertexT, EdgeT>::GraphBase(const int numVertices) : list_vertex(numVertices), list_edge(0) {}
 
-template<typename Vertex, typename Edge>
-GraphBase<Vertex, Edge>::~GraphBase() {}
+template<typename VertexT, typename EdgeT>
+GraphBase<VertexT, EdgeT>::~GraphBase() {}
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::addEdge(Edge& edge)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::addEdge(EdgeT& edge)
 {
   int v1_id = edge.v1;
   int v2_id = edge.v2;
@@ -71,37 +71,37 @@ inline bool GraphBase<Vertex, Edge>::addEdge(Edge& edge)
   return true;
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::addEdge(const int v1_id, const int v2_id)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::addEdge(const int v1_id, const int v2_id)
 {
-  Edge edge;
+  EdgeT edge;
   edge.v1 = v1_id;
   edge.v2 = v2_id;
   return addEdge(edge);
 }
 
-template<typename Vertex, typename Edge>
-inline void GraphBase<Vertex, Edge>::clear()
+template<typename VertexT, typename EdgeT>
+inline void GraphBase<VertexT, EdgeT>::clear()
 {
   list_vertex.clear();
   list_edge.clear();
 }
 
-template<typename Vertex, typename Edge>
-inline void GraphBase<Vertex, Edge>::setVertices(const int numVertices)
+template<typename VertexT, typename EdgeT>
+inline void GraphBase<VertexT, EdgeT>::setVertices(const int numVertices)
 {
   clear();
   list_vertex.resize(numVertices);
 }
 
-template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumVertices() const
+template<typename VertexT, typename EdgeT>
+inline int GraphBase<VertexT, EdgeT>::getNumVertices() const
 {
   return list_vertex.size();
 }
 
-template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumVertexNeighbors(const int v_id)
+template<typename VertexT, typename EdgeT>
+inline int GraphBase<VertexT, EdgeT>::getNumVertexNeighbors(const int v_id)
 {
   if(!testVertex(v_id))
   {
@@ -111,14 +111,14 @@ inline int GraphBase<Vertex, Edge>::getNumVertexNeighbors(const int v_id)
   return list_vertex[v_id].neighbors.size();
 }
 
-template<typename Vertex, typename Edge>
-inline int GraphBase<Vertex, Edge>::getNumEdges() const
+template<typename VertexT, typename EdgeT>
+inline int GraphBase<VertexT, EdgeT>::getNumEdges() const
 {
   return list_edge.size();
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertex(const int v_id, Vertex &v)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::getVertex(const int v_id, VertexT &v)
 {
   if(!testVertex(v_id))
   {
@@ -132,10 +132,10 @@ inline bool GraphBase<Vertex, Edge>::getVertex(const int v_id, Vertex &v)
   }
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertexNeighbors(const int v_id, std::vector<int> &neighbors)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::getVertexNeighbors(const int v_id, std::vector<int> &neighbors)
 {
-  Vertex v;
+  VertexT v;
   bool valid = getVertex(v_id, v);
 
   if(valid)
@@ -146,8 +146,8 @@ inline bool GraphBase<Vertex, Edge>::getVertexNeighbors(const int v_id, std::vec
   return valid;
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getEdgeId(const int v1_id, const int v2_id, int &edge_id)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::getEdgeId(const int v1_id, const int v2_id, int &edge_id)
 {
   edge_id = -1;
 
@@ -166,8 +166,8 @@ inline bool GraphBase<Vertex, Edge>::getEdgeId(const int v1_id, const int v2_id,
   return true;
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getEdge(const int edge_id, Edge &edge)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::getEdge(const int edge_id, EdgeT &edge)
 {
   if(!testEdge(edge_id))
   {
@@ -179,8 +179,8 @@ inline bool GraphBase<Vertex, Edge>::getEdge(const int edge_id, Edge &edge)
   return true;
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::getVertexFromEdge(const int edge_id, int &v1_id, int &v2_id){
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::getVertexFromEdge(const int edge_id, int &v1_id, int &v2_id){
   if(!testEdge(edge_id))
   {
     outError("Edge ID is out of bound!");
@@ -191,20 +191,20 @@ inline bool GraphBase<Vertex, Edge>::getVertexFromEdge(const int edge_id, int &v
   return true;
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testVertex(const int v_id)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::testVertex(const int v_id)
 {
   return v_id >= 0 && v_id < list_vertex.size();
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testEdge(const int edge_id)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::testEdge(const int edge_id)
 {
   return edge_id >= 0 && edge_id < list_edge.size();
 }
 
-template<typename Vertex, typename Edge>
-inline bool GraphBase<Vertex, Edge>::testEdge(const int v1_id, const int v2_id)
+template<typename VertexT, typename EdgeT>
+inline bool GraphBase<VertexT, EdgeT>::testEdge(const int v1_id, const int v2_id)
 {
   for(size_t it = 0; it < list_edge.size(); it++)
   {

@@ -38,7 +38,7 @@
    * their positions in the vectors.
    */
 
-template<typename Vertex, typename Edge>
+template<typename VertexT, typename EdgeT>
 class GraphBase
 {
 public:
@@ -55,7 +55,7 @@ public:
    *  \param[in]  edge  edge
    *  \return false if graph is not consistent
    */
-  inline bool addEdge(Edge &edge);
+  inline bool addEdge(EdgeT &edge);
 
   /** \brief Add an edge to the graph if it doesn't exist already, otherwise it does nothing
    *  \param[in] v1    index of first vertex
@@ -90,7 +90,7 @@ public:
    *  \param[out] vertex  vertex
    *  \return FALSE if vertex with requested id doesn't exist in the graph.
    */
-  inline bool getVertex(const int v_id, Vertex &v);
+  inline bool getVertex(const int v_id, VertexT &v);
 
   /** \brief Get index of the neighbor vertex at a specified position in the
    * neighbor list.
@@ -114,7 +114,7 @@ public:
    *  \param[out] edge      edge
    *  \return FALSE if edge with requested id doesn't exist in the graph.
    */
-  inline bool getEdge(const int edge_id, Edge &edge);
+  inline bool getEdge(const int edge_id, EdgeT &edge);
 
   /** \brief Get vertex indices from edge id
    *  \param[in]  edge_id   edge index
@@ -125,10 +125,10 @@ public:
   inline bool getVertexFromEdge(const int edge_id, int &v1_id, int &v2_id);
 
   /** \brief Vertex list. */
-  std::vector<Vertex> list_vertex;
+  std::vector<VertexT> list_vertex;
 
   /** \brief Edge list. */
-  std::vector<Edge> list_edge;
+  std::vector<EdgeT> list_edge;
 
 protected:
 
