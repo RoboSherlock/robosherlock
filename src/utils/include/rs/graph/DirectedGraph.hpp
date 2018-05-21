@@ -17,22 +17,19 @@
  * limitations under the License.
  */
 
-#ifndef __GRAPH_H__
-#define __GRAPH_H__
+#ifndef __DIRECTED_GRAPH_HPP__
+#define __DIRECTED_GRAPH_HPP__
 
-#include <rs/graph/GraphBase.hpp>
+#include <rs/graph/DirectedGraphBase.hpp>
 #include <rs/graph/GraphPrimitives.hpp>
 
-/** \brief Data structure represents undirected and unweighted graph.
- *  Self loop is not allowed.
- */
-class Graph : public GraphBase<Vertex, Edge>
+class DirectedGraph : public DirectedGraphBase<DirectedVertex, DirectedEdge>
 {
 public:
-  Graph();
-  Graph(const int numVertices);
+  DirectedGraph() : DirectedGraphBase<DirectedVertex, DirectedEdge>() {}
+  DirectedGraph(const int numVertices) : DirectedGraphBase<DirectedVertex, DirectedEdge>(numVertices) {}
 
-  ~Graph();
+  ~DirectedGraph() {}
 };
 
-#endif // __GRAPH_H__
+#endif // __DIRECTED_GRAPH_HPP__

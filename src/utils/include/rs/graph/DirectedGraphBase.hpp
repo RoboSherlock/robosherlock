@@ -17,23 +17,26 @@
  * limitations under the License.
  */
 
-#ifndef __DIRECTED_GRAPH_BASE_H__
-#define __DIRECTED_GRAPH_BASE_H__
+#ifndef __DIRECTED_GRAPH_BASE_HPP__
+#define __DIRECTED_GRAPH_BASE_HPP__
 
-#include <rs/graph/DirectedGraph.h>
+#include <rs/graph/DirectedGraphBase.h>
 #include <rs/utils/output.h>
 
 #include <algorithm>
 
+template<typename VertexT, typename EdgeT>
 DirectedGraphBase<VertexT, EdgeT>::DirectedGraphBase() : list_vertex(0), list_edge(0) {}
 
+template<typename VertexT, typename EdgeT>
 DirectedGraphBase<VertexT, EdgeT>::DirectedGraphBase(const int numVertices) : list_vertex(numVertices), list_edge(0) {}
 
+template<typename VertexT, typename EdgeT>
 DirectedGraphBase<VertexT, EdgeT>::~DirectedGraphBase() {}
 
 
 template <typename VertexT, typename EdgeT>
-inline int DirectedGraphBase<VertexT, EdgeT>::addEdge(EdgeT &edge)
+inline bool DirectedGraphBase<VertexT, EdgeT>::addEdge(EdgeT &edge)
 {
   int v1_id = edge.v1;
   int v2_id = edge.v2;
@@ -156,7 +159,7 @@ inline bool DirectedGraphBase<VertexT, EdgeT>::getVertexChildren(const int v_id,
 }
 
 
-template<typename VertexT, typename VertexT>
+template<typename VertexT, typename EdgeT>
 inline bool DirectedGraphBase<VertexT, EdgeT>::testVertex(const int v_id)
 {
   return v_id >= 0 && v_id < list_vertex.size();
@@ -289,7 +292,7 @@ template <typename VertexT, typename EdgeT>
 inline bool DirectedGraphBase<VertexT, EdgeT>::testConsistency (const int v1_id, const int v2_id, int &v1_it, int &v2_it)
 {
   // Get vertex parent and child list positions
-  v1_it = getVertexParentPosition(v2_id, v1_id);
+  v1_it = getVertexParentListPosition(v2_id, v1_id);
   v2_it = getVertexChildListPosition(v1_id, v2_id);
 
   // Check dependency list for consistency (DEBUG)
@@ -312,4 +315,4 @@ inline bool DirectedGraphBase<VertexT, EdgeT>::testConsistency (const int v1_id,
   return true;
 }
 
-#endif // __DIRECTED_GRAPH_BASE_H__
+#endif // __DIRECTED_GRAPH_BASE_HPP__

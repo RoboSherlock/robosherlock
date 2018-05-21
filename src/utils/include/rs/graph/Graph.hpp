@@ -20,12 +20,19 @@
 #ifndef __GRAPH_HPP__
 #define __GRAPH_HPP__
 
-#include <rs/graph/Graph.h>
+#include <rs/graph/GraphBase.hpp>
+#include <rs/graph/GraphPrimitives.hpp>
 
-Graph::Graph() : GraphBase<Vertex, Edge>() {}
+/** \brief Data structure represents undirected and unweighted graph.
+ *  Self loop is not allowed.
+ */
+class Graph : public GraphBase<Vertex, Edge>
+{
+public:
+  Graph() : GraphBase<Vertex, Edge>() {}
+  Graph(const int numVertices) : GraphBase<Vertex, Edge>(numVertices) {}
 
-Graph::Graph(const int numVertices) : GraphBase<Vertex, Edge>(numVertices) {}
-
-Graph::~Graph() {}
+  ~Graph() {}
+};
 
 #endif // __GRAPH_HPP__

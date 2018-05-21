@@ -37,11 +37,11 @@ public:
 
   inline void clear();
 
+  inline void setVertices(const int numVertices);
+
   inline bool addEdge(EdgeT &edge);
 
   inline bool addEdge(const int v1_id, const int v2_id);
-
-  inline bool getEdgeId(const int v1_id, const int v2_id, int &edge_id);
 
   inline int getNumVertices() const;
 
@@ -77,20 +77,11 @@ protected:
 
   inline bool testEdge(const int v1_id, const int v2_id);
 
-  inline bool testConsistency (const int v1_id, const int v2_id, int &v1_it, int &v2_it)
+  inline bool testConsistency (const int v1_id, const int v2_id, int &v1_it, int &v2_it);
 
   inline int getVertexParentListPosition(const int src_v_id, const int tgt_v_id);
 
   inline int getVertexChildListPosition(const int src_v_id, const int tgt_v_id);
-};
-
-class DirectedGraph : public DirectedGraphBase<DirectedVertex, DirectedEdge>
-{
-public:
-  DirectedGraph() : DirectedGraphBase<DirectedVertex, DirectedEdge>() {}
-  DirectedGraph(const int numVertices) : DirectedGraphBase<DirectedVertex, DirectedEdge>() {}
-
-  ~DirectedGraph() {}
 };
 
 #endif // __DIRECTED_GRAPH_BASE_H__
