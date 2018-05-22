@@ -70,8 +70,6 @@ private:
   std::thread thread_;
   TFBroadcasterWrapper broadCasterObject_;
 
-  mongo::client::GlobalInstance instance;
-
   uint64_t convertToInt(const std::string &s) const
   {
     return std::stoll(s);
@@ -240,6 +238,7 @@ public:
       ros::init(ros::M_string(), std::string("RS_CollectionReader"));
     }
     outInfo("initialize");
+
     if(ctx.isParameterDefined("camera_config_files"))
     {
       std::vector<std::string *> configs;
@@ -255,14 +254,6 @@ public:
 
     //this needs to be set in order to rewrite parameters
     setAnnotatorContext(ctx);
-
-    if(!instance.initialized())
-    {
-      outError("Could not initialize MongoDB Driver. " << instance.status());
-      return UIMA_ERR_ANNOTATOR_COULD_NOT_CREATE;
-    }
-
-
 
     return UIMA_ERR_NONE;
   }
@@ -292,7 +283,6 @@ public:
 
   TyErrorId destroy()
   {
-    instance.shutdown();
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
       delete cameras_[i];
