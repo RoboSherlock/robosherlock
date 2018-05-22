@@ -118,6 +118,31 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   new_pipeline_order.push_back("StorageWriter");
   res.insert(res.end(), new_pipeline_order.begin(), new_pipeline_order.end());
 
+  //test code for retrieving annotator input output
+  /*std::vector<std::string> annotators;
+  annotators.push_back("CollectionReader");
+  annotators.push_back("NormalEstimator");
+  annotators.push_back("Cluster3DGeometryAnnotator");
+  annotators.push_back("ImageSegmentationAnnotator");
+  JsonPrologInterface::AnnotatorDependencies dependencies;
+  jsonPrologInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
+
+  for(JsonPrologInterface::AnnotatorDependencies::iterator it = dependencies.begin(); it != dependencies.end(); it++)
+  {
+    std::cout << it->first << ": \n";
+    for(auto input_it = it->second.first.begin(); input_it != it->second.first.end(); input_it++)
+    {
+      std::cout << *input_it << " ";
+    }
+    std::cout << '\n';
+
+    for(auto output_it = it->second.second.begin(); output_it != it->second.second.end(); output_it++)
+    {
+      std::cout << *output_it << " ";
+    }
+    std::cout << '\n';
+  }*/
+
   return true;
 
 }

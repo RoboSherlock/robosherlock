@@ -23,6 +23,7 @@
 #include <rs/scene_cas.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
+#include <rs/graph/DirectedGraph.hpp>
 
 #include <vector>
 #include <map>
@@ -31,14 +32,38 @@
 class RSParallelPipelinePlanner : public JsonPrologInterface
 {
 private:
-  std::vector<std::string> annotatorLists;
+  std::vector<std::string> annotatorList;
   std::vector< std::vector<std::string> > plannedPipeline;
-  std::map< std::string,
-            std::pair< std::vector <std::string>,
-                       std::vector <std::string> > > dependencies;
+  JsonPrologInterface::AnnotatorDependencies dependencies;
+
+  DirectedGraph dependencyGraph; // we will assume each node ID correspond to annotatorLists array ID
 
 public:
 
+  RSParallelPipelinePlanner() : JsonPrologInterface() {}
+  RSParallelPipelinePlanner(std::vector<std::string> input_list) : JsonPrologInterface(), annotatorList(input_list) {}
+
+  ~RSParallelPipelinePlanner() {}
+
+  bool getAnnotatorList(std::vector<std::string> &list) const;
+
+  void setAnnotatorList(std::vector<std::string> list);
+
+  void setAnnotatorDependencies(std::map< std::string,
+                                          std::pair< std::vector <std::string>,
+                                                     std::vector <std::string> > > &dependencies);
+
+  bool getPlannedPipeline(std::vector< std::vector<std::string> > &list) const;
+
+  bool planPipelineStructure();
+
+protected:
+
+  void refinePlannedPipeline();
+
+  void labelAnnotatorOrder();
+
+  bool buildDependenciesGraph();
 
 };
 
