@@ -85,7 +85,7 @@ Storage::Storage(const std::string &dbHost, const std::string &dbName, const boo
       if(it->find(dbBase + "system") != 0)
       {
         outDebug("removing collection '" << *it << "' from mongoDB...");
-        db.dropCollection(*it);
+        db.dropCollection(dbBase + *it);
       }
     }
   }
