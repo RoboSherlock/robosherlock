@@ -34,7 +34,7 @@ before_install:
   - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
@@ -46,9 +46,9 @@ before_install:
 install:
   - mkdir -p ~/catkin_ws/src
   - cd ~/catkin_ws/src
-  - catkin_init_workspace
+  - catkin init
   - cd ~/catkin_ws
-  - catkin_make
+  - catkin build
   - source devel/setup.bash
   - cd ~/catkin_ws/src
   - ln -s $CI_SOURCE_PATH .
@@ -83,10 +83,10 @@ script:
   - source devel/setup.bash
   - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
-  - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
+  - catkin build "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
   - sudo  ln /dev/null /dev/raw1394
-  - catkin_make run_tests_robosherlock
+  - catkin build robosherlock -v --catkin-make-args run_tests
 
 after_script:
   - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
