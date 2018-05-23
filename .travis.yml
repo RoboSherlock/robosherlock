@@ -45,10 +45,9 @@ before_install:
 
 install:
   - mkdir -p ~/catkin_ws/src
-  - cd ~/catkin_ws/src
-  - catkin init
   - cd ~/catkin_ws
-  - catkin build
+  - catkin init
+  - catkin build -v
   - source devel/setup.bash
   - cd ~/catkin_ws/src
   - ln -s $CI_SOURCE_PATH .
