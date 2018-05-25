@@ -54,8 +54,6 @@ class Storage
 private:
   ::mongo::DBClientConnection db;
 
-  ::mongo::client::GlobalInstance instance;
-
   std::string dbHost;
   std::string dbName;
   std::string dbBase;

@@ -15,6 +15,7 @@
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
 
+#include <mongo/client/dbclient.h>
 
 #include <rapidjson/rapidjson.h>
 #include <rapidjson/document.h>
@@ -34,6 +35,9 @@ public:
   #ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
   #endif
+
+  mongo::client::GlobalInstance instance;
+
 
   ros::NodeHandle nh_;
   ros::ServiceServer service, singleService, setContextService, jsonService;

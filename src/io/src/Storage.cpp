@@ -58,15 +58,6 @@ Storage::Storage(const Storage &other)
 
 Storage::Storage(const std::string &dbHost, const std::string &dbName, const bool clear, const bool setupScripts) : dbHost(dbHost), dbName(dbName), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS)
 {
-  if(instance.status().code() == mongo::ErrorCodes::Error::AlreadyInitialized)
-  {
-    outDebug("Mongocxx driver is up and working.");
-  }
-  else if(!instance.initialized())
-  {
-    outError("Could not initialize MongoDB Driver. " << instance.status());
-    std::exit(-1);
-  }
 
   db.connect(dbHost);
 
