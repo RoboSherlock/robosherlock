@@ -16,8 +16,10 @@
  * limitations under the License.
  */
 
-#ifndef RSPARALLEL_PIPELINE_PLANNER_H
-#define RSPARALLEL_PIPELINE_PLANNER_H
+#ifdef WITH_JSON_PROLOG
+
+#ifndef __RSPARALLEL_PIPELINE_PLANNER_H__
+#define __RSPARALLEL_PIPELINE_PLANNER_H__
 
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
@@ -29,42 +31,45 @@
 #include <map>
 #include <utility>
 
-class RSParallelPipelinePlanner : public JsonPrologInterface
+#include <omp.h>
+
+class RSParallelPipelinePlanner
 {
 private:
   std::vector<std::string> annotatorList;
-  std::vector< std::vector<std::string> > plannedPipeline;
-  JsonPrologInterface::AnnotatorDependencies dependencies;
+  std::vector< std::vector<std::string> > annotatorOrderings;
 
   DirectedGraph dependencyGraph; // we will assume each node ID correspond to annotatorLists array ID
 
 public:
 
-  RSParallelPipelinePlanner() : JsonPrologInterface() {}
-  RSParallelPipelinePlanner(std::vector<std::string> input_list) : JsonPrologInterface(), annotatorList(input_list) {}
+  RSParallelPipelinePlanner() {}
+  RSParallelPipelinePlanner(std::vector<std::string> input_list) : annotatorList(input_list)
+  {
+    dependencyGraph.setVertices(input_list.size());
+  }
 
   ~RSParallelPipelinePlanner() {}
 
   bool getAnnotatorList(std::vector<std::string> &list) const;
 
-  void setAnnotatorList(std::vector<std::string> list);
-
-  void setAnnotatorDependencies(std::map< std::string,
-                                          std::pair< std::vector <std::string>,
-                                                     std::vector <std::string> > > &dependencies);
+  void setAnnotatorList(const std::vector<std::string> list);
 
   bool getPlannedPipeline(std::vector< std::vector<std::string> > &list) const;
 
-  bool planPipelineStructure();
+  bool planPipelineStructure(const JsonPrologInterface::AnnotatorDependencies &dependencies);
 
 protected:
 
-  void refinePlannedPipeline();
+  bool refinePlannedPipeline();
 
   void labelAnnotatorOrder();
 
   bool buildDependenciesGraph();
 
+  bool checkDependencyLoop();
+
 };
 
-#endif
+#endif // WITH_JSON_PROLOG
+#endif // __RSPARALLEL_PIPELINE_PLANNER_H__

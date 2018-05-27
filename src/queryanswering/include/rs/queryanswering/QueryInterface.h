@@ -50,5 +50,7 @@ public:
   bool checkSubClass(const std::string &resultValue, const std::string &queryValue);
   bool checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower);
 
+  bool getAnnotatorInOutConstraints(std::vector<std::string> &annotators,
+                                    JsonPrologInterface::AnnotatorDependencies &dependencies);
 };
 #endif //WITH_JSON_PROLOG

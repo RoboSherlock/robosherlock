@@ -38,6 +38,8 @@ DirectedGraphBase<VertexT, EdgeT>::~DirectedGraphBase() {}
 template <typename VertexT, typename EdgeT>
 inline bool DirectedGraphBase<VertexT, EdgeT>::addEdge(EdgeT &edge)
 {
+  std::lock_guard<std::mutex> lock(mutex);
+
   int v1_id = edge.v1;
   int v2_id = edge.v2;
 
@@ -84,6 +86,8 @@ inline bool DirectedGraphBase<VertexT, EdgeT>::addEdge(const int v1_id, const in
 template<typename VertexT, typename EdgeT>
 inline void DirectedGraphBase<VertexT, EdgeT>::clear()
 {
+  std::lock_guard<std::mutex> lock(mutex);
+
   list_vertex.clear();
   list_edge.clear();
 }
@@ -91,6 +95,8 @@ inline void DirectedGraphBase<VertexT, EdgeT>::clear()
 template<typename VertexT, typename EdgeT>
 inline void DirectedGraphBase<VertexT, EdgeT>::setVertices(const int numVertices)
 {
+  std::lock_guard<std::mutex> lock(mutex);
+
   clear();
   list_vertex.resize(numVertices);
 }

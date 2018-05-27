@@ -21,6 +21,8 @@
 #define __DIRECTED_GRAPH_BASE_H__
 
 #include <rs/graph/GraphPrimitives.hpp>
+#include <mutex>
+#include <thread>
 
 template<typename VertexT, typename EdgeT>
 class DirectedGraphBase
@@ -70,6 +72,8 @@ public:
   std::vector<EdgeT> list_edge;
 
 protected:
+  // enable graph to work with multithreading 
+  std::mutex mutex;
 
   inline bool testVertex(const int v_id);
 

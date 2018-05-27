@@ -317,4 +317,20 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
 }
+
+bool QueryInterface::getAnnotatorInOutConstraints(std::vector<std::string> &annotators, JsonPrologInterface::AnnotatorDependencies &dependencies)
+{
+    bool success = false;
+    try
+    {
+      success = jsonPrologInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
+    }
+    catch(...)
+    {
+      outError("Unknown Error has occured!");
+    }
+
+    return success;
+}
+
 #endif //WITH_JSON_PROLOG
