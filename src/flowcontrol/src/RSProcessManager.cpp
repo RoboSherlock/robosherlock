@@ -187,6 +187,18 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   std::vector<std::string> newPipelineOrder;
   QueryInterface::QueryType queryType = queryInterface->processQuery(newPipelineOrder);
 
+  //planning parallel pipeline demo
+  parallelPlanner_.setAnnotatorList(newPipelineOrder);
+
+  JsonPrologInterface::AnnotatorDependencies dependencies;
+  DirectedGraph* graph;
+
+  queryInterface->getAnnotatorInOutConstraints(newPipelineOrder, dependencies);
+  parallelPlanner_.planPipelineStructure(dependencies);
+  parallelPlanner_.getDependencyGraph(graph);
+
+  graph->print();
+
   processing_mutex_.lock();
   if(queryType == QueryInterface::QueryType::DETECT)
   {
@@ -313,7 +325,3 @@ bool RSProcessManager::renderOffscreen(std::string object)
   processing_mutex_.unlock();
   return true;
 }
-
-
-
-

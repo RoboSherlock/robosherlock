@@ -27,7 +27,8 @@
  *  \param[in]  graph      GraphBase<Vertex, Edge>
  *  \return a vector of vector of integer represents cluster of connected component indices
  */
-template<typename Vertex, typename Edge>
-inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<Vertex, Edge> &graph);
+template<typename VertexT, typename EdgeT>
+inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<VertexT, EdgeT> &graph);
+
 
 #endif // __GRAPH_ALGORITHMS_H__

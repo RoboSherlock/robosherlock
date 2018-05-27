@@ -1,5 +1,5 @@
-#ifndef RSCONTROLEDAEMANAGER_H
-#define RSCONTROLEDAEMANAGER_H
+#ifndef __RSPROCESS_MANAGER_H__
+#define __RSPROCESS_MANAGER_H__
 
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 
@@ -7,6 +7,7 @@
 #include <rs/queryanswering/KRDefinitions.h>
 
 #ifdef WITH_JSON_PROLOG
+#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
 #include <rs/queryanswering/QueryInterface.h>
 #endif
 
@@ -33,6 +34,7 @@ public:
   RSControledAnalysisEngine inspectionEngine_;
   #ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
+  RSParallelPipelinePlanner parallelPlanner_;
   #endif
 
   ros::NodeHandle nh_;
@@ -116,4 +118,4 @@ public:
 
 };
 
-#endif // RSCONTROLEDAEMANAGER_H
+#endif // __RSPROCESS_MANAGER_H__

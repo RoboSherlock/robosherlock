@@ -321,4 +321,22 @@ inline bool DirectedGraphBase<VertexT, EdgeT>::testConsistency (const int v1_id,
   return true;
 }
 
+template <typename VertexT, typename EdgeT>
+inline void DirectedGraphBase<VertexT, EdgeT>::print()
+{
+
+  std::cout << "\nDependencyGraph\nList Edge: \n";
+  for(auto it = list_edge.begin(); it != list_edge.end(); it++)
+  {
+    it->print();
+  }
+
+  std::cout << "List Vertex: \n";
+  for(int it = 0; it < list_vertex.size(); it++)
+  {
+    std::cout << "Vertex " << it << '\n';
+    list_vertex[it].print();
+  }
+}
+
 #endif // __DIRECTED_GRAPH_BASE_HPP__

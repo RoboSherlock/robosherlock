@@ -51,13 +51,18 @@ public:
 
   ~RSParallelPipelinePlanner() {}
 
+  void reset();
+
   bool getAnnotatorList(std::vector<std::string> &list) const;
 
   void setAnnotatorList(const std::vector<std::string> list);
 
   bool getPlannedPipeline(std::vector< std::vector<std::string> > &list) const;
 
-  bool planPipelineStructure(const JsonPrologInterface::AnnotatorDependencies &dependencies);
+  //it is not a copy of member variable, just pass pointer outside
+  bool getDependencyGraph(DirectedGraph* graph);
+
+  bool planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies);
 
 protected:
 
@@ -65,11 +70,11 @@ protected:
 
   void labelAnnotatorOrder();
 
-  bool buildDependenciesGraph();
+  bool buildDependenciesGraph(JsonPrologInterface::AnnotatorDependencies &dependencies);
 
   bool checkDependencyLoop();
 
 };
 
-#endif // WITH_JSON_PROLOG
 #endif // __RSPARALLEL_PIPELINE_PLANNER_H__
+#endif // WITH_JSON_PROLOG

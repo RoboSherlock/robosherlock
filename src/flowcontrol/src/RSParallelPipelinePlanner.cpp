@@ -32,8 +32,28 @@ bool RSParallelPipelinePlanner::getAnnotatorList(std::vector<std::string> &list)
   return true;
 }
 
+bool RSParallelPipelinePlanner::getDependencyGraph(DirectedGraph* graph)
+{
+  if(dependencyGraph.list_edge.empty())
+  {
+    outWarn("Dependency Graph is not computed! Please run planPipelineStructure");
+    return false;
+  }
+
+  graph = &dependencyGraph;
+  return true;
+}
+
+void RSParallelPipelinePlanner::reset()
+{
+  dependencyGraph.clear();
+  annotatorOrderings.clear();
+  annotatorList.clear();
+}
+
 void RSParallelPipelinePlanner::setAnnotatorList(const std::vector<std::string> list)
 {
+  this->reset();
   annotatorList = list;
   dependencyGraph.setVertices(list.size());
 }
@@ -43,7 +63,26 @@ bool RSParallelPipelinePlanner::getPlannedPipeline(std::vector< std::vector<std:
 
 }
 
-bool RSParallelPipelinePlanner::buildDependenciesGraph(const JsonPrologInterface::AnnotatorDependencies &dependencies)
+bool RSParallelPipelinePlanner::planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies)
+{
+  if(dependencies.empty())
+  {
+    outError("Dependency data is emptry! Cannot plan parallel pipeline.");
+    return false;
+  }
+
+  if(!buildDependenciesGraph(dependencies))
+  {
+    outError("Build dependency graph failed! Cannot plan parallel pipeline.");
+    return false;
+  }
+
+  //more to come
+
+  return true;
+}
+
+bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::AnnotatorDependencies &dependencies)
 {
   if(annotatorList.empty())
   {
@@ -58,8 +97,7 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(const JsonPrologInterface
     //for debug purpose
     std::vector<std::string> satisfiedInputs;
 
-    std::vector<std::string> &src_inputs = dependencies[annotatorList[src_it]].first;
-    //std::vector<std::string> &src_outputs = dependencies[annotatorList[src_it]].second;
+    std::unordered_set<std::string> &src_inputs = dependencies[annotatorList[src_it]].first;
 
     for(auto src_it_in = src_inputs.begin(); src_it_in != src_inputs.end(); src_it_in++)
     {
@@ -67,30 +105,15 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(const JsonPrologInterface
       {
         if(src_it != tgt_it)
         {
-          //std::vector<std::string> &tgt_inputs = dependencies[[annotatorList[tgt_it]].first;
-          std::vector<std::string> &tgt_outputs = dependencies[[annotatorList[tgt_it]].second;
+          std::unordered_set<std::string> &tgt_outputs = dependencies[annotatorList[tgt_it]].second;
 
           // match input requirement of src_it to all other annotators outputs and check if it is statified or not
-          for(auto tgt_it_out = tgt_outputs.begin(); tgt_it_out != tgt_outputs.end(); tgt_it_out++)
+          auto found = tgt_outputs.find(*src_it_in);
+          if(found != tgt_outputs.end())
           {
-            if((*tgt_it_out).compare(*src_it_in) == 0)
-            {
-              dependencyGraph.addEdge(tgt_it, src_it);
-              satisfiedInputs.push_back(*src_it_in);
-            }
+            dependencyGraph.addEdge(tgt_it, src_it);
+            satisfiedInputs.push_back(*src_it_in);
           }
-
-          // match inputs src_it to all other annotators outputs
-          /*for(auto src_it_out = src_outputs.begin(); src_it_out != src_outputs.end(); src_it_out++)
-          {
-            for(auto tgt_it_out = tgt_inputs.begin(); tgt_it_out != tgt_inputs.end(); tgt_inputs++)
-            {
-              if((*tgt_it_out).compare(*src_it_in))
-              {
-                dependencyGraph.addEdge(tgt_it, src_it);
-              }
-            }
-          }*/
         }
       }
     }
@@ -111,12 +134,12 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(const JsonPrologInterface
 
   //check dependency loop
 
-
+  return true;
 }
 
 bool RSParallelPipelinePlanner::refinePlannedPipeline()
 {
-
+  return true;
 }
 
 void RSParallelPipelinePlanner::labelAnnotatorOrder()
@@ -124,14 +147,9 @@ void RSParallelPipelinePlanner::labelAnnotatorOrder()
 
 }
 
-bool RSParallelPipelinePlanner::refinePlannedPipeline()
-{
-
-}
-
 bool RSParallelPipelinePlanner::checkDependencyLoop()
 {
-
+  return true;
 }
 
 

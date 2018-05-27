@@ -24,8 +24,8 @@
 #include <vector>
 #include <queue>
 
-template<typename Vertex, typename Edge>
-inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<Vertex, Edge> &graph)
+template<typename VertexT, typename EdgeT>
+inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<VertexT, EdgeT> &graph)
 {
   std::vector<bool> visited (graph.getNumVertices(), false);
   std::vector< std::vector<int> > connectedComponents;

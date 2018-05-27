@@ -65,6 +65,9 @@ public:
 
   inline bool getVertexFromEdge(const int edge_id, int &v1_id, int &v2_id);
 
+  //for debug purpose
+  inline void print();
+
   /** \brief Vertex list. */
   std::vector<VertexT> list_vertex;
 
@@ -72,7 +75,7 @@ public:
   std::vector<EdgeT> list_edge;
 
 protected:
-  // enable graph to work with multithreading 
+  // enable graph to work with multithreading
   std::mutex mutex;
 
   inline bool testVertex(const int v_id);
