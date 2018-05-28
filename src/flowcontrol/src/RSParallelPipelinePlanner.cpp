@@ -32,18 +32,6 @@ bool RSParallelPipelinePlanner::getAnnotatorList(std::vector<std::string> &list)
   return true;
 }
 
-bool RSParallelPipelinePlanner::getDependencyGraph(DirectedGraph* graph)
-{
-  if(dependencyGraph.list_edge.empty())
-  {
-    outWarn("Dependency Graph is not computed! Please run planPipelineStructure");
-    return false;
-  }
-
-  graph = &dependencyGraph;
-  return true;
-}
-
 void RSParallelPipelinePlanner::reset()
 {
   dependencyGraph.clear();
@@ -91,11 +79,11 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::Anno
   }
 
   //actually there are two implementation logic: DEMAND_BASED or SUPPLY_BASED, we will try DEMAND_BASED first
-  #pragma omp parallel for
+  //#pragma omp parallel for
   for(int src_it = 0; src_it < annotatorList.size(); src_it++)
   {
     //for debug purpose
-    std::vector<std::string> satisfiedInputs;
+    std::unordered_set<std::string> satisfiedInputs;
 
     std::unordered_set<std::string> &src_inputs = dependencies[annotatorList[src_it]].first;
 
@@ -112,7 +100,7 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::Anno
           if(found != tgt_outputs.end())
           {
             dependencyGraph.addEdge(tgt_it, src_it);
-            satisfiedInputs.push_back(*src_it_in);
+            satisfiedInputs.insert(*src_it_in);
           }
         }
       }

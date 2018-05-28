@@ -172,7 +172,8 @@ bool JsonPrologInterface::retrieveAnnotatorsInputOutput(std::vector<std::string>
     for(auto bdg : pl.query(query))
     {
       token = bdg[QUERY_ANNOTATOR_INPUTS_VAR].toString();
-      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length());
+      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
+      token.pop_back(); // erase last character
 
       dependencies[annotators[it]].first.insert(token);
     }
@@ -182,6 +183,7 @@ bool JsonPrologInterface::retrieveAnnotatorsInputOutput(std::vector<std::string>
     {
       token = bdg[QUERY_ANNOTATOR_OUTPUTS_VAR].toString();
       token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
+      token.pop_back(); // erase last character
 
       dependencies[annotators[it]].second.insert(token);
     }

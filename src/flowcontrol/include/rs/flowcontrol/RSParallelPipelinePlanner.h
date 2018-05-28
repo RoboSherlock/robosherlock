@@ -39,9 +39,8 @@ private:
   std::vector<std::string> annotatorList;
   std::vector< std::vector<std::string> > annotatorOrderings;
 
-  DirectedGraph dependencyGraph; // we will assume each node ID correspond to annotatorLists array ID
-
 public:
+  DirectedGraph dependencyGraph; // we will assume each node ID correspond to annotatorLists array ID
 
   RSParallelPipelinePlanner() {}
   RSParallelPipelinePlanner(std::vector<std::string> input_list) : annotatorList(input_list)
@@ -58,9 +57,6 @@ public:
   void setAnnotatorList(const std::vector<std::string> list);
 
   bool getPlannedPipeline(std::vector< std::vector<std::string> > &list) const;
-
-  //it is not a copy of member variable, just pass pointer outside
-  bool getDependencyGraph(DirectedGraph* graph);
 
   bool planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies);
 

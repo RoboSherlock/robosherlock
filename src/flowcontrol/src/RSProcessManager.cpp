@@ -191,13 +191,10 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   parallelPlanner_.setAnnotatorList(newPipelineOrder);
 
   JsonPrologInterface::AnnotatorDependencies dependencies;
-  DirectedGraph* graph;
+  DirectedGraph graph;
 
   queryInterface->getAnnotatorInOutConstraints(newPipelineOrder, dependencies);
   parallelPlanner_.planPipelineStructure(dependencies);
-  parallelPlanner_.getDependencyGraph(graph);
-
-  graph->print();
 
   processing_mutex_.lock();
   if(queryType == QueryInterface::QueryType::DETECT)

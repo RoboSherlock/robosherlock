@@ -86,8 +86,6 @@ inline bool DirectedGraphBase<VertexT, EdgeT>::addEdge(const int v1_id, const in
 template<typename VertexT, typename EdgeT>
 inline void DirectedGraphBase<VertexT, EdgeT>::clear()
 {
-  std::lock_guard<std::mutex> lock(mutex);
-
   list_vertex.clear();
   list_edge.clear();
 }
