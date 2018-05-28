@@ -21,7 +21,7 @@
 #define __DIRECTED_GRAPH_HPP__
 
 #include <rs/graph/DirectedGraphBase.hpp>
-#include <rs/graph/GraphPrimitives.hpp>
+#include <rs/graph/GraphPrimitives.h>
 
 class DirectedGraph : public DirectedGraphBase<DirectedVertex, DirectedEdge>
 {

@@ -21,7 +21,7 @@
 #define __WEIGHTED_GRAPH_H__
 
 #include <rs/graph/GraphBase.hpp>
-#include <rs/graph/GraphPrimitives.hpp>
+#include <rs/graph/GraphPrimitives.h>
 
 /** \brief Data structure represents undirected and weighted graph.
  *  Self loop is not allowed.

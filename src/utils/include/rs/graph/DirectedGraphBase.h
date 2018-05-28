@@ -20,7 +20,6 @@
 #ifndef __DIRECTED_GRAPH_BASE_H__
 #define __DIRECTED_GRAPH_BASE_H__
 
-#include <rs/graph/GraphPrimitives.hpp>
 #include <mutex>
 #include <thread>
 

@@ -17,9 +17,6 @@
  * limitations under the License.
  */
 
-#ifndef __GRAPH_PRIMITIVES_HPP__
-#define __GRAPH_PRIMITIVES_HPP__
-
 #include <rs/graph/GraphPrimitives.h>
 
 #include <iostream>
@@ -105,5 +102,3 @@ void DirectedEdge::print() const
 {
   std::cout << v1 << " --> " << v2 << '\n';
 }
-
-#endif // __GRAPH_PRIMITIVES_HPP__
