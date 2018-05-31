@@ -131,8 +131,8 @@ bool getConfigForKey(std::string key, std::string &location, std::string &check,
   try
   {
     boost::property_tree::ini_parser::read_ini(configFile, pt);
-    if(pt.find(key)== pt.not_found())
-        return false;
+    if(pt.find(key) == pt.not_found())
+      return false;
 
     location = pt.get<std::string>(key + ".location", "/" + key);
     check = pt.get<std::string>(key + ".check", "EQUAL");
@@ -215,7 +215,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
           if(value->GetType() == rapidjson::Type::kStringType)
           {
             std::string resultValue = value->GetString();;
-            if(resultValue != queryValue)
+            if(resultValue != queryValue && queryValue != "")
               designatorsToKeep[i] = false;
           }
           else
@@ -239,7 +239,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
         }
         else if(check == "THRESHLIST")
         {
-          if(!checkThresholdOnList(*value, thresh, queryValue, keepLower))
+          if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "")
           {
             designatorsToKeep[i] = false;
           }
@@ -269,7 +269,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
         {
           for(int i = 0; i < suffixVal->Size(); i ++)
           {
-            std::string newLocation = prefix + "/" + std::to_string(i) + suffix;
+            std::string newLocation = prefix + " / " + std::to_string(i) + suffix;
             if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
             {
               std::string resultValue = value->GetString();;

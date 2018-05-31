@@ -25,7 +25,8 @@ protected:
   float segment_similarity_threshold;
   float overall_segment_threshold;
 
-  std::vector<std::string> engineList = {"NormalEstimator",
+  std::vector<std::string> engineList = {"CollectionReader",
+				         "NormalEstimator",
                                          "OverSegmentationAnnotator",
                                          "RotationalSymmetryAnnotator",
                                          "RotationalSymmetrySegmentation",
