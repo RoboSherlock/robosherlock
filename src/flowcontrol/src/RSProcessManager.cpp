@@ -195,6 +195,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
   queryInterface->getAnnotatorInOutConstraints(newPipelineOrder, dependencies);
   parallelPlanner_.planPipelineStructure(dependencies);
+  parallelPlanner_.print();
 
   processing_mutex_.lock();
   if(queryType == QueryInterface::QueryType::DETECT)

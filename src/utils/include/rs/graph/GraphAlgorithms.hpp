@@ -23,6 +23,8 @@
 #include <rs/graph/GraphAlgorithms.h>
 #include <vector>
 #include <queue>
+#include <utility>
+#include <algorithm>
 
 template<typename VertexT, typename EdgeT>
 inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<VertexT, EdgeT> &graph)
@@ -65,6 +67,95 @@ inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<Vert
   }
 
   return connectedComponents;
+}
+
+template<typename VertexT, typename EdgeT>
+inline bool planDependencyOrderings(DirectedGraphBase<VertexT, EdgeT> &graph, std::vector< std::vector<int> >& result)
+{
+  int nodeSize = graph.list_vertex.size();
+  std::vector<int> nodeInputStates(nodeSize);
+  std::vector<int> pathMap(nodeSize);
+  std::vector<int> noParentNodes;
+
+  result.clear();
+
+  //NOTE: variable "it" is the nodeID
+  //initialize nodeInputStates
+  for(int it = 0; it < nodeSize; it++)
+  {
+    nodeInputStates[it] = graph.list_vertex[it].in_edges.size();
+  }
+
+  //insert no parents node to S
+  for(int it = 0; it < nodeSize; it++)
+  {
+    if(nodeInputStates[it] == 0)
+    {
+      noParentNodes.push_back(it);
+    }
+  }
+
+  while(true)
+  {
+    for(auto node_it = noParentNodes.begin(); node_it != noParentNodes.end(); node_it++)
+    {
+      VertexT& n = graph.list_vertex[*node_it];
+      for(auto child_it = n.children.begin(); child_it != n.children.end(); child_it++)
+      {
+        try
+        {
+          //remove incoming edge of child node
+          nodeInputStates[*child_it]--;
+          int newOrder = pathMap[*node_it] + 1; // could replace 1 to weightEdge in the future
+          if(pathMap[*child_it] < newOrder)
+          {
+            pathMap[*child_it] = newOrder;
+          }
+        }
+        catch(std::exception& e)
+        {
+          outError("Invalid child nodeID of node " << *node_it << ". Graph is broken!");
+          return false;
+        }
+      }
+      //pseudo remove node
+      nodeInputStates[*node_it] = -1;
+    }
+
+    noParentNodes.clear();
+    //insert no parents node to S
+    for(int it = 0; it < nodeSize; it++)
+    {
+      if(nodeInputStates[it] == 0)
+      {
+        noParentNodes.push_back(it);
+      }
+    }
+
+    if(noParentNodes.empty())
+    {
+      for(auto it = nodeInputStates.begin(); it != nodeInputStates.end(); it++)
+      {
+        if(*it >= 0) // if graph still contains nodes
+        {
+          outError("Dependency graph may contain loop! Dependency orderings generation failed!");
+          return false;
+        }
+      }
+
+      break;
+    }
+  }
+
+  //extract dependency orderings
+  int maxOrder = *std::max_element(pathMap.begin(), pathMap.end()) + 1;
+  result.resize(maxOrder);
+  for(int it = 0; it < nodeSize; it++)
+  {
+    result[pathMap[it]].push_back(it);
+  }
+
+  return true;
 }
 
 #endif // __GRAPH_ALGORITHMS_HPP__

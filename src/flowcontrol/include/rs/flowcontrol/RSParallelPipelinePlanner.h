@@ -26,6 +26,8 @@
 
 #include <rs/queryanswering/JsonPrologInterface.h>
 #include <rs/graph/DirectedGraph.hpp>
+#include <rs/graph/GraphAlgorithms.hpp>
+#include <rs/graph/GraphPrimitives.h>
 
 #include <vector>
 #include <map>
@@ -60,15 +62,16 @@ public:
 
   bool planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies);
 
+  //for debug purpose
+  void print();
+
 protected:
 
   bool refinePlannedPipeline();
 
-  void labelAnnotatorOrder();
+  bool labelAnnotatorOrder();
 
   bool buildDependenciesGraph(JsonPrologInterface::AnnotatorDependencies &dependencies);
-
-  bool checkDependencyLoop();
 
 };
 

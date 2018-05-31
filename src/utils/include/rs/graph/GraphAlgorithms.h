@@ -21,6 +21,7 @@
 #define __GRAPH_ALGORITHMS_H__
 
 #include <rs/graph/GraphBase.h>
+#include <rs/graph/DirectedGraphBase.h>
 #include <rs/graph/GraphPrimitives.h>
 
 /** \brief Breadth first search algorithm to find connected components in a graph.
@@ -29,6 +30,9 @@
  */
 template<typename VertexT, typename EdgeT>
 inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<VertexT, EdgeT> &graph);
+
+template<typename VertexT, typename EdgeT>
+inline bool planDependencyOrderings(DirectedGraphBase<VertexT, EdgeT> &graph, std::vector< std::vector<int> > &result);
 
 
 #endif // __GRAPH_ALGORITHMS_H__

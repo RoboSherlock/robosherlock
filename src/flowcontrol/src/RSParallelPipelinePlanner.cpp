@@ -65,7 +65,13 @@ bool RSParallelPipelinePlanner::planPipelineStructure(JsonPrologInterface::Annot
     return false;
   }
 
-  //more to come
+  if(!labelAnnotatorOrder())
+  {
+    outError("Cannot plan orderings of annotators. Dependency data may contain loops!");
+    return false;
+  }
+
+  //depend on the investigation of uimacpp, we will include refinePlannedPipeline
 
   return true;
 }
@@ -130,17 +136,50 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline()
   return true;
 }
 
-void RSParallelPipelinePlanner::labelAnnotatorOrder()
+bool RSParallelPipelinePlanner::labelAnnotatorOrder()
 {
+  std::vector< std::vector<int> > orderings;
+  if(!planDependencyOrderings<DirectedVertex, DirectedEdge>(dependencyGraph, orderings))
+  {
+    return false;
+  }
 
-}
+  annotatorOrderings.clear();
+  annotatorOrderings.resize(orderings.size());
+  for(int order = 0; order < orderings.size(); order++)
+  {
+    for(int id = 0; id < orderings[order].size(); id++)
+    {
+      annotatorOrderings[order].push_back(annotatorList[orderings[order][id]]);
+    }
+  }
 
-bool RSParallelPipelinePlanner::checkDependencyLoop()
-{
   return true;
 }
 
+void RSParallelPipelinePlanner::print()
+{
+  if(annotatorList.empty())
+  {
+    outWarn("Annotator List is not set!");
+    return;
+  }
 
+  if(annotatorOrderings.empty())
+  {
+    outWarn("Orderings is not planned! Had you run planDependencyOrderings yet?");
+    return;
+  }
 
+  for(int it = 0; it < annotatorOrderings.size(); it++)
+  {
+    std::string annotators = "";
+    for(auto order_it = annotatorOrderings[it].begin(); order_it != annotatorOrderings[it].end(); order_it++)
+    {
+      annotators = annotators + " " + *order_it;
+    }
+    outInfo("Orderings " << it << ": " << annotators);
+  }
+}
 
 #endif // WITH_JSON_PROLOG
