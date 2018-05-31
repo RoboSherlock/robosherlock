@@ -71,7 +71,11 @@ bool RSParallelPipelinePlanner::planPipelineStructure(JsonPrologInterface::Annot
     return false;
   }
 
-  //depend on the investigation of uimacpp, we will include refinePlannedPipeline
+  if(!refinePlannedPipeline(dependencies))
+  {
+    outError("Refine pipeline failed!");
+    return false;
+  }
 
   return true;
 }
@@ -131,8 +135,31 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::Anno
   return true;
 }
 
-bool RSParallelPipelinePlanner::refinePlannedPipeline()
+bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::AnnotatorDependencies &dependencies)
 {
+  if(annotatorOrderings.empty())
+  {
+    outWarn("Orderings is not planned! Have you run planDependencyOrderings yet?");
+    return false;
+  }
+
+  //check for standalone annotators at orderings 0
+  annotatorOrderings.push_back(std::vector<std::string>());
+  for(auto id = annotatorOrderings[0].begin(); id != annotatorOrderings[0].end(); id++)
+  {
+    if(dependencies[*id].second.empty())
+    {
+      annotatorOrderings[annotatorOrderings.size() - 1].push_back(*id);
+      annotatorOrderings[0].erase(id);
+      id--;
+    }
+  }
+
+  if(annotatorOrderings[annotatorOrderings.size() - 1].empty())
+  {
+    annotatorOrderings.pop_back();
+  }
+
   return true;
 }
 

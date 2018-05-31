@@ -67,7 +67,7 @@ public:
 
 protected:
 
-  bool refinePlannedPipeline();
+  bool refinePlannedPipeline(JsonPrologInterface::AnnotatorDependencies &dependencies);
 
   bool labelAnnotatorOrder();
 
