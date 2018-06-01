@@ -45,10 +45,9 @@ before_install:
 
 install:
   - mkdir -p ~/catkin_ws/src
-  - cd ~/catkin_ws/src
-  - catkin_init_workspace
   - cd ~/catkin_ws
-  - catkin_make
+  - catkin init
+  - catkin build
   - source devel/setup.bash
   - cd ~/catkin_ws/src
   - ln -s $CI_SOURCE_PATH .
@@ -83,10 +82,10 @@ script:
   - source devel/setup.bash
   - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
-  - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
+  - catkin build "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
   - sudo  ln /dev/null /dev/raw1394
-  - catkin_make run_tests_robosherlock
+  - catkin build robosherlock -v --catkin-make-args run_tests
 
 after_script:
   - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
