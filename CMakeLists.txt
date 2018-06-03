@@ -194,5 +194,4 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_analysisEngineManager
     rs_core
     rs_io
-    rs_utils
-    ${catkin_LIBRARIES})
+    rs_utils)
