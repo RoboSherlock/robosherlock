@@ -33,6 +33,8 @@
   <depend>image_transport            </depend>
   <depend>image_geometry             </depend>
 
+  <depend>uima                       </depend>
+
   <export>
   </export>
 </package>

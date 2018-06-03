@@ -52,7 +52,8 @@ find_package(catkin REQUIRED
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
- image_geometry message_filters resource_retriever)
+ image_geometry message_filters resource_retriever
+ uima)
 
 
 find_package(Eigen3 QUIET)
@@ -73,7 +74,7 @@ find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
 find_package(MongoClientLibrary REQUIRED)
-find_package(UIMA REQUIRED)
+find_package(uima REQUIRED)
 find_package(ICUUC REQUIRED)
 
 find_library(LIBPRACMLN pracmln QUIET)
@@ -129,8 +130,8 @@ set(RS_LIBS
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS} 
-  CATKIN_DEPENDS pcl_ros cv_bridge
-  DEPENDS Boost OpenCV APR PCL UIMA ICUUC MongoClientLibrary
+  CATKIN_DEPENDS pcl_ros cv_bridge uima
+  DEPENDS Boost OpenCV APR PCL ICUUC MongoClientLibrary
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
@@ -148,6 +149,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
+  ${uima_INCLUDE_DIRS}
 )
 
 ################################################################################
@@ -192,4 +194,5 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_analysisEngineManager
     rs_core
     rs_io
-    rs_utils)
+    rs_utils
+    ${catkin_LIBRARIES})
