@@ -88,7 +88,7 @@ script:
   - catkin config --cmake-args -DCMAKE_CXX_FLAGS='--coverage -g'
   - catkin build
   - source devel/setup.bash
-  - catkin build robosherlock -v --catkin-make-args run_tests
+  - catkin build robosherlock --catkin-make-args run_tests
   - catkin_test_results
 
 after_script:
