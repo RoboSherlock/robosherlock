@@ -60,6 +60,8 @@ before_script:
   - mkdir -p ~/local/src && cd ~/local/src/
   - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
   - cd ~/local/src/uimacpp
+  - sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64/include/linux/jawt_md.h /usr/lib/jvm/java-7-openjdk-amd64/include/jawt_md.h
+  - sudo ln -s /usr/lib/jvm/java-7-openjdk-amd64/include/linux/jni_md.h /usr/lib/jvm/java-7-openjdk-amd64/include/jni_md.h
   - ./autogen.sh
   - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-7-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
   - make -j8
