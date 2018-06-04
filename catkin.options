@@ -1,1 +1,1 @@
--DMY_CMAKE_CXX_FLAGS=--coverage -g -DCMAKE_BUILD_TYPE=RelWithDebInfo
+-DMY_CMAKE_CXX_FLAGS=--coverage -g -DCMAKE_BUILD_TYPE=Debug
