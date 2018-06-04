@@ -85,9 +85,10 @@ script:
   - source devel/setup.bash
   - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
-  - catkin config --cmake-args -DCMAKE_CXX_FLAGS='--coverage -g'
+  - catkin config --cmake-args -DCMAKE_CXX_FLAGS='--coverage -g' -DCMAKE_BUILD_TYPE=RelWithDebInfo
   - catkin build
   - source devel/setup.bash
+  - sudo  ln /dev/null /dev/raw1394
   - catkin build robosherlock --catkin-make-args run_tests
   - catkin_test_results
 
