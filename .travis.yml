@@ -87,6 +87,7 @@ script:
   - source devel/setup.bash
   - sudo  ln /dev/null /dev/raw1394
   - catkin build robosherlock -v --catkin-make-args run_tests
+  - catkin_test_results
 
 after_script:
   - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
