@@ -206,7 +206,7 @@ add_subdirectory(src/queryanswering)
 
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
-    test/robosherlock/test.cpp)
+    test/robosherlock/test.cpp
     test/segmentation/symmetry_segmentation_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol
