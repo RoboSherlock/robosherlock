@@ -1,5 +1,5 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 language: cpp
 
@@ -20,7 +20,7 @@ addons:
 
 env:
   global:
-    - ROS_DISTRO=indigo
+    - ROS_DISTRO=kinetic
     - ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
     - ROS_PARALLEL_JOBS='-j4 -l4'
     - CI_SOURCE_PATH=$(pwd)
@@ -34,11 +34,11 @@ before_install:
   - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
-  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+  - echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
   - echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
   - echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
   - source ~/.bashrc
