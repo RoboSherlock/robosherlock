@@ -114,7 +114,17 @@ int main(int argc, char *argv[])
   nh.deleteParam("wait");
   nh.deleteParam("pervasive");
 
-
+  //if only argument is an AE (nh.param reudces argc)
+  if(argc == 2)
+  {
+    const std::string arg = argv[1];
+    if(arg == "-?" || arg == "-h" || arg == "--help")
+    {
+      help();
+      return 0;
+    }
+    analysisEnginesName = argv[1];
+  }
   rs::common::getAEPaths(analysisEnginesName, analysisEngineFile);
 
   if(analysisEngineFile.empty())

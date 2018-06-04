@@ -6,6 +6,7 @@
   <analysisEngineMetaData>
     <name>PrimitiveShapeAnnotator</name>
     <description>Annotation of objects as boxes or circular pobjects based on their projection on the suporting plane</description>
+    <outputDomain>box, round, flat</outputDomain>
     <version>1.0</version>
     <vendor/>
     <configurationParameters/>

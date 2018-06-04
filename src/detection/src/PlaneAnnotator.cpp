@@ -371,11 +371,10 @@ private:
     pcl::ModelCoefficients::Ptr plane_coefficients(new pcl::ModelCoefficients);
 
     rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-    cas.get(VIEW_CLOUD_NON_NAN, rcp);
-    rs::conversion::from(rcp.cloud(), *cloud);
+    cas.get(VIEW_CLOUD, *cloud);
     if(cloud->size() == 0)
     {
-      cas.get(VIEW_CLOUD, *cloud);
+      outError("No PointCloud present;");
     }
 
     std::vector<float> planeModel(4);
