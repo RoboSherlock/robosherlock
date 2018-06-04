@@ -92,4 +92,5 @@ script:
   - catkin_test_results
 
 after_script:
-  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
+  - touch coverallsOutput.txt
+  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
