@@ -11,114 +11,90 @@
     
     <configurationParameters>
       <configurationParameter>
-        <name>useThermal</name>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>useSupervoxel</name>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>persons</name>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-      <configurationParameter>
-        <name>distanceThreshold</name>
+        <name>minPoints</name>
         <type>Integer</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>pointColorThreshold</name>
+        <name>maxPoints</name>
         <type>Integer</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>regionColorThreshold</name>
+        <name>hueThreshold</name>
         <type>Integer</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>minClusterSize</name>
-        <type>Integer</type>
-        <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
-      </configurationParameter>
-    <configurationParameter>
-        <name>voxelResolution</name>
+        <name>valueThreshold</name>
         <type>Float</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
       </configurationParameter>
       <configurationParameter>
-        <name>voxelGridFiltering</name>
+        <name>distThreshold</name>
+        <type>Float</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>useHypothesis</name>
         <type>Boolean</type>
         <multiValued>false</multiValued>
-        <mandatory>false</mandatory>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+      <configurationParameter>
+        <name>discretize</name>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
       </configurationParameter>
     </configurationParameters>
 
     <configurationParameterSettings>
       <nameValuePair>
-        <name>useThermal</name>
+        <name>minPoints</name>
         <value>
-          <boolean>true</boolean>
+          <integer>100</integer>
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>useSupervoxel</name>
+        <name>maxPoints</name>
+        <value>
+          <integer>10000</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>hueThreshold</name>
+        <value>
+          <integer>4</integer>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>valueThreshold</name>
+        <value>
+          <float>0.01</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>distThreshold</name>
+        <value>
+          <float>1</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>useHypothesis</name>
         <value>
           <boolean>false</boolean>
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>persons</name>
+        <name>discretize</name>
         <value>
-          <boolean>true</boolean>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>distanceThreshold</name>
-        <value>
-          <integer>5</integer>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>pointColorThreshold</name>
-        <value>
-          <integer>3</integer>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>regionColorThreshold</name>
-        <value>
-          <integer>3</integer>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>minClusterSize</name>
-        <value>
-          <integer>20</integer>
-        </value>
-      </nameValuePair>
-    <nameValuePair>
-        <name>voxelResolution</name>
-        <value>
-          <float>0.025</float>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>voxelGridFiltering</name>
-        <value>
-          <boolean>true</boolean>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
     </configurationParameterSettings>
