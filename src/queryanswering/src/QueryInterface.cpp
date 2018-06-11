@@ -176,9 +176,10 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
       {
         if(listIt->value.GetDouble() >= threshold)
           return true;
-        else if(listIt->value.GetDouble() < threshold)
-          return true;
       }
+      else if(listIt->value.GetDouble() < threshold)
+          return true;
+
     }
   }
   return false;
