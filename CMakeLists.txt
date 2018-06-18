@@ -74,7 +74,6 @@ find_package(PCL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
-#find_package(MongoClientLibrary REQUIRED)
 find_package(UIMA REQUIRED)
 find_package(ICUUC REQUIRED)
 
@@ -148,7 +147,7 @@ catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs
-  DEPENDS Boost OpenCV APR PCL UIMA ICUUC #MongoClientLibrary
+  DEPENDS Boost OpenCV APR PCL UIMA ICUUC 
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
