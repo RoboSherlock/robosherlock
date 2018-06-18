@@ -36,8 +36,7 @@ protected:
 
   virtual void SetUp()
   {
-    std::string ae_path = ros::package::getPath("robosherlock") + "/descriptors/analysis_engines/full_segmentation.xml";
-    rs::common::getAEPaths(ae_path, engineFile);
+    rs::common::getAEPaths("full_segmentation", engineFile);
     engine.init(engineFile);
     engine.initPipelineManager();
     engine.getPipelineManager()->setPipelineOrdering(engineList);
