@@ -11,6 +11,8 @@
 #include <pcl/point_types.h>
 #include <ros/ros.h>
 
+#include <mongo/client/dbclient.h>
+
 class ExampleTest : public testing::Test
 {
 protected:
@@ -25,6 +27,7 @@ protected:
     {
        engine.stop();
     }
+    mongo::client::GlobalInstance instance;
     std::string engineFile;
     RSAnalysisEngine engine;
 };
