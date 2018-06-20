@@ -6,7 +6,7 @@ language: cpp
 cache:
   ccache: true
   directories:
-  - $HOME/local/src/mongo-cxx-driver/
+#  - $HOME/local/src/mongo-cxx-driver/
   - $HOME/local/src/uimacpp/
   - apt
 
@@ -26,7 +26,7 @@ env:
     - CI_SOURCE_PATH=$(pwd)
     - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
     - UIMA_HOME=$HOME/local/src/uimacpp/
-    - MONGO_HOME=$HOME/local/src/mongo-cxx-driver/
+#    - MONGO_HOME=$HOME/local/src/mongo-cxx-driver/
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
@@ -34,7 +34,7 @@ before_install:
   - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
@@ -69,10 +69,10 @@ before_script:
   - sudo make install
   - ls /usr/local/lib
   - cd ~/local/src/
-  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
-  - cd ~/local/src/mongo-cxx-driver/
-  - git checkout 26compat
-  - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient --disable-warnings-as-errors install-mongoclient
+#  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
+#  - cd ~/local/src/mongo-cxx-driver/
+#  - git checkout 26compat
+#  - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient --disable-warnings-as-errors install-mongoclient
   - ls /usr/local/lib
   - echo "export APR_HOME=/usr" >> ~/.bashrc
   - echo "export ICU_HOME=/usr" >> ~/.bashrc
