@@ -66,13 +66,14 @@ public:
   bool getObjectDesignators(std::vector<std::string> &);
 
   template<class T>
-  void process(std::vector<T> &elements, std::vector<std::string> &objectDesignators)
+  void process(std::vector<T> &elements, std::vector<std::string> &objectDesignators, std::vector<double> lastSeen)
   {
     objects_.objects.clear();
     for(size_t i = 0; i < elements.size(); ++i)
     {
       outDebug("reading object: " << i);
-
+      
+      if(lastSeen[i]!=0.0) {objectDesignators.push_back("");continue;} 
       T &element = elements[i];
       rapidjson::Document objectDesignator;
       objectDesignator.SetObject();

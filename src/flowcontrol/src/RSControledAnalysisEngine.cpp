@@ -189,10 +189,11 @@ void RSControledAnalysisEngine::process(std::vector<std::string> annotators, boo
 }
 
 template <class T>
-void RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
+bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson)
-{
+{ 
+
   rs::SceneCas sceneCas(*cas);
   rs::Scene scene = sceneCas.getScene();
   cv::Mat rgb = cv::Mat::zeros(480, 640, CV_64FC3);
@@ -212,22 +213,16 @@ void RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   }
   else
   {
-    std::vector<rs::Object> allObjects;
-    sceneCas.get(VIEW_OBJECTS, allObjects);
-    outWarn("objects found: " << allObjects.size());
-    for(size_t i = 0; i < allObjects.size(); ++i)
-    {
-      rs::Object &object = allObjects[i];
-      double lastSeen = (now - (uint64_t)object.lastSeen()) / 1000000000.0;
-      if(lastSeen == 0)
-      {
-        clusters.push_back(object);
-      }
-    }
+    sceneCas.get(VIEW_OBJECTS, clusters);
   }
-
+ 
+  outInfo("Clusters size: "<<clusters.size()<<"Designator size: "<<resultDesignators.size());
   int colorIdx = 0;
-
+  if(clusters.size()!= resultDesignators.size())
+  {
+    outInfo("Undefined behaviour");
+    return false;
+  } 
   for(int i = 0; i < filter.size(); ++i)
   {
     if(!filter[i]) continue;
@@ -379,14 +374,14 @@ void RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
   cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
   //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  pc_pub_.publish(cloudToAdvertise);
-
+  pc_pub_.publish(cloudToAdvertise);  
+  return true;
 }
 
-template void RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector<bool> &filter,
+template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson);
 
-template void RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
+template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson);
