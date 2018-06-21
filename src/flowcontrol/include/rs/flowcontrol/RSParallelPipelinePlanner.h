@@ -39,9 +39,11 @@ class RSParallelPipelinePlanner
 {
 private:
   std::vector<std::string> annotatorList;
-  std::vector< std::vector<std::string> > annotatorOrderings;
+  AnnotatorOrderings annotatorOrderings;
 
 public:
+  typedef std::vector< std::vector<std::string> > AnnotatorOrderings
+
   DirectedGraph dependencyGraph; // we will assume each node ID correspond to annotatorLists array ID
 
   RSParallelPipelinePlanner() {}
@@ -58,7 +60,7 @@ public:
 
   void setAnnotatorList(const std::vector<std::string> list);
 
-  bool getPlannedPipeline(std::vector< std::vector<std::string> > &list) const;
+  bool getPlannedPipeline(AnnotatorOrderings &list) const;
 
   bool planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies);
 

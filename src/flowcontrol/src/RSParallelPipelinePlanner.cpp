@@ -46,16 +46,23 @@ void RSParallelPipelinePlanner::setAnnotatorList(const std::vector<std::string> 
   dependencyGraph.setVertices(list.size());
 }
 
-bool RSParallelPipelinePlanner::getPlannedPipeline(std::vector< std::vector<std::string> > &list) const
+bool RSParallelPipelinePlanner::getPlannedPipeline(AnnotatorOrderings &list) const
 {
+  if(annotatorOrderings.empty())
+  {
+    outWarn("Orderings data is empty! Return none.");
+    return false;
+  }
 
+  list = annotatorOrderings;
+  return true;
 }
 
 bool RSParallelPipelinePlanner::planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies)
 {
   if(dependencies.empty())
   {
-    outError("Dependency data is emptry! Cannot plan parallel pipeline.");
+    outError("Dependency data is empty! Cannot plan parallel pipeline.");
     return false;
   }
 

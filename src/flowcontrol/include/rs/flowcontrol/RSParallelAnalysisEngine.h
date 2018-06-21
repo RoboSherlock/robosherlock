@@ -19,6 +19,11 @@
  #ifndef __RSPARALLEL_ANALYSIS_ENGINE_H__
  #define __RSPARALLEL_ANALYSIS_ENGINE_H__
 
+ #include <rs/utils/common.h>
+ #include <rs/scene_cas.h>
+
+ #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+
  class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
  {
  public:
@@ -28,12 +33,23 @@
                               uima::internal::CASDefinition & casDefs,
                               bool ownsCasDefs);
 
+   ~RSParallelAnalysisEngine();
 
+   uima::TyErrorId annotatorProcess(std::string annotatorName,
+                                    CAS *cas,
+                                    ResultSpecification const &annResultSpec);
+
+   uima::TyErrorId paralleledProcess(CAS *cas,
+                                     ResultSpecification const &resultSpec);
+
+
+
+   RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
 
  private:
 
  protected:
-   
+
  };
 
 
