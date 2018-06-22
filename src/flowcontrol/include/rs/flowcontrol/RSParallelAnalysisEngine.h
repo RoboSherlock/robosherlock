@@ -16,41 +16,62 @@
  * limitations under the License.
  */
 
- #ifndef __RSPARALLEL_ANALYSIS_ENGINE_H__
- #define __RSPARALLEL_ANALYSIS_ENGINE_H__
+#ifndef __RSPARALLEL_ANALYSIS_ENGINE_H__
+#define __RSPARALLEL_ANALYSIS_ENGINE_H__
 
- #include <rs/utils/common.h>
- #include <rs/scene_cas.h>
+#include <rs/utils/common.h>
+#include <rs/scene_cas.h>
+#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
 
- #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+#include <uima/api.hpp>
+#include <uima/internal_aggregate_engine.hpp>
+#include <uima/annotator_mgr.hpp>
 
- class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
- {
- public:
-   RSParallelAnnotatorManager(AnnotatorContext & rANC,
-                              bool bOwnsANC,
-                              bool bOwnsTAESpecififer,
-                              uima::internal::CASDefinition & casDefs,
-                              bool ownsCasDefs);
+#include <memory>
+#include <vector>
+#include <utility>
+#include <assert.h> 
 
-   ~RSParallelAnalysisEngine();
+class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
+{
+public:
+  RSParallelAnnotatorManager(AnnotatorContext &rANC,
+                             bool bOwnsANC,
+                             bool bOwnsTAESpecififer,
+                             uima::internal::CASDefinition &casDefs,
+                             bool ownsCasDefs);
 
-   uima::TyErrorId annotatorProcess(std::string annotatorName,
-                                    CAS *cas,
-                                    ResultSpecification const &annResultSpec);
+  ~RSParallelAnalysisEngine();
 
-   uima::TyErrorId paralleledProcess(CAS *cas,
-                                     ResultSpecification const &resultSpec);
+  uima::TyErrorId annotatorProcess(std::string annotatorName,
+                                   CAS *cas,
+                                   ResultSpecification const &annResultSpec);
 
-
-
-   RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
-
- private:
-
- protected:
-
- };
+  uima::TyErrorId paralleledProcess(CAS *cas,
+                                    ResultSpecification const &resultSpec);
 
 
- #endif
+  RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
+
+private:
+
+protected:
+
+};
+
+
+namespace rs
+{
+  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile
+                                                     uima::ErrorInfo errInfo);
+
+  uima::AnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+                                                     bool bOwnsANC,
+                                                     bool bOwnsTAESpecifier,
+                                                     uima::internal::CASDefinition &casDefinition,
+                                                     bool ownsCASDefintion,
+                                                     uima::ErrorInfo &errInfo);
+}
+
+
+#endif
