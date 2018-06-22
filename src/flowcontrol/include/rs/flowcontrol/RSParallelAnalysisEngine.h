@@ -30,25 +30,25 @@
 #include <memory>
 #include <vector>
 #include <utility>
-#include <assert.h> 
+#include <assert.h>
 
 class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
 {
 public:
-  RSParallelAnnotatorManager(AnnotatorContext &rANC,
-                             bool bOwnsANC,
-                             bool bOwnsTAESpecififer,
-                             uima::internal::CASDefinition &casDefs,
-                             bool ownsCasDefs);
+  RSParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+                           bool bOwnsANC,
+                           bool bOwnsTAESpecififer,
+                           uima::internal::CASDefinition &casDefs,
+                           bool ownsCasDefs);
 
   ~RSParallelAnalysisEngine();
 
   uima::TyErrorId annotatorProcess(std::string annotatorName,
-                                   CAS *cas,
-                                   ResultSpecification const &annResultSpec);
+                                   uima::CAS *cas,
+                                   uima::ResultSpecification const &annResultSpec);
 
-  uima::TyErrorId paralleledProcess(CAS *cas,
-                                    ResultSpecification const &resultSpec);
+  uima::TyErrorId paralleledProcess(uima::CAS *cas,
+                                    uima::ResultSpecification const &resultSpec);
 
 
   RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
@@ -62,14 +62,11 @@ protected:
 
 namespace rs
 {
-  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile
+  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
                                                      uima::ErrorInfo errInfo);
 
   uima::AnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
-                                                     bool bOwnsANC,
-                                                     bool bOwnsTAESpecifier,
                                                      uima::internal::CASDefinition &casDefinition,
-                                                     bool ownsCASDefintion,
                                                      uima::ErrorInfo &errInfo);
 }
 

@@ -7,7 +7,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   size_t pos = AEFile.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == AEFile.npos ? AEFile : AEFile.substr(pos)));
 
-  engine = uima::Framework::createAnalysisEngine(AEFile.c_str(), errorInfo);
+  engine = rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
