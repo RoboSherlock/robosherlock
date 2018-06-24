@@ -32,6 +32,7 @@
 #include <vector>
 #include <utility>
 #include <future>
+#include <functional>
 #include <mutex>
 #include <assert.h>
 
@@ -48,7 +49,7 @@ public:
 
   uima::TyErrorId annotatorProcess(std::string annotatorName,
                                    uima::CAS &cas,
-                                   uima::ResultSpecification const &annResultSpec);
+                                   uima::ResultSpecification &annResultSpec);
 
   uima::TyErrorId paralleledProcess(uima::CAS &cas,
                                     uima::ResultSpecification const &resSpec);

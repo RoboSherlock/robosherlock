@@ -13,9 +13,9 @@ RSParallelAnalysisEngine::~RSParallelAnalysisEngine()
 {
 }
 
-uima::TyErrorId annotatorProcess(std::string annotatorName,
-                                 uima::CAS &cas,
-                                 uima::ResultSpecification const &resultSpec)
+uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(std::string annotatorName,
+                                                           uima::CAS &cas,
+                                                           uima::ResultSpecification &resultSpec)
 {
   //uima::CAS *tcas;
   uima::TyErrorId utErrorId = UIMA_ERR_NONE;
@@ -25,9 +25,9 @@ uima::TyErrorId annotatorProcess(std::string annotatorName,
   uima::AnalysisEngine *pEngine;
   uima::internal::CapabilityContainer *pCapContainer;
 
-  for(auto it = iv_annotatorMgr.iv_vecEntries.begin(); it != iv_annotatorMgr.iv_vecEntries.end(); it++);
+  for(auto it = iv_annotatorMgr.iv_vecEntries.begin(); it != iv_annotatorMgr.iv_vecEntries.end(); it++)
   {
-    if(icu_annotator_name == it->iv_pEngine.getAnalysisEngineMetaData().getName())
+    if(it->iv_pEngine->getAnalysisEngineMetaData().getName() == icu_annotator_name)
     {
       pEngine = it->iv_pEngine;
       pCapContainer = it->iv_pCapabilityContainer;
@@ -145,7 +145,6 @@ uima::TyErrorId annotatorProcess(std::string annotatorName,
     {
       assert( tofsToBeRemoved.empty() );
       UIMA_TPRINT("----------- engine will *not* be processed");
-      ++uiNbrOfSkippedAnnotators;
     }
   }
   catch(uima::Exception uimaExc)
@@ -162,13 +161,11 @@ uima::TyErrorId annotatorProcess(std::string annotatorName,
 }
 
 
-uima::TyErrorId paralleledProcess(uima::CAS &cas,
-                                  uima::ResultSpecification const &resSpec)
+uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
+                                                            uima::ResultSpecification const &resSpec)
 {
   uima::TyErrorId err = UIMA_ERR_NONE;
-  ResultSpecification resultSpec = resSpec;
-
-  ++iv_uiNbrOfDocsProcessed; // preserve from uimacpp logic
+  uima::ResultSpecification resultSpec = resSpec;
 
   assert(iv_bIsInitialized);
   assert(!iv_vecEntries.empty());
@@ -182,10 +179,11 @@ uima::TyErrorId paralleledProcess(uima::CAS &cas,
     for(size_t i = 0; i < currentOrderings[order].size(); i++)
     {
       outInfo("Start thread: " << currentOrderings[order][i]);
-      primitiveProcessStatus.push_back(std::async(annotatorProcess,
-                                                  currentOrderings[order][i],
-                                                  cas,
-                                                  resSpec));
+      primitiveProcessStatus.push_back(std::async(std::bind(&RSParallelAnalysisEngine::annotatorProcess,
+                                                            this,
+                                                            currentOrderings[order][i],
+                                                            std::ref(cas),
+                                                            std::ref(resultSpec))));
     }
 
     for(size_t i = 0; i < primitiveProcessStatus.size(); i++)

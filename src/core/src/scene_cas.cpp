@@ -37,6 +37,7 @@ namespace rs
 SceneCas::SceneCas(uima::CAS &cas) :
   cas(cas)
 {
+  mutex.reset(new std::mutex);
 }
 
 SceneCas::~SceneCas()
@@ -90,6 +91,7 @@ bool SceneCas::getFS(const char *name, uima::FeatureStructure &fs)
 
 void SceneCas::setFS(const char *name, const uima::FeatureStructure &fs)
 {
+  std::lock_guard<std::mutex> lock(*mutex);
   uima::CAS *view;
   if(!getView(name, view))
   {
