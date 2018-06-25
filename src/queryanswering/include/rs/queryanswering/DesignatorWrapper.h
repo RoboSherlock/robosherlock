@@ -14,8 +14,6 @@
 #include <boost/signals2.hpp>
 #include <map>
 
-#include <robosherlock_msgs/PerceivedObjects.h>
-
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
@@ -40,9 +38,6 @@ public:
   static rapidjson::Document *req_designator;
   static rapidjson::Document *res_designator;
 
-  //designator_integration_msgs::DesignatorResponse res;
-  robosherlock_msgs::PerceivedObjects objects_;
-
   uint64_t now;
   uima::CAS *tcas;
 
@@ -58,17 +53,11 @@ public:
   void filterClusters(const std::vector<rs::Cluster> input, const rapidjson::Document *out) const;
   void updateDesignator();
 
-  //  void notifyObserversDesignatorAdded(Designator d);
-
-  //designator_integration_msgs::DesignatorResponse getDesignatorResponseMsg();
-  robosherlock_msgs::PerceivedObjects getObjectsMsgs();
-
   bool getObjectDesignators(std::vector<std::string> &);
 
   template<class T>
   void process(std::vector<T> &elements, std::vector<std::string> &objectDesignators)
   {
-    objects_.objects.clear();
     for(size_t i = 0; i < elements.size(); ++i)
     {
       outDebug("reading object: " << i);
@@ -125,22 +114,6 @@ public:
       convertAll(features, &objectDesignator);
       convertAll(clusterParts, &objectDesignator);
       convertAll(classification, &objectDesignator);
-
-
-      robosherlock_msgs::PerceivedObject object;
-      if(!detections.empty() && !poses.empty())
-      {
-        rs::Detection a = detections[0];
-        rs::PoseAnnotation b = poses[0];
-        object.id = a.name();
-        tf::Stamped<tf::Pose> pose;
-        rs::conversion::from(b.camera(), pose);
-        geometry_msgs::PoseStamped pose_stamped_msgs;
-
-        tf::poseStampedTFToMsg(pose, pose_stamped_msgs);
-        object.transform = pose_stamped_msgs;
-        objects_.objects.push_back(object);
-      }
 
       outDebug("no. of children: " << objectDesignator.MemberCount());
 
