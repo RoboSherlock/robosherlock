@@ -1,0 +1,19 @@
+%YAML:1.0
+annotators:
+    - CollectionReader
+    - ImagePreprocessor
+    - RegionFilter
+    - NormalEstimator
+    - PlaneAnnotator
+    - PointCloudClusterExtractor
+    - ImageSegmentationAnnotator
+    - ClusterMerger
+    - Cluster3DGeometryAnnotator
+    - ClusterColorHistogramCalculator
+    - FeatureAnnotator
+    - CaffeAnnotator
+    - PCLFeatureExtractor
+    - TFBroadcaster
+    - ObjectIdentityResolution
+    - BeliefToKnowRob
+    - StorageWriter

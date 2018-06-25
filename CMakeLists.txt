@@ -17,6 +17,7 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+
 # Code Coverage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
@@ -53,6 +54,7 @@ find_package(catkin REQUIRED
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
+ robosherlock_msgs std_srvs libmongocxx_ros
  uima)
 
 
@@ -104,6 +106,21 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   set(RS_WEB_LIB rs_web)
 endif()
 
+find_package(RapidJSON REQUIRED)
+if(${RapidJSON_FOUND})
+    add_definitions(-DWITH_JSON -DRAPIDJSON_HAS_STDSTRING)
+endif()
+
+find_package(json_prolog QUIET)
+if(json_prolog_FOUND)
+    message(STATUS "json_prolog FOUND")
+    add_definitions(-DWITH_JSON_PROLOG)
+    include_directories(${json_prolog_INCLUDE_DIRS})
+else()
+    message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
+
+endif()
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
@@ -118,19 +135,20 @@ add_definitions(${PCL_DEFINITIONS})
 # libraries to export
 set(RS_LIBS
   rs_core
+  rs_flowcontrol
   rs_io
   rs_segmentation
   rs_recognition
+  rs_queryanswering
   rs_utils
-  rs_analysisEngineManager
   ${RS_CAFFE_LIB}
   ${RS_WEB_LIB}
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
-  LIBRARIES ${RS_LIBS} 
-  CATKIN_DEPENDS pcl_ros cv_bridge uima
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
+  LIBRARIES ${RS_LIBS}
+  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs uima
   DEPENDS Boost OpenCV APR PCL ICUUC MongoClientLibrary
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
@@ -178,7 +196,8 @@ add_subdirectory(src/recognition)
 add_subdirectory(src/segmentation)
 add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
-
+add_subdirectory(src/flowcontrol)
+add_subdirectory(src/queryanswering)
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
@@ -190,8 +209,9 @@ add_subdirectory(src/tracking)
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test.cpp)
+    #test/segmentation/symmetry_segmentation_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test
-    rs_analysisEngineManager
+    rs_flowcontrol
     rs_core
     rs_io
     rs_utils)

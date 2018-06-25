@@ -57,6 +57,8 @@ bool Visualizer::start()
   {
     return false;
   }
+  //Initially, all annotators are active
+  activeAnnotators = names;
 
   pub = nh.advertise<sensor_msgs::Image>("output_image", 1, true);
 
@@ -124,33 +126,58 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
   }
 }
 
+void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
+{
+    std::vector<std::string> activeDrawingAnnotators(names.size());
+    std::vector<std::string>::iterator it;
+    std::sort(annotators.begin(),annotators.end());
+    std::sort(names.begin(),names.end());
+    it = std::set_intersection(annotators.begin(),annotators.end(),names.begin(),names.end(),activeDrawingAnnotators.begin());
+    activeDrawingAnnotators.resize(it-activeDrawingAnnotators.begin());
+    activeAnnotators = activeDrawingAnnotators;
+}
+
+
 void Visualizer::nextAnnotator()
 {
   lock.lock();
-  DrawingAnnotator::getAnnotatorNames(names);
-  index = (index + 1) % names.size();
-  annotator = DrawingAnnotator::getAnnotator(names[index]);
+  index = (index + 1) % activeAnnotators.size();
+  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
   annotator->update = false;
   updateImage = true;
   updateCloud = true;
   changedAnnotator = true;
   lock.unlock();
-  outDebug("switching to annotator: " << names[index]);
+  outDebug("switching to annotator: " << activeAnnotators[index]);
 }
 
 void Visualizer::prevAnnotator()
 {
   lock.lock();
-  DrawingAnnotator::getAnnotatorNames(names);
-  index = (names.size() + index - 1) % names.size();
-  annotator = DrawingAnnotator::getAnnotator(names[index]);
+  index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
+  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
   annotator->update = false;
   updateImage = true;
   updateCloud = true;
   changedAnnotator = true;
   lock.unlock();
-  outDebug("switching to annotator: " << names[index]);
+  outDebug("switching to annotator: " << activeAnnotators[index]);
 }
+
+bool Visualizer::selectAnnotator(std::string anno){
+    lock.lock();
+    ptrdiff_t pos = distance(activeAnnotators.begin(), find(activeAnnotators.begin(), activeAnnotators.end(), anno));
+    index = pos;
+    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+    annotator->update = false;
+    updateImage = true;
+    updateCloud = true;
+    changedAnnotator = true;
+    lock.unlock();
+    outDebug("switching to annotator: " << activeAnnotators[index]);
+    return true;
+}
+
 
 void Visualizer::checkAnnotator()
 {
@@ -191,7 +218,7 @@ void Visualizer::imageViewer()
     {
       updateImage = false;
       annotator->drawImage(disp);
-      cv::putText(disp, "Annotator: " + names[index], pos, font, sizeText, color, lineText, CV_AA);
+      cv::putText(disp, "Annotator: " + activeAnnotators[index], pos, font, sizeText, color, lineText, CV_AA);
       cv::imshow(windowImage, disp);
 
       sensor_msgs::Image image_msg;

@@ -36,6 +36,9 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/exception.h>
 
+#include <rapidjson/document.h>
+#include <rapidjson/pointer.h>
+
 using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
@@ -82,7 +85,7 @@ public:
 
   RegionFilter() : DrawingAnnotator(__func__), pointSize(1), border(0.05), cloud(new pcl::PointCloud<PointT>()),
     indices(new std::vector<int>()),
-    changeDetection(true),frustumCulling_(false), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
+    changeDetection(true), frustumCulling_(false), threshold(0.1), pixelThreshold(0.1), depthThreshold(0.01), frames(0), filtered(0), lastTime(ros::Time::now()), timeout(120)
   {
   }
 
@@ -174,26 +177,44 @@ private:
     //to transform them
     rs::Query qs = rs::create<rs::Query>(tcas);
     std::vector<std::string> regionsToLookAt;
-    regionsToLookAt.assign(defaultRegions.begin(),defaultRegions.end());
+    regionsToLookAt.assign(defaultRegions.begin(), defaultRegions.end());
     regions.clear();
 
-    if(cas.getFS("QUERY", qs) && qs.asJson()!="")
+    if(cas.getFS("QUERY", qs) && qs.asJson() != "")
     {
+      rapidjson::Document jsonDoc;
       std::string jsonString  = qs.asJson();
-      int loc = jsonString.find("shelf_system_");
+      jsonDoc.Parse(jsonString);
+      outWarn("query in CAS : " << jsonString);
+
+      //TODO first level of json is currently only detect, needs to be done differently when there are
+      //multiple modes (Maybe save query mode in FS?)
+      rapidjson::Pointer framePointerIn("/detect/location/in");
+      rapidjson::Pointer framePointerOn("/detect/location/on");
+
+      rapidjson::Value *frameJson = framePointerIn.Get(jsonDoc);
+      rapidjson::Value *frameJsonOn = framePointerIn.Get(jsonDoc);
       std::string newLocation;
-      if (loc != std::string::npos)
+
+      if(frameJson && frameJson->IsString())
       {
-        newLocation = jsonString.substr(loc, 14);
+        outInfo("");
+        newLocation = frameJson->GetString();
       }
-      outWarn("query in CAS : " << qs.asJson());
-      outWarn("location set: "<<newLocation);
-      if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation !="")
+
+      if(frameJsonOn && frameJson->IsString())
+      {
+        outInfo("");
+        newLocation = frameJsonOn->GetString();
+      }
+
+      outWarn("location set: " << newLocation);
+      if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation != "")
       {
         outInfo("new location not in default Regions");
         regionsToLookAt.clear();
         regionsToLookAt.push_back(newLocation);
-        if (jsonString.find("scan"))
+        if(jsonString.find("scan"))
         {
           outInfo("Scanning action defined: filter location set permanently");
           defaultRegions.clear();
@@ -427,15 +448,15 @@ private:
     const float minZ = -(region.depth / 2);
     float maxZ = +(region.depth / 2);
 
-    if (region.name == "drawer_sinkblock_upper_open")
+    if(region.name == "drawer_sinkblock_upper_open")
     {
-        maxZ = 0.08;
+      maxZ = 0.08;
     }
     //needed because of crappy sem map
 
     if(region.type == "CounterTop")
     {
-        maxZ=0.4;
+      maxZ = 0.4;
     }
     if(region.name == "kitchen_sink_block_counter_top")
     {
@@ -552,7 +573,7 @@ private:
 
       visualizer.addCube(translation.cast<float>(), rotation.cast<float>(),
                          region.width, region.height, region.depth, oss.str());
-        visualizer.setRepresentationToWireframeForAllActors ();
+      visualizer.setRepresentationToWireframeForAllActors();
     }
   }
 };

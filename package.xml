@@ -8,7 +8,7 @@
   <maintainer email="wiedemeyer@cs.uni-bremen.de">Thiemo Wiedemeyer</maintainer>
   <maintainer email="jworch@cs.uni-bremen.de">Jan-Hendirk Worch</maintainer>
 
-  <license>BSD</license>
+  <license>Apacehe 2.0</license>
 
   <url type="website">https://github.com/robosherlock/robosherlock</url>
 
@@ -26,6 +26,7 @@
 
   <depend>sensor_msgs                </depend>
   <depend>std_msgs                   </depend>
+  <depend>std_srvs                   </depend>
   <depend>visualization_msgs         </depend>
 
   <depend>tf                         </depend>
@@ -34,7 +35,8 @@
   <depend>image_geometry             </depend>
 
   <depend>uima                       </depend>
-
+  <depend>robosherlock_msgs          </depend>
+  <depend>libmongocxx_ros </depend>
   <export>
   </export>
 </package>

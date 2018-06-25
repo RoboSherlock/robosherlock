@@ -78,12 +78,15 @@ public:
   {
     outInfo("initialize");
     thread = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject);
+    thread.detach();
+
     return UIMA_ERR_NONE;
   }
 
   TyErrorId destroy()
   {
-    thread.join();
+    broadCasterObject.terminate();
+    
     outInfo("destroy");
     return UIMA_ERR_NONE;
   }
@@ -150,4 +153,3 @@ public:
 
 // This macro exports an entry point that is used to create the annotator.
 MAKE_AE(TFBroadcaster)
-

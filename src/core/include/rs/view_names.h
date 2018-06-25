@@ -36,12 +36,27 @@
 #define VIEW_FISHEYE_CAMERA_INFO  "fisheye_camera_info"
 
 #define VIEW_CLOUD               "cloud"
+#define VIEW_CLOUD_NON_NAN       "cloud_non_nan"
+#define VIEW_CLOUD_OBJECTS       "cloud_objects"
 #define VIEW_CLOUD_DOWNSAMPLED   "cloud_downsampled"
 #define VIEW_CLOUD_SUPERVOXEL    "cloud_supervoxel"
+#define VIEW_CLOUD_BOUNDARY      "cloud_boundary"
+#define VIEW_CLOUD_NON_BOUNDARY  "cloud_non_boundary"
 #define VIEW_NORMALS             "normals"
+#define VIEW_NORMALS_NON_NAN     "normals_non_nan"
+#define VIEW_NORMALS_OBJECTS     "normals_objects"
+
+#define VIEW_SEGMENT_IDS         "segment_ids"
+#define VIEW_ROTATIONAL_SEGMENTATION_IDS "rotational_segment_ids"
+#define VIEW_BILATERAL_SEGMENTATION_IDS "bilateral_segment_ids"
+
+#define VIEW_ROTATIONAL_SYMMETRIES "rotational_symmetries"
+#define VIEW_BILATERAL_SYMMETRIES "bilateral_symmetries"
 
 #define VIEW_MASK                "mask"
 #define VIEW_MASK_HD             "mask_hd"
+
+#define VIEW_MAPPING_NON_NAN_TO_ORIGINAL "mapping_non_nan_to_orginal"
 
 #define VIEW_THERMAL_CAMERA_INFO "camera_info_thermal"
 
