@@ -7,6 +7,7 @@
   <arg name="visualization"    default="$(arg vis)"/>
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
+  <arg name="wait"             default="true"/>
 
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
@@ -25,5 +26,6 @@
     <param name="analysis_engines" type="str"  value="$(arg analysis_engines)"/>
     <param name="visualization"    type="bool" value="$(arg visualization)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
+    <param name="wait"             type="bool" value="$(arg wait)"/>
   </node>
 </launch>
