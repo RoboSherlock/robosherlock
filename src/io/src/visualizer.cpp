@@ -126,8 +126,15 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
   }
 }
 
-void Visualizer::setActiveAnnotators(std::vector<std::string> annotators){
-    activeAnnotators = annotators;
+void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
+{
+    std::vector<std::string> activeDrawingAnnotators(names.size());
+    std::vector<std::string>::iterator it;
+    std::sort(annotators.begin(),annotators.end());
+    std::sort(names.begin(),names.end());
+    it = std::set_intersection(annotators.begin(),annotators.end(),names.begin(),names.end(),activeDrawingAnnotators.begin());
+    activeDrawingAnnotators.resize(it-activeDrawingAnnotators.begin());
+    activeAnnotators = activeDrawingAnnotators;
 }
 
 
@@ -159,7 +166,6 @@ void Visualizer::prevAnnotator()
 
 bool Visualizer::selectAnnotator(std::string anno){
     lock.lock();
-    //index = std::find(activeAnnotators.begin(), activeAnnotators.end(), annotator);
     ptrdiff_t pos = distance(activeAnnotators.begin(), find(activeAnnotators.begin(), activeAnnotators.end(), anno));
     index = pos;
     annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
@@ -169,6 +175,7 @@ bool Visualizer::selectAnnotator(std::string anno){
     changedAnnotator = true;
     lock.unlock();
     outDebug("switching to annotator: " << activeAnnotators[index]);
+    return true;
 }
 
 
