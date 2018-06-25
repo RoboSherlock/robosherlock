@@ -26,6 +26,9 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
+
+  visService = nh_.advertiseService("vis_command",&RSProcessManager::visControlCallback,this);
+
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
 #endif
