@@ -1,3 +1,6 @@
+#ifndef __QUERY_INTERFACE_H__
+#define __QUERY_INTERFACE_H__
+
 
 #ifdef WITH_JSON_PROLOG
 //json
@@ -7,7 +10,7 @@
 #include <vector>
 #include <rs/utils/output.h>
 
-#include <rs/flowcontrol/RSControledAnalysisEngine.h>
+#include <rs/utils/exception.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
 
@@ -53,4 +56,7 @@ public:
   bool getAnnotatorInOutConstraints(std::vector<std::string> &annotators,
                                     JsonPrologInterface::AnnotatorDependencies &dependencies);
 };
-#endif //WITH_JSON_PROLOG
+
+#endif // WITH_JSON_PROLOG
+
+#endif // __QUERYINTERFACE_H__

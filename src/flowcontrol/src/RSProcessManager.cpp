@@ -36,7 +36,7 @@ RSProcessManager::~RSProcessManager()
   outInfo("RSControledAnalysisEngine Stoped");
 }
 
-void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool pervasive)
+void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool pervasive, bool parallel)
 {
   outInfo("initializing");
 
@@ -69,7 +69,9 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
     outWarn("No low-level pipeline defined. Setting empty!");
   }
 
-  engine_.init(xmlFile, lowLvlPipeline_, pervasive);
+  engine_.init(xmlFile, lowLvlPipeline_, pervasive, parallel);
+
+  parallel_ = parallel;
 
   if(useVisualizer_)
   {
@@ -84,7 +86,7 @@ void RSProcessManager::setInspectionAE(std::string inspectionAEPath)
   outInfo("initializing inspection AE");
   std::vector<std::string> llvlp;
   llvlp.push_back("CollectionReader");
-  inspectionEngine_.init(inspectionAEPath, llvlp, false);
+  inspectionEngine_.init(inspectionAEPath, llvlp, false, parallel_); // set parallel false for now, need discussion for future use of parallel execution
 }
 
 
@@ -160,7 +162,7 @@ bool RSProcessManager::resetAE(std::string newContextName)
     fs.release();
 
     processing_mutex_.lock();
-    this->init(contextAEPath, configFile_, false);
+    this->init(contextAEPath, configFile_, false, parallel_);
     processing_mutex_.unlock();
 
     //shouldn't there be an fs.release() here?
@@ -186,16 +188,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   queryInterface->parseQuery(request);
   std::vector<std::string> newPipelineOrder;
   QueryInterface::QueryType queryType = queryInterface->processQuery(newPipelineOrder);
-
-  //planning parallel pipeline demo
-  parallelPlanner_.setAnnotatorList(newPipelineOrder);
-
-  JsonPrologInterface::AnnotatorDependencies dependencies;
-  DirectedGraph graph;
-
-  queryInterface->getAnnotatorInOutConstraints(newPipelineOrder, dependencies);
-  parallelPlanner_.planPipelineStructure(dependencies);
-  parallelPlanner_.print();
 
   processing_mutex_.lock();
   if(queryType == QueryInterface::QueryType::DETECT)

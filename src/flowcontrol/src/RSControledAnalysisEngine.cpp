@@ -1,6 +1,6 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
-void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive)
+void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
   uima::ErrorInfo errorInfo;
 
@@ -26,8 +26,11 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     outInfo(tempString);
   }
 
-  rspm->aengine->getNbrOfAnnotators();
-  outInfo("*** Number of Annotators in AnnotatorManager: " << rspm->aengine->getNbrOfAnnotators());
+  outInfo("*** Fetch the parallel ordering nodes");
+  rspm->parallelPlanner.print();
+
+  int numAnnotators = rspm->aengine->getNbrOfAnnotators();
+  outInfo("*** Number of Annotators in AnnotatorManager: " << numAnnotators);
 
   if(pervasive){
       // After all annotators have been initialized, pick the default pipeline
@@ -36,6 +39,8 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
       //this applies it
       rspm->setPipelineOrdering(lowLvlPipeline);
   }
+
+  parallel_ = parallel;
 
   // Get a new CAS
   outInfo("Creating a new CAS");
@@ -82,15 +87,30 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
     try
     {
       rs::StopWatch clock;
-      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-      for(int i = 0; casIter.hasNext(); ++i)
-      {
-        uima::CAS &outCas = casIter.next();
 
-        // release CAS
-        outInfo("release CAS " << i);
-        engine->getAnnotatorContext().releaseCAS(outCas);
+#ifdef WITH_JSON_PROLOG
+      if(parallel_)
+      {
+        if(rspm->querySuccess)
+        {
+          RSParallelAnalysisEngine *pEngine = (RSParallelAnalysisEngine *) engine;
+          uima::ResultSpecification tempResSpec;
+          pEngine->paralleledProcess(*cas, tempResSpec);
+        }
+        else
+        {
+          outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
+          engine->process(*cas);
+        }
       }
+      else
+      {
+        engine->process(*cas);
+      }
+#else
+      engine->process(*cas);
+#endif
+
       counter_++;
       totalTime_ += clock.getTime();
     }

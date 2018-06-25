@@ -40,6 +40,7 @@ private:
   int counter_;
   double totalTime_;
   float avgProcessingTime_;
+  bool parallel_;
 
 public:
 
@@ -134,7 +135,7 @@ public:
   }
 
 
-  void init(const std::string &file,const std::vector<std::string> &lowLvLPipeline, bool pervasive);
+  void init(const std::string &file,const std::vector<std::string> &lowLvLPipeline, bool pervasive, bool parallel);
 
   void process();
 

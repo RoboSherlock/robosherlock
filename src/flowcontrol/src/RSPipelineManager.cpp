@@ -30,6 +30,10 @@ void RSPipelineManager::resetPipelineOrdering()
 {
   aengine->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
 
+#ifdef WITH_JSON_PROLOG
+  aengine->currentOrderings = original_annotator_orderings;
+#endif
+
   // Set default pipeline annotators, if set
   if(use_default_pipeline)
   {
@@ -40,6 +44,9 @@ void RSPipelineManager::setDefaultPipelineOrdering(std::vector<std::string> anno
 {
   use_default_pipeline = true;
   default_pipeline_annotators = annotators;
+#ifdef WITH_JSON_PROLOG
+  querySuccess = this->planParallelPipelineOrderings(annotators, default_annotator_orderings);
+#endif
 }
 
 int RSPipelineManager::getIndexOfAnnotator(std::string annotator_name)
@@ -54,6 +61,20 @@ int RSPipelineManager::getIndexOfAnnotator(std::string annotator_name)
   }
 
   return std::distance(nodes.begin(), it);
+}
+
+void RSPipelineManager::getCurrentAnnotatorFlow(std::vector<std::string> &annotators)
+{
+  annotators.clear();
+
+  std::vector<icu::UnicodeString> &nodes = this->getFlowConstraintNodes();
+
+  for(int i = 0; i < nodes.size(); i++)
+  {
+    std::string tempNode;
+    nodes[i].toUTF8String(tempNode);
+    annotators.push_back(tempNode);
+  }
 }
 
 void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
@@ -88,4 +109,41 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
   }
   // Pass the new pipeline to uima's annotator manager
   aengine->iv_annotatorMgr.iv_vecEntries = new_annotators;
+
+  //update parallel orderings
+#ifdef WITH_JSON_PROLOG
+  std::vector<std::string> currentFlow;
+  this->getCurrentAnnotatorFlow(currentFlow);
+  querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings);
+#endif
 }
+
+#ifdef WITH_JSON_PROLOG
+
+bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &annotators,
+                                                      RSParallelPipelinePlanner::AnnotatorOrderings &orderings)
+{
+  if(annotators.empty())
+  {
+    outWarn("Annotators flow is not set! Parallel orderings will not be planned!");
+    return false;
+  }
+
+  JsonPrologInterface::AnnotatorDependencies dependencies;
+  queryInterface->getAnnotatorInOutConstraints(annotators, dependencies);
+
+  if(dependencies.empty())
+  {
+    outWarn("Querying annotators dependency data is empty! Parallel orderings will not be planned!");
+    return false;
+  }
+
+  parallelPlanner.setAnnotatorList(annotators);
+  parallelPlanner.planPipelineStructure(dependencies);
+
+  parallelPlanner.getPlannedPipeline(orderings);
+
+  return true;
+}
+
+#endif

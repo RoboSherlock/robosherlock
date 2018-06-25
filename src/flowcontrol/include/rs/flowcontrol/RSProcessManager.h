@@ -7,7 +7,6 @@
 #include <rs/queryanswering/KRDefinitions.h>
 
 #ifdef WITH_JSON_PROLOG
-#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
 #include <rs/queryanswering/QueryInterface.h>
 #endif
 
@@ -35,7 +34,6 @@ public:
   RSControledAnalysisEngine inspectionEngine_;
   #ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
-  RSParallelPipelinePlanner parallelPlanner_;
   #endif
 
   mongo::client::GlobalInstance instance;
@@ -52,6 +50,8 @@ public:
   bool pause_;
   bool inspectFromAR_;
 
+  bool parallel_;
+
 
   std::mutex processing_mutex_;
 
@@ -65,7 +65,7 @@ public:
 
   ~RSProcessManager();
 
-  void init(std::string &xmlFile, std::string configFile_, bool pervasive);
+  void init(std::string &xmlFile, std::string configFile_, bool pervasive, bool parallel);
 
   void run();
 

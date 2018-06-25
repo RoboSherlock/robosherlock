@@ -54,6 +54,8 @@ bool RSParallelPipelinePlanner::getPlannedPipeline(AnnotatorOrderings &list) con
     return false;
   }
 
+  list.clear();
+
   list = annotatorOrderings;
   return true;
 }

@@ -36,6 +36,13 @@
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
 
+#include <rs/flowcontrol/RSParallelAnalysisEngine.h>
+
+#ifdef WITH_JSON_PROLOG
+#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+#include <rs/queryanswering/QueryInterface.h>
+#endif
+
 class RSPipelineManager
 {
 public:
@@ -45,10 +52,25 @@ public:
 
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
-    aengine = ((uima::internal::AggregateEngine *)engine);
+    aengine = ((RSParallelAnalysisEngine *)engine);
     original_annotators = aengine->iv_annotatorMgr.iv_vecEntries;
     use_default_pipeline = false;
+
+#ifdef WITH_JSON_PROLOG
+    queryInterface = new QueryInterface();
+
+    std::vector<std::string> currentFlow;
+    this->getCurrentAnnotatorFlow(currentFlow);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings);
+
+    original_annotator_orderings = aengine->currentOrderings;
+#endif
   }
+
+#ifdef WITH_JSON_PROLOG
+    bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
+                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings);
+#endif
 
   void resetPipelineOrdering();
 
@@ -63,10 +85,13 @@ public:
   // Get the index of the given annotator in this->flow_constraint_nodes.
   int getIndexOfAnnotator(std::string annotator_name);
 
+  void getCurrentAnnotatorFlow(std::vector<std::string> &annotators);
+
+public:
   // private:
   /* data */
   uima::AnalysisEngine *engine;
-  uima::internal::AggregateEngine *aengine;
+  RSParallelAnalysisEngine *aengine;
   uima::FlowConstraints *flow;
 
   bool use_default_pipeline; // set to false again,if you want to disable the default pipeline order
@@ -75,8 +100,17 @@ public:
   // This attribute will keep a copy of all the initialized annotators that have
   // been loaded on startup.
   uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
+
+#ifdef WITH_JSON_PROLOG
+  bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
+
+  QueryInterface *queryInterface;
+
+  RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
+
+  RSParallelPipelinePlanner parallelPlanner;
+  RSParallelPipelinePlanner::AnnotatorOrderings default_annotator_orderings;
+#endif
 };
 
 #endif
-
-
