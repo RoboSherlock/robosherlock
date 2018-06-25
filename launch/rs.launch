@@ -8,6 +8,7 @@
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
   <arg name="withIDRes"        default="false"/>
+  <arg name="wait"             default="true"/>
 
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
@@ -27,5 +28,6 @@
     <param name="visualization"    type="bool" value="$(arg visualization)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
     <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
+    <param name="wait"             type="bool" value="$(arg wait)"/>
   </node>
 </launch>
