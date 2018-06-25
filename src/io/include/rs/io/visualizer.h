@@ -47,6 +47,7 @@ private:
 
   DrawingAnnotator *annotator;
   std::vector<std::string> names;
+  std::vector<std::string> activeAnnotators;
   size_t index;
 
   std::thread imageViewerThread;
@@ -76,14 +77,16 @@ public:
 
   bool start();
   void stop();
+  void setActiveAnnotators(std::vector<std::string> annotators);
+  void nextAnnotator();
+  void prevAnnotator();
+  bool selectAnnotator(std::string annotator);
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
   void callbackMouseHandler(const int event, const int x, const int y);
   void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
 
-  void nextAnnotator();
-  void prevAnnotator();
   void checkAnnotator();
   void shutdown();
 
