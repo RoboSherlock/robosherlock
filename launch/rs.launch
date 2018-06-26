@@ -8,6 +8,8 @@
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
 
+  <arg name="parallel"              default="true"/>
+
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
   <!-- Whether the machine for localhost should be defined our not. Disable this if the launch file is included somewhere where machines are already defined. -->
@@ -24,6 +26,7 @@
         launch-prefix="$(arg launch-prefix)">
     <param name="analysis_engines" type="str"  value="$(arg analysis_engines)"/>
     <param name="visualization"    type="bool" value="$(arg visualization)"/>
+    <param name="parallel"         type="bool" value="$(arg parallel)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
   </node>
 </launch>

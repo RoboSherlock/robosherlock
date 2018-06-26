@@ -67,13 +67,13 @@ void RSPipelineManager::getCurrentAnnotatorFlow(std::vector<std::string> &annota
 {
   annotators.clear();
 
-  std::vector<icu::UnicodeString> &nodes = this->getFlowConstraintNodes();
-
-  for(int i = 0; i < nodes.size(); i++)
+  for(int i = 0; i < aengine->iv_annotatorMgr.iv_vecEntries.size(); i++)
   {
+    uima::AnalysisEngine* pEngine = aengine->iv_annotatorMgr.iv_vecEntries[i].iv_pEngine;
     std::string tempNode;
-    nodes[i].toUTF8String(tempNode);
+    pEngine->getAnalysisEngineMetaData().getName().toUTF8String(tempNode);
     annotators.push_back(tempNode);
+    std::cout << tempNode << "\n";
   }
 }
 
@@ -115,6 +115,9 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
   std::vector<std::string> currentFlow;
   this->getCurrentAnnotatorFlow(currentFlow);
   querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings);
+
+  outInfo("Parallel pipeline after set new pipeline orderings: ");
+  this->parallelPlanner.print();
 #endif
 }
 
@@ -123,6 +126,7 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
 bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &annotators,
                                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings)
 {
+  bool success = true;
   if(annotators.empty())
   {
     outWarn("Annotators flow is not set! Parallel orderings will not be planned!");
@@ -130,9 +134,9 @@ bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &
   }
 
   JsonPrologInterface::AnnotatorDependencies dependencies;
-  queryInterface->getAnnotatorInOutConstraints(annotators, dependencies);
+  success = queryInterface->getAnnotatorInOutConstraints(annotators, dependencies);
 
-  if(dependencies.empty())
+  if(dependencies.empty() || !success)
   {
     outWarn("Querying annotators dependency data is empty! Parallel orderings will not be planned!");
     return false;
@@ -143,7 +147,7 @@ bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &
 
   parallelPlanner.getPlannedPipeline(orderings);
 
-  return true;
+  return success;
 }
 
 #endif
