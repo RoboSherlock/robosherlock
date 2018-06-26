@@ -168,6 +168,20 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::Annot
   {
     annotatorOrderings.pop_back();
   }
+  else
+  {
+    //push Trigger to orderings 0, will extend the code if there are more annotator like Trigger
+    for(auto i = (annotatorOrderings.end() - 1)->begin(); i != (annotatorOrderings.end() - 1)->end(); i++)
+    {
+      if(i->compare("Trigger") == 0)
+      {
+        annotatorOrderings.insert(annotatorOrderings.begin(), std::vector<std::string>());
+        annotatorOrderings[0].push_back(*i);
+        (annotatorOrderings.end() - 1)->erase(i);
+        break;
+      }
+    }
+  }
 
   return true;
 }
