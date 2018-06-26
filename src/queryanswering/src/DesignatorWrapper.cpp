@@ -404,25 +404,6 @@ void DesignatorWrapper::convert(rs::ClusterPart &input, rapidjson::Document *obj
   mergeJson(*object, nestedValue, std::to_string(input.clID()));
 }
 
-/*void DesignatorWrapper::convert(rs_demos::Volume &input, rapidjson::Document *object)
-{
-  object->AddMember("volume",input.volume(),object->GetAllocator());
-}*/
-
-/*void DesignatorWrapper::convert(rs_demos::Substance &input, rapidjson::Document *object)
-{
-  rapidjson::Value substance;
-  substance.SetObject();
-  substance.AddMember("substance",input.substanceName(),object->GetAllocator());
-  object->AddMember("contains",substance,object->GetAllocator());
-}*/
-
-robosherlock_msgs::PerceivedObjects DesignatorWrapper::getObjectsMsgs()
-{
-  return objects_;
-}
-
-
 void DesignatorWrapper::convert(rs::ARMarker &input, rapidjson::Document &arDesignator)
 {
   arDesignator.AddMember("type", "armarker", arDesignator.GetAllocator());

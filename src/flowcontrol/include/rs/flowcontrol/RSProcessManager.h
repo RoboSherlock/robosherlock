@@ -14,6 +14,8 @@
 
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
+#include <robosherlock_msgs/RSObjectDescriptions.h>
+#include <robosherlock_msgs/RSVisControl.h>
 
 #include <mongo/client/dbclient.h>
 
@@ -40,8 +42,9 @@ public:
 
 
   ros::NodeHandle nh_;
-  ros::ServiceServer service, singleService, setContextService, jsonService;
+  ros::ServiceServer service, singleService, setContextService, jsonService, visService;
 
+  ros::Publisher result_pub;
 
   bool waitForServiceCall_;
   const bool useVisualizer_;
@@ -74,6 +77,9 @@ public:
 
   bool resetAECallback(robosherlock_msgs::SetRSContext::Request &req,
                        robosherlock_msgs::SetRSContext::Response &res);
+
+  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+                         robosherlock_msgs::RSVisControl::Response &res);
 #ifdef WITH_JSON_PROLOG
 
   bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
