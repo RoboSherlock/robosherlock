@@ -179,7 +179,8 @@ uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
     for(size_t i = 0; i < currentOrderings[order].size(); i++)
     {
       outInfo("Start thread: " << currentOrderings[order][i]);
-      primitiveProcessStatus.push_back(std::async(std::bind(&RSParallelAnalysisEngine::annotatorProcess,
+      primitiveProcessStatus.push_back(std::async(std::launch::async,
+                                                  std::bind(&RSParallelAnalysisEngine::annotatorProcess,
                                                             this,
                                                             currentOrderings[order][i],
                                                             std::ref(cas),

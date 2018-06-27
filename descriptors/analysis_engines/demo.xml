@@ -161,9 +161,10 @@
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-       <node>Trigger</node>
+       <!--<node>Trigger</node>-->
        <node>CollectionReader</node>
        <node>ImagePreprocessor</node>
+       <node>RegionFilter</node>
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
@@ -171,7 +172,7 @@
        <node>ImageSegmentationAnnotator</node>
        <node>PointCloudClusterExtractor</node>
        <node>ClusterMerger</node>
-       <!-- <node>ClusterFilter</node> -->
+       <!--<node>ClusterFilter</node>-->
        <node>ClusterColorHistogramCalculator</node>
        <node>ResultAdvertiser</node>
       </fixedFlow>

@@ -73,7 +73,6 @@ void RSPipelineManager::getCurrentAnnotatorFlow(std::vector<std::string> &annota
     std::string tempNode;
     pEngine->getAnalysisEngineMetaData().getName().toUTF8String(tempNode);
     annotators.push_back(tempNode);
-    std::cout << tempNode << "\n";
   }
 }
 
