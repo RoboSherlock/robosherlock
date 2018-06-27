@@ -151,13 +151,13 @@ private:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    cas.get(VIEW_CLOUD, *cloud);
+    //cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_COLOR_IMAGE, color);
     cas.get(VIEW_DEPTH_IMAGE, depth);
     cas.get(VIEW_CAMERA_INFO, cameraInfo);
 
-    indices->clear();
-    indices->reserve(cloud->points.size());
+    //indices->clear();
+    //indices->reserve(cloud->points.size());
 
     camToWorld.setIdentity();
     if(scene.viewPoint.has())
@@ -255,12 +255,12 @@ private:
       }
     }
 
-    pcl::ExtractIndices<PointT> ei;
+    /*pcl::ExtractIndices<PointT> ei;
     ei.setKeepOrganized(true);
     ei.setIndices(indices);
     ei.filterDirectly(cloud);
 
-    cas.set(VIEW_CLOUD, *cloud);
+    cas.set(VIEW_CLOUD, *cloud);*/
 
     if(changeDetection && !indices->empty())
     {
