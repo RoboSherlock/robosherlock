@@ -206,6 +206,12 @@ uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
   return err;
 }
 
+uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas)
+{
+  //generate ResultSpecification from TaeSpecifier
+  return this->paralleledProcess(cas, this->getCompleteResultSpecification());
+}
+
 namespace rs
 {
   uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,

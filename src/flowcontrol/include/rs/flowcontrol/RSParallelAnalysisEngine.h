@@ -54,6 +54,8 @@ public:
   uima::TyErrorId paralleledProcess(uima::CAS &cas,
                                     uima::ResultSpecification const &resSpec);
 
+  uima::TyErrorId paralleledProcess(uima::CAS &cas);
+
 
   RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
 

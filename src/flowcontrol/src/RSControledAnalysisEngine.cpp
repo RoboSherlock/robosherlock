@@ -94,8 +94,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
         if(rspm->querySuccess)
         {
           RSParallelAnalysisEngine *pEngine = (RSParallelAnalysisEngine *) engine;
-          uima::ResultSpecification tempResSpec;
-          pEngine->paralleledProcess(*cas, tempResSpec);
+          pEngine->paralleledProcess(*cas);
         }
         else
         {
