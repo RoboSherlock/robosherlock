@@ -7,7 +7,7 @@ cache:
   ccache: true
   directories:
 #  - $HOME/local/src/mongo-cxx-driver/
-  - $HOME/local/src/uimacpp/
+#  - $HOME/local/src/uimacpp/
   - apt
 
 addons:
@@ -55,11 +55,12 @@ install:
 before_script:
   - cd ~/catkin_ws/src
   - git clone https://github.com/RoboSherlock/robosherlock_msgs.git
-  - cd ~/catkin_ws
+  - git clone https://github.com/RoboSherlock/uimacpp_ros.git
+  - cd ~/catkin_ws/
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-  - mkdir -p ~/local/src && cd ~/local/src/
-  - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
-  - cd ~/local/src/uimacpp
+  # - mkdir -p ~/local/src && cd ~/local/src/
+  # - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
+  # - cd ~/local/src/uimacpp
   - ls /usr/lib/jvm
   - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jawt_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jawt_md.h
   - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jni_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jni_md.h
