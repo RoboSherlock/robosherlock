@@ -56,7 +56,7 @@ before_script:
   - cd ~/catkin_ws/src
   - git clone https://github.com/RoboSherlock/robosherlock_msgs.git
   - git clone https://github.com/RoboSherlock/uimacpp_ros.git
-  - cd ~/catkin_ws/
+  - cd ~/catkin_ws
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
   # - mkdir -p ~/local/src && cd ~/local/src/
   # - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
