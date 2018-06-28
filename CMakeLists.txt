@@ -55,7 +55,7 @@ find_package(catkin REQUIRED
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
  robosherlock_msgs std_srvs libmongocxx_ros
- uima)
+ uimacpp_ros)
 
 
 find_package(Eigen3 QUIET)
@@ -75,8 +75,7 @@ find_package(PCL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
-find_package(MongoClientLibrary REQUIRED)
-find_package(uima REQUIRED)
+find_package(uimacpp_ros REQUIRED)
 find_package(ICUUC REQUIRED)
 
 find_library(LIBPRACMLN pracmln QUIET)
@@ -148,8 +147,8 @@ set(RS_LIBS
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
-  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs uima
-  DEPENDS Boost OpenCV APR PCL ICUUC MongoClientLibrary
+  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs uimacpp_ros
+  DEPENDS Boost OpenCV APR PCL ICUUC
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
@@ -167,7 +166,6 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
-  ${uima_INCLUDE_DIRS}
 )
 
 ################################################################################
