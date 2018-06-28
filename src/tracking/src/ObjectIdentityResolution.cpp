@@ -104,7 +104,7 @@ public:
     invalid(-1, -1, -1, -1), removeObjects(true), maxDifference(0.2),
     fastMatchThreshold(0.4), lastTimestamp(0), nh("~")
   {
-    //vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 1.0));
+    vecMatch.push_back(matchEntry(&matchAnnotation<rs::PoseAnnotation>, 0.75));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::TFLocation>,     0.25));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::Shape>,          1.0));
     //vecMatch.push_back(matchEntry(&matchAnnotation<rs::SemanticColor>,  1.0));
@@ -112,7 +112,7 @@ public:
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::ColorHistogram>, 1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::Features>,       1.0));
     vecMatch.push_back(matchEntry(&matchAnnotation<rs::PclFeature>,     1.0));
-    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Detection>,      1.0));
+//    vecMatch.push_back(matchEntry(&matchAnnotation<rs::Detection>,      1.0));
 
     marker_pub_ = nh.advertise<visualization_msgs::MarkerArray>("markers", 1, true);
   }

@@ -64,6 +64,7 @@ void help()
               << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
               << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
               << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
+              << "        _withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl
               << std::endl
               << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
               << "Options:" << std::endl
@@ -72,8 +73,9 @@ void help()
               << "     visualization:=true|false     Enable/disable visualization" << std::endl
               << "               vis:=true|false     shorter version for visualization" << std::endl
               << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
-              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl;
+              << "              wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
+              << "         pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
+              << "         withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl;
 
 }
 
@@ -94,7 +96,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   std::string analysisEnginesName, analysisEngineFile, savePath;
-  bool useVisualizer, waitForServiceCall, useObjIDRes=false, pervasive;
+  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive;
 
   nh.param("ae", analysisEnginesName, std::string(""));
   nh.param("analysis_engines", analysisEnginesName, analysisEnginesName);
@@ -105,6 +107,7 @@ int main(int argc, char *argv[])
 
   nh.param("save_path", savePath, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
+  nh.param("withIDRes", useObjIDRes,false);
 
   nh.deleteParam("ae");
   nh.deleteParam("analysis_engines");
