@@ -64,12 +64,12 @@ before_script:
   - ls /usr/lib/jvm
   - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jawt_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jawt_md.h
   - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jni_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jni_md.h
-  - ./autogen.sh
-  - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-8-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
-  - make -j8
-  - sudo make install
-  - ls /usr/local/lib
-  - cd ~/local/src/
+  # - ./autogen.sh
+  # - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-8-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
+  # - make -j8
+  # - sudo make install
+  # - ls /usr/local/lib
+  # - cd ~/local/src/
 #  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
 #  - cd ~/local/src/mongo-cxx-driver/
 #  - git checkout 26compat
