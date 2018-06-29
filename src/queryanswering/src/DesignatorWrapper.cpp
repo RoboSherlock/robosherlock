@@ -86,23 +86,26 @@ bool DesignatorWrapper::getObjectDesignators(std::vector<std::string> &objectDes
   {
     std::vector<rs::Cluster> clusters;
     scene.identifiables.filter(clusters);
-    process(clusters, objectDesignators);
+    std::vector<double> lastSeen;
+    lastSeen.resize(clusters.size(),0.0);
+    process(clusters, objectDesignators,lastSeen);
   }
   else
   {
     std::vector<rs::Object> allObjects, objects;
     cas.get(VIEW_OBJECTS, allObjects);
     outWarn("objects found: " << allObjects.size());
+    std::vector<double> lastSeen;
     for(size_t i = 0; i < allObjects.size(); ++i)
     {
       rs::Object &object = allObjects[i];
-      double lastSeen = (now - (uint64_t)object.lastSeen()) / 1000000000.0;
-      if(lastSeen == 0)
-      {
-        objects.push_back(object);
-      }
+      lastSeen.push_back((now - (uint64_t)object.lastSeen()) / 1000000000.0);
+      //if(lastSeen == 0)
+      //{
+      //  objects.push_back(object);
+      //}
     }
-    process(objects, objectDesignators);
+    process(allObjects, objectDesignators, lastSeen);
   }
   return true;
 }
