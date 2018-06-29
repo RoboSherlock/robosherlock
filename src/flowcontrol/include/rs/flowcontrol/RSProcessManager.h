@@ -14,7 +14,6 @@
 
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
-#include <robosherlock_msgs/RSObjectDescriptions.h>
 #include <robosherlock_msgs/RSVisControl.h>
 
 #include <mongo/client/dbclient.h>
@@ -44,7 +43,6 @@ public:
   ros::NodeHandle nh_;
   ros::ServiceServer service, singleService, setContextService, jsonService, visService;
 
-  ros::Publisher result_pub;
 
   bool waitForServiceCall_;
   const bool useVisualizer_;

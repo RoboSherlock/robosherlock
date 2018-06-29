@@ -23,7 +23,6 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
     resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
     break;
   }
-  result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
 
@@ -283,10 +282,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
     }
 
     result.insert(result.end(), filteredResponse.begin(), filteredResponse.end());
-
-    robosherlock_msgs::RSObjectDescriptions objDescriptions;
-    objDescriptions.obj_descriptions = result;
-    result_pub.publish(objDescriptions);
 
     processing_mutex_.unlock();
     return true;
