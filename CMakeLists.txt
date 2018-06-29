@@ -75,7 +75,6 @@ find_package(PCL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
-find_package(uimacpp_ros REQUIRED)
 find_package(ICUUC REQUIRED)
 
 find_library(LIBPRACMLN pracmln QUIET)
