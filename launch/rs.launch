@@ -8,7 +8,7 @@
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
   <arg name="withIDRes"        default="false"/>
-  <arg name="wait"             default="true"/>
+  <arg name="wait"             default="false"/>
 
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
