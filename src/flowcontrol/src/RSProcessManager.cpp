@@ -78,7 +78,9 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
   if(useVisualizer_)
   {
     visualizer_.start();
-    visualizer_.setActiveAnnotators(lowLvlPipeline_);
+    if (pervasive) {
+      visualizer_.setActiveAnnotators(lowLvlPipeline_);
+    }
   }
   outInfo("done intializing");
 }
