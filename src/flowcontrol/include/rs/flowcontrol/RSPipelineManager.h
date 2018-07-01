@@ -61,15 +61,17 @@ public:
 
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);
-    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
 
     original_annotator_orderings = aengine->currentOrderings;
+    original_annotator_ordering_indices = aengine->currentOrderingIndices;
 #endif
   }
 
 #ifdef WITH_JSON_PROLOG
     bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
-                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings);
+                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                       RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
 #endif
 
   void resetPipelineOrdering();
@@ -106,10 +108,9 @@ public:
 
   QueryInterface *queryInterface;
 
-  RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
-
   RSParallelPipelinePlanner parallelPlanner;
-  RSParallelPipelinePlanner::AnnotatorOrderings default_annotator_orderings;
+  RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
+  RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
 #endif
 };
 

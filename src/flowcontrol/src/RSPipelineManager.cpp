@@ -32,6 +32,7 @@ void RSPipelineManager::resetPipelineOrdering()
 
 #ifdef WITH_JSON_PROLOG
   aengine->currentOrderings = original_annotator_orderings;
+  aengine->currentOrderingIndices = original_annotator_ordering_indices;
 #endif
 
   // Set default pipeline annotators, if set
@@ -44,9 +45,6 @@ void RSPipelineManager::setDefaultPipelineOrdering(std::vector<std::string> anno
 {
   use_default_pipeline = true;
   default_pipeline_annotators = annotators;
-#ifdef WITH_JSON_PROLOG
-  querySuccess = this->planParallelPipelineOrderings(annotators, default_annotator_orderings);
-#endif
 }
 
 int RSPipelineManager::getIndexOfAnnotator(std::string annotator_name)
@@ -113,7 +111,7 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
 #ifdef WITH_JSON_PROLOG
   std::vector<std::string> currentFlow;
   this->getCurrentAnnotatorFlow(currentFlow);
-  querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings);
+  querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
 
   outInfo("Parallel pipeline after set new pipeline orderings: ");
   this->parallelPlanner.print();
@@ -123,7 +121,8 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
 #ifdef WITH_JSON_PROLOG
 
 bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &annotators,
-                                                      RSParallelPipelinePlanner::AnnotatorOrderings &orderings)
+                                                      RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                                      RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices)
 {
   bool success = true;
   if(annotators.empty())
@@ -145,6 +144,7 @@ bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &
   parallelPlanner.planPipelineStructure(dependencies);
 
   parallelPlanner.getPlannedPipeline(orderings);
+  parallelPlanner.getPlannedPipelineIndices(orderingIndices);
 
   return success;
 }

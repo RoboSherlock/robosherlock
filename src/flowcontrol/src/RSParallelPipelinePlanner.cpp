@@ -60,6 +60,20 @@ bool RSParallelPipelinePlanner::getPlannedPipeline(AnnotatorOrderings &list) con
   return true;
 }
 
+bool RSParallelPipelinePlanner::getPlannedPipelineIndices(AnnotatorOrderingIndices &list) const
+{
+  if(annotatorOrderingIndices.empty())
+  {
+    outWarn("Orderings data is empty! Return none.");
+    return false;
+  }
+
+  list.clear();
+
+  list = annotatorOrderingIndices;
+  return true;
+}
+
 bool RSParallelPipelinePlanner::planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies)
 {
   if(dependencies.empty())
@@ -98,7 +112,7 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::Anno
   }
 
   //actually there are two implementation logic: DEMAND_BASED or SUPPLY_BASED, we will try DEMAND_BASED first
-  //#pragma omp parallel for
+  #pragma omp parallel for
   for(int src_it = 0; src_it < annotatorList.size(); src_it++)
   {
     //for debug purpose
@@ -139,8 +153,6 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(JsonPrologInterface::Anno
     }
   }
 
-  //check dependency loop
-
   return true;
 }
 
@@ -154,12 +166,21 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::Annot
 
   //check for standalone annotators at orderings 0
   annotatorOrderings.push_back(std::vector<std::string>());
+  annotatorOrderingIndices.push_back(std::vector<int>());
+
   for(auto id = annotatorOrderings[0].begin(); id != annotatorOrderings[0].end(); id++)
   {
     if(dependencies[*id].second.empty())
     {
-      annotatorOrderings[annotatorOrderings.size() - 1].push_back(*id);
+      int it = id - annotatorOrderings[0].begin();
+      //update orderings
+      (annotatorOrderings.end() - 1)->push_back(*id);
+
+      //update ordering indices
+      (annotatorOrderingIndices.end()- 1)->push_back(annotatorOrderingIndices[0][it]);
+
       annotatorOrderings[0].erase(id);
+      annotatorOrderingIndices[0].erase(annotatorOrderingIndices[0].begin() + it);
       id--;
     }
   }
@@ -167,6 +188,7 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::Annot
   if(annotatorOrderings[annotatorOrderings.size() - 1].empty())
   {
     annotatorOrderings.pop_back();
+    annotatorOrderingIndices.pop_back();
   }
   else
   {
@@ -175,9 +197,15 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::Annot
     {
       if(i->compare("Trigger") == 0)
       {
+        int it = i - (annotatorOrderings.end() - 1)->begin();
         annotatorOrderings.insert(annotatorOrderings.begin(), std::vector<std::string>());
         annotatorOrderings[0].push_back(*i);
+
+        annotatorOrderingIndices.insert(annotatorOrderingIndices.begin(), std::vector<int>());
+        annotatorOrderingIndices[0].push_back((annotatorOrderingIndices.end() - 1)->at(it));
+
         (annotatorOrderings.end() - 1)->erase(i);
+        (annotatorOrderingIndices.end() - 1)->erase((annotatorOrderingIndices.end() - 1)->begin() + it);
         break;
       }
     }
@@ -188,19 +216,18 @@ bool RSParallelPipelinePlanner::refinePlannedPipeline(JsonPrologInterface::Annot
 
 bool RSParallelPipelinePlanner::labelAnnotatorOrder()
 {
-  std::vector< std::vector<int> > orderings;
-  if(!planDependencyOrderings<DirectedVertex, DirectedEdge>(dependencyGraph, orderings))
+  if(!planDependencyOrderings<DirectedVertex, DirectedEdge>(dependencyGraph, annotatorOrderingIndices))
   {
     return false;
   }
 
   annotatorOrderings.clear();
-  annotatorOrderings.resize(orderings.size());
-  for(int order = 0; order < orderings.size(); order++)
+  annotatorOrderings.resize(annotatorOrderingIndices.size());
+  for(int order = 0; order < annotatorOrderingIndices.size(); order++)
   {
-    for(int id = 0; id < orderings[order].size(); id++)
+    for(int id = 0; id < annotatorOrderingIndices[order].size(); id++)
     {
-      annotatorOrderings[order].push_back(annotatorList[orderings[order][id]]);
+      annotatorOrderings[order].push_back(annotatorList[annotatorOrderingIndices[order][id]]);
     }
   }
 

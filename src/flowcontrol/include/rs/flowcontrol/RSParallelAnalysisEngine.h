@@ -51,6 +51,10 @@ public:
                                    uima::CAS &cas,
                                    uima::ResultSpecification &annResultSpec);
 
+  uima::TyErrorId annotatorProcess(int index, // the index of current annotator flow
+                                   uima::CAS &cas,
+                                   uima::ResultSpecification &annResultSpec);
+
   uima::TyErrorId paralleledProcess(uima::CAS &cas,
                                     uima::ResultSpecification const &resSpec);
 
@@ -58,6 +62,7 @@ public:
 
 
   RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
+  RSParallelPipelinePlanner::AnnotatorOrderingIndices currentOrderingIndices;
 
 private:
 
