@@ -7,7 +7,8 @@
   <arg name="visualization"    default="$(arg vis)"/>
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
-  <arg name="wait"             default="true"/>
+  <arg name="withIDRes"        default="false"/>
+  <arg name="wait"             default="false"/>
 
   <arg name="parallel"              default="true"/>
 
@@ -29,6 +30,7 @@
     <param name="visualization"    type="bool" value="$(arg visualization)"/>
     <param name="parallel"         type="bool" value="$(arg parallel)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
+    <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
     <param name="wait"             type="bool" value="$(arg wait)"/>
   </node>
 </launch>

@@ -164,7 +164,7 @@ public:
 
   //draw results on an image
   template <class T>
-  void drawResulstOnImage(const std::vector<bool> &filter,
+  bool drawResulstOnImage(const std::vector<bool> &filter,
                           const std::vector<std::string> &resultDesignators,
                           std::string &requestJson);
 

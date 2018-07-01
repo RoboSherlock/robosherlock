@@ -173,8 +173,6 @@ private:
     computeFrustum();
 
     //default place to look for objects is counter tops except if we got queried for some different place
-    //message comes from desigantor and is not the same as the entries from the semantic map so we need
-    //to transform them
     rs::Query qs = rs::create<rs::Query>(tcas);
     std::vector<std::string> regionsToLookAt;
     regionsToLookAt.assign(defaultRegions.begin(), defaultRegions.end());
@@ -189,25 +187,23 @@ private:
 
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes (Maybe save query mode in FS?)
-      rapidjson::Pointer framePointerIn("/detect/location/in");
-      rapidjson::Pointer framePointerOn("/detect/location/on");
+      rapidjson::Pointer framePointerIn("/detect/location");
+     // rapidjson::Pointer framePointerOn("/detect/location/on");
 
       rapidjson::Value *frameJson = framePointerIn.Get(jsonDoc);
-      rapidjson::Value *frameJsonOn = framePointerIn.Get(jsonDoc);
+//      rapidjson::Value *frameJsonOn = framePointerOn.Get(jsonDoc);
       std::string newLocation;
 
       if(frameJson && frameJson->IsString())
       {
-        outInfo("");
         newLocation = frameJson->GetString();
       }
 
-      if(frameJsonOn && frameJson->IsString())
-      {
-        outInfo("");
-        newLocation = frameJsonOn->GetString();
-      }
-
+ //     if(frameJsonOn && frameJsonOn->IsString())
+ //     {
+ //       newLocation = frameJsonOn->GetString();
+ //     }
+ 
       outWarn("location set: " << newLocation);
       if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation != "")
       {
