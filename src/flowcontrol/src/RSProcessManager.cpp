@@ -80,7 +80,9 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
   if(useVisualizer_)
   {
     visualizer_.start();
-    visualizer_.setActiveAnnotators(lowLvlPipeline_);
+    if (pervasive) {
+      visualizer_.setActiveAnnotators(lowLvlPipeline_);
+    }
   }
   outInfo("done intializing");
 }
@@ -214,52 +216,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   processing_mutex_.lock();
   if(queryType == QueryInterface::QueryType::DETECT)
   {
-//    RSQuery *query = new RSQuery();
-    //  rs::DesignatorWrapper::req_designator = req;
-    //check Designator type...for some stupid reason req->type ==Designator::ACTION did not work
-
-    //these are hacks,, where we need the
-//    query->asJson = request;
-
-    //TODO maybe get rid of the RSQuery
-//    if(request != NULL)
-//    {
-//      rapidjson::Document requestJson;
-//      requestJson.Parse(request.c_str());
-//      //these checks are there for annotators that need to know
-//      // about the query and the value queried for
-//      if(requestJson.HasMember("timestamp"))
-//      {
-//        std::string ts = requestJson["timestamp"].GetString();
-//        query->timestamp = std::stoll(ts);
-//        outInfo("received timestamp:" << query->timestamp);
-//      }
-//      if(requestJson.HasMember("location"))
-//      {
-//        if(requestJson["location"].HasMember("on"))
-//        {
-//          query->location = requestJson["location"]["on"].GetString();
-
-//          outInfo("received location:" << query->location);
-//        }
-//        if(requestJson["location"].HasMember("in"))
-//        {
-//          query->location = requestJson["location"]["in"].GetString();
-//          outInfo("received location:" << query->location);
-//        }
-//      }
-//      if(requestJson.HasMember("obj-part") || requestJson.HasMember("inspect"))
-//      {
-//        query->objToInspect = requestJson["obj-part"].GetString();
-//        outInfo("received obj-part request for object: " << query->objToInspect);
-//      }
-//      if(requestJson.HasMember("ingredient"))
-//      {
-//        query->ingredient = requestJson["ingredient"].GetString();
-//        outInfo("received request for detection ingredient: " << query->ingredient);
-//      }
-//    }
-
     std::vector<std::string> resultDesignators;
 
 
