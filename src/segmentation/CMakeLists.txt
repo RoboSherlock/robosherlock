@@ -34,5 +34,3 @@ target_link_libraries(rs_segmentationResultDisplayer rs_core)
 
 rs_add_library(rs_transparentSegmentationAnnotator src/TransparentSegmentationAnnotator.cpp)
 target_link_libraries(rs_transparentSegmentationAnnotator rs_core rs_segmentation)
-
-

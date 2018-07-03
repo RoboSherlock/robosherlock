@@ -39,8 +39,7 @@
 #include <rs/types/all_types.h>
 
 //graph
-#include <rs/graph/GraphBase.hpp>
-#include <rs/graph/Graph.hpp>
+#include <rs/graph/Graph.h>
 #include <rs/graph/GraphAlgorithms.hpp>
 
 #include <rs/utils/array_utils.hpp>

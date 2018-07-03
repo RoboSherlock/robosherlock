@@ -44,8 +44,8 @@
 #include <rs/mapping/DistanceMap.hpp>
 #include <rs/mapping/DownsampleMap.hpp>
 
-#include <rs/graph/WeightedGraph.hpp>
-#include <rs/graph/Graph.hpp>
+#include <rs/graph/WeightedGraph.h>
+#include <rs/graph/Graph.h>
 #include <rs/graph/GraphAlgorithms.hpp>
 
 #include <rs/visualization/Primitives.hpp>

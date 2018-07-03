@@ -39,7 +39,7 @@
 #include <rs/segmentation/BoundarySegmentation.hpp>
 #include <rs/mapping/DistanceMap.hpp>
 #include <rs/NonLinearOptimization/Functor.hpp>
-#include <rs/graph/Graph.hpp>
+#include <rs/graph/Graph.h>
 #include <rs/graph/GraphAlgorithms.hpp>
 
 #include <rs/visualization/Primitives.hpp>
