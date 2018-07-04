@@ -32,6 +32,7 @@
 #include <ros/node_handle.h>
 #include <std_msgs/Header.h>
 #include <sensor_msgs/image_encodings.h>
+#include <robosherlock_msgs/RSActiveAnnotatorList.h>
 
 // RS
 #include <rs/DrawingAnnotator.h>
@@ -59,7 +60,7 @@ private:
   bool updateCloud;
   bool changedAnnotator;
 
-  bool save;
+  bool save, headless_;
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
@@ -67,20 +68,20 @@ private:
 
   std_msgs::Header header;
   ros::NodeHandle nh;
-  ros::Publisher pub;
+  ros::Publisher pub, pubAnnotList;
 
 public:
   static bool *trigger;
 
-  Visualizer(const std::string &savePath);
+  Visualizer(const std::string &savePath, bool headless);
   ~Visualizer();
 
   bool start();
   void stop();
   void setActiveAnnotators(std::vector<std::string> annotators);
-  void nextAnnotator();
-  void prevAnnotator();
-  bool selectAnnotator(std::string annotator);
+  std::string nextAnnotator();
+  std::string prevAnnotator();
+  std::string selectAnnotator(std::string annotator);
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
