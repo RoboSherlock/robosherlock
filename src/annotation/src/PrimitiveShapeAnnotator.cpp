@@ -305,7 +305,7 @@ public:
         {
           rs::Shape shape = rs::create<rs::Shape>(tcas);
           shape.shape.set("flat");
-          cv::putText(rgb_, "flat", cv::Point(rect.x, rect.y - 20), cv::FONT_HERSHEY_COMPLEX, 0.8, cv::Scalar(255, 255, 255), 2);
+          cv::putText(rgb_, "flat", cv::Point(rect.x, rect.y - 25), cv::FONT_HERSHEY_COMPLEX, 0.8, cv::Scalar(255, 255, 255), 2);
           shape.confidence.set(std::abs(0.25 / 2 - min_edge / max_edge) / 0.125);
           cluster.annotations.append(shape);
         }
