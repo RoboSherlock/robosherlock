@@ -16,6 +16,5 @@ target_link_libraries(rs_core
   ${catkin_LIBRARIES}
   ${OpenCV_LIBRARIES}
   ${PCL_LIBRARIES}
-  ${UIMA_LIBRARY}
 )
 add_dependencies(rs_core robosherlock_generate_type_system)
