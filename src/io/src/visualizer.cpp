@@ -243,8 +243,8 @@ void Visualizer::imageViewer()
       cv_image.toImageMsg(image_msg);
       pub.publish(image_msg);
     }
-
-    keyboardEventImageViewer(disp);
+    if(!headless_)
+      keyboardEventImageViewer(disp);
   }
   if(!headless_)
     cv::destroyWindow(windowImage);
