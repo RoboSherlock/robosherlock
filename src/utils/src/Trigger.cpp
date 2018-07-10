@@ -18,7 +18,7 @@
  */
 
 
-#include "uima/api.hpp"
+#include <uima/api.hpp>
 
 
 #include <ros/ros.h>

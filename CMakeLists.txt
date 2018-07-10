@@ -54,7 +54,8 @@ find_package(catkin REQUIRED
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
- robosherlock_msgs std_srvs libmongocxx_ros)
+ robosherlock_msgs std_srvs libmongocxx_ros
+ uimacpp_ros)
 
 
 find_package(Eigen3 QUIET)
@@ -74,7 +75,6 @@ find_package(PCL REQUIRED)
 find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 
 find_package(APR REQUIRED)
-find_package(UIMA REQUIRED)
 find_package(ICUUC REQUIRED)
 
 find_library(LIBPRACMLN pracmln QUIET)
@@ -146,8 +146,8 @@ set(RS_LIBS
 catkin_package(
   INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
-  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs
-  DEPENDS Boost OpenCV APR PCL UIMA ICUUC 
+  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs uimacpp_ros
+  DEPENDS Boost OpenCV APR PCL ICUUC
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
@@ -195,6 +195,7 @@ add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)
 add_subdirectory(src/queryanswering)
+
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
