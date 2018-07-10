@@ -29,8 +29,8 @@
 #include <algorithm>
 
 #include <uima/api.hpp>
-#include "uima/internal_aggregate_engine.hpp"
-#include "uima/annotator_mgr.hpp"
+#include <uima/internal_aggregate_engine.hpp>
+#include <uima/annotator_mgr.hpp>
 
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
