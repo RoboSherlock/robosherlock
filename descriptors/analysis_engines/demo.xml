@@ -166,6 +166,7 @@
        <node>ImageSegmentationAnnotator</node>
        <node>PointCloudClusterExtractor</node>
        <node>ClusterMerger</node>
+       <node>Cluster3DGeometryAnnotator</node>	
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
