@@ -21,10 +21,6 @@
 // OpenCV
 #include <opencv2/opencv.hpp>
 
-#if CV_VERSION_MAJOR == 3
-#include <opencv2/xfeatures2d.hpp>
-#endif
-
 //#include <opencv2/nonfree/nonfree.hpp>
 
 // RS
@@ -241,18 +237,6 @@ private:
     {
       algorithm = cv::ORB::create(30);
     }
-    else if(name == "SIFT")
-    {
-      algorithm = cv::xfeatures2d::SIFT::create(30,3,0.04,10,1.6);
-    }
-    else if(name == "SURF")
-    {
-      algorithm = cv::xfeatures2d::SURF::create();
-    }
-    else if(name == "FREAK")
-    {
-      algorithm = cv::xfeatures2d::FREAK::create(false, false);
-    }
     else if(name == "FAST")
     {
       algorithm = cv::FastFeatureDetector::create();
@@ -261,17 +245,9 @@ private:
     {
       algorithm = cv::GFTTDetector::create(1000,0.1);
     }
-    else if(name == "BRIEF")
-    {
-      algorithm = cv::xfeatures2d::BriefDescriptorExtractor::create();
-    }
     else if(name == "MSER")
     {
       algorithm = cv::MSER::create();
-    }
-    else if(name == "STAR")
-    {
-      algorithm = cv::xfeatures2d::StarDetector::create();
     }
   }
 #endif
