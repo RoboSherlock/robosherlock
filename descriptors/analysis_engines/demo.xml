@@ -145,16 +145,31 @@
           <parameter>CollectionReader/camera_config_files</parameter>
         </overrides>
       </configurationParameter>
+<configurationParameter>
+  <name>storagedb</name>
+  <type>String</type>
+  <multiValued>false</multiValued>
+  <mandatory>false</mandatory>
+  <overrides>
+    <parameter>StorageWriter/storagedb</parameter>
+  </overrides>
+</configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_kinect_robot.ini</string>
+            <string>config_data_loader.ini</string>
           </array>
         </value>
       </nameValuePair>
+      <nameValuePair>
+        <name>storagedb</name>
+        <value>
+         <string>UTest</string>
+        </value>
+      </nameValuePair>	
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
@@ -167,6 +182,7 @@
        <node>PointCloudClusterExtractor</node>
        <node>ClusterMerger</node>
        <node>Cluster3DGeometryAnnotator</node>	
+       <node>StorageWriter</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

@@ -1,6 +1,6 @@
 <launch>
   <!-- Analysis engines to execute, comma separated list: eninge1,engine2,... -->
-  <arg name="ae"               default="my_demo"/> <!-- Short version for analysis_engines -->
+  <arg name="ae"               default="demo"/> <!-- Short version for analysis_engines -->
   <arg name="analysis_engines" default="$(arg ae)"/>
   <!-- Enable / disable visualization -->
   <arg name="vis"              default="true"/> <!-- Short version for visualization -->
@@ -21,7 +21,7 @@
   <!-- Default machine definition. -->
   <machine name="localhost" address="localhost" if="$(arg define_machine)"/>
 
-  <!-- launch robosherlock with the pipeline defined in my_demo.xml-->
+  <!-- launch robosherlock with the pipeline defined in demo.xml-->
   <node name="RoboSherlock" pkg="robosherlock"  machine="$(arg machine)" type="run" output="screen"
         launch-prefix="$(arg launch-prefix)">
     <param name="analysis_engines" type="str"  value="$(arg analysis_engines)"/>

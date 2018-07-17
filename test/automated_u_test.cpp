@@ -23,6 +23,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <gtest/gtest.h>
 #include <errno.h>
 #include <sys/stat.h>
 #include <thread>
@@ -31,10 +32,10 @@
 #include <condition_variable>
 
 #include <ros/ros.h>
-
+#include <rs/flowcontrol/RSProcessManager.h>
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
-
+#include <rs/io/Storage.h>
 #include <ros/ros.h>
 #include <ros/package.h>
 
@@ -65,7 +66,7 @@ int main(int argc, char *argv[])
 {
   
   char *userEnv = getenv("USER");
-
+  mongo::client::GlobalInstance instance;
   if(userEnv!=NULL)
   {
     ros::init(argc, argv, std::string("RoboSherlock_") +std::string(userEnv));
@@ -94,16 +95,19 @@ int main(int argc, char *argv[])
       return 0;
     }
   }
-
+  cout << "Pre analysis engine \n";
   priv_nh.param("ae", analysisEnginesArg, std::string("demo"));
   priv_nh.param("analysis_engines", analysisEnginesArg, analysisEnginesArg);
+  cout << "Post analysis engine \n";
+  cin.get();
 
   analysisEngines.push_back(analysisEnginesArg);
-
+  cout << "AE push_back work fine \n"; cin.get();
   std::vector<std::string> analysisEngineFiles;
   std::ostringstream engineList;
-  for(int i = 0; i < analysisEngines.size(); ++i)
-  {
+   for(int i = 0; i < analysisEngines.size(); ++i)
+   {
+    cout << "This is an analyis engine " << analysisEngines[i] <<'\n'; cin.get();
     const std::string &engine = analysisEngines[i];
     std::string engineFile;
     rs::common::getAEPaths(engine,engineFile);
@@ -125,6 +129,7 @@ int main(int argc, char *argv[])
     help();
     return -1;
   }
+  
   std::string engine_file = analysisEngineFiles[0];
   outInfo("startup parameters:" << std::endl
           << "analysis_engines: " << engineList.str());
@@ -134,7 +139,7 @@ int main(int argc, char *argv[])
   uima::ErrorInfo errorInfo;
   uima::AnalysisEngine *engine = uima::Framework::createAnalysisEngine(engine_file.c_str(), errorInfo);
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-
+  
   std::string name;
 
   data.getName().toUTF8String(name);
@@ -155,13 +160,13 @@ int main(int argc, char *argv[])
   ustrInputText.fromUTF8(name);
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
-
+ 
   const uima::AnalysisEngineMetaData &aeMetaData = engine->getAnalysisEngineMetaData();
   std::string aeDescription;
   aeMetaData.getDescription().toUTF8String(aeDescription);
   uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
   uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
-
+  	
   //prints all annotatores imported in the xml (not just in the fixed flow)
   std::cerr<<"========================================"<<std::endl;
   for(auto d:delegates)
@@ -173,16 +178,29 @@ int main(int argc, char *argv[])
   std::cerr<<"========================================"<<std::endl;
 
   //we process here
-  uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-  for(int i = 0; casIter.hasNext(); ++i)
-  {
-   uima::CAS &outCas = casIter.next();
-   std::cerr<<"release CAS " << i<<std::endl;
-   engine->getAnnotatorContext().releaseCAS(outCas);
-  }
+  cout << "The error is here"; cin.get();
+  cout << "The error is out"; cin.get();
+  //cout << casIter.hasNext() << '\n';
+ try
+    {
+      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+      
+      for(int i = 0; casIter.hasNext(); ++i)
+      {
+        uima::CAS &outCas = casIter.next();
 
+        // release CAS
+        outInfo("release CAS " << i);
+        engine->getAnnotatorContext().releaseCAS(outCas);
+      }
+    }
+    catch(const rs::FrameFilterException &)
+    {
+    }
+     cout << "\n \n \n \n**************************************************************************** \n \n \n"; cin.get();
   UnicodeString ucs_delegate("CollectionReader");
   uima::AnnotatorContext *cr_context =  annotContext.extractDelegate(ucs_delegate);
+
   if(cr_context->isParameterDefined("camera_config_files"))
   {
     std::vector<std::string *> values;
@@ -190,6 +208,7 @@ int main(int argc, char *argv[])
     for (auto v:values)
     {
        std::cerr<<*v<<std::endl;
+	
     }
   }
 
@@ -198,16 +217,21 @@ int main(int argc, char *argv[])
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs);
   engine->reconfigure();
-
-  casIter = engine->processAndOutputNewCASes(*cas);
+  try
+  {
+  uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
   for(int i = 0; casIter.hasNext(); ++i)
   {
    uima::CAS &outCas = casIter.next();
    std::cerr<<"release CAS " << i<<std::endl;
    engine->getAnnotatorContext().releaseCAS(outCas);
   }
+  }
+  catch(const rs::FrameFilterException &){}
   engine->collectionProcessComplete();
   engine->destroy();
+  cout << "This is the end of the program";
+  cin.get();
 
   return 0;
 }
