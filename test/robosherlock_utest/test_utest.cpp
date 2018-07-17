@@ -1,4 +1,6 @@
 #include <string>
+#include <sys/stat.h>
+#include <stdio.h>
 #include <gtest/gtest.h>
 #include "rs/flowcontrol/RSAnalysisEngineManager.h"
 #include "rs/flowcontrol/RSPipelineManager.h"
@@ -36,8 +38,11 @@ TEST_F(ExampleTest, FirstUnitTest)
 {
   
   std::vector<std::string> engineList = {"CollectionReader"};
-  outInfo(engineList);
-  engine.process(); 
+  for (std::string n:engineList)
+	{
+	   outInfo(n << '\n');
+	}
+  engine.process();
 
   
   uima::CAS* tcas = engine.getCas();
