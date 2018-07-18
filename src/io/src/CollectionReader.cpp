@@ -272,6 +272,7 @@ public:
       {
         delete cameras_[i];
       }
+      cameras_.clear();
 
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);

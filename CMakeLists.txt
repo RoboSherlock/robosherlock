@@ -195,7 +195,6 @@ add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)
 add_subdirectory(src/queryanswering)
-
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
@@ -206,8 +205,8 @@ add_subdirectory(src/queryanswering)
 
 catkin_add_gtest(${PROJECT_NAME}-test
     #test/main.cpp
-    test/automated_u_test.cpp)
-    #test/robosherlock/test.cpp)
+    #test/automated_u_test.cpp)
+    test/robosherlock/test.cpp)
     #test/robosherlock_utest/test_utest.cpp)
     #test/test_reconfig/test_reconfig.cpp)
     #test/segmentation/symmetry_segmentation_test.cpp)

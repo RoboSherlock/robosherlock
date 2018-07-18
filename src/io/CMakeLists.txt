@@ -31,3 +31,5 @@ target_link_libraries(rs_CollectionReader rs_core rs_io)
 
 rs_add_library(rs_TFBroadcaster src/TFBroadcaster.cpp)
 target_link_libraries(rs_TFBroadcaster rs_core)
+
+rs_add_executable(automated_u_test src/automated_u_test.cpp)
