@@ -31,8 +31,8 @@ using namespace rs;
 
 bool *Visualizer::trigger = NULL;
 
-Visualizer::Visualizer(const std::string &savePath) : windowImage("Image Viewer"), windowCloud("Cloud Viewer"), annotator(NULL), names(), index(0),
-  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh("~")
+Visualizer::Visualizer(const std::string &savePath, bool headless) : windowImage("Image Viewer"), windowCloud("Cloud Viewer"), annotator(NULL), names(), index(0),
+  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh("~"), headless_(headless)
 {
   this->savePath = savePath;
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -61,12 +61,14 @@ bool Visualizer::start()
   activeAnnotators = names;
 
   pub = nh.advertise<sensor_msgs::Image>("output_image", 1, true);
+  pubAnnotList = nh.advertise<robosherlock_msgs::RSActiveAnnotatorList>("vis/active_annotators", 1, true);
 
   index = 0;
   annotator = DrawingAnnotator::getAnnotator(names[index]);
 
   imageViewerThread = std::thread(&Visualizer::imageViewer, this);
-  cloudViewerThread = std::thread(&Visualizer::cloudViewer, this);
+  if(!headless_)
+    cloudViewerThread = std::thread(&Visualizer::cloudViewer, this);
   running = true;
   return true;
 }
@@ -78,8 +80,10 @@ void Visualizer::stop()
   {
     running = false;
     imageViewerThread.join();
-    cloudViewerThread.join();
+    if(!headless_)
+      cloudViewerThread.join();
     pub.shutdown();
+    pubAnnotList.shutdown();
   }
   outInfo("visualizer stopped!");
 }
@@ -128,17 +132,22 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
 
 void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
 {
-    std::vector<std::string> activeDrawingAnnotators(names.size());
-    std::vector<std::string>::iterator it;
-    std::sort(annotators.begin(),annotators.end());
-    std::sort(names.begin(),names.end());
-    it = std::set_intersection(annotators.begin(),annotators.end(),names.begin(),names.end(),activeDrawingAnnotators.begin());
-    activeDrawingAnnotators.resize(it-activeDrawingAnnotators.begin());
-    activeAnnotators = activeDrawingAnnotators;
+  std::vector<std::string> activeDrawingAnnotators(names.size());
+  std::vector<std::string>::iterator it;
+  std::sort(annotators.begin(), annotators.end());
+  std::sort(names.begin(), names.end());
+  it = std::set_intersection(annotators.begin(), annotators.end(), names.begin(), names.end(), activeDrawingAnnotators.begin());
+  activeDrawingAnnotators.resize(it - activeDrawingAnnotators.begin());
+  activeAnnotators = activeDrawingAnnotators;
+
+  robosherlock_msgs::RSActiveAnnotatorList listMsg;
+  listMsg.annotators = activeAnnotators;
+  pubAnnotList.publish(listMsg);
+
 }
 
 
-void Visualizer::nextAnnotator()
+std::string Visualizer::nextAnnotator()
 {
   lock.lock();
   index = (index + 1) % activeAnnotators.size();
@@ -149,9 +158,10 @@ void Visualizer::nextAnnotator()
   changedAnnotator = true;
   lock.unlock();
   outDebug("switching to annotator: " << activeAnnotators[index]);
+  return activeAnnotators[index];
 }
 
-void Visualizer::prevAnnotator()
+std::string Visualizer::prevAnnotator()
 {
   lock.lock();
   index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
@@ -162,20 +172,22 @@ void Visualizer::prevAnnotator()
   changedAnnotator = true;
   lock.unlock();
   outDebug("switching to annotator: " << activeAnnotators[index]);
+  return activeAnnotators[index];
 }
 
-bool Visualizer::selectAnnotator(std::string anno){
-    lock.lock();
-    ptrdiff_t pos = distance(activeAnnotators.begin(), find(activeAnnotators.begin(), activeAnnotators.end(), anno));
-    index = pos;
-    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-    annotator->update = false;
-    updateImage = true;
-    updateCloud = true;
-    changedAnnotator = true;
-    lock.unlock();
-    outDebug("switching to annotator: " << activeAnnotators[index]);
-    return true;
+std::string Visualizer::selectAnnotator(std::string anno)
+{
+  lock.lock();
+  ptrdiff_t pos = distance(activeAnnotators.begin(), find(activeAnnotators.begin(), activeAnnotators.end(), anno));
+  index = pos;
+  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+  annotator->update = false;
+  updateImage = true;
+  updateCloud = true;
+  changedAnnotator = true;
+  lock.unlock();
+  outDebug("switching to annotator: " << activeAnnotators[index]);
+  return activeAnnotators[index];
 }
 
 
@@ -206,10 +218,12 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
-  cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
-  //cv::moveWindow(windowImage, 0, 0);
-  cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
-
+  if(!headless_)
+  {
+    cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
+    //cv::moveWindow(windowImage, 0, 0);
+    cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
+  }
   for(; ros::ok();)
   {
     checkAnnotator();
@@ -219,7 +233,8 @@ void Visualizer::imageViewer()
       updateImage = false;
       annotator->drawImage(disp);
       cv::putText(disp, "Annotator: " + activeAnnotators[index], pos, font, sizeText, color, lineText, CV_AA);
-      cv::imshow(windowImage, disp);
+      if(!headless_)
+        cv::imshow(windowImage, disp);
 
       sensor_msgs::Image image_msg;
       cv_bridge::CvImage cv_image;
@@ -228,10 +243,11 @@ void Visualizer::imageViewer()
       cv_image.toImageMsg(image_msg);
       pub.publish(image_msg);
     }
-
-    keyboardEventImageViewer(disp);
+    if(!headless_)
+      keyboardEventImageViewer(disp);
   }
-  cv::destroyWindow(windowImage);
+  if(!headless_)
+    cv::destroyWindow(windowImage);
   cv::waitKey(100);
 }
 
@@ -285,12 +301,12 @@ void Visualizer::cloudViewer()
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
 
-int key;
+  int key;
 #if CV_MAJOR_VERSION==3
   key = cv::waitKeyEx(10);
 #else
   key = cv::waitKey(10);
-#endif  
+#endif
   if(key == 0)
   {
     return;

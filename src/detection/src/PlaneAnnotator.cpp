@@ -169,7 +169,7 @@ private:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    cas.get(VIEW_COLOR_IMAGE_HD, image_);
+    cas.get(VIEW_COLOR_IMAGE, image_);
 
     foundPlane = false;
 
@@ -207,7 +207,7 @@ private:
     rs::SceneCas cas(tcas);
 
     sensor_msgs::CameraInfo camInfo;
-    cas.get(VIEW_CAMERA_INFO_HD, camInfo);
+    cas.get(VIEW_CAMERA_INFO, camInfo);
     readCameraInfo(camInfo);
 
     std::vector<rs::Board> boards;
@@ -585,7 +585,7 @@ private:
       disp = cv::Mat::zeros(image_.rows, image_.cols, CV_8UC3);
       return;
     }
-    else if(foundPlane && image_.size().area() !=cloud->size())
+    else if(foundPlane && image_.size().area() != cloud->size())
     {
       disp = cv::Mat::zeros(480, 640, CV_8UC3);
       return;
