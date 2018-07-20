@@ -79,7 +79,7 @@ private:
 
 public:
   ImagePreprocessor() : DrawingAnnotator(__func__), borderErosion(6), borderDilation(12),
-    pointSize(1), displayMode(MASK), pclDispMode(PCL_RGBD), nh_("~")
+    pointSize(1), displayMode(RGBD), pclDispMode(PCL_RGBD), nh_("~")
   {
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     thermalCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);

@@ -1,10 +1,10 @@
 #include <rs/flowcontrol/RSProcessManager.h>
 
 RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
-                                   ros::NodeHandle n, const std::string& savePath):
+                                   ros::NodeHandle n, const std::string &savePath):
   engine_(n), inspectionEngine_(n), nh_(n), waitForServiceCall_(waitForServiceCall),
   useVisualizer_(useVisualizer), useIdentityResolution_(false),
-  pause_(true), inspectFromAR_(false), visualizer_(savePath)
+  pause_(true), inspectFromAR_(false), visualizer_(savePath, !useVisualizer)
 {
 
   outInfo("Creating resource manager");
@@ -27,7 +27,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
 
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
 
-  visService = nh_.advertiseService("vis_command",&RSProcessManager::visControlCallback,this);
+  visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
 
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
@@ -77,12 +77,10 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
 
   parallel_ = parallel;
 
-  if(useVisualizer_)
+  visualizer_.start();
+  if(pervasive)
   {
-    visualizer_.start();
-    if (pervasive) {
-      visualizer_.setActiveAnnotators(lowLvlPipeline_);
-    }
+    visualizer_.setActiveAnnotators(lowLvlPipeline_);
   }
   outInfo("done intializing");
 }
@@ -118,29 +116,39 @@ void RSProcessManager::run()
 
 void RSProcessManager::stop()
 {
-  if(useVisualizer_)
-  {
-    visualizer_.stop();
-  }
+
+  visualizer_.stop();
   engine_.resetCas();
   engine_.stop();
 }
 
 
 bool RSProcessManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-                        robosherlock_msgs::RSVisControl::Response &res){
-    std::string command = req.command;
-    bool result = true;
-    if(command == "next"){
-        visualizer_.nextAnnotator();
+    robosherlock_msgs::RSVisControl::Response &res)
+{
+  std::string command = req.command;
+  bool result = true;
+  std::string activeAnnotator = "";
+  if(command == "next")
+  {
+    activeAnnotator = visualizer_.nextAnnotator();
 
-    } else if(command == "previous"){
-        visualizer_.prevAnnotator();
-    } else if(command != ""){
-        result = visualizer_.selectAnnotator(command);
-    }
-    res.success = result;
-    return result;
+  }
+  else if(command == "previous")
+  {
+    activeAnnotator = visualizer_.prevAnnotator();
+  }
+  else if(command != "")
+  {
+    activeAnnotator = visualizer_.selectAnnotator(command);
+  }
+  if(activeAnnotator == "")
+    result = false;
+
+  res.success = result;
+
+  res.active_annotator = activeAnnotator;
+  return result;
 }
 
 bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request &req,
@@ -290,7 +298,8 @@ bool RSProcessManager::renderOffscreen(std::string object)
 
   std::for_each(newPipelineOrder.begin(), newPipelineOrder.end(), [](std::string & p)
   {
-    outInfo(p);  });
+    outInfo(p);
+  });
   std::vector<std::string> resultDesignators;
   outInfo(FG_BLUE << "Executing offscreen rendering pipeline");
   engine_.process(newPipelineOrder, true, resultDesignators, query);

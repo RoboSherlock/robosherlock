@@ -53,7 +53,7 @@ private:
   bool useThermal, useRGB;
   bool receiveRGB;
   float radiusSearch;
-  cv::Mat rgb_;
+  cv::Mat rgb_, normalsImg_;
   enum
   {
     PCL_RGBD,
@@ -124,7 +124,8 @@ public:
     }
     if(useRGB && cas.get(VIEW_CLOUD, *cloud_ptr))
     {
-      outInfo("Cloud Size: "<<cloud_ptr->points.size());
+      cas.get(VIEW_COLOR_IMAGE, rgb_);
+      outInfo("Cloud Size: " << cloud_ptr->points.size());
       if(cloud_ptr->isOrganized())
       {
         compute_normals_pcl(cloud_ptr, normals_ptr);
@@ -136,7 +137,19 @@ public:
         cas.set(VIEW_NORMALS, *normals_ptr);
       }
 
+
+
       filter_NaN_points(cloud_ptr, normals_ptr, cloud_non_nan, normals_non_nan, non_NaN_ids.indices);
+
+      normalsImg_ = cv::Mat::zeros(rgb_.size(), CV_32FC3);
+      for(int i = 0; i < non_NaN_ids.indices.size(); ++i)
+      {
+        int x =  non_NaN_ids.indices[i] % rgb_.cols;
+        int y =  non_NaN_ids.indices[i] / rgb_.cols;
+        normalsImg_.at<cv::Vec3f>(y, x) = cv::normalize(cv::Vec3f(normals_ptr->points[non_NaN_ids.indices[i]].normal_x,
+                                          normals_ptr->points[non_NaN_ids.indices[i]].normal_y,
+                                          normals_ptr->points[non_NaN_ids.indices[i]].normal_z));
+      }
 
       rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
       rcp.indices.set(rs::conversion::to(tcas, non_NaN_ids));
@@ -162,7 +175,7 @@ public:
   {
     pcl::NormalEstimation<pcl::PointXYZRGBA, pcl::Normal> ne;
     ne.setInputCloud(cloud_ptr);
-    pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA>());
+    pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree(new pcl::search::KdTree<pcl::PointXYZRGBA>());
     ne.setSearchMethod(tree);
     ne.setRadiusSearch(radiusSearch);
     outInfo("Normal Radius search = " << radiusSearch);
@@ -231,7 +244,17 @@ public:
     return true;
   }
 
-  void drawImageWithLock(cv::Mat &disp)  {}
+  void drawImageWithLock(cv::Mat &disp)
+  {
+
+    cv::Mat normalizedImg;
+    cv::normalize(normalsImg_, normalizedImg, 0, 1.0, cv::NORM_MINMAX);    // 0 to 1.0
+    cv::Mat flowBgr;
+    normalizedImg.convertTo(flowBgr, CV_8UC3, 255.0);
+
+    disp = flowBgr.clone();
+  }
+
 };
 
 MAKE_AE(NormalEstimator)

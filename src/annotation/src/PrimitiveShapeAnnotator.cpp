@@ -58,6 +58,8 @@ private:
   typedef pcl::PointXYZRGBA PointT;
   pcl::PointCloud<PointT>::Ptr dispCloudPtr_;
 
+  cv::Mat rgb_;
+
 public:
   PrimitiveShapeAnnotator(): DrawingAnnotator(__func__)
   {
@@ -95,6 +97,7 @@ public:
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_NORMALS, *normal_ptr);
+    cas.get(VIEW_COLOR_IMAGE, rgb_);
 
     scene.identifiables.filter(clusters);
     scene.annotations.filter(planes);
@@ -126,6 +129,12 @@ public:
       pcl::PointIndices::Ptr cluster_indices(new pcl::PointIndices);
       rs::ReferenceClusterPoints clusterpoints(cluster.points());
       rs::conversion::from(clusterpoints.indices(), *cluster_indices);
+
+      //visualization
+      rs::ImageROI imageRoi(cluster.rois());
+      cv::Rect rect;
+      rs::conversion::from(imageRoi.roi(), rect);
+      cv::rectangle(rgb_, rect, rs::common::cvScalarColors[idx % clusters.size()], 2);
 
       pcl::PointCloud<PointT>::Ptr cluster_cloud(new pcl::PointCloud<PointT>());
       pcl::PointCloud<PointT>::Ptr cluster_projected(new pcl::PointCloud<PointT>());
@@ -223,12 +232,12 @@ public:
         *dispCloudPtr_ += *cluster_projected;
         shapeAnnot.shape.set("box");
         shapeAnnot.confidence.set((float)line_inliers->indices.size() / cluster_projected->points.size());
+        cv::putText(rgb_, "box", cv::Point(rect.x, rect.y - 10), cv::FONT_HERSHEY_COMPLEX, 0.8, cv::Scalar(255, 255, 255), 2);
         cluster.annotations.append(shapeAnnot);
       }
 
       else if((float)circle_inliers->indices.size() / cluster_projected->points.size() > 0.3)
       {
-
         circles_found++;
         outInfo("Circle Model Coefficients:");
         outInfo("x= " << circle_coefficients->values[0] << " y= " << circle_coefficients->values[1] << " z= " << circle_coefficients->values[1] << " R= "
@@ -279,6 +288,7 @@ public:
         extract.setNegative(false);
         extract.filter(*circle);
         shapeAnnot.shape.set("round");
+        cv::putText(rgb_, "round", cv::Point(rect.x, rect.y - 10), cv::FONT_HERSHEY_COMPLEX, 0.8, cv::Scalar(255, 255, 255), 2);
         shapeAnnot.confidence.set((float)circle_inliers->indices.size() / cluster_projected->points.size());
         cluster.annotations.append(shapeAnnot);
       }
@@ -295,6 +305,7 @@ public:
         {
           rs::Shape shape = rs::create<rs::Shape>(tcas);
           shape.shape.set("flat");
+          cv::putText(rgb_, "flat", cv::Point(rect.x, rect.y - 25), cv::FONT_HERSHEY_COMPLEX, 0.8, cv::Scalar(255, 255, 255), 2);
           shape.confidence.set(std::abs(0.25 / 2 - min_edge / max_edge) / 0.125);
           cluster.annotations.append(shape);
         }
@@ -304,9 +315,9 @@ public:
     }
     return UIMA_ERR_NONE;
   }
-  void drawImageWithLock(cv::Mat)
+  void drawImageWithLock(cv::Mat &disp)
   {
-
+    disp = rgb_.clone();
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
