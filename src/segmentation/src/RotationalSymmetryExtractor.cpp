@@ -20,7 +20,11 @@
 
 #include <rs/segmentation/RotationalSymmetryExtractor.h>
 
-RotationalSymmetryExtractor::RotationalSymmetryExtractor() {}
+RotationalSymmetryExtractor::RotationalSymmetryExtractor()
+{
+  this->cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
+  this->normals.reset(new pcl::PointCloud<pcl::Normal>());
+}
 
 RotationalSymmetryExtractor::~RotationalSymmetryExtractor() {}
 
