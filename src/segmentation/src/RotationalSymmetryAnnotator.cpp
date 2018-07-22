@@ -19,7 +19,6 @@
 
 #include <uima/api.hpp>
 #include <vector>
-#include <omp.h>
 
 //PCL include
 #include <pcl/point_cloud.h>
@@ -33,16 +32,9 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/utils/array_utils.hpp>
-#include <rs/segmentation/RotationalSymmetry.hpp>
-#include <rs/segmentation/RotationalSymmetryScoring.hpp>
-#include <rs/segmentation/BoundarySegmentation.hpp>
-#include <rs/mapping/DistanceMap.hpp>
-#include <rs/NonLinearOptimization/Functor.hpp>
-#include <rs/graph/Graph.h>
-#include <rs/graph/GraphAlgorithms.hpp>
-
 #include <rs/visualization/Primitives.hpp>
+
+#include <rs/segmentation/RotationalSymmetryExtractor.h>
 
 
 using namespace uima;
@@ -50,43 +42,13 @@ using namespace uima;
 class RotationalSymmetryAnnotator : public DrawingAnnotator
 {
 private:
-  //container for inital symmetries usign PCA solver
-  std::vector< std::vector<RotationalSymmetry> > segmentInitialSymmetries;
-  std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segmentClouds;
-  std::vector< std::vector<float> > symSupportSizes;
-  std::vector< pcl::PointCloud<pcl::Normal>::Ptr > segmentNormals;
-  std::vector<pcl::PointIndices> segments;
-  std::vector<Eigen::Vector3f> segment_centroids;
-
-  //container for refined symmetries
-  std::vector< std::vector<RotationalSymmetry> > segmentRefinedSymmetries;
-
-  //container for segment level score
-  std::vector< std::vector<float> > segmentSymScores;
-  std::vector< std::vector<float> > segmentOcclusionScores;
-  std::vector< std::vector<float> > segmentPerpendicularScores;
-  std::vector< std::vector<float> > segmentCoverageScores;
-
-  //container for point level score
-  std::vector< std::vector< std::vector<float> > > pointSymScores;
-  std::vector< std::vector< std::vector<float> > > pointOcclusionScores;
-  std::vector< std::vector< std::vector<float> > > pointPerpendicularScores;
-
-  //container for filtered symmetries id
-  std::vector< std::vector<int> > filteredSymmetries;
-  std::vector< std::vector<int> > bestSymmetries;
-
-  //container for final output to CAS
-  std::vector<RotationalSymmetry> finalSymmetries;
-
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
 
-  boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  std::vector<Eigen::Vector4f> boundingPlanes; // this plane will be extracted from PlaneAnnotator
+  RotationalSymmetryExtractor extractor;
 
-  int numSegments;
+  //container for final output to CAS
+  std::vector<RotationalSymmetry> symmetries;
 
-  //parameters
   float rotSymAnn_min_fit_angle;
   float rotSymAnn_max_fit_angle;
 
@@ -111,7 +73,7 @@ private:
 public:
   RotationalSymmetryAnnotator () : DrawingAnnotator(__func__), pointSize(1.0)
   {
-    cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -136,6 +98,20 @@ public:
     ctx.extractValue("max_angle_diff", max_angle_diff);
     ctx.extractValue("max_dist_diff", max_dist_diff);
 
+    extractor.initialize(rotSymAnn_min_fit_angle,
+                         rotSymAnn_max_fit_angle,
+                         rotSymAnn_min_occlusion_dist,
+                         rotSymAnn_max_occlusion_dist,
+                         rotSymAnn_max_sym_score,
+                         rotSymAnn_max_occlusion_score,
+                         rotSymAnn_max_perpendicular_score,
+                         rotSymAnn_min_coverage_score,
+                         dist_map_resolution,
+                         boundaryRadiusSearch,
+                         boundaryAngleThreshold,
+                         max_angle_diff,
+                         max_dist_diff);
+
     return UIMA_ERR_NONE;
   }
 
@@ -154,15 +130,14 @@ public:
     rs::Scene scene = cas.getScene();
 
     //get RGB objects cloud
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr normals (new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
-    if(cloud_ptr->size() == 0)
+    cas.get(VIEW_CLOUD_OBJECTS, *cloud);
+    if(cloud->size() == 0)
     {
       outInfo("Input Object cloud address is empty! Using cleaned cloud");
       rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
       cas.getFS(VIEW_CLOUD_NON_NAN, rcp);
-      rs::conversion::from(rcp.cloud(), *cloud_ptr);
+      rs::conversion::from(rcp.cloud(), *cloud);
       rs::conversion::from(rcp.normals(), *normals);
     }
     else
@@ -170,132 +145,39 @@ public:
       //get normal cloud
       cas.get(VIEW_NORMALS_OBJECTS, *normals);
     }
-    cloud = cloud_ptr;
+    extractor.setInputClouds(cloud, normals);
 
     //get segments
+    std::vector<pcl::PointIndices> segments;
     cas.get(VIEW_SEGMENT_IDS, segments);
-
-    //clearing for consecutive frame
-    segmentInitialSymmetries.clear();
-    segmentRefinedSymmetries.clear();
-    segmentClouds.clear();
-    symSupportSizes.clear();
-    segmentNormals.clear();
-    segment_centroids.clear();
-    segmentSymScores.clear();
-    segmentOcclusionScores.clear();
-    segmentPerpendicularScores.clear();
-    segmentCoverageScores.clear();
-    pointSymScores.clear();
-    pointOcclusionScores.clear();
-    pointPerpendicularScores.clear();
-    filteredSymmetries.clear();
-    bestSymmetries.clear();
-    finalSymmetries.clear();
-    boundingPlanes.clear();
-
-    //allocating containers
-    numSegments = segments.size();
-    segmentInitialSymmetries.resize(numSegments);
-    segmentRefinedSymmetries.resize(numSegments);
-    segmentClouds.resize(numSegments);
-    symSupportSizes.resize(numSegments);
-    segmentNormals.resize(numSegments);
-    segment_centroids.resize(numSegments);
-    segmentSymScores.resize(numSegments);
-    segmentOcclusionScores.resize(numSegments);
-    segmentPerpendicularScores.resize(numSegments);
-    segmentCoverageScores.resize(numSegments);
-    pointSymScores.resize(numSegments);
-    pointOcclusionScores.resize(numSegments);
-    pointPerpendicularScores.resize(numSegments);
-    filteredSymmetries.resize(numSegments);
-    bestSymmetries.resize(numSegments);
+    extractor.setInputSegmentIds(segments);
 
     //get bounding planes
     std::vector<rs::Plane> planes;
     scene.annotations.filter(planes);
-    boundingPlanes.resize(planes.size());
-    if(planes.empty())
+    if(!planes.empty())
     {
-      outWarn("Planes are not found! Using default plane z=0");
-      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
+      extractor.setInputPlanes(planes);
     }
-    else
-    {
-      for(size_t planeId = 0; planeId < planes.size(); planeId++)
-      {
-        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
-      }
-    }
-
-    //initialize distance map
-    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(boundingPlanes);
-    dist_map->setInputCloud(cloud);
 
     //main execution
-    #pragma omp parallel for
-    for(size_t segmentId = 0; segmentId < numSegments; segmentId++)
+    if(!extractor.extract())
     {
-      //extract cloud segments
-      segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      segmentNormals[segmentId].reset(new pcl::PointCloud<pcl::Normal>);
-      pcl::copyPointCloud(*cloud, segments[segmentId], *segmentClouds[segmentId]);
-      pcl::copyPointCloud(*normals, segments[segmentId], *segmentNormals[segmentId]);
-
-      //extract cloud with no boundary
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr non_boundary_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
-      pcl::PointCloud<pcl::Normal>::Ptr non_boundary_normal(new pcl::PointCloud<pcl::Normal>);
-      std::vector<int> boundary_indices, non_boundary_indices;
-      extractBoundaryCloud<pcl::PointXYZRGBA, pcl::Normal>(segmentClouds[segmentId], segmentNormals[segmentId], boundary_indices, non_boundary_indices, boundaryRadiusSearch, boundaryAngleThreshold);
-      pcl::copyPointCloud(*segmentClouds[segmentId], non_boundary_indices, *non_boundary_cloud);
-      pcl::copyPointCloud(*segmentNormals[segmentId], non_boundary_indices, *non_boundary_normal);
-
-      //detect initial symmetries on each cloud segment using PCA, result 3 symmetries on 3 dimension
-      detectInitialSymmetries<pcl::PointXYZRGBA>(segmentClouds[segmentId], segmentInitialSymmetries[segmentId], segment_centroids[segmentId]);
-
-      //refind symmteries using LevenbergMarquardt algorithm (damped least squared fitting)
-      refineSymmtries<pcl::PointXYZRGBA>(non_boundary_cloud,
-                                         non_boundary_normal,
-                                         segment_centroids[segmentId],
-                                         symSupportSizes[segmentId],
-                                         *dist_map,
-                                         segmentInitialSymmetries[segmentId],
-                                         segmentRefinedSymmetries[segmentId],
-                                         segmentSymScores[segmentId],
-                                         segmentOcclusionScores[segmentId],
-                                         segmentPerpendicularScores[segmentId],
-                                         segmentCoverageScores[segmentId],
-                                         pointSymScores[segmentId],
-                                         pointOcclusionScores[segmentId],
-                                         pointPerpendicularScores[segmentId]);
-
-      //filter out bad estimated symmetries by bounding scores
-      this->filterSymmetries(segmentId);
-
-      //get best representation symmetry of a segment based on occlusion scores
-      this->getBestSymmetryID(segmentId);
+      outError("Extractor has exceptions! Aborting!");
     }
 
-    //create linear container of symmetries for merging similar symmetries
-    std::vector<RotationalSymmetry> unmergedSymmetries;
-    std::vector<float> unmergedSupportSizes;
-    linearizeSegmentData<RotationalSymmetry>(segmentRefinedSymmetries, unmergedSymmetries, bestSymmetries);
-    linearizeSegmentData<float>(symSupportSizes, unmergedSupportSizes, bestSymmetries);
-
-    mergeSymmetries(unmergedSymmetries, unmergedSupportSizes, finalSymmetries);
+    extractor.getSymmetries(symmetries);
 
     //convert RotationalSymmetry to CAS Symmetries and push to CAS
     std::vector<rs::RotationalSymmetry> casSymmetries;
-    for(size_t it = 0; it < finalSymmetries.size(); it++)
+    for(size_t it = 0; it < symmetries.size(); it++)
     {
       rs::RotationalSymmetry currSym = rs::create<rs::RotationalSymmetry>(tcas);
       rs::Point3f currOrigin = rs::create<rs::Point3f>(tcas);
       rs::Point3f currOrientation = rs::create<rs::Point3f>(tcas);
 
-      Eigen::Vector3f eigenOrigin = finalSymmetries[it].getOrigin();
-      Eigen::Vector3f eigenOrientation = finalSymmetries[it].getOrientation();
+      Eigen::Vector3f eigenOrigin = symmetries[it].getOrigin();
+      Eigen::Vector3f eigenOrientation = symmetries[it].getOrientation();
 
       currOrigin.x.set(eigenOrigin[0]);
       currOrigin.y.set(eigenOrigin[1]);
@@ -324,178 +206,16 @@ public:
     {
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
+      addSymmetryLines(visualizer, symmetries, 0.4f, 0.8f);
     }
     else
     {
       visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.removeAllShapes();
-      addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
+      addSymmetryLines(visualizer, symmetries, 0.4f, 0.8f);
       visualizer.addText(annotatorName, 2, 20, 12, 1, 1, 1, annotatorName);
     }
-  }
-
-private:
-  template<typename PointT>
-  inline void detectInitialSymmetries(typename pcl::PointCloud<PointT>::Ptr &cloud, std::vector<RotationalSymmetry> &symmetries, Eigen::Vector3f &segmentCentroid)
-  {
-    symmetries.clear();
-    if(cloud->points.size() < 3)
-    {
-      outInfo("Segment has under 3 points. Symmetries will not calculated!");
-    }
-
-    pcl::PCA<pcl::PointXYZRGBA> pca;
-    pca.setInputCloud(cloud);
-    segmentCentroid = pca.getMean().head(3);
-
-    symmetries.resize(3);
-    symmetries[0] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(0));
-    symmetries[1] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(1));
-    symmetries[2] = RotationalSymmetry(segmentCentroid, pca.getEigenVectors().col(2));
-  }
-
-  template<typename PointT>
-  inline void refineSymmtries(typename pcl::PointCloud<PointT>::Ptr &cloud,
-                              pcl::PointCloud<pcl::Normal>::Ptr &normals,
-                              Eigen::Vector3f &segmentCentroid,
-                              std::vector<float> &supportSizes,
-                              DistanceMap<PointT> &dist_map,
-                              std::vector<RotationalSymmetry> &initialSymmetries,
-                              std::vector<RotationalSymmetry> &refinedSymmetries,
-                              std::vector<float> &symScores,
-                              std::vector<float> &occlusionScores,
-                              std::vector<float> &perpendicularScores,
-                              std::vector<float> &coverageScores,
-                              std::vector< std::vector<float> > &pointSymScores,
-                              std::vector< std::vector<float> > &pointOcclusionScores,
-                              std::vector< std::vector<float> > &pointPerpendicularScores)
-  {
-    int initialSymSize = initialSymmetries.size();
-    refinedSymmetries.resize(initialSymSize);
-    supportSizes.resize(initialSymSize);
-    symScores.resize(initialSymSize);
-    occlusionScores.resize(initialSymSize);
-    perpendicularScores.resize(initialSymSize);
-    coverageScores.resize(initialSymSize);
-    pointSymScores.resize(initialSymSize);
-    pointOcclusionScores.resize(initialSymSize);
-    pointPerpendicularScores.resize(initialSymSize);
-
-    for(size_t it = 0; it < initialSymSize; it++)
-    {
-      RotSymOptimizeFunctorDiff<PointT> functor;
-      functor.cloud = cloud;
-      functor.normals = normals;
-      functor.max_fit_angle = rotSymAnn_max_fit_angle;
-
-      Eigen::LevenbergMarquardt<RotSymOptimizeFunctorDiff<PointT>, float> optimizer(functor);
-      optimizer.parameters.ftol = 1e-10;
-      optimizer.parameters.maxfev = 800;
-
-      Eigen::VectorXf sym(6);
-      sym.head(3) = initialSymmetries[it].getOrigin();
-      sym.tail(3) = initialSymmetries[it].getOrientation();
-      optimizer.minimize(sym);
-      refinedSymmetries[it] = RotationalSymmetry(sym.head(3), sym.tail(3));
-      refinedSymmetries[it].setProjectedOrigin(segmentCentroid);
-
-      supportSizes[it] = static_cast<float>(cloud->points.size());
-
-      symScores[it] = getCloudRotationalSymmetryScore<PointT>(cloud, normals, refinedSymmetries[it], pointSymScores[it], rotSymAnn_min_fit_angle, rotSymAnn_max_fit_angle);
-      occlusionScores[it] = getCloudRotationalOcclusionScore<PointT>(cloud, dist_map, refinedSymmetries[it], pointOcclusionScores[it], rotSymAnn_min_occlusion_dist, rotSymAnn_max_occlusion_dist);
-      perpendicularScores[it] = getCloudRotationalPerpendicularScore(normals, refinedSymmetries[it], pointPerpendicularScores[it]);
-      coverageScores[it] = getCloudRotationalCoverageScore<PointT>(cloud, refinedSymmetries[it]);
-    }
-  }
-
-  inline void filterSymmetries(int segmentId)
-  {
-    filteredSymmetries[segmentId].clear();
-    int symSize = segmentSymScores[segmentId].size();
-
-    for(size_t symId = 0; symId < symSize; symId++)
-    {
-      if(segmentSymScores[segmentId][symId] < rotSymAnn_max_sym_score &&
-         segmentOcclusionScores[segmentId][symId] < rotSymAnn_max_occlusion_score &&
-         segmentPerpendicularScores[segmentId][symId] < rotSymAnn_max_perpendicular_score &&
-         segmentCoverageScores[segmentId][symId] > rotSymAnn_min_coverage_score)
-      {
-        filteredSymmetries[segmentId].push_back(symId);
-      }
-    }
-  }
-
-  inline void getBestSymmetryID(int segmentId)
-  {
-    float bestScore = std::numeric_limits<float>::max(); // a.k.a min occlusionScores (consistent cloud)
-    int bestSymId = -1;
-    int symSize = filteredSymmetries[segmentId].size();
-    for(size_t it = 0; it < symSize; it++)
-    {
-      int symId = filteredSymmetries[segmentId][it];
-      if(segmentOcclusionScores[segmentId][symId] < bestScore)
-      {
-        bestSymId = symId;
-        bestScore = segmentOcclusionScores[segmentId][symId];
-      }
-    }
-
-    bestSymmetries[segmentId].push_back(bestSymId);
-  }
-
-  inline bool mergeSymmetries(std::vector<RotationalSymmetry> &symmetries,
-                              std::vector<float> &symSupportSize,
-                              std::vector<RotationalSymmetry> &mergedSymmetries)
-  {
-    mergedSymmetries.clear();
-
-    Graph symGraph(symmetries.size());
-
-    for(size_t srcId = 0; srcId < symmetries.size(); srcId++)
-    {
-      RotationalSymmetry &srcSym = symmetries[srcId];
-
-      for(size_t tgtId = srcId+1; tgtId < symmetries.size();tgtId++)
-      {
-        RotationalSymmetry &tgtSym = symmetries[tgtId];
-
-        float angle, dist;
-        srcSym.getRotSymDifference(tgtSym, angle, dist);
-
-        if( (angle < max_angle_diff || (M_PI - angle) < max_angle_diff) && dist < max_dist_diff)
-        {
-          symGraph.addEdge(srcId, tgtId);
-        }
-      }
-    }
-
-    std::vector< std::vector<int> > symConnectedComponents;
-    symConnectedComponents = extractConnectedComponents(symGraph);
-
-    for(size_t clusterId = 0; clusterId < symConnectedComponents.size(); clusterId++)
-    {
-      float maxSize = -1.0f;
-      float bestSym = -1;
-      for(size_t symIdIt = 0; symIdIt < symConnectedComponents[clusterId].size(); symIdIt++)
-      {
-        int symId = symConnectedComponents[clusterId][symIdIt];
-        if(symSupportSize[symId] > maxSize)
-        {
-          maxSize = symSupportSize[symId];
-          bestSym = symId;
-        }
-      }
-      if(bestSym == -1)
-      {
-        outError("Could not merge similar rotational symmetries!");
-        return false;
-      }
-
-      mergedSymmetries.push_back(symmetries[bestSym]);
-    }
-    return true;
   }
 };
 

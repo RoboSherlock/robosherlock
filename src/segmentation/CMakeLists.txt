@@ -3,6 +3,7 @@ project(rs_segmentation)
 add_library(rs_segmentation SHARED
   src/ImageSegmentation.cpp
   src/OverSegmenter.cpp
+  src/RotationalSymmetryExtractor.cpp
 )
 target_link_libraries(rs_segmentation rs_core)
 
@@ -19,7 +20,7 @@ rs_add_library(rs_overSegmentationAnnotator src/OverSegmentationAnnotator.cpp)
 target_link_libraries(rs_overSegmentationAnnotator rs_core rs_segmentation)
 
 rs_add_library(rs_rotationalSymmetryAnnotator src/RotationalSymmetryAnnotator.cpp)
-target_link_libraries(rs_rotationalSymmetryAnnotator rs_core)
+target_link_libraries(rs_rotationalSymmetryAnnotator rs_core rs_segmentation)
 
 rs_add_library(rs_rotationalSymmetrySegmentation src/RotationalSymmetrySegmentation.cpp)
 target_link_libraries(rs_rotationalSymmetrySegmentation rs_core)
