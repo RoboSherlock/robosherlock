@@ -135,7 +135,8 @@ public:
 
 protected:
 
-  bool detectInitialSymmetries(int segmentId);
+  bool detectInitialSymmetries(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &segmentCloud,
+                               int segmentId);
 
   bool refineSymmtries(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &segmentCloud,
                        pcl::PointCloud<pcl::Normal>::Ptr &segmentNormals,

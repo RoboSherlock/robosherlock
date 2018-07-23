@@ -143,30 +143,28 @@ bool RotationalSymmetryExtractor::extract()
   dist_map->setBoundingPlanes(boundingPlanes);
   dist_map->setInputCloud(cloud);
 
-  //initialize segment cloud
-  std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segmentClouds(numSegments);
-  std::vector< pcl::PointCloud<pcl::Normal>::Ptr > segmentNormals(numSegments);
-
   //main execution
   #pragma omp parallel for
   for(size_t segmentId = 0; segmentId < numSegments; segmentId++)
   {
     //extract cloud segments
-    segmentClouds[segmentId].reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    segmentNormals[segmentId].reset(new pcl::PointCloud<pcl::Normal>);
-    pcl::copyPointCloud(*cloud, segments[segmentId], *segmentClouds[segmentId]);
-    pcl::copyPointCloud(*normals, segments[segmentId], *segmentNormals[segmentId]);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr segmentCloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::Normal>::Ptr segmentNormals(new pcl::PointCloud<pcl::Normal>);
+
+    pcl::copyPointCloud(*cloud, segments[segmentId], *segmentCloud);
+    pcl::copyPointCloud(*normals, segments[segmentId], *segmentNormals);
 
     //extract cloud with no boundary
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr non_boundary_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr non_boundary_normal(new pcl::PointCloud<pcl::Normal>);
     std::vector<int> boundary_indices, non_boundary_indices;
-    extractBoundaryCloud<pcl::PointXYZRGBA, pcl::Normal>(segmentClouds[segmentId], segmentNormals[segmentId], boundary_indices, non_boundary_indices, boundaryRadiusSearch, boundaryAngleThreshold);
-    pcl::copyPointCloud(*segmentClouds[segmentId], non_boundary_indices, *non_boundary_cloud);
-    pcl::copyPointCloud(*segmentNormals[segmentId], non_boundary_indices, *non_boundary_normal);
+    extractBoundaryCloud<pcl::PointXYZRGBA, pcl::Normal>(segmentCloud, segmentNormals, boundary_indices, non_boundary_indices, boundaryRadiusSearch, boundaryAngleThreshold);
+    pcl::copyPointCloud(*segmentCloud, non_boundary_indices, *non_boundary_cloud);
+    pcl::copyPointCloud(*segmentNormals, non_boundary_indices, *non_boundary_normal);
 
     //detect initial symmetries on each cloud segment using PCA, result 3 symmetries on 3 dimension
-    this->detectInitialSymmetries(segmentId);
+    this->detectInitialSymmetries(non_boundary_cloud,
+                                  segmentId);
     //outInfo("Detect " << segmentInitialSymmetries[segmentId].size() << " symmetries in segmentID " << segmentId);
 
     //refind symmteries using LevenbergMarquardt algorithm (damped least squared fitting)
@@ -206,7 +204,8 @@ bool RotationalSymmetryExtractor::getSymmetries(std::vector<RotationalSymmetry> 
   return true;
 }
 
-bool RotationalSymmetryExtractor::detectInitialSymmetries(int segmentId)
+bool RotationalSymmetryExtractor::detectInitialSymmetries(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &segmentCloud,
+                                                          int segmentId)
 {
   if(this->cloud->points.size() < 3)
   {
@@ -215,7 +214,7 @@ bool RotationalSymmetryExtractor::detectInitialSymmetries(int segmentId)
   }
 
   pcl::PCA<pcl::PointXYZRGBA> pca;
-  pca.setInputCloud(this->cloud);
+  pca.setInputCloud(segmentCloud);
   segment_centroids[segmentId] = pca.getMean().head(3);
 
   segmentInitialSymmetries[segmentId].resize(3);
