@@ -42,8 +42,8 @@ TEST_F(ExampleTest, ProcessTest)
   uima::CAS* tcas = engine.getCas();
   rs::SceneCas cas(*tcas);
   pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
-
   cas.get(VIEW_NORMALS, *normal_ptr);
+  engine.getPipelineManager()->resetPipelineOrdering();
   EXPECT_TRUE(normal_ptr->points.size()>0);
 }
 
@@ -56,5 +56,6 @@ TEST_F(ExampleTest, PlaneEstimatorTest)
   rs::Scene scene = cas.getScene();
   std::vector< rs::Plane > planes;
   scene.annotations.filter(planes);
+  engine.getPipelineManager()->resetPipelineOrdering();
   EXPECT_TRUE(planes.size() >0);
 }
