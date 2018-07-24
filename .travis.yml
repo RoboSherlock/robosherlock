@@ -25,12 +25,12 @@ env:
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-  - pip install --user cpp-coveralls
+ # - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
   - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools lcov --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
-  - gem install coveralls-lcov
+ # - gem install coveralls-lcov
   - sudo rosdep init
   - rosdep update
   - echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
@@ -72,11 +72,11 @@ script:
 
 after_script:
   - cd ~/catkin_ws/
- # - lcov --compat-libtool --directory . --capture --output-file coverage.info
- # - lcov --remove coverage.info '/usr/*' --output-file coverage.info 
- # - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
- # - lcov --list coverage.info
+  - lcov --compat-libtool --directory . --capture --output-file coverage.info
+  - lcov --remove coverage.info '/usr/*' --output-file coverage.info 
+  - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
+  - lcov --list coverage.info
  # - coveralls-lcov --repo-token=${COVERALLS_REPO_TOKEN} coverage.info
- # - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
-  - touch coverallsOutput.txt
-  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+ # - touch coverallsOutput.txt
+ # - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
