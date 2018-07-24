@@ -13,6 +13,8 @@
 
 #include <mongo/client/dbclient.h>
 
+#include <iostream>
+
 class ExampleTest : public testing::Test
 {
 protected:
@@ -34,7 +36,7 @@ protected:
 
 TEST_F(ExampleTest, ProcessTest)
 {
-  std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
   engine.getPipelineManager()->setPipelineOrdering(engineList);
   engine.process();
   uima::CAS* tcas = engine.getCas();
@@ -45,9 +47,9 @@ TEST_F(ExampleTest, ProcessTest)
   EXPECT_TRUE(normal_ptr->points.size()>0);
 }
 
-/*TEST_F(ExampleTest, PlaneEstimatorTest)
+TEST_F(ExampleTest, PlaneEstimatorTest)
 {
-  std::vector<std::string> engineList = {"CollectionReader","PlaneAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","PlaneAnnotator"};
   engine.getPipelineManager()->setPipelineOrdering(engineList);
   engine.process();
   rs::SceneCas cas(*engine.getCas());
@@ -55,4 +57,4 @@ TEST_F(ExampleTest, ProcessTest)
   std::vector< rs::Plane > planes;
   scene.annotations.filter(planes);
   EXPECT_TRUE(planes.size() >0);
-}*/
+}
