@@ -76,6 +76,6 @@ after_script:
   - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
   - ls
   - lcov --list coverage.inf
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+# - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
 #  - touch coverallsOutput.txt
 # - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
