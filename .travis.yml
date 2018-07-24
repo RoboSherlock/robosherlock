@@ -28,7 +28,7 @@ before_install:
   - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools lcov --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
@@ -70,6 +70,12 @@ script:
   - catkin_test_results
 
 after_script:
-  - cd ~/catkin_ws/src/robosherlock
-  - touch coverallsOutput.txt
-  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
+  - cd ~/catkin_ws/
+  - lcov --directory . --capture --output-file coverage.info
+  - lcov --remove coverage.info '/usr/*' --output-file coverage.info 
+  - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
+  - ls
+  - lcov --list coverage.inf
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+#  - touch coverallsOutput.txt
+# - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
