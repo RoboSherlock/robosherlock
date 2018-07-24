@@ -77,6 +77,6 @@ after_script:
   - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
   - lcov --list coverage.info
  # - coveralls-lcov --repo-token=${COVERALLS_REPO_TOKEN} coverage.info
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -s .|| echo "Codecov did not collect coverage reports"
  # - touch coverallsOutput.txt
  # - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
