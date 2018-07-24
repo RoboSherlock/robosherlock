@@ -145,24 +145,36 @@
           <parameter>CollectionReader/camera_config_files</parameter>
         </overrides>
       </configurationParameter>
+<configurationParameter>
+  <name>storagedb</name>
+  <type>String</type>
+  <multiValued>false</multiValued>
+  <mandatory>false</mandatory>
+  <overrides>
+    <parameter>StorageWriter/storagedb</parameter>
+  </overrides>
+</configurationParameter>
     </configurationParameters>
     <configurationParameterSettings>
       <nameValuePair>
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader.ini</string>
+            <string>config_data_loader_utest.ini</string>
           </array>
         </value>
       </nameValuePair>
+      <nameValuePair>
+        <name>storagedb</name>
+        <value>
+         <string>Scenes</string>
+        </value>
+      </nameValuePair>	
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-      <node>CollectionReader</node>
-      <node>PlaneAnnotator</node>
-      <node>PointCloudClusterExtractor</node>
-      <node>PointCloudFilter</node>
-      <node>NormalEstimator</node>
+       <node>CollectionReader</node>
+       <node>StorageWriter</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

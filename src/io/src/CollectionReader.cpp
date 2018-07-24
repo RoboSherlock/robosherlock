@@ -133,7 +133,6 @@ private:
       if(interface_ == "MongoDB")
       {
         cameras_.push_back(new MongoDBBridge(pt));
-	outInfo("Interface is MongoDB");
       }
       else if(interface_ == "Kinect")
       {
@@ -150,7 +149,6 @@ private:
       else if(interface_ == "Camera")
       {
         cameras_.push_back(new ROSCameraBridge(pt));
-	outInfo("Interface is Camera");
       }
       else if(interface_ == "UnrealVision")
       {
@@ -163,7 +161,6 @@ private:
       else if(interface_ == "DataLoader")
       {
         cameras_.push_back(new DataLoaderBridge(pt));
-	outInfo("Interface is DataLoader");
       }
       else
       {
