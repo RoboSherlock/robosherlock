@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
       return 0;
     }
   }
-  priv_nh.param("ae", analysisEnginesArg, std::string("demo"));
+  priv_nh.param("ae", analysisEnginesArg, std::string("u_test"));
   priv_nh.param("analysis_engines", analysisEnginesArg, analysisEnginesArg);
 
 
@@ -230,7 +230,7 @@ int main(int argc, char *argv[])
   }
 
   std::vector<UnicodeString> new_configs;
-  new_configs.push_back(UnicodeString("config_mongodb_playback.ini"));
+  new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs);
   engine->reconfigure();
