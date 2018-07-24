@@ -11,9 +11,7 @@ cache:
 addons:
   apt:
     packages:
-    - automake
     - libicu-dev
-    - scons
     - libboost-all-dev
 
 env:
@@ -23,7 +21,6 @@ env:
     - ROS_PARALLEL_JOBS='-j4 -l4'
     - CI_SOURCE_PATH=$(pwd)
     - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
-    - UIMA_HOME=$HOME/local/src/uimacpp/
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
@@ -56,23 +53,6 @@ before_script:
   - git clone https://github.com/RoboSherlock/uimacpp_ros.git
   - cd ~/catkin_ws
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-  # - mkdir -p ~/local/src && cd ~/local/src/
-  # - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
-  # - cd ~/local/src/uimacpp
-  - ls /usr/lib/jvm
-  - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jawt_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jawt_md.h
-  - sudo ln -s /usr/lib/jvm/java-8-openjdk-amd64/include/linux/jni_md.h /usr/lib/jvm/java-8-openjdk-amd64/include/jni_md.h
-  # - ./autogen.sh
-  # - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-8-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
-  # - make -j8
-  # - sudo make install
-  # - ls /usr/local/lib
-  # - cd ~/local/src/
-#  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
-#  - cd ~/local/src/mongo-cxx-driver/
-#  - git checkout 26compat
-#  - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient --disable-warnings-as-errors install-mongoclient
-  - ls /usr/local/lib
   - echo "export APR_HOME=/usr" >> ~/.bashrc
   - echo "export ICU_HOME=/usr" >> ~/.bashrc
   - echo "export XERCES_HOME=/usr" >> ~/.bashrc
@@ -83,12 +63,10 @@ script:
   - cd ~/catkin_ws
   - source devel/setup.bash
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
-  - catkin config --cmake-args -DCMAKE_CXX_FLAGS='--coverage -g' -DCMAKE_BUILD_TYPE=RelWithDebInfo
-  - catkin_make
+  - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
-  - sudo  ln /dev/null /dev/raw1394
   - roscore& 
-  - catkin_make run_tests
+  - catkin_make run_tests_robosherlock
   - catkin_test_results
 
 after_script:
