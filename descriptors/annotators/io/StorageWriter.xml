@@ -50,14 +50,14 @@
       <nameValuePair>
         <name>storagedb</name>
         <value>
-          <string>Scenes</string>
+          <string>UTest</string>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>enableViews</name>
         <value>
           <array>
-            <string>color_image_hd</string>
+            <string>color_image</string>
             <string>depth_image_hd</string>
             <string>camera_info</string>
             <string>camera_info_hd</string>

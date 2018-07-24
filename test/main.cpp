@@ -6,9 +6,20 @@
 
 
 
-int main2(int argc, char **argv)
+int main(int argc, char **argv)
 {
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
   testing::InitGoogleTest(&argc, argv);
   return RUN_ALL_TESTS();
 }
+
+
+
+
+
+
+
+
+
+
+

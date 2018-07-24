@@ -28,9 +28,7 @@
 #include <mutex>
 #include <chrono>
 #include <condition_variable>
-
 #include <ros/ros.h>
-
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
 
@@ -63,6 +61,7 @@ void help()
 int main(int argc, char *argv[])
 {
   char *userEnv = getenv("USER");
+  mongo::client::GlobalInstance instance;
   if(userEnv!=NULL)
   {
     ros::init(argc, argv, std::string("RoboSherlock_") +std::string(userEnv));
@@ -186,7 +185,7 @@ int main(int argc, char *argv[])
   }
 
   std::vector<UnicodeString> new_configs;
-  new_configs.push_back(UnicodeString("config_kinect_robot.ini"));
+  new_configs.push_back(UnicodeString("config_mongodb_playback.ini"));
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs);
   engine->reconfigure();

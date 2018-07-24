@@ -253,7 +253,7 @@ int main(int argc, char *argv[])
   catch(const rs::FrameFilterException &){};
 
   engine->collectionProcessComplete();
-  cout << "Conclusion: DataBase image equals the DataLoader image" << (db_image_height==initial_image_height);
+  cout << "Conclusion: DataBase image equals the DataLoader image is  " << (db_image_height==initial_image_height);
   engine->destroy();
   cout << "This is the end of the program";
 

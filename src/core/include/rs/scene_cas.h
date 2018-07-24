@@ -51,6 +51,7 @@ class SceneCas
 private:
   uima::CAS &cas;
 
+
 public:
   SceneCas(uima::CAS &cas);
   virtual ~SceneCas();
