@@ -92,5 +92,6 @@ script:
   - catkin_test_results
 
 after_script:
+  - cd ~/catkin_ws/src/robosherlock
   - touch coverallsOutput.txt
   - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
