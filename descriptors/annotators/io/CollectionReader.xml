@@ -24,8 +24,7 @@
         <value>
           <array>
 <!--            <string>config_kinect2.ini</string>-->
-<!--             <string>config_kinect_robot.ini</string> -->
-		<string>config_mongodb_playback.ini</string>
+                <string>config_kinect_robot.ini</string>
 <!--            <string>config_Kinect_robot_urdf_filter.ini</string>-->
 <!--            <string>config_kinect_robot_not_loc.ini</string>-->
 <!--            <string>config_xtion.ini</string>-->
