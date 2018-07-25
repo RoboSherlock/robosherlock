@@ -28,7 +28,7 @@ before_install:
  # - pip install --user cpp-coveralls
   - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson python-catkin-tools lcov --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson lcov --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
  # - gem install coveralls-lcov
   - sudo rosdep init
