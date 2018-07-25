@@ -71,8 +71,11 @@ script:
   - catkin_test_results
 
 after_script:
+  - cd ~/
+  - ls 
   - cd ~/catkin_ws/src/robosherlock
-  - lcov --directory ../../ --capture --output-file coverage.info
+  - pwd
+  - lcov --directory ~/build --capture --output-file coverage.info
   - lcov --remove coverage.info '/usr/*' --output-file coverage.info 
   - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
   - lcov --list coverage.info
