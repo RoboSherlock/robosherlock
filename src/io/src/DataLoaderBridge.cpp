@@ -59,7 +59,7 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree &pt) : CamI
 
   index_ = 0;
 
-  if (this->readConfig(pt))
+  if(this->readConfig(pt))
   {
     this->_newData = true;
   }
@@ -68,10 +68,10 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree &pt) : CamI
     this->_newData = false;
   }
 
-  if (this->frameRate > 0 && this->_newData)
+  if(this->frameRate > 0 && this->_newData)
   {
     auto worker = std::bind(&DataLoaderBridge::updateTimerWorker, this,
-      std::chrono::milliseconds(std::lround(1000 / this->frameRate)));
+                            std::chrono::milliseconds(std::lround(1000 / this->frameRate)));
     this->updateTimerThread = std::thread(worker);
   }
 }
@@ -79,7 +79,7 @@ DataLoaderBridge::DataLoaderBridge(const boost::property_tree::ptree &pt) : CamI
 DataLoaderBridge::~DataLoaderBridge()
 {
   this->done = true;
-  if (this->updateTimerThread.joinable())
+  if(this->updateTimerThread.joinable())
   {
     this->updateTimerThread.join();
   }
@@ -94,14 +94,17 @@ bool DataLoaderBridge::checkConsistency()
   sizes.push_back(clouds.size());
   sizes.push_back(depths.size());
   sizes.push_back(viewpoints.size());
-  for(int size : sizes){
-      if(size != 0 && shouldSize == 0){
-          shouldSize = size;
-      }
-      if(size != 0 && size != shouldSize){
-          outError("One of the sample data folders contains an unexpected amount of files. All folders that contain files should contain an equal amount.");
-          return false;
-      }
+  for(int size : sizes)
+  {
+    if(size != 0 && shouldSize == 0)
+    {
+      shouldSize = size;
+    }
+    if(size != 0 && size != shouldSize)
+    {
+      outError("One of the sample data folders contains an unexpected amount of files. All folders that contain files should contain an equal amount.");
+      return false;
+    }
   }
   return true;
 }
@@ -110,7 +113,7 @@ void DataLoaderBridge::updateTimerWorker(const std::chrono::milliseconds period)
 {
   this->done = false;
 
-  while (!done)
+  while(!done)
   {
     std::this_thread::sleep_for(period);
     {
@@ -164,7 +167,7 @@ bool DataLoaderBridge::getListFile(std::string &path, std::vector<std::string> &
     isFile = true;
   }
 
-  if( (!isFile && filenames.empty()) || (isFile && path.find(pattern) == std::string::npos) )
+  if((!isFile && filenames.empty()) || (isFile && path.find(pattern) == std::string::npos))
   {
     outError("No file with extension: " << pattern << " found!");
     return false;
@@ -176,8 +179,8 @@ bool DataLoaderBridge::getListFile(std::string &path, std::vector<std::string> &
 
 bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
 {
-  boost::optional< const boost::property_tree::ptree& > foundCloud;
-  foundCloud = pt.get_child_optional( "data_path.path_to_cloud" );
+  boost::optional< const boost::property_tree::ptree & > foundCloud;
+  foundCloud = pt.get_child_optional("data_path.path_to_cloud");
 
   bool success = true;
 
@@ -189,13 +192,14 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     std::sort(clouds.begin(), clouds.end());
     data_size = clouds.size();
     haveCloud = (data_size > 0);
-    if(!haveCloud){
-        outWarn("No clouds were found in the cloud data folder.");
+    if(!haveCloud)
+    {
+      outWarn("No clouds were found in the cloud data folder.");
     }
   }
 
-  boost::optional< const boost::property_tree::ptree& > foundRGB;
-  foundRGB = pt.get_child_optional( "data_path.path_to_rgb" );
+  boost::optional< const boost::property_tree::ptree & > foundRGB;
+  foundRGB = pt.get_child_optional("data_path.path_to_rgb");
   if(foundRGB)
   {
     this->path_to_rgb = pt.get<std::string>("data_path.path_to_rgb");
@@ -204,13 +208,14 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     std::sort(images.begin(), images.end());
     data_size = images.size();
     haveRGB = (data_size > 0);
-    if(!haveRGB){
-        outWarn("No images were found in the rgb data folder.");
+    if(!haveRGB)
+    {
+      outWarn("No images were found in the rgb data folder.");
     }
   }
 
-  boost::optional< const boost::property_tree::ptree& > foundDepth;
-  foundDepth = pt.get_child_optional( "data_path.path_to_depth" );
+  boost::optional< const boost::property_tree::ptree & > foundDepth;
+  foundDepth = pt.get_child_optional("data_path.path_to_depth");
   if(foundDepth)
   {
     this->path_to_depth = pt.get<std::string>("data_path.path_to_depth");
@@ -219,13 +224,14 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     std::sort(depths.begin(), depths.end());
     data_size = depths.size();
     haveDepth = (data_size > 0);
-    if(!haveDepth){
-        outWarn("No depth images were found in the depth data folder.");
+    if(!haveDepth)
+    {
+      outWarn("No depth images were found in the depth data folder.");
     }
   }
 
-  boost::optional< const boost::property_tree::ptree& > foundViewpoint;
-  foundViewpoint = pt.get_child_optional( "data_path.path_to_viewpoint" );
+  boost::optional< const boost::property_tree::ptree & > foundViewpoint;
+  foundViewpoint = pt.get_child_optional("data_path.path_to_viewpoint");
   if(foundViewpoint)
   {
     this->path_to_viewpoint = pt.get<std::string>("data_path.path_to_viewpoint");
@@ -234,8 +240,9 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     std::sort(viewpoints.begin(), viewpoints.end());
     data_size = viewpoints.size();
     haveViewpoint = (data_size > 0);
-    if(!haveViewpoint){
-        outWarn("No viewpoints were found in the viewpoint data folder.");
+    if(!haveViewpoint)
+    {
+      outWarn("No viewpoints were found in the viewpoint data folder.");
     }
   }
 
@@ -289,7 +296,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   if(haveCloud)
   {
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
     std::string path;
     if(!isCloudFile)
@@ -301,7 +308,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
       path = path_to_cloud;
     }
 
-    if(pcl::io::loadPCDFile (path, *cloud_ptr) == -1)
+    if(pcl::io::loadPCDFile(path, *cloud_ptr) == -1)
     {
       outError("Could not load point cloud file as PCD type. Check path again!");
     }
@@ -343,7 +350,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
     this->depth = cv::imread(path,  CV_LOAD_IMAGE_ANYDEPTH);
     cv::resize(depth, depth, imageSize, 0, 0, cv::INTER_NEAREST);
 
-    if (depth.type() == CV_8UC1)
+    if(depth.type() == CV_8UC1)
     {
       depth.convertTo(depth, CV_16UC1, this->depth_scaling_factor, 0);
     }
@@ -357,51 +364,94 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   if(haveViewpoint)
   {
-      std::string path;
-      if(!isViewpointFile)
-      {
-        path = viewpoints[index_];
-      }
-      else
-      {
-        path = path_to_viewpoint;
-      }
-      boost::property_tree::ptree pt;
-      read_ini(path,pt);
-      double x,y,z,qx,qy,qz,qw;
-      double timeStamp;
-      std::string frame, childFrame;
-      tf::Quaternion q;
-      tf::Vector3 trans;
-      x = pt.get<double>("translation.x");
-      y = pt.get<double>("translation.y");
-      z = pt.get<double>("translation.z");
-      qx = pt.get<double>("rotation.x");
-      qy = pt.get<double>("rotation.y");
-      qz = pt.get<double>("rotation.z");
-      qw = pt.get<double>("rotation.w");
-      childFrame = pt.get<std::string>("frame.child_frame");
-      frame = pt.get<std::string>("frame.frame");
-      timeStamp = pt.get<double>("viewpoint.stamp");
-      q.setX(qx);
-      q.setY(qy);
-      q.setZ(qz);
-      q.setW(qw);
-      trans.setX(x);
-      trans.setY(y);
-      trans.setZ(z);
+    std::string path;
+    if(!isViewpointFile)
+    {
+      path = viewpoints[index_];
+    }
+    else
+    {
+      path = path_to_viewpoint;
+    }
+    boost::property_tree::ptree pt;
+    read_ini(path, pt);
+    double x, y, z, qx, qy, qz, qw;
+    double timeStamp;
+    std::string frame, childFrame;
+    tf::Quaternion q;
+    tf::Vector3 trans;
+    x = pt.get<double>("translation.x");
+    y = pt.get<double>("translation.y");
+    z = pt.get<double>("translation.z");
+    qx = pt.get<double>("rotation.x");
+    qy = pt.get<double>("rotation.y");
+    qz = pt.get<double>("rotation.z");
+    qw = pt.get<double>("rotation.w");
+    childFrame = pt.get<std::string>("frame.child_frame");
+    frame = pt.get<std::string>("frame.frame");
+    timeStamp = pt.get<double>("viewpoint.stamp");
+    q.setX(qx);
+    q.setY(qy);
+    q.setZ(qz);
+    q.setW(qw);
+    trans.setX(x);
+    trans.setY(y);
+    trans.setZ(z);
 
-      viewpoint.setRotation(q);
-      viewpoint.setOrigin(trans);
-      viewpoint.child_frame_id_ = childFrame;
-      viewpoint.frame_id_ = frame;
-      viewpoint.stamp_ = ros::Time(timeStamp);
-      rs::Scene scene = rs::SceneCas(cas).getScene();
-      rs::StampedTransform vp(rs::conversion::to(tcas, viewpoint));
-      scene.viewPoint.set(vp);
+    viewpoint.setRotation(q);
+    viewpoint.setOrigin(trans);
+    viewpoint.child_frame_id_ = childFrame;
+    viewpoint.frame_id_ = frame;
+    viewpoint.stamp_ = ros::Time(timeStamp);
+    rs::Scene scene = rs::SceneCas(cas).getScene();
+    rs::StampedTransform vp(rs::conversion::to(tcas, viewpoint));
+    scene.viewPoint.set(vp);
   }
 
-  cas.set(VIEW_CAMERA_INFO, cameraInfo);
+
+  if(cameraInfo.width == 1280 || cameraInfo.width == 1920)  //high res in kinects
+  {
+    sensor_msgs::CameraInfo cameraInfoHD;
+    cameraInfoHD = cameraInfo;
+    cameraInfo.height /= 2.0;
+    cameraInfo.width /= 2.0;
+    cameraInfo.roi.height /= 2.0;
+    cameraInfo.roi.width /= 2.0;
+    cameraInfo.roi.x_offset /= 2.0;
+    cameraInfo.roi.y_offset /= 2.0;
+    cameraInfo.K[0] /= 2.0;
+    cameraInfo.K[2] /= 2.0;
+    cameraInfo.K[4] /= 2.0;
+    cameraInfo.K[5] /= 2.0;
+    cameraInfo.P[0] /= 2.0;
+    cameraInfo.P[2] /= 2.0;
+    cameraInfo.P[5] /= 2.0;
+    cameraInfo.P[6] /= 2.0;
+    cas.set(VIEW_CAMERA_INFO, cameraInfo);
+  }
+  else if(cameraInfo.width == 640)
+  {
+    sensor_msgs::CameraInfo cameraInfoHD;
+    cameraInfoHD = cameraInfo;
+    cameraInfoHD.height *= 2.0;
+    cameraInfoHD.width *= 2.0;
+    cameraInfoHD.roi.height *= 2.0;
+    cameraInfoHD.roi.width *= 2.0;
+    cameraInfoHD.roi.x_offset *= 2.0;
+    cameraInfoHD.roi.y_offset *= 2.0;
+    cameraInfoHD.K[0] *= 2.0;
+    cameraInfoHD.K[2] *= 2.0;
+    cameraInfoHD.K[4] *= 2.0;
+    cameraInfoHD.K[5] *= 2.0;
+    cameraInfoHD.P[0] *= 2.0;
+    cameraInfoHD.P[2] *= 2.0;
+    cameraInfoHD.P[5] *= 2.0;
+    cameraInfoHD.P[6] *= 2.0;
+
+    cas.set(VIEW_CAMERA_INFO, cameraInfo);
+    cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
+  }
+
 
   index_++;
   if(index_ > data_size - 1)
@@ -417,7 +467,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
     }
   }
 
-  if (this->frameRate > 0)
+  if(this->frameRate > 0)
   {
     std::lock_guard<std::mutex> lock(this->updateLock);
     _newData = false;
