@@ -75,7 +75,7 @@ script:
 after_script:
   - cd ~/catkin_ws/src/robosherlock
   - lcov --directory ~/catkin_ws/ --capture --output-file coverage_test.info
-  - lcov -a coverage_base.info -a coverage_test.info -o coverage_total.info
+  - lcov -a coverage_base.info -a coverage_test.info -o ~/catkin_ws/src/robosherlock/coverage_total.info
   - lcov --remove coverage_total.info '/usr/*' --output-file coverage_total.info 
   - lcov --extract coverage_total.info '*robosherlock*' --output-file coverage_total.info
   - ls 
