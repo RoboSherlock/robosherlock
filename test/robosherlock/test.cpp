@@ -13,6 +13,8 @@
 
 #include <mongo/client/dbclient.h>
 
+#include <iostream>
+
 class ExampleTest : public testing::Test
 {
 protected:
@@ -34,25 +36,27 @@ protected:
 
 TEST_F(ExampleTest, ProcessTest)
 {
-  std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
   engine.getPipelineManager()->setPipelineOrdering(engineList);
   engine.process();
   uima::CAS* tcas = engine.getCas();
   rs::SceneCas cas(*tcas);
   pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
-
   cas.get(VIEW_NORMALS, *normal_ptr);
-  EXPECT_TRUE(4>0);
+
+  engine.getPipelineManager()->resetPipelineOrdering();
+  EXPECT_TRUE(normal_ptr->points.size()>0);
 }
 
-/*TEST_F(ExampleTest, PlaneEstimatorTest)
+TEST_F(ExampleTest, PlaneEstimatorTest)
 {
-  std::vector<std::string> engineList = {"CollectionReader","PlaneAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","PlaneAnnotator"};
   engine.getPipelineManager()->setPipelineOrdering(engineList);
   engine.process();
   rs::SceneCas cas(*engine.getCas());
   rs::Scene scene = cas.getScene();
   std::vector< rs::Plane > planes;
   scene.annotations.filter(planes);
+  engine.getPipelineManager()->resetPipelineOrdering();
   EXPECT_TRUE(planes.size() >0);
-}*/
+}
