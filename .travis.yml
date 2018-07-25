@@ -66,21 +66,21 @@ script:
   - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
   - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
+  - cd ~/catkin_ws/src/robosherlock
+  - lcov -c -i -d ~/catkin_ws -o coverage_base.info
   - roscore& 
   - catkin_make run_tests_robosherlock
   - catkin_test_results
 
 after_script:
-  - cd ~/
-  - ls 
   - cd ~/catkin_ws/src/robosherlock
-  - ls
-  - lcov --directory ~/catkin_ws/ --capture --output-file coverage.info
-  - lcov --remove coverage.info '/usr/*' --output-file coverage.info 
-  - lcov --extract coverage.info '*robosherlock*' --output-file coverage.info
+  - lcov --directory ~/catkin_ws/ --capture --output-file coverage_test.info
+  - lcov -a coverage_base.info -a coverage_test.info -o coverage_total.info
+  - lcov --remove coverage_total.info '/usr/*' --output-file coverage_total.info 
+  - lcov --extract coverage_total.info '*robosherlock*' --output-file coverage_total.info
   - ls 
-  - lcov --list coverage.info
+  - lcov --list coverage_total.info
  # - coveralls-lcov --repo-token=${COVERALLS_REPO_TOKEN} coverage.info
-  - bash <(curl -s https://codecov.io/bash) -X gcov|| echo "Codecov did not collect coverage reports"
+  - bash <(curl -s https://codecov.io/bash) -X gcov -t coverage_total.info || echo "Codecov did not collect coverage reports"
  # - touch coverallsOutput.txt
  # - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*" > coverallsOutput.txt
