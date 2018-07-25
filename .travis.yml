@@ -68,6 +68,7 @@ script:
   - source devel/setup.bash
   - cd ~/catkin_ws/src/robosherlock
   - lcov -c -i -d ~/catkin_ws -o coverage_base.info
+  - cd ~/catkin_ws
   - roscore& 
   - catkin_make run_tests_robosherlock
   - catkin_test_results
