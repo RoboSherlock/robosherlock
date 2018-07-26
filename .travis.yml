@@ -69,8 +69,6 @@ script:
   - cd ~/catkin_ws/src/robosherlock
   - lcov -c -i -d ~/catkin_ws -o coverage_base.info
   - cd ~/catkin_ws
-  - sleep 15 #travis hack to wait for mogno to be up
-  - mongo mydb_test --eval 'db.createUser({user:"travis",pwd:"test",roles:["readWrite"]});'
   - roscore& 
   - catkin_make run_tests_robosherlock
   - catkin_test_results
