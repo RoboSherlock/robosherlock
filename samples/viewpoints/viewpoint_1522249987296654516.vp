@@ -1,0 +1,14 @@
+[translation]
+x=0.851242
+y=0.658169
+z=1.760803
+[rotation]
+x=-0.775822
+y=0.550175
+z=-0.181713
+w=0.249777
+[frame]
+child_frame=head_mount_kinect_rgb_optical_frame
+frame=map
+[viewpoint]
+stamp=1522249987.296654516

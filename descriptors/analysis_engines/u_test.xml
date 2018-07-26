@@ -159,6 +159,7 @@
     <flowConstraints>
       <fixedFlow>
       <node>CollectionReader</node>
+      <node>ImagePreprocessor</node>
       <node>PlaneAnnotator</node>
       <node>PointCloudClusterExtractor</node>
       <node>PointCloudFilter</node>

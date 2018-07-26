@@ -90,6 +90,7 @@ public:
 
   void terminate()
   {
+    std::lock_guard<std::mutex> lock(mutex);
     terminate_flag = true;
   }
 };
