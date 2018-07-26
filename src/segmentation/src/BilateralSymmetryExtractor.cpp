@@ -242,6 +242,12 @@ bool BilateralSymmetryExtractor::getSupportIds(std::vector< int > &supportIds)
 bool BilateralSymmetryExtractor::detectInitialSymmetries(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &segmentCloud,
                                                          int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+
   if(segmentCloud->size() < 3)
   {
     outWarn("Cloud does not have sufficient points to detect symmetry!");
@@ -286,6 +292,12 @@ bool BilateralSymmetryExtractor::refineBilateralSymmetryFitting(pcl::PointCloud<
                                                                 pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr &tree,
                                                                 int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+
   if(segmentCloud->size() == 0 || dsSegmentCloud->size() == 0)
   {
     outWarn("No point in cloud! Cloud need at least one point!");
@@ -429,6 +441,12 @@ bool BilateralSymmetryExtractor::refineBilateralSymmetryFitting(pcl::PointCloud<
 
 bool BilateralSymmetryExtractor::filterSymmetries(int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+  
   if(segmentRefinedSymmetries[segmentId].empty())
   {
     outError("Refined symmetries at segmentID: " << segmentId << " is empty!");

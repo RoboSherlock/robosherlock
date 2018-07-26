@@ -217,6 +217,12 @@ bool RotationalSymmetryExtractor::getSymmetries(std::vector<RotationalSymmetry> 
 bool RotationalSymmetryExtractor::detectInitialSymmetries(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &segmentCloud,
                                                           int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+
   if(this->cloud->points.size() < 3)
   {
     outError("Segment has under 3 points. Symmetries will not calculated!");
@@ -239,6 +245,12 @@ bool RotationalSymmetryExtractor::refineSymmtries(pcl::PointCloud<pcl::PointXYZR
                                                   pcl::PointCloud<pcl::Normal>::Ptr &segmentNormals,
                                                   int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+
   int initialSymSize = segmentInitialSymmetries[segmentId].size();
   if(initialSymSize == 0 || segment_centroids[segmentId] == Eigen::Vector3f::Zero())
   {
@@ -303,6 +315,12 @@ bool RotationalSymmetryExtractor::refineSymmtries(pcl::PointCloud<pcl::PointXYZR
 
 bool RotationalSymmetryExtractor::filterSymmetries(int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+
   int symSize = segmentSymScores[segmentId].size();
   if(symSize == 0)
   {
@@ -327,6 +345,12 @@ bool RotationalSymmetryExtractor::filterSymmetries(int segmentId)
 
 bool RotationalSymmetryExtractor::getBestSymmetryID(int segmentId)
 {
+  if(segmentId < 0 || segmentId >= numSegments)
+  {
+    outError("Invalid segmentID: " << segmentId << " out of range!");
+    return false;
+  }
+  
   float bestScore = std::numeric_limits<float>::max(); // a.k.a min occlusionScores (consistent cloud)
   int bestSymId = -1;
   int symSize = filteredSymmetries[segmentId].size();
