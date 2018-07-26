@@ -45,6 +45,7 @@ TEST_F(ExampleTest, ProcessTest)
   cas.get(VIEW_NORMALS, *normal_ptr);
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
   EXPECT_TRUE(4>0);
 =======
   engine.getPipelineManager()->resetPipelineOrdering();
@@ -55,6 +56,9 @@ TEST_F(ExampleTest, ProcessTest)
   engine.getPipelineManager()->resetPipelineOrdering();
   EXPECT_TRUE(normal_ptr->points.size()>0);
 >>>>>>> c7a0166b6c5567c14e0f4ad8006ede06f184a602
+=======
+  EXPECT_TRUE(2>4);
+>>>>>>> 2e3e00095bddb89f931c957c3dc5a0452698625f
 }
 
 TEST_F(ExampleTest, PlaneEstimatorTest)

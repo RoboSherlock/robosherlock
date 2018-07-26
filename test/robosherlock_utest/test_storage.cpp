@@ -47,16 +47,6 @@ int db_image_height = 0;
 
 int processEngine()
 {
-  
-  
-  
-
-
-  
-  
-
-
- 
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
   std::string name;
 
@@ -92,7 +82,7 @@ int processEngine()
       uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
       rs::SceneCas sceneCas(*cas);
       cv::Mat colorImg;
-      sceneCas.get(VIEW_COLOR_IMAGE,colorImg);
+      sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
       initial_image_width = colorImg.size().width;
       initial_image_height = colorImg.size().height;
       engine->getAnnotatorContext().releaseCAS(*cas);
@@ -126,7 +116,7 @@ int processEngine()
   uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
   rs::SceneCas sceneCas(*cas);
   cv::Mat colorImg;
-  sceneCas.get(VIEW_COLOR_IMAGE,colorImg);
+  sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
   db_image_width = colorImg.size().width;
   db_image_height = colorImg.size().height;
   engine->getAnnotatorContext().releaseCAS(*cas);
