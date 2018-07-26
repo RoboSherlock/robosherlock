@@ -173,24 +173,13 @@
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
-<<<<<<< HEAD
-<<<<<<< HEAD
-       <node>CollectionReader</node>
-       <node>StorageWriter</node>
-=======
-=======
->>>>>>> c7a0166b6c5567c14e0f4ad8006ede06f184a602
       <node>CollectionReader</node>
       <node>ImagePreprocessor</node>
       <node>PlaneAnnotator</node>
       <node>PointCloudClusterExtractor</node>
       <node>PointCloudFilter</node>
       <node>NormalEstimator</node>
-<<<<<<< HEAD
->>>>>>> acabd5de9aba292783ebeb8b3fb5962a90182295
-=======
       <node>StorageWriter</node>
->>>>>>> c7a0166b6c5567c14e0f4ad8006ede06f184a602
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
