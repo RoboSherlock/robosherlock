@@ -128,6 +128,8 @@ private:
 
   float overlap_threshold;
 
+  bool isSetup;
+
 public:
   BilateralSymmetrySegmenter();
   ~BilateralSymmetrySegmenter();

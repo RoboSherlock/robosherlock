@@ -118,6 +118,8 @@ private:
 
   float overlap_threshold;
 
+  bool isSetup;
+
 public:
 
   RotationalSymmetrySegmenter();

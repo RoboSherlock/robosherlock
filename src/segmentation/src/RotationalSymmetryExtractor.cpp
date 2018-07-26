@@ -24,6 +24,8 @@ RotationalSymmetryExtractor::RotationalSymmetryExtractor()
 {
   this->cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
   this->normals.reset(new pcl::PointCloud<pcl::Normal>());
+
+  this->isSetup = false;
 }
 
 RotationalSymmetryExtractor::~RotationalSymmetryExtractor() {}
@@ -73,6 +75,8 @@ void RotationalSymmetryExtractor::initialize(float rotSymAnn_min_fit_angle,
   this->boundaryAngleThreshold = boundaryAngleThreshold;
   this->max_angle_diff = max_angle_diff;
   this->max_dist_diff = max_dist_diff;
+
+  this->isSetup = true;
 }
 
 
@@ -87,6 +91,12 @@ bool RotationalSymmetryExtractor::extract()
   if(this->cloud->empty() || this->normals->empty())
   {
     outError("Clouds is empty! Extractor will not run!");
+    return false;
+  }
+
+  if(!this->isSetup)
+  {
+    outError("Parameters are not set! Abort.");
     return false;
   }
 

@@ -23,6 +23,8 @@ RotationalSymmetrySegmenter::RotationalSymmetrySegmenter()
 {
   this->sceneCloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
   this->sceneNormals.reset(new pcl::PointCloud<pcl::Normal>());
+
+  this->isSetup = false;
 }
 
 RotationalSymmetrySegmenter::~RotationalSymmetrySegmenter() {}
@@ -86,6 +88,8 @@ void RotationalSymmetrySegmenter::initialize(bool rotSymSeg_isDownsampled,
   this->rotSymSeg_max_cut_score = rotSymSeg_max_cut_score;
   this->min_segment_size = min_segment_size;
   this->overlap_threshold = overlap_threshold;
+
+  this->isSetup = true;
 }
 
 bool RotationalSymmetrySegmenter::segment()
@@ -99,6 +103,12 @@ bool RotationalSymmetrySegmenter::segment()
   if(symmetries.empty())
   {
     outError("There is no symmetry to segment! Aborting!");
+    return false;
+  }
+
+  if(!this->isSetup)
+  {
+    outError("Parameters are not set! Abort.");
     return false;
   }
 

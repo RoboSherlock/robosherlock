@@ -21,9 +21,10 @@
 
  OverSegmenter::OverSegmenter()
  {
-   isSetup = false;
    this->cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
    this->normals.reset(new pcl::PointCloud<pcl::Normal>());
+
+   this->isSetup = false;
  }
 
  OverSegmenter::~OverSegmenter() {}

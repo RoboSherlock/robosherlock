@@ -23,6 +23,8 @@ BilateralSymmetryExtractor::BilateralSymmetryExtractor()
 {
   this->cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
   this->normals.reset(new pcl::PointCloud<pcl::Normal>());
+
+  this->isSetup = false;
 }
 
 BilateralSymmetryExtractor::~BilateralSymmetryExtractor() {}
@@ -84,6 +86,8 @@ void BilateralSymmetryExtractor::initialize(bool bilSymAnn_isDownsampled,
   this->min_corres_inlier_score = min_corres_inlier_score;
   this->sym_angle_diff = sym_angle_diff;
   this->sym_dist_diff = sym_dist_diff;
+
+  this->isSetup = true;
 }
 
 bool BilateralSymmetryExtractor::extract()
@@ -97,6 +101,12 @@ bool BilateralSymmetryExtractor::extract()
   if(this->cloud->empty() || this->normals->empty())
   {
     outError("Clouds is empty! Extractor will not run!");
+    return false;
+  }
+
+  if(!this->isSetup)
+  {
+    outError("Parameters are not set! Abort.");
     return false;
   }
 

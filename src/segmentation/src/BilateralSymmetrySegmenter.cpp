@@ -25,6 +25,8 @@
    this->sceneNormals.reset(new pcl::PointCloud<pcl::Normal>());
    this->dsSceneCloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
    this->dsSceneNormals.reset(new pcl::PointCloud<pcl::Normal>());
+
+   this->isSetup = false;
  }
 
  BilateralSymmetrySegmenter::~BilateralSymmetrySegmenter() {}
@@ -106,6 +108,8 @@
   this->min_sym_sypport_overlap = min_sym_sypport_overlap;
   this->min_segment_size = min_segment_size;
   this->overlap_threshold = overlap_threshold;
+
+  this->isSetup = true;
 }
 
 bool BilateralSymmetrySegmenter::segment()
@@ -119,6 +123,12 @@ bool BilateralSymmetrySegmenter::segment()
   if(symmetries.empty())
   {
     outError("There is no symmetry to segment! Aborting!");
+    return false;
+  }
+
+  if(!this->isSetup)
+  {
+    outError("Parameters are not set! Abort.");
     return false;
   }
 

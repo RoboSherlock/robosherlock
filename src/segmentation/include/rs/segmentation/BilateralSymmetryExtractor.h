@@ -107,6 +107,8 @@ private:
 
   int numSegments;
 
+  bool isSetup;
+
 public:
 
   BilateralSymmetryExtractor();

@@ -103,6 +103,8 @@ private:
   float max_angle_diff;
   float max_dist_diff;
 
+  bool isSetup;
+
 public:
   RotationalSymmetryExtractor();
   ~RotationalSymmetryExtractor();
