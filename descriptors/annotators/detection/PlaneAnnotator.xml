@@ -83,7 +83,7 @@
       <nameValuePair>
         <name>use_non_nan_cloud</name>
         <value>
-          <string>false</string>
+          <boolean>false</boolean>
         </value>
       </nameValuePair>
 
