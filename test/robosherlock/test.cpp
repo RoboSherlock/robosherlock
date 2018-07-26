@@ -42,7 +42,7 @@ TEST_F(ExampleTest, ProcessTest)
   pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
 
   cas.get(VIEW_NORMALS, *normal_ptr);
-  EXPECT_TRUE(4>0);
+  EXPECT_TRUE(2>4);
 }
 
 /*TEST_F(ExampleTest, PlaneEstimatorTest)
