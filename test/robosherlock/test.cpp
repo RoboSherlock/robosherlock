@@ -44,11 +44,17 @@ TEST_F(ExampleTest, ProcessTest)
   pcl::PointCloud<pcl::Normal>::Ptr normal_ptr(new pcl::PointCloud<pcl::Normal>);
   cas.get(VIEW_NORMALS, *normal_ptr);
 <<<<<<< HEAD
+<<<<<<< HEAD
   EXPECT_TRUE(4>0);
 =======
   engine.getPipelineManager()->resetPipelineOrdering();
   EXPECT_TRUE(normal_ptr->points.size()>0);
 >>>>>>> acabd5de9aba292783ebeb8b3fb5962a90182295
+=======
+
+  engine.getPipelineManager()->resetPipelineOrdering();
+  EXPECT_TRUE(normal_ptr->points.size()>0);
+>>>>>>> c7a0166b6c5567c14e0f4ad8006ede06f184a602
 }
 
 TEST_F(ExampleTest, PlaneEstimatorTest)
