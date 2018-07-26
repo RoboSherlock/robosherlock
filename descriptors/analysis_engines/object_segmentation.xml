@@ -781,7 +781,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader_real_cloud_segmentation.ini</string>
+            <string>config_kinect_robot.ini</string>
           </array>
         </value>
       </nameValuePair>
