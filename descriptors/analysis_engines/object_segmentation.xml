@@ -146,26 +146,6 @@
         </overrides>
       </configurationParameter>
       <configurationParameter>
-        <name>pass_through</name>
-        <description>Apply cloud downsample on VIEW_CLOUD or not</description>
-        <type>Boolean</type>
-        <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-        <overrides>
-          <parameter>PointCloudDownsampler/pass_through</parameter>
-        </overrides>
-      </configurationParameter>
-      <configurationParameter>
-        <name>leaf_size</name>
-        <description>Leaf Size</description>
-        <type>Float</type>
-        <multiValued>false</multiValued>
-        <mandatory>true</mandatory>
-        <overrides>
-          <parameter>PointCloudDownsampler/leaf_size</parameter>
-        </overrides>
-      </configurationParameter>
-      <configurationParameter>
         <name>minY</name>
         <description>Min threshold for cloud filter</description>
         <type>Float</type>
@@ -213,6 +193,16 @@
         <mandatory>true</mandatory>
         <overrides>
           <parameter>NormalEstimator/radiusSearch</parameter>
+        </overrides>
+      </configurationParameter>
+      <configurationParameter>
+        <name>use_non_nan_cloud</name>
+        <description>Option to use non-NAN cloud in PlaneAnnotator</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+        <overrides>
+          <parameter>PlaneAnnotator/use_non_nan_cloud</parameter>
         </overrides>
       </configurationParameter>
       <configurationParameter>
@@ -796,18 +786,6 @@
         </value>
       </nameValuePair>
       <nameValuePair>
-        <name>pass_through</name>
-        <value>
-          <boolean>true</boolean>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
-        <name>leaf_size</name>
-        <value>
-          <float>0.001f</float>
-        </value>
-      </nameValuePair>
-      <nameValuePair>
         <name>maxY</name>
         <value>
           <float>1.2f</float>
@@ -835,6 +813,12 @@
         <name>radiusSearch</name>
         <value>
           <float>0.005f</float>
+        </value>
+      </nameValuePair>
+      <nameValuePair>
+        <name>use_non_nan_cloud</name>
+        <value>
+          <boolean>true</boolean>
         </value>
       </nameValuePair>
       <nameValuePair>

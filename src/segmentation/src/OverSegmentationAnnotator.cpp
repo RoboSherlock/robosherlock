@@ -133,6 +133,7 @@ public:
     rs::Scene scene = cas.getScene();
 
     //check routine to use scene cloud or object cloud
+    bool useObjectCloud = false;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr normals_ptr (new pcl::PointCloud<pcl::Normal>);
     cas.get(VIEW_CLOUD_OBJECTS, *cloud_ptr);
@@ -148,13 +149,21 @@ public:
     {
       //get normal cloud
       cas.get(VIEW_NORMALS_OBJECTS, *normals_ptr);
+      useObjectCloud = true;
     }
 
-    std::vector<rs::Plane> planes;
-    scene.annotations.filter(planes);
+    outInfo("Cloud size: " << cloud_ptr->size());
+    outInfo("Normals size: " << normals_ptr->size());
 
     segmenter.setInputClouds(cloud_ptr, normals_ptr);
-    segmenter.removePlanes(planes);
+
+    if(!useObjectCloud)
+    {
+      std::vector<rs::Plane> planes;
+      scene.annotations.filter(planes);
+
+      segmenter.removePlanes(planes);
+    }
 
     std::vector<pcl::PointIndices> rotational_segments;
     std::vector<pcl::PointIndices> bilateral_segments;

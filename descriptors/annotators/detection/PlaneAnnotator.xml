@@ -18,6 +18,14 @@
       </configurationParameter>
 
       <configurationParameter>
+        <name>use_non_nan_cloud</name>
+        <description>Option to use non-NAN cloud or not</description>
+        <type>Boolean</type>
+        <multiValued>false</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+
+      <configurationParameter>
         <name>save_to_file</name>
         <description>save plane model coeffs. Saves model coeffs to robosherlock/config/plane_model.xml</description>
         <type>Boolean</type>
@@ -69,6 +77,13 @@
         <name>plane_estimation_mode</name>
         <value>
           <string>PCL</string>
+        </value>
+      </nameValuePair>
+
+      <nameValuePair>
+        <name>use_non_nan_cloud</name>
+        <value>
+          <string>false</string>
         </value>
       </nameValuePair>
 

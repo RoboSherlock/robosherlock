@@ -103,11 +103,11 @@ bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
 }
 
 void OverSegmenter::removeSegments(std::vector<pcl::PointIndices> &rotational_segments,
-                                     std::vector<pcl::PointIndices> &bilateral_segments)
+                                   std::vector<pcl::PointIndices> &bilateral_segments)
 {
-  std::vector<int> cloudObjectIds(cloud->size());
+  std::vector<int> cloudObjectIds(this->cloud->size());
   std::vector<int> segmentIds;
-  for(size_t pointId = 0; pointId < cloud->size(); pointId++)
+  for(size_t pointId = 0; pointId < this->cloud->size(); pointId++)
   {
     cloudObjectIds[pointId] = pointId;
   }
