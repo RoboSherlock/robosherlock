@@ -76,9 +76,6 @@
     <delegateAnalysisEngine key="PCLDescriptorExtractor">
       <import location="../annotators/annotation/PCLDescriptorExtractor.xml"/>
     </delegateAnalysisEngine>
-    <delegateAnalysisEngine key="PCLFeatureExtractor">
-      <import location="../annotators/annotation/PCLVFHFeatureExtractor.xml"/>
-    </delegateAnalysisEngine>
     <delegateAnalysisEngine key="PlaneAnnotator">
       <import location="../annotators/detection/PlaneAnnotator.xml"/>
     </delegateAnalysisEngine>
