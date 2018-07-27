@@ -157,8 +157,7 @@
       </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
-      <fixedFlow>
-       <node>Trigger</node>
+      <fixedFlow>     
        <node>CollectionReader</node>
        <node>ImagePreprocessor</node>
        <node>RegionFilter</node>
