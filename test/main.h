@@ -7,7 +7,7 @@
   extern std::ostringstream engineList;
   extern std::string engine_file;
   extern uima::ErrorInfo errorInfo; */
-  extern uima::AnalysisEngine *engine;
+  extern RSAnalysisEngine engine;
   extern std::string enginePath;
   
 

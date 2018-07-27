@@ -47,45 +47,46 @@ int db_image_height = 0;
 
 int processEngine()
 {
-  const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-  std::string name;
+  //const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
+  //std::string name;
 
-  data.getName().toUTF8String(name);
-  std::cerr<<"Enigne: " << name<<std::endl;
+  //data.getName().toUTF8String(name);
+  //std::cerr<<"Enigne: " << name<<std::endl;
   uima::CAS *cas;
 
-  cas = engine->newCAS();
+  cas = engine.newCAS();
 
-  if(cas == NULL)
+  /*if(cas == NULL)
   {
     std::cerr<<"Creating new CAS failed."<<std::endl;
     engine->destroy();
     delete engine;
     return 0;
-  }
-
+  }*/
   UnicodeString ustrInputText;
-  ustrInputText.fromUTF8(name);
+  //ustrInputText.fromUTF8(name);
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
  
-  const uima::AnalysisEngineMetaData &aeMetaData = engine->getAnalysisEngineMetaData();
-  std::string aeDescription;
-  aeMetaData.getDescription().toUTF8String(aeDescription);
-  uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
+  //const uima::AnalysisEngineMetaData &aeMetaData = engine->getAnalysisEngineMetaData();
+  //std::string aeDescription;
+  //aeMetaData.getDescription().toUTF8String(aeDescription);
+  uima::AnnotatorContext &annotContext = engine.getAnnotatorContext();
   uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
   	
 
  try
     {
       //we process here
-      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+      //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+      engine.process();
+      cas = engine.getCas();	
       rs::SceneCas sceneCas(*cas);
       cv::Mat colorImg;
       sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
       initial_image_width = colorImg.size().width;
       initial_image_height = colorImg.size().height;
-      engine->getAnnotatorContext().releaseCAS(*cas);
+      engine.getAnnotatorContext().releaseCAS(*cas);
     }
     catch(const rs::FrameFilterException &)
     {
@@ -104,26 +105,28 @@ int processEngine()
 	
     }
   }
-
+  
   std::vector<UnicodeString> new_configs;
   new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs);
-  engine->reconfigure();
+  engine.reconfigure();
   
   try
   {
-  uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+  //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+  engine.process();
+  cas = engine.getCas();
   rs::SceneCas sceneCas(*cas);
   cv::Mat colorImg;
   sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
   db_image_width = colorImg.size().width;
   db_image_height = colorImg.size().height;
-  engine->getAnnotatorContext().releaseCAS(*cas);
+  engine.getAnnotatorContext().releaseCAS(*cas);
   }
   catch(const rs::FrameFilterException &){}
-  engine->collectionProcessComplete();
-  engine->destroy();
+  engine.collectionProcessComplete();
+  engine.destroy();
 }
 
 

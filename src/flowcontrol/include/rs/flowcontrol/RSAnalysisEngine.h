@@ -66,6 +66,34 @@ public:
   {
     return rspm;
   }
+/*
+  uima::AnalysisEngineMetaData& getAnalysisEngineMetaData()
+  {
+    return engine->getAnalysisEngineMetaData();
+  } 
+*/
+  
+  uima::CAS* newCAS()
+  {
+    return engine->newCAS();
+  }
+  uima::AnnotatorContext& getAnnotatorContext()
+  {
+    return engine->getAnnotatorContext();
+  }
+  void reconfigure()
+  {
+    engine->reconfigure();
+  }
+  void collectionProcessComplete()
+  {
+    engine->collectionProcessComplete();
+  }
+  void destroy()
+  {
+    engine->destroy();
+  }
+
 
 };
 #endif // RSANALYSISENGINE_H
