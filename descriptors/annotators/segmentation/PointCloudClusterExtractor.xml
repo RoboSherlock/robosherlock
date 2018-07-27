@@ -103,7 +103,7 @@
         <inputSofas>
           <sofaName>rs.pcl.PointCloud</sofaName>
           <sofaName>rs.annotation.Plane</sofaName>
-          <sofaName>rs.pcl.RegionPointCloud</sofaName>
+          <sofaName>rs.pcl.FilteredPointCloud</sofaName>
         </inputSofas>
         <languagesSupported>
           <language>x-unspecified</language>

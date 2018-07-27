@@ -144,7 +144,7 @@
       <capability>
         <inputs/>
         <outputs>
-            <type allAnnotatorFeatures="true">rs.pcl.RegionPointCloud</type>
+            <type allAnnotatorFeatures="true">rs.pcl.FilteredPointCloud</type>
             <type allAnnotatorFeatures="true">rs.annotation.TFLocation</type>
         </outputs>
         <inputSofas>

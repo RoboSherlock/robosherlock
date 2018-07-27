@@ -151,8 +151,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader.ini</string>>
-<!--            <string>config_kinect_robot.ini</string>-->
+            <string>config_kinect_robot.ini</string>
           </array>
         </value>
       </nameValuePair>
@@ -161,13 +160,12 @@
       <fixedFlow>
        <node>CollectionReader</node>
        <node>ImagePreprocessor</node>
-       <node>RegionFilter</node>
+       <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
        <node>ImageSegmentationAnnotator</node>
        <node>PointCloudClusterExtractor</node>
-       <node>ClusterMerger</node>-->
-<!--       <node>StorageWriter</node>-->
+       <node>ClusterMerger</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
