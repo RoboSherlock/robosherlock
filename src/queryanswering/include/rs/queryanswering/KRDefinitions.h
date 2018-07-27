@@ -17,7 +17,8 @@ namespace rs_queryanswering
 static std::vector<std::string> krNamespaces =
 {
   "knowrob",
-  "kitchen"
+  "kitchen",
+  "rs_components"
 };
 
 static std::map<std::string, std::string> krNameMapping =

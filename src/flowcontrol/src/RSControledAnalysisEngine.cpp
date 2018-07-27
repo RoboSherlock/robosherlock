@@ -17,24 +17,30 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
 
   rspm = new RSPipelineManager(engine);
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
-
+  std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
   for(int i = 0; i < non_const_nodes.size(); i++)
   {
     std::string tempString;
     non_const_nodes.at(i).toUTF8String(tempString);
     outInfo(tempString);
+    fixedFlow.push_back(tempString);
   }
 
+#ifdef WITH_JSON_PROLOG
+  jsonPrologInterface.retractAllAnnotators();
+  jsonPrologInterface.assertAnnotators(fixedFlow);
+#endif
   rspm->aengine->getNbrOfAnnotators();
   outInfo("*** Number of Annotators in AnnotatorManager: " << rspm->aengine->getNbrOfAnnotators());
 
-  if(pervasive){
-      // After all annotators have been initialized, pick the default pipeline
-      //this stores the pipeline
-      rspm->setDefaultPipelineOrdering(lowLvlPipeline);
-      //this applies it
-      rspm->setPipelineOrdering(lowLvlPipeline);
+  if(pervasive)
+  {
+    // After all annotators have been initialized, pick the default pipeline
+    //this stores the pipeline
+    rspm->setDefaultPipelineOrdering(lowLvlPipeline);
+    //this applies it
+    rspm->setPipelineOrdering(lowLvlPipeline);
   }
 
   // Get a new CAS
@@ -58,7 +64,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
 void RSControledAnalysisEngine::process()
 {
   std::vector<std::string> desigResponse;
-  process(desigResponse,query_);
+  process(desigResponse, query_);
   setQuery("");
 }
 
@@ -185,14 +191,14 @@ void RSControledAnalysisEngine::process(std::vector<std::string> annotators,
 void RSControledAnalysisEngine::process(std::vector<std::string> annotators, bool reset_pipeline_after_process)
 {
   std::vector<std::string> designator_response;
-  process(annotators, reset_pipeline_after_process, designator_response,query_);
+  process(annotators, reset_pipeline_after_process, designator_response, query_);
 }
 
 template <class T>
 bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson)
-{ 
+{
 
   rs::SceneCas sceneCas(*cas);
   rs::Scene scene = sceneCas.getScene();
@@ -215,14 +221,14 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   {
     sceneCas.get(VIEW_OBJECTS, clusters);
   }
- 
-  outInfo("Clusters size: "<<clusters.size()<<"Designator size: "<<resultDesignators.size());
+
+  outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if(clusters.size()!= resultDesignators.size())
+  if(clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
-  } 
+  }
   for(int i = 0; i < filter.size(); ++i)
   {
     if(!filter[i]) continue;
@@ -374,7 +380,7 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
   cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
   //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  pc_pub_.publish(cloudToAdvertise);  
+  pc_pub_.publish(cloudToAdvertise);
   return true;
 }
 

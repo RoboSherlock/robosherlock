@@ -18,6 +18,8 @@
 #include <tf_conversions/tf_eigen.h>
 
 #include <rs/queryanswering/DesignatorWrapper.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
+
 class RSControledAnalysisEngine: public RSAnalysisEngine
 {
 
@@ -34,6 +36,10 @@ private:
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
   image_transport::ImageTransport it_;
+
+#ifdef WITH_JSON_PROLOG
+  JsonPrologInterface jsonPrologInterface;
+#endif
 
   bool useIdentityResolution_;
   int counter_;

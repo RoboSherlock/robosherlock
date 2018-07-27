@@ -3,15 +3,9 @@
 
 JsonPrologInterface::JsonPrologInterface()
 {
-
   outInfo("Creating ROS Service client for json_prolog");
-
 }
 
-void JsonPrologInterface::init()
-{
-  outInfo("Initializing Prolog Engine(Deprecated)");
-}
 
 bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
     std::vector<std::string> &keys)
@@ -32,35 +26,26 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
                  iter->name.GetString()) != std::end(rs_queryanswering::rsQueryTerms))
     {
       keys.push_back(iter->name.GetString());
+      //for a select member of keys (type, class, shape, color) let's add value reasoning;
+      std::vector<std::string> special_keys = {"type", "class", "shape", "color"};
+      if(std::find(special_keys.begin(), special_keys.end(),
+                   iter->name.GetString()) != std::end(special_keys))
+      {
+        outInfo("Asserting value key pair: " << iter->value.GetString());
+        std::stringstream assertionQuery;
+        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," << iter->value.GetString() << ")";
+        json_prolog::Prolog pl;
+        json_prolog::PrologQueryProxy bdgs = pl.query(assertionQuery.str());
+        if(bdgs.begin() != bdgs.end())
+        {
+          outInfo("Asserted: " << assertionQuery.str());
+          return true;
+        }
+      }
     }
     else
     {
       outWarn(iter->name.GetString() << " is not a valid query-language term");
-    }
-  }
-  if(json.HasMember("type"))
-  {
-    std::string det = json["type"].GetString();
-    if(det == "PANCAKE" || det == "pancake")
-    {
-      keys.push_back("pancakedetector");
-    }
-  }
-  if(json.HasMember("obj-part"))
-  {
-    std::string det = json["obj-part"].GetString();
-    if(det.find(det) != std::string::npos)
-    {
-      keys.clear();
-      keys.push_back("handle");
-    }
-  }
-  if(json.HasMember("class"))
-  {
-    std::string det = json["class"].GetString();
-    if(det == "FoodOrDrinkOrIngredient")
-    {
-      keys.push_back("pancakedetector");
     }
   }
   return true;
@@ -70,7 +55,7 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
 bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string *desig,
     std::string &prologQuery)
 {
-  prologQuery = "build_single_pipeline_from_predicates([";
+  prologQuery = "build_pipeline_from_predicates([";
   std::vector<std::string> queriedKeys;
   extractQueryKeysFromDesignator(desig, queriedKeys);
   for(int i = 0; i < queriedKeys.size(); i++)
@@ -102,7 +87,7 @@ std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std:
 }
 
 bool JsonPrologInterface::planPipelineQuery(const std::vector<std::string> &keys,
-                                        std::vector<std::string> &pipeline)
+    std::vector<std::string> &pipeline)
 {
 
   outInfo("Calling Json Prolog");
@@ -177,6 +162,39 @@ bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
   }
   return false;
 
+}
+
+bool JsonPrologInterface::retractAllAnnotators()
+{
+     std::stringstream query;
+     query<< "owl_subclass_of(S,rs_components:'RoboSherlockComponent'),rdf_retractall(_,rdf:type,S)";
+     json_prolog::Prolog pl;
+     pl.query(query.str());
+     return true;
+}
+
+bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNames)
+{
+  json_prolog::Prolog pl;
+  for(auto a : annotatorNames)
+  {
+    if(addNamespace(a))
+    {
+      std::stringstream prologQuery;
+      prologQuery << "owl_instance_from_class(" << a << "," << "I)";
+      json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
+      for(auto bdg : bdgs)
+      {
+        outInfo("Individual generated: " << bdg["I"]);
+      }
+    }
+    else
+    {
+      outError("Annotator not modelled in KB:" << a);
+      continue;
+    }
+  }
+  return true;
 }
 
 bool JsonPrologInterface::addNamespace(std::string &entry)

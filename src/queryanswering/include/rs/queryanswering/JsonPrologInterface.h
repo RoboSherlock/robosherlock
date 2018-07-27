@@ -25,12 +25,6 @@
 //wrapper class for Prolog Engine based on SWI-C++
 class JsonPrologInterface
 {
-#ifdef WITH_JSON_PROLOG
-
-//  typedef std::shared_ptr<PlEngine> PlEnginePtr;
-//  PlEnginePtr engine;
-#endif
-
   std::vector<std::string> krNamespaces;
 
 public:
@@ -38,12 +32,6 @@ public:
   ~JsonPrologInterface()
   {
   }
-
-
-  /*brief
-   * initialize the necessary knowrob packages
-   */
-  void init();
 
   /*
    * in: vector of keys extracted from query
@@ -79,6 +67,16 @@ public:
    * */
   bool buildPrologQueryFromDesignator(std::string *desig,
                                       std::string &prologQuery);
+
+
+  bool retractAllAnnotators();
+
+  /*brief
+   * create individuals for the anntators in the list
+   * in: vector containing annotator names
+   * return true on succes:
+   * */
+  bool assertAnnotators(std::vector<std::string> annotatorNames);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 
