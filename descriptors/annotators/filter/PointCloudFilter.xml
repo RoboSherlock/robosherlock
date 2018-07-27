@@ -96,12 +96,17 @@
     <typePriorities/>
     <capabilities>
       <capability>
-        <inputs/>
-        <outputs/>
+	<inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">rs.pcl.FilteredPointCloud</type>
+        </outputs>
+        <inputSofas>
+          <sofaName>rs.pcl.PointCloud</sofaName>
+        </inputSofas>
         <languagesSupported>
           <language>x-unspecified</language>
         </languagesSupported>
-      </capability>
+	</capability>
     </capabilities>
     <operationalProperties>
       <modifiesCas>true</modifiesCas>
