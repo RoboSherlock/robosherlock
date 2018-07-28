@@ -136,7 +136,7 @@
           <type allAnnotatorFeatures="true">rs.annotation.Plane</type>
         </outputs>
         <inputSofas>
-          <sofaName>rs.pcl.RegionPointCloud</sofaName>
+          <sofaName>rs.pcl.FilteredPointCloud</sofaName>
         </inputSofas>
         <languagesSupported>
           <language>x-unspecified</language>

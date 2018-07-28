@@ -8,6 +8,8 @@ cache:
   directories:
   - apt
 
+services: mongodb
+
 addons:
   apt:
     packages:
