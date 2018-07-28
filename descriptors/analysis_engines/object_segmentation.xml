@@ -781,32 +781,32 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_kinect_robot.ini</string>
+            <string>config_data_loader.ini</string>
           </array>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxY</name>
         <value>
-          <float>1.2f</float>
+          <float>0.13f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>minY</name>
         <value>
-          <float>-0.2f</float>
+          <float>-0.4f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>maxX</name>
         <value>
-          <float>0.5f</float>
+          <float>0.3f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
         <name>minX</name>
         <value>
-          <float>-0.8f</float>
+          <float>-0.3f</float>
         </value>
       </nameValuePair>
       <nameValuePair>
@@ -1161,13 +1161,14 @@
           <name>min_segment_size</name>
           <value>
               <integer>100</integer>
-          </value>
+          </value>9
       </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
       <fixedFlow>
        <!--<node>Trigger</node>-->
        <node>CollectionReader</node>
+       <node>ImagePreprocessor</node>
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
