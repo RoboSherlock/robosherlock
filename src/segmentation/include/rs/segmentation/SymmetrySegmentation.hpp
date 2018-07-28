@@ -25,7 +25,7 @@
 
 #include <rs/utils/output.h>
 
-#include <rs/graph/WeightedGraph.hpp>
+#include <rs/graph/WeightedGraph.h>
 #include <rs/mapping/PointCloudMap.hpp>
 #include <rs/mapping/DownsampleMap.hpp>
 

@@ -17,9 +17,6 @@
  * limitations under the License.
  */
 
-#ifndef __WEIGHTED_GRAPH_HPP__
-#define __WEIGHTED_GRAPH_HPP__
-
 #include <rs/graph/WeightedGraph.h>
 #include <rs/utils/output.h>
 
@@ -29,13 +26,13 @@ WeightedGraph::WeightedGraph(const int numVertices) : GraphBase<Vertex, Weighted
 
 WeightedGraph::~WeightedGraph() {}
 
-inline bool WeightedGraph::addEdge(const int v1_id, const int v2_id, const float weight)
+bool WeightedGraph::addEdge(const int v1_id, const int v2_id, const float weight)
 {
   WeightedEdge edge(v1_id, v2_id, weight);
   return GraphBase<Vertex, WeightedEdge>::addEdge(edge);
 }
 
-inline bool WeightedGraph::getEdge(const int edge_id, int &v1_id, int &v2_id, float &weight)
+bool WeightedGraph::getEdge(const int edge_id, int &v1_id, int &v2_id, float &weight)
 {
   if(edge_id < 0 || edge_id >= list_edge.size())
   {
@@ -56,13 +53,13 @@ inline bool WeightedGraph::getEdge(const int edge_id, int &v1_id, int &v2_id, fl
   return found;
 }
 
-inline bool WeightedGraph::getEdgeWeight(const int edge_id, float& weight)
+bool WeightedGraph::getEdgeWeight(const int edge_id, float& weight)
 {
   int v1, v2;
   return this->getEdge(edge_id, v1, v2, weight);
 }
 
-inline bool WeightedGraph::getEdgeWeight(const int v1_id, const int v2_id, float &weight)
+bool WeightedGraph::getEdgeWeight(const int v1_id, const int v2_id, float &weight)
 {
   int edge_id;
   bool found = GraphBase<Vertex, WeightedEdge>::getEdgeId(v1_id, v2_id, edge_id);
@@ -77,7 +74,7 @@ inline bool WeightedGraph::getEdgeWeight(const int v1_id, const int v2_id, float
   return found;
 }
 
-inline bool WeightedGraph::setEdgeWeight(const int edge_id, const float weight)
+bool WeightedGraph::setEdgeWeight(const int edge_id, const float weight)
 {
   if(edge_id < 0 || edge_id >= list_edge.size())
   {
@@ -88,7 +85,7 @@ inline bool WeightedGraph::setEdgeWeight(const int edge_id, const float weight)
   return true;
 }
 
-inline bool WeightedGraph::setEdgeWeight(const int v1_id, const int v2_id, const float weight)
+bool WeightedGraph::setEdgeWeight(const int v1_id, const int v2_id, const float weight)
 {
   int edge_id;
   bool found = GraphBase<Vertex, WeightedEdge>::getEdgeId(v1_id, v2_id, edge_id);
@@ -99,5 +96,3 @@ inline bool WeightedGraph::setEdgeWeight(const int v1_id, const int v2_id, const
 
   return found;
 }
-
-#endif // __WEIGHTED_GRAPH_HPP__

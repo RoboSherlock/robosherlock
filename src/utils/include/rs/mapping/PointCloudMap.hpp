@@ -27,7 +27,7 @@
 #include <rs/utils/output.h>
 
 #include <rs/graph/GraphBase.hpp>
-#include <rs/graph/GraphPrimitives.hpp>
+#include <rs/graph/GraphPrimitives.h>
 
 /** \brief Function compute a adjacency graph within radius or nearest neighbors from point cloud.
  *  \param[in]  cloud             input cloud

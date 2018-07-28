@@ -21,7 +21,7 @@
 #define __WEIGHTED_GRAPH_H__
 
 #include <rs/graph/GraphBase.hpp>
-#include <rs/graph/GraphPrimitives.hpp>
+#include <rs/graph/GraphPrimitives.h>
 
 /** \brief Data structure represents undirected and weighted graph.
  *  Self loop is not allowed.
@@ -44,7 +44,7 @@ public:
    *  \param[in] weight    edge weight
    *  \return false if graph is not consistent
    */
-  inline bool addEdge(const int v1_id, const int v2_id, const float weight);
+  bool addEdge(const int v1_id, const int v2_id, const float weight);
 
   /** \brief Get edge contained its vertex indices and its weight from its index.
    *  \param[in]  edge_id   index of edge
@@ -53,7 +53,7 @@ public:
    *  \param[out] weight    edge weight
    *  \return false if edge is not found.
    */
-  inline bool getEdge(const int edge_id, int& v1_id, int &v2_id, float &weight);
+  bool getEdge(const int edge_id, int& v1_id, int &v2_id, float &weight);
 
   /** \brief Get edge weight from the edge's vertex indices.
    *  \param[in] v1_id     index of first vertex
@@ -61,14 +61,14 @@ public:
    *  \param[out] weight    edge weight
    *  \return false if edge is not found.
    */
-  inline bool getEdgeWeight(const int v1_id, const int v2_id, float &weight);
+  bool getEdgeWeight(const int v1_id, const int v2_id, float &weight);
 
   /** \brief Get edge weight from edge index.
    *  \param[in]  edge_id     edge index
    *  \param[out] weight      edge weight
    *  \return false if edge is not found.
    */
-  inline bool getEdgeWeight(const int edge_id, float &weight);
+  bool getEdgeWeight(const int edge_id, float &weight);
 
   /** \brief Set edge weight from the edge's vertex indices.
    *  \param[in] v1_id     index of first vertex
@@ -76,14 +76,14 @@ public:
    *  \param[in] weight    edge weight
    *  \return false if edge is not found.
    */
-  inline bool setEdgeWeight(const int v1_id, const int v2_id, const float weight);
+  bool setEdgeWeight(const int v1_id, const int v2_id, const float weight);
 
   /** \brief Set edge weight from edge index.
    *  \param[in]  edge_id     edge index
    *  \param[in] weight    edge weight
    *  \return false if edge is not found.
    */
-  inline bool setEdgeWeight(const int edge_id, const float weight);
+  bool setEdgeWeight(const int edge_id, const float weight);
 };
 
 

@@ -156,16 +156,16 @@ public:
     Eigen::Vector3f mid = (point1 + point2) / 2;
     return pointSignedDist(mid);
   }
-};
 
-/** \brief overrided method to output symmetry plane
- */
-std::ostream& operator<<(std::ostream &output, const BilateralSymmetry &symmetry)
-{
-  output << "Origin: " << symmetry.getOrigin().transpose() << '\n';
-  output << "Normal: " << symmetry.getNormal().transpose() << '\n';
-  return output;
-}
+  /** \brief overrided method to output symmetry plane
+   */
+  std::ostream& operator<<(std::ostream &output)
+  {
+    output << "Origin: " << origin.transpose() << '\n';
+    output << "Normal: " << normal.transpose() << '\n';
+    return output;
+  }
+};
 
 enum CorrespondenceMethod
 {
