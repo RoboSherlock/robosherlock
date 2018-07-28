@@ -99,16 +99,17 @@ void RSProcessManager::run()
 {
   for(; ros::ok();)
   {
-    processing_mutex_.lock();
-    if(waitForServiceCall_ || pause_)
     {
-      usleep(100000);
+      std::lock_guard<std::mutex> lock(processing_mutex_);
+      if(waitForServiceCall_ || pause_)
+      {
+        usleep(100000);
+      }
+      else
+      {
+        engine_.process(true);
+      }
     }
-    else
-    {
-      engine_.process(true);
-    }
-    processing_mutex_.unlock();
     usleep(100000);
     ros::spinOnce();
   }
@@ -193,10 +194,10 @@ bool RSProcessManager::resetAE(std::string newContextName)
 
     fs.release();
 
-    processing_mutex_.lock();
-    this->init(contextAEPath, configFile_, false, parallel_);
-    processing_mutex_.unlock();
-
+    {
+      std::lock_guard<std::mutex> lock(processing_mutex_);
+      this->init(contextAEPath, configFile_, false, parallel_);
+    }
     //shouldn't there be an fs.release() here?
 
     return true;

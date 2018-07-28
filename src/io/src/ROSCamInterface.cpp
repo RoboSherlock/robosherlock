@@ -53,7 +53,7 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
   {
     try
     {
-      outDebug("lookup viewpoint: " << timestamp);
+      //outDebug("lookup viewpoint: " << timestamp);
       listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(2));
       listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
     }
@@ -69,7 +69,7 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
       const double angle = lastTransform.getRotation().angleShortestPath(transform.getRotation()) * 180.0 / M_PI;
       lastTransform = transform;
 
-      outDebug("viewpoint changes: distance: " << distance << " angle: " << angle);
+      //outDebug("viewpoint changes: distance: " << distance << " angle: " << angle);
       if(distance > maxViewpointDistance || angle > maxViewpointRotation)
       {
         outDebug("viewpoint changed!");

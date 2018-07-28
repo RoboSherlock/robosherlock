@@ -228,6 +228,7 @@ private:
   ~CollectionReader()
   {
     broadCasterObject_.terminate();
+    thread_.join();
   }
 
 public:
@@ -250,7 +251,7 @@ public:
     }
 
     thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
-    thread_.detach();
+//    thread_.detach();
 
     //this needs to be set in order to rewrite parameters
     setAnnotatorContext(ctx);
@@ -269,6 +270,7 @@ public:
       {
         delete cameras_[i];
       }
+      cameras_.clear();
 
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);

@@ -157,10 +157,9 @@
       </nameValuePair>
     </configurationParameterSettings>
     <flowConstraints>
-      <fixedFlow>     
+      <fixedFlow>
        <node>CollectionReader</node>
        <node>ImagePreprocessor</node>
-       <node>RegionFilter</node>
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>

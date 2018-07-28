@@ -20,12 +20,19 @@
 #ifndef __GRAPH_ALGORITHMS_HPP__
 #define __GRAPH_ALGORITHMS_HPP__
 
-#include <rs/graph/GraphAlgorithms.h>
 #include <vector>
 #include <queue>
 #include <utility>
 #include <algorithm>
 
+#include <rs/graph/DirectedGraphBase.hpp>
+#include <rs/graph/GraphBase.hpp>
+
+
+/** \brief Breadth first search algorithm to find connected components in a graph.
+ *  \param[in]  graph      GraphBase<Vertex, Edge>
+ *  \return a vector of vector of integer represents cluster of connected component indices
+ */
 template<typename VertexT, typename EdgeT>
 inline std::vector< std::vector<int> > extractConnectedComponents(GraphBase<VertexT, EdgeT> &graph)
 {

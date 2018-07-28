@@ -59,8 +59,10 @@
       <supertypeName>rs.pcl.PointCloud</supertypeName>
     </typeDescription>
     <typeDescription>
-      <name>rs.pcl.RegionPointCloud</name>
-      <description/>
+      <name>rs.pcl.FilteredPointCloud</name>
+      <description> Semantic differentiation between a cloud that has been filtered 
+		    using Region filter or any other Point cloud fitler
+      </description>
       <supertypeName>rs.pcl.PointCloud</supertypeName>
     </typeDescription>
     <typeDescription>
