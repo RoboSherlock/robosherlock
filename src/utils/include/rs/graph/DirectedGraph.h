@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#ifndef __DIRECTED_GRAPH_HPP__
-#define __DIRECTED_GRAPH_HPP__
+#ifndef __DIRECTED_GRAPH_H__
+#define __DIRECTED_GRAPH_H__
 
 #include <rs/graph/DirectedGraphBase.hpp>
 #include <rs/graph/GraphPrimitives.h>
@@ -26,10 +26,10 @@
 class DirectedGraph : public DirectedGraphBase<DirectedVertex, DirectedEdge>
 {
 public:
-  DirectedGraph() : DirectedGraphBase<DirectedVertex, DirectedEdge>() {}
-  DirectedGraph(const int numVertices) : DirectedGraphBase<DirectedVertex, DirectedEdge>(numVertices) {}
+  DirectedGraph();
+  DirectedGraph(const int numVertices);
 
-  ~DirectedGraph() {}
+  ~DirectedGraph();
 };
 
-#endif // __DIRECTED_GRAPH_HPP__
+#endif // __DIRECTED_GRAPH_H__

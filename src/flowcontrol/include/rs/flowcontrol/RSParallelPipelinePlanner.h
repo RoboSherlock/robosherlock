@@ -25,7 +25,7 @@
 #include <rs/scene_cas.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
-#include <rs/graph/DirectedGraph.hpp>
+#include <rs/graph/DirectedGraph.h>
 #include <rs/graph/GraphAlgorithms.hpp>
 #include <rs/graph/GraphPrimitives.h>
 
