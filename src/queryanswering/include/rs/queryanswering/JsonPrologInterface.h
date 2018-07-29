@@ -4,6 +4,8 @@
 #ifdef WITH_JSON_PROLOG
 //boost
 #include <boost/algorithm/string.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+
 
 //ros
 #include <ros/package.h>
@@ -31,6 +33,7 @@ public:
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
+       xercesc::XMLPlatformUtils::Terminate();
   }
 
   /*
@@ -77,6 +80,13 @@ public:
    * return true on succes:
    * */
   bool assertAnnotators(std::vector<std::string> annotatorNames);
+
+  /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
+   *
+   * */
+  bool assertAnnotatorMetaInfo(std::string annotator){
+
+  }
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

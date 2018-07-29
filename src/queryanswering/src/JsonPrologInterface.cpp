@@ -1,9 +1,18 @@
 #include <rs/queryanswering/JsonPrologInterface.h>
 #ifdef WITH_JSON_PROLOG
 
+using namespace xercesc;
+
 JsonPrologInterface::JsonPrologInterface()
 {
   outInfo("Creating ROS Service client for json_prolog");
+  try {
+    XMLPlatformUtils::Initialize();
+  }
+  catch (const XMLException& toCatch) {
+      outInfo("error starting an xml parser");
+  }
+
 }
 
 
