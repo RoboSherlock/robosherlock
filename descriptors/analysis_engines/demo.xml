@@ -151,7 +151,7 @@
         <name>camera_config_files</name>
         <value>
           <array>
-            <string>config_data_loader.ini</string>
+            <string>config_kinect_robot.ini</string>
           </array>
         </value>
       </nameValuePair>
@@ -163,7 +163,6 @@
        <node>PointCloudFilter</node>
        <node>NormalEstimator</node>
        <node>PlaneAnnotator</node>
-       <node>TransparentSegmentationAnnotator</node>
        <node>ImageSegmentationAnnotator</node>
        <node>PointCloudClusterExtractor</node>
        <node>ClusterMerger</node>
