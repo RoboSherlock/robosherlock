@@ -115,8 +115,8 @@ uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
   uima::TyErrorId err = UIMA_ERR_NONE;
   uima::ResultSpecification resultSpec = resSpec;
 
-  assert(iv_bIsInitialized);
-  assert(!iv_vecEntries.empty());
+  assert(iv_annotatorMgr.iv_bIsInitialized);
+  assert(!iv_annotatorMgr.iv_vecEntries.empty());
   assert(!currentOrderingIndices.empty());
   assert(currentOrderingIndices.size() == currentOrderings.size());
 
