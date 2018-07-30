@@ -71,8 +71,7 @@ int processEngine()
   //const uima::AnalysisEngineMetaData &aeMetaData = engine->getAnalysisEngineMetaData();
   //std::string aeDescription;
   //aeMetaData.getDescription().toUTF8String(aeDescription);
-  uima::AnnotatorContext &annotContext = engine.getAnnotatorContext();
-  uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
+  
   	
 
  try
@@ -92,29 +91,12 @@ int processEngine()
     {
       outError("There is an error in the rs");
     }
-  UnicodeString ucs_delegate("CollectionReader");
-  uima::AnnotatorContext *cr_context =  annotContext.extractDelegate(ucs_delegate);
 
-  if(cr_context->isParameterDefined("camera_config_files"))
-  {
-    std::vector<std::string *> values;
-    cr_context->extractValue("camera_config_files", values);
-    for (auto v:values)
-    {
-       std::cerr<<*v<<std::endl;
-	
-    }
-  }
-  
-  std::vector<UnicodeString> new_configs;
-  new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
-   
-  cr_context->assignValue(UnicodeString("camera_config_files"),new_configs);
+  engine.overwriteParam("CollectionReader","camera_config_files","config_mongodb_playback_utest.ini");
   engine.reconfigure();
   
   try
   {
-  //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
   engine.process();
   cas = engine.getCas();
   rs::SceneCas sceneCas(*cas);
