@@ -19,15 +19,6 @@
 
 #include <uima/api.hpp>
 #include <vector>
-#include <omp.h>
-#include <mutex>
-
-//PCL include
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/features/boundary.h>
-#include <pcl/common/io.h>
-#include <pcl/search/impl/kdtree.hpp>
 
 //RS
 #include <rs/scene_cas.h>
@@ -35,23 +26,10 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/utils/array_utils.hpp>
-#include <rs/segmentation/BoundarySegmentation.hpp>
-#include <rs/segmentation/RotationalSymmetry.hpp>
-#include <rs/segmentation/RotationalSymmetryScoring.hpp>
-#include <rs/segmentation/SymmetrySegmentation.hpp>
-
-#include <rs/mapping/DistanceMap.hpp>
-#include <rs/mapping/DownsampleMap.hpp>
-
-#include <rs/graph/WeightedGraph.hpp>
-#include <rs/graph/Graph.hpp>
-#include <rs/graph/GraphAlgorithms.hpp>
-
+#include <rs/segmentation/RotationalSymmetrySegmenter.h>
 #include <rs/visualization/Primitives.hpp>
 
 using namespace uima;
-
 
 class RotationalSymmetrySegmentation : public DrawingAnnotator
 {
@@ -59,39 +37,14 @@ private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr sceneCloud;
   pcl::PointCloud<pcl::Normal>::Ptr sceneNormals;
 
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dsSceneCloud;
-  pcl::PointCloud<pcl::Normal>::Ptr dsSceneNormals;
+  std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segments;
 
-  boost::shared_ptr< DistanceMap<pcl::PointXYZRGBA> > dist_map;
-  std::vector<Eigen::Vector4f> boundingPlanes;
+  RotationalSymmetrySegmenter segmenter;
 
-  WeightedGraph sceneGraph;
-
-  std::vector<RotationalSymmetry> symmetries;
-  std::vector<RotationalSymmetry> finalSymmetries;
-  int numSymmetries;
-
-  std::vector< float > symmetryScores;
-  std::vector< float > occlusionScores;
-  std::vector< float > cutScores;
-
-  std::vector< std::vector< float > > pointSymScores;
-  std::vector< std::vector< float > > pointOcclusionScores;
-  std::vector< std::vector< float > > pointPerpendicularScores;
-
-  std::vector< std::vector<int> > dsMap;
-
-  std::vector< std::vector< float > > fgWeights;
-  std::vector< std::vector< float > > bgWeights;
-
-  std::vector< std::vector<int> > dsSegmentIds;
   std::vector< std::vector<int> > segmentIds;
 
-  std::vector< pcl::PointCloud<pcl::PointXYZRGBA>::Ptr > segments;
-  std::vector<int> filteredSegmentIds;
-  std::vector<int> mergedSegmentIds;
-
   //parameters
+  int numSymmetries;
   bool rotSymSeg_isDownsampled;
   float downsample_leaf_size;
 
@@ -129,15 +82,11 @@ private:
     SEGMENT
   } dispMode;
 
-  std::mutex sym_mutex;
-
 public:
   RotationalSymmetrySegmentation () : DrawingAnnotator(__func__), pointSize(1.0), segVisIt(0), dispMode(ALL)
   {
     sceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
     sceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
-    dsSceneCloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    dsSceneNormals = pcl::PointCloud<pcl::Normal>::Ptr(new pcl::PointCloud<pcl::Normal>);
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -166,6 +115,27 @@ public:
 
     ctx.extractValue("overlap_threshold", overlap_threshold);
 
+    segmenter.initialize(rotSymSeg_isDownsampled,
+                         downsample_leaf_size,
+                         dist_map_resolution,
+                         rotSymSeg_adjacency_radius,
+                         rotSymSeg_num_adjacency_neighbors,
+                         adjacency_sigma_convex,
+                         adjacency_sigma_concave,
+                         rotSymSeg_adjacency_weight_factor,
+                         rotSymSeg_min_fit_angle,
+                         rotSymSeg_max_fit_angle,
+                         rotSymSeg_min_occlusion_dist,
+                         rotSymSeg_max_occlusion_dist,
+                         rotSymSeg_max_perpendicular_angle,
+                         rotSymSeg_fg_weight_factor,
+                         rotSymSeg_bg_weight_factor,
+                         rotSymSeg_max_sym_score,
+                         rotSymSeg_max_occlusion_score,
+                         rotSymSeg_max_cut_score,
+                         min_segment_size,
+                         overlap_threshold);
+
     return UIMA_ERR_NONE;
   }
 
@@ -182,25 +152,6 @@ public:
     outInfo("process begins");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-
-    //clearing previous data
-    symmetryScores.clear();
-    occlusionScores.clear();
-    cutScores.clear();
-    pointSymScores.clear();
-    pointOcclusionScores.clear();
-    pointPerpendicularScores.clear();
-    dsMap.clear();
-    fgWeights.clear();
-    bgWeights.clear();
-    symmetries.clear();
-    finalSymmetries.clear();
-    segmentIds.clear();
-    dsSegmentIds.clear();
-    segments.clear();
-    filteredSegmentIds.clear();
-    mergedSegmentIds.clear();
-    boundingPlanes.clear();
 
     //get RGB objects cloud
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr (new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -222,7 +173,10 @@ public:
     sceneCloud = cloud_ptr;
     sceneNormals = normals_ptr;
 
+    segmenter.setInputClouds(sceneCloud, sceneNormals);
+
     //get Rotational Symmteries
+    std::vector<RotationalSymmetry> symmetries;
     std::vector<rs::RotationalSymmetry> casSymmetries;
     cas.get(VIEW_ROTATIONAL_SYMMETRIES, casSymmetries);
     numSymmetries = casSymmetries.size();
@@ -232,8 +186,6 @@ public:
       outWarn("No input rotational symmteries! Segmentation abort!");
       return UIMA_ERR_NONE;
     }
-
-
     symmetries.resize(numSymmetries);
 
     for(size_t it = 0; it < casSymmetries.size(); it++)
@@ -243,137 +195,14 @@ public:
       symmetries[it] = RotationalSymmetry(currOrigin, currOrientation);
     }
 
-    //allocating containers
-    symmetryScores.resize(numSymmetries);
-    occlusionScores.resize(numSymmetries);
-    cutScores.resize(numSymmetries);
-    pointSymScores.resize(numSymmetries);
-    pointOcclusionScores.resize(numSymmetries);
-    pointPerpendicularScores.resize(numSymmetries);
-    fgWeights.resize(numSymmetries);
-    bgWeights.resize(numSymmetries);
-    segmentIds.resize(numSymmetries);
-    dsSegmentIds.resize(numSymmetries);
+    segmenter.setInputSymmetries(symmetries);
 
     //main execution
+    segmenter.segment();
 
-    //downsample the cloud and normal cloud to speed up segmentation
-    if(rotSymSeg_isDownsampled)
-    {
-      std::vector<int> nearestMap;
-      DownsampleMap<pcl::PointXYZRGBA> dc;
-      dc.setInputCloud(sceneCloud);
-      dc.setLeafSize(downsample_leaf_size);
-      dc.filter(*dsSceneCloud);
-      dc.getDownsampleMap(dsMap);
-      dc.getNearestNeighborMap(nearestMap);
+    segmenter.getSegmentIds(segmentIds);
 
-      computeDownsampleNormals(sceneNormals, dsMap, nearestMap, AVERAGE, dsSceneNormals);
-    }
-    else
-    {
-      dsSceneCloud = sceneCloud;
-      dsSceneNormals = sceneNormals;
-    }
-
-    //get bounding planes
-    std::vector<rs::Plane> planes;
-    scene.annotations.filter(planes);
-    boundingPlanes.resize(planes.size());
-    if(planes.empty())
-    {
-      outWarn("Planes are not found! Using default plane z=0");
-      boundingPlanes.push_back(Eigen::Vector4f::UnitZ());
-    }
-    else
-    {
-      for(size_t planeId = 0; planeId < planes.size(); planeId++)
-      {
-        boundingPlanes[planeId] = Eigen::Vector4f(planes[planeId].model()[0], planes[planeId].model()[1], planes[planeId].model()[2], planes[planeId].model()[3]);
-      }
-    }
-
-    //initialize distance map
-    dist_map = boost::shared_ptr< DistanceMap< pcl::PointXYZRGBA > >(new DistanceMap <pcl::PointXYZRGBA> (dist_map_resolution));
-    dist_map->setBoundingPlanes(boundingPlanes);
-    dist_map->setInputCloud(sceneCloud);
-
-    //compute adjacency weigth for smoothness term
-    if(!computeCloudAdjacencyWeight<pcl::PointXYZRGBA>(dsSceneCloud, dsSceneNormals, rotSymSeg_adjacency_radius, rotSymSeg_num_adjacency_neighbors, sceneGraph, rotSymSeg_adjacency_weight_factor))
-    {
-      outWarn("Could not construct adjacency graph!");
-      return UIMA_ERR_NONE;
-    }
-
-
-    #pragma omp parallel for
-    for(size_t symId = 0; symId < numSymmetries; symId++)
-    {
-      //compute point scores for each symmetry
-      getCloudRotationalSymmetryScore<pcl::PointXYZRGBA>(dsSceneCloud, dsSceneNormals, symmetries[symId], pointSymScores[symId], rotSymSeg_min_fit_angle, rotSymSeg_max_fit_angle);
-      getCloudRotationalOcclusionScore<pcl::PointXYZRGBA>(dsSceneCloud, *dist_map, symmetries[symId], pointOcclusionScores[symId], rotSymSeg_min_occlusion_dist, rotSymSeg_max_occlusion_dist);
-      getCloudRotationalPerpendicularScore(sceneNormals, symmetries[symId], pointPerpendicularScores[symId], rotSymSeg_max_perpendicular_angle);
-
-      //compute unary weight from scores
-      fgWeights[symId].resize(dsSceneCloud->points.size());
-      bgWeights[symId].resize(dsSceneCloud->points.size());
-
-      for(size_t pId = 0; pId < dsSceneCloud->points.size(); pId++)
-      {
-        fgWeights[symId][pId] = (1.0f - pointSymScores[symId][pId]) * (1.0f - pointOcclusionScores[symId][pId]) * (1.0f - pointPerpendicularScores[symId][pId]) * rotSymSeg_fg_weight_factor;
-
-        bgWeights[symId][pId] = (pointSymScores[symId][pId] * (1.0f - pointPerpendicularScores[symId][pId]) + pointOcclusionScores[symId][pId]) * rotSymSeg_bg_weight_factor;
-      }
-
-      //sym_mutex.lock();
-
-      std::vector<int> backgroundIds;
-      float min_cut_value;
-      float max_flow = BoykovMinCut::min_cut(fgWeights[symId], bgWeights[symId], sceneGraph, dsSegmentIds[symId], backgroundIds, min_cut_value);
-
-      if(max_flow < 0.0f)
-      {
-        outWarn("Could not segment cloud using Boykov min_cut! abort!");
-      }
-
-      //compute segment score for filtering
-      symmetryScores[symId] = 0.0f;
-      occlusionScores[symId] = 0.0f;
-      cutScores[symId] = 0.0f;
-
-      if(!dsSegmentIds[symId].empty())
-      {
-        for(size_t pointIdIt = 0; pointIdIt < dsSegmentIds[symId].size(); pointIdIt++)
-        {
-          int pointId = dsSegmentIds[symId][pointIdIt];
-          occlusionScores[symId] += pointOcclusionScores[symId][pointId];
-          symmetryScores[symId] += pointSymScores[symId][pointId];
-        }
-        occlusionScores[symId] /= static_cast<float>(dsSegmentIds[symId].size());
-        symmetryScores[symId] /= static_cast<float>(dsSegmentIds[symId].size());
-
-        if(dsSegmentIds[symId].size() != dsSceneCloud->size())
-        {
-          cutScores[symId] = min_cut_value / static_cast<float>(dsSegmentIds[symId].size());
-        }
-      }
-
-      if(rotSymSeg_isDownsampled)
-      {
-        upsample_cloud(dsSegmentIds[symId], dsMap, segmentIds[symId]);
-      }
-      else
-      {
-        segmentIds = dsSegmentIds;
-      }
-
-      //sym_mutex.unlock();
-    }
-
-    //filtering
-    this->filter();
-    this->merge();
-
+    segments.clear();
     if(dispMode == ALL)
     {
       for(size_t pointId = 0; pointId < sceneCloud->size(); pointId++)
@@ -386,10 +215,9 @@ public:
 
     //extract good segment for visualizer and publish to CAS
     std::vector<pcl::PointIndices> casSegments;
-    int finalSize = mergedSegmentIds.size();
-    for(size_t segmentIdIt = 0; segmentIdIt < mergedSegmentIds.size(); segmentIdIt++)
+    int finalSize = segmentIds.size();
+    for(size_t segmentId = 0; segmentId < segmentIds.size(); segmentId++)
     {
-      int segmentId = mergedSegmentIds[segmentIdIt];
       if(dispMode == SEGMENT)
       {
         pcl::PointCloud<pcl::PointXYZRGBA>::Ptr currSegment(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -409,7 +237,6 @@ public:
           sceneCloud->points[pointId].b = b;
         }
       }
-      finalSymmetries.push_back(symmetries[segmentId]);
 
       pcl::PointIndices currSegmentIds;
       currSegmentIds.indices = segmentIds[segmentId];
@@ -437,14 +264,12 @@ public:
       if(dispMode == ALL)
       {
         visualizer.addPointCloud(sceneCloud, cloudname);
-        addSymmetryLines(visualizer, finalSymmetries, 0.4f, 0.8f);
-        visualizer.addText("Total Segment " + std::to_string(mergedSegmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "rot_segments_text");
+        visualizer.addText("Total Segment " + std::to_string(segmentIds.size()), 15, 125, 24, 1.0, 1.0, 1.0, "rot_segments_text");
       }
       else if (dispMode == SEGMENT)
       {
         std::string symname = "sym" + std::to_string(segVisIt+1);
         visualizer.addPointCloud(segments[segVisIt], cloudname);
-        addSymmetryLine(visualizer, finalSymmetries[segVisIt], symname, 0.4f, 0.8f);
         visualizer.addText("Segment " + std::to_string(segVisIt+1) + " / " + std::to_string(segments.size()), 15, 125, 24, 1.0, 1.0, 1.0);
       }
       visualizer.addText(annotatorName, 2, 20, 12, 1, 1, 1, annotatorName);
@@ -477,63 +302,6 @@ private:
       break;
     }
     return true;
-  }
-
-  inline void filter(){
-    for(size_t symId = 0; symId < numSymmetries; symId++)
-    {
-      if( symmetryScores[symId] < rotSymSeg_max_sym_score &&
-          occlusionScores[symId] < rotSymSeg_max_occlusion_score &&
-          cutScores[symId] < rotSymSeg_max_cut_score &&
-          segmentIds[symId].size() > min_segment_size)
-      {
-        filteredSegmentIds.push_back(symId);
-      }
-    }
-  }
-
-  inline void merge()
-  {
-    Graph similarSegments(filteredSegmentIds.size());
-
-    for(size_t srcSegmentIdIt = 0; srcSegmentIdIt < filteredSegmentIds.size(); srcSegmentIdIt++)
-    {
-      int srcSegmentId = filteredSegmentIds[srcSegmentIdIt];
-      for(size_t tgtSegmentIdIt = srcSegmentIdIt+1; tgtSegmentIdIt < filteredSegmentIds.size(); tgtSegmentIdIt++)
-      {
-        int tgtSegmentId = filteredSegmentIds[tgtSegmentIdIt];
-
-        int intersectSize = Intersection(segmentIds[srcSegmentId], segmentIds[tgtSegmentId]).size();
-        int unionSize = Union(segmentIds[srcSegmentId], segmentIds[tgtSegmentId]).size();
-        float ratio = (float) intersectSize / unionSize;
-        if(ratio > overlap_threshold)
-        {
-          similarSegments.addEdge(srcSegmentIdIt, tgtSegmentIdIt);
-        }
-      }
-    }
-
-    std::vector< std::vector<int> > connectedSegments;
-    connectedSegments = extractConnectedComponents(similarSegments);
-
-    for(size_t ccId = 0; ccId < connectedSegments.size(); ccId++)
-    {
-      int bestId = -1;
-      int max_segment_size = 0;
-      for(size_t segIdIt = 0; segIdIt < connectedSegments[ccId].size(); segIdIt++)
-      {
-        int segmentId = filteredSegmentIds[connectedSegments[ccId][segIdIt]];
-        if(segmentIds[segmentId].size() > max_segment_size)
-        {
-          bestId = segmentId;
-          max_segment_size = segmentIds[segmentId].size();
-        }
-      }
-      if(bestId != -1)
-      {
-        mergedSegmentIds.push_back(bestId);
-      }
-    }
   }
 };
 

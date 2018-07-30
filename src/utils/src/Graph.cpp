@@ -17,9 +17,6 @@
  * limitations under the License.
  */
 
-#ifndef __GRAPH_HPP__
-#define __GRAPH_HPP__
-
 #include <rs/graph/Graph.h>
 
 Graph::Graph() : GraphBase<Vertex, Edge>() {}
@@ -27,5 +24,3 @@ Graph::Graph() : GraphBase<Vertex, Edge>() {}
 Graph::Graph(const int numVertices) : GraphBase<Vertex, Edge>(numVertices) {}
 
 Graph::~Graph() {}
-
-#endif // __GRAPH_HPP__

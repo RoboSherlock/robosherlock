@@ -72,6 +72,8 @@ private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr display;
   std::vector<int> mapping_indices;
 
+  bool useNonNANCloud;
+
   // MPS
   std::vector<pcl::PlanarRegion<pcl::PointXYZRGBA>, Eigen::aligned_allocator<pcl::PlanarRegion<pcl::PointXYZRGBA>>> regions;
   std::vector<pcl::ModelCoefficients> modelCoefficients;
@@ -123,6 +125,10 @@ public:
       {
         mode = FILE;
       }
+    }
+    if(ctx.isParameterDefined("use_non_nan_cloud"))
+    {
+      ctx.extractValue("use_non_nan_cloud", useNonNANCloud);
     }
     if(ctx.isParameterDefined("min_plane_inliers"))
     {
@@ -370,8 +376,17 @@ private:
     cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>());
     pcl::ModelCoefficients::Ptr plane_coefficients(new pcl::ModelCoefficients);
 
-    rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-    cas.get(VIEW_CLOUD, *cloud);
+    if(useNonNANCloud)
+    {
+      rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
+      cas.get(VIEW_CLOUD_NON_NAN, rcp);
+      rs::conversion::from(rcp.cloud(), *cloud);
+    }
+    else
+    {
+      cas.get(VIEW_CLOUD, *cloud);
+    }
+
     if(cloud->size() == 0)
     {
       outError("No PointCloud present;");
