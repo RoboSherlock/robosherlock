@@ -6,11 +6,13 @@ using namespace xercesc;
 JsonPrologInterface::JsonPrologInterface()
 {
   outInfo("Creating ROS Service client for json_prolog");
-  try {
+  try
+  {
     XMLPlatformUtils::Initialize();
   }
-  catch (const XMLException& toCatch) {
-      outInfo("error starting an xml parser");
+  catch(const XMLException &toCatch)
+  {
+    outInfo("error starting an xml parser");
   }
 
 }
@@ -175,11 +177,11 @@ bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
 
 bool JsonPrologInterface::retractAllAnnotators()
 {
-     std::stringstream query;
-     query<< "owl_subclass_of(S,rs_components:'RoboSherlockComponent'),rdf_retractall(_,rdf:type,S)";
-     json_prolog::Prolog pl;
-     pl.query(query.str());
-     return true;
+  std::stringstream query;
+  query << "owl_subclass_of(S,rs_components:'RoboSherlockComponent'),rdf_retractall(_,rdf:type,S)";
+  json_prolog::Prolog pl;
+  pl.query(query.str());
+  return true;
 }
 
 bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNames)
@@ -187,14 +189,16 @@ bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNam
   json_prolog::Prolog pl;
   for(auto a : annotatorNames)
   {
-    if(addNamespace(a))
+    std::string nameWithNS;
+    if(addNamespace(a, nameWithNS))
     {
       std::stringstream prologQuery;
-      prologQuery << "owl_instance_from_class(" << a << "," << "I)";
+      prologQuery << "owl_instance_from_class(" << nameWithNS << "," << "I)";
       json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
       for(auto bdg : bdgs)
       {
-        outInfo("Individual generated: " << bdg["I"]);
+        //        outInfo("Individual generated: " << bdg["I"]);
+        assertAnnotatorMetaInfo(a);
       }
     }
     else
@@ -204,6 +208,88 @@ bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNam
     }
   }
   return true;
+}
+
+bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain)
+{
+  std::string pathToAnnot = rs::common::getAnnotatorPath(annotatorName);
+  XercesDOMParser *parser = new XercesDOMParser();
+  parser->setValidationScheme(XercesDOMParser::Val_Always);
+  parser->setDoNamespaces(true);    // optional
+
+  ErrorHandler *errHandler = (ErrorHandler *) new HandlerBase();
+  parser->setErrorHandler(errHandler);
+
+  const char *xmlFile = pathToAnnot.c_str();
+  try
+  {
+    parser->parse(xmlFile);
+    DOMNode *docRootNode = parser->getDocument()->getDocumentElement();
+    DOMNodeList *childNodes = docRootNode->getChildNodes();
+    const  XMLSize_t nodeCount = childNodes->getLength();
+
+    XMLCh *TAG_analysisEngineMetaData = XMLString::transcode("analysisEngineMetaData");
+    XMLCh *TAG_outputDomain = XMLString::transcode("outputDomain");
+    for(XMLSize_t xx = 0; xx < nodeCount; ++xx)
+    {
+      DOMNode *currentNode = childNodes->item(xx);
+      if(currentNode->getNodeType() && currentNode->getNodeType() == DOMElement::ELEMENT_NODE)
+      {
+        DOMElement *currentElement = dynamic_cast< xercesc::DOMElement * >(currentNode);
+        if(XMLString::equals(currentElement->getTagName(), TAG_analysisEngineMetaData))
+        {
+          //            outInfo(XMLString::transcode(currentNode->getNodeName()));
+          DOMNodeList *aeMDChildNodes = currentElement->getChildNodes();
+          const  XMLSize_t aeMDChildNodesCount = aeMDChildNodes->getLength();
+          for(XMLSize_t x = 0; x < aeMDChildNodesCount; ++x)
+          {
+            DOMNode *currentN = aeMDChildNodes->item(x);
+            if(currentN->getNodeType() && currentN->getNodeType() == DOMElement::ELEMENT_NODE)
+            {
+              DOMElement *currentElem = dynamic_cast< xercesc::DOMElement * >(currentN);
+              if(XMLString::equals(currentElem->getTagName(), TAG_outputDomain))
+              {
+                //                  outInfo(XMLString::transcode(currentN->getNodeName()));
+                std::string domainString(XMLString::transcode(currentElem->getTextContent()));
+                //                  outInfo(domainString);
+                boost::split(domain, domainString, boost::is_any_of(", "), boost::token_compress_on);
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  catch(const XMLException &toCatch)
+  {
+    char *message = XMLString::transcode(toCatch.getMessage());
+    std::cout << "Exception message is: \n"
+              << message << "\n";
+    XMLString::release(&message);
+    delete parser;
+    delete errHandler;
+    return false;
+  }
+}
+
+bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName)
+{
+  std::vector<std::string> resultDomain;
+  if(lookupAnnotatorDomain(annotatorName, resultDomain))
+  {
+    for (auto d:resultDomain)
+    {
+        outInfo(d);
+        //TODO: now assert these in KnowRob;
+    }
+  }
+}
+
+bool JsonPrologInterface::addNamespace(const std::string &entry, std::string &results)
+{
+  results = entry;
+  return addNamespace(results);
 }
 
 bool JsonPrologInterface::addNamespace(std::string &entry)

@@ -253,11 +253,10 @@ inline std::string getAnnotatorPath(const std::string annotator)
       while(dir != end)
       {
         if(boost::filesystem::is_regular_file(dir->path()))
-        {
-            outInfo(dir->path().filename());
+        {            
             if (dir->path().stem() == annotator)
             {
-                outInfo("Found it at: "<<dir->path().string());
+                outDebug("Found it at: "<<dir->path().string());
                 return dir->path().string();
             }
         }
@@ -270,7 +269,7 @@ inline std::string getAnnotatorPath(const std::string annotator)
     }
     catch(boost::filesystem::filesystem_error err)
     {
-      outInfo(err.what());
+      outDebug(err.what());
     }
   }
   //look for packages dependent on core and find their full path

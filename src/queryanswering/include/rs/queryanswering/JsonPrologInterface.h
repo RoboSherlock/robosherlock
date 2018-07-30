@@ -4,8 +4,13 @@
 #ifdef WITH_JSON_PROLOG
 //boost
 #include <boost/algorithm/string.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
 
+//xerces
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
 
 //ros
 #include <ros/package.h>
@@ -13,6 +18,7 @@
 //robosherlock
 #include <rs/utils/output.h>
 #include <rs/queryanswering/KRDefinitions.h>
+#include <rs/utils/common.h>
 
 
 //json_prolog interface
@@ -48,6 +54,8 @@ public:
    * */
   bool q_subClassOf(std::string child, std::string parent);
 
+  bool addNamespace(const std::string &entry, std::string &results);
+
   bool addNamespace(std::string &entry);
 
   /*brief
@@ -82,11 +90,12 @@ public:
   bool assertAnnotators(std::vector<std::string> annotatorNames);
 
   /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
-   *
+   * in: annotator name
+   * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::string annotator){
+  bool assertAnnotatorMetaInfo(std::string annotator);
 
-  }
+  bool lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

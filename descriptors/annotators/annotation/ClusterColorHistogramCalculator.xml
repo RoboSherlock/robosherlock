@@ -6,6 +6,7 @@
     <name>ClusterColorHistogramCalculator</name>
     <description>RequiresPerceiveColorCapability</description>
     <version>1.0</version>
+    <outputDomain>yellow, blue, black, white, red, green, magenta, cyan</outputDomain>
     <configurationParameters>
       <configurationParameter>
         <name>minValueColor</name>
