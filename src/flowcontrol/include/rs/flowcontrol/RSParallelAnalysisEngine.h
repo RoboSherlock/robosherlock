@@ -22,7 +22,6 @@
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
 #include <rs/utils/exception.h>
-#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -39,6 +38,9 @@
 class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
 {
 public:
+  typedef std::vector< std::vector<std::string> > AnnotatorOrderings;
+  typedef std::vector< std::vector<int> >         AnnotatorOrderingIndices;
+
   RSParallelAnalysisEngine(uima::AnnotatorContext &rANC,
                            bool bOwnsANC,
                            bool bOwnsTAESpecififer,
@@ -61,8 +63,8 @@ public:
   uima::TyErrorId paralleledProcess(uima::CAS &cas);
 
 
-  RSParallelPipelinePlanner::AnnotatorOrderings currentOrderings;
-  RSParallelPipelinePlanner::AnnotatorOrderingIndices currentOrderingIndices;
+  AnnotatorOrderings currentOrderings;
+  AnnotatorOrderingIndices currentOrderingIndices;
 
 private:
 

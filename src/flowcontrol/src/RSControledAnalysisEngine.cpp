@@ -16,7 +16,6 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   }
 
   rspm = new RSPipelineManager(engine, parallel);
-  rspm->initParallelPipelineManager();
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
@@ -27,8 +26,11 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     outInfo(tempString);
   }
 
+#ifdef WITH_JSON_PROLOG
   outInfo("*** Fetch the parallel ordering nodes");
+  rspm->initParallelPipelineManager();
   rspm->parallelPlanner.print();
+#endif
 
   int numAnnotators = rspm->aengine->getNbrOfAnnotators();
   outInfo("*** Number of Annotators in AnnotatorManager: " << numAnnotators);
