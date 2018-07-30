@@ -149,4 +149,31 @@ bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &
   return success;
 }
 
+bool RSPipelineManager::initParallelPipelineManager()
+{
+  try
+  {
+    queryInterface = new QueryInterface();
+
+    std::vector<std::string> currentFlow;
+    this->getCurrentAnnotatorFlow(currentFlow);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
+
+    original_annotator_orderings = aengine->currentOrderings;
+    original_annotator_ordering_indices = aengine->currentOrderingIndices;
+  }
+  catch(std::exception &e)
+  {
+    outError("std c++ error");
+    std::cerr << e.what();
+    return false;
+  }
+  catch(...)
+  {
+    outError("Unknown error has occured! Probaly you have not run json_prolog yet.");
+  }
+
+  return querySuccess;
+}
+
 #endif

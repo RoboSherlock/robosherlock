@@ -16,6 +16,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   }
 
   rspm = new RSPipelineManager(engine);
+  rspm->initParallelPipelineManager();
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
@@ -211,7 +212,7 @@ template <class T>
 bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson)
-{ 
+{
 
   rs::SceneCas sceneCas(*cas);
   rs::Scene scene = sceneCas.getScene();
@@ -234,14 +235,14 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   {
     sceneCas.get(VIEW_OBJECTS, clusters);
   }
- 
+
   outInfo("Clusters size: "<<clusters.size()<<"Designator size: "<<resultDesignators.size());
   int colorIdx = 0;
   if(clusters.size()!= resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
-  } 
+  }
   for(int i = 0; i < filter.size(); ++i)
   {
     if(!filter[i]) continue;
@@ -393,7 +394,7 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
   cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
   //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  pc_pub_.publish(cloudToAdvertise);  
+  pc_pub_.publish(cloudToAdvertise);
   return true;
 }
 

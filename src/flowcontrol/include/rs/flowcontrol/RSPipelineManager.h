@@ -27,6 +27,7 @@
 #include <chrono>
 #include <condition_variable>
 #include <algorithm>
+#include <exception>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -57,14 +58,7 @@ public:
     use_default_pipeline = false;
 
 #ifdef WITH_JSON_PROLOG
-    queryInterface = new QueryInterface();
-
-    std::vector<std::string> currentFlow;
-    this->getCurrentAnnotatorFlow(currentFlow);
-    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
-
-    original_annotator_orderings = aengine->currentOrderings;
-    original_annotator_ordering_indices = aengine->currentOrderingIndices;
+    querySuccess = false;
 #endif
   }
 
@@ -72,6 +66,8 @@ public:
     bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
                                        RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
                                        RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
+
+    bool initParallelPipelineManager();
 #endif
 
   void resetPipelineOrdering();

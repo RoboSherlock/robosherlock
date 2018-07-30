@@ -304,7 +304,7 @@ bool QueryInterface::getAnnotatorInOutConstraints(std::vector<std::string> &anno
     }
     catch(...)
     {
-      outError("Unknown Error has occured!");
+      outError("jsonPrologInterface query failed!");
     }
 
     return success;
