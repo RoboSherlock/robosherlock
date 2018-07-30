@@ -43,13 +43,13 @@ RSAnalysisEngine::~RSAnalysisEngine()
   }
 }
 
-void RSAnalysisEngine::init(const std::string &file)
+void RSAnalysisEngine::init(const std::string &file, bool parallel)
 {
   uima::ErrorInfo errorInfo;
 
   size_t pos = file.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
-  engine = uima::Framework::createAnalysisEngine(file.c_str(), errorInfo);
+  engine = rs::createParallelAnalysisEngine(file.c_str(), errorInfo);
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
@@ -71,6 +71,8 @@ void RSAnalysisEngine::init(const std::string &file)
     throw uima::Exception(uima::ErrorMessage(UIMA_ERR_ENGINE_NO_CAS), UIMA_ERR_ENGINE_NO_CAS, uima::ErrorInfo::unrecoverable);
   }
 
+  parallel_ = parallel;
+
   outInfo("initialization done: " << name << std::endl
           << std::endl << FG_YELLOW << "********************************************************************************" << std::endl);
 }
@@ -78,6 +80,12 @@ void RSAnalysisEngine::init(const std::string &file)
 void RSAnalysisEngine::initPipelineManager()
 {
   rspm = new RSPipelineManager(engine);
+#ifdef WITH_JSON_PROLOG
+  if(parallel_)
+  {
+    rspm->initParallelPipelineManager();
+  }
+#endif
 }
 
 void RSAnalysisEngine::stop()
@@ -101,19 +109,33 @@ void RSAnalysisEngine::process()
     outInfo("processing CAS");
     try
     {
-      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-
-      for(int i = 0; casIter.hasNext(); ++i)
+#ifdef WITH_JSON_PROLOG
+      if(parallel_)
       {
-        uima::CAS &outCas = casIter.next();
-
-        // release CAS
-        outInfo("release CAS " << i);
-        engine->getAnnotatorContext().releaseCAS(outCas);
+        if(rspm->querySuccess)
+        {
+          RSParallelAnalysisEngine *pEngine = (RSParallelAnalysisEngine *) engine;
+          pEngine->paralleledProcess(*cas);
+        }
+        else
+        {
+          outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
+          engine->process(*cas);
+        }
       }
+      else
+      {
+        engine->process(*cas);
+      }
+#else
+      engine->process(*cas);
+#endif
     }
     catch(const rs::FrameFilterException &)
     {
+      //we could handle image logging here
+      //handle extra pipeline here->signal thread that we can start processing
+      outError("Got Interrputed with Frame Filter, not time here");
     }
 
     outInfo("processing finished");

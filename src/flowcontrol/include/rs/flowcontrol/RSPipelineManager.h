@@ -49,7 +49,7 @@ class RSPipelineManager
 public:
   RSPipelineManager(uima::AnalysisEngine *engine)
   {
-    engine = engine;
+    this->engine = engine;
 
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);

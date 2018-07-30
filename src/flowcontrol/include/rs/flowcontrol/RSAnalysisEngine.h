@@ -32,6 +32,8 @@ class RSAnalysisEngine
 public:
   std::string name;
 
+  bool parallel_;
+
 
 protected:
   uima::AnalysisEngine *engine;
@@ -44,7 +46,7 @@ public:
 
   ~RSAnalysisEngine();
 
-  virtual void init(const std::string &file);
+  virtual void init(const std::string &file, bool parallel);
 
   void initPipelineManager();
 
