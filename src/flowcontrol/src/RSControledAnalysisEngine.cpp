@@ -15,7 +15,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     throw uima::Exception(errorInfo);
   }
 
-  rspm = new RSPipelineManager(engine);
+  rspm = new RSPipelineManager(engine, parallel);
   rspm->initParallelPipelineManager();
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 

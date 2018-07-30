@@ -79,7 +79,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
 void RSAnalysisEngine::initPipelineManager()
 {
-  rspm = new RSPipelineManager(engine);
+  rspm = new RSPipelineManager(engine, parallel_);
 #ifdef WITH_JSON_PROLOG
   if(parallel_)
   {

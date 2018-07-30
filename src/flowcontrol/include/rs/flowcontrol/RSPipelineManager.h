@@ -47,7 +47,7 @@
 class RSPipelineManager
 {
 public:
-  RSPipelineManager(uima::AnalysisEngine *engine)
+  RSPipelineManager(uima::AnalysisEngine *engine, bool parallel)
   {
     this->engine = engine;
 
@@ -58,6 +58,7 @@ public:
     use_default_pipeline = false;
 
 #ifdef WITH_JSON_PROLOG
+    parallel_ = parallel;
     querySuccess = false;
 #endif
   }
@@ -100,6 +101,7 @@ public:
   uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
 
 #ifdef WITH_JSON_PROLOG
+  bool parallel_;
   bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
 
   QueryInterface *queryInterface;

@@ -31,8 +31,11 @@ void RSPipelineManager::resetPipelineOrdering()
   aengine->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
 
 #ifdef WITH_JSON_PROLOG
-  aengine->currentOrderings = original_annotator_orderings;
-  aengine->currentOrderingIndices = original_annotator_ordering_indices;
+  if(parallel_)
+  {
+    aengine->currentOrderings = original_annotator_orderings;
+    aengine->currentOrderingIndices = original_annotator_ordering_indices;
+  }
 #endif
 
   // Set default pipeline annotators, if set
@@ -109,12 +112,15 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
 
   //update parallel orderings
 #ifdef WITH_JSON_PROLOG
-  std::vector<std::string> currentFlow;
-  this->getCurrentAnnotatorFlow(currentFlow);
-  querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
+  if(parallel_)
+  {
+    std::vector<std::string> currentFlow;
+    this->getCurrentAnnotatorFlow(currentFlow);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
 
-  outInfo("Parallel pipeline after set new pipeline orderings: ");
-  this->parallelPlanner.print();
+    outInfo("Parallel pipeline after set new pipeline orderings: ");
+    this->parallelPlanner.print();
+  }
 #endif
 }
 
