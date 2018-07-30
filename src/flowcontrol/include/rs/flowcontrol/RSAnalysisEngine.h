@@ -105,7 +105,7 @@ public:
  //   std::vector<UnicodeString> new_configs;
  //   new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
  //   new_configs.push
-    cr_context->assignValue(UnicodeString(paramName.c_str()),"config_mongodb_playback_utest.ini");
+    cr_context->assignValue(UnicodeString(paramName.c_str()),param);
   }
  };
 #endif // RSANALYSISENGINE_H
