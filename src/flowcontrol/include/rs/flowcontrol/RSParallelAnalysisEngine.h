@@ -67,7 +67,7 @@ public:
 private:
 
 protected:
-  std::mutex process_mutex;
+  std::shared_ptr<std::mutex> process_mutex;
 
 };
 

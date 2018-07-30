@@ -7,6 +7,7 @@ RSParallelAnalysisEngine::RSParallelAnalysisEngine(uima::AnnotatorContext &rANC,
                                                    bool ownsCasDefs) :
                           uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs)
 {
+  process_mutex.reset(new std::mutex);
 }
 
 RSParallelAnalysisEngine::~RSParallelAnalysisEngine()
@@ -83,14 +84,14 @@ uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(int index,
     }
 
     // now remove TOFs from ResultSpec
-    process_mutex.lock();
-    for (auto citTOF = tofsToBeRemoved.begin(); citTOF != tofsToBeRemoved.end(); ++citTOF)
     {
-      assert( (*citTOF).isValid() );
-      resultSpec.remove(*citTOF);
+      std::lock_guard<std::mutex> lock(*process_mutex);
+      for (auto citTOF = tofsToBeRemoved.begin(); citTOF != tofsToBeRemoved.end(); ++citTOF)
+      {
+        assert( (*citTOF).isValid() );
+        resultSpec.remove(*citTOF);
+      }
     }
-    process_mutex.unlock();
-
   }
   catch(uima::Exception uimaExc)
   {
