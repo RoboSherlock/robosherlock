@@ -93,7 +93,7 @@ public:
    * in: annotator name
    * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::string annotator);
+  bool assertAnnotatorMetaInfo(std::string , std::string);
 
   bool lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain);
 

@@ -198,7 +198,7 @@ bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNam
       for(auto bdg : bdgs)
       {
         //        outInfo("Individual generated: " << bdg["I"]);
-        assertAnnotatorMetaInfo(a);
+        assertAnnotatorMetaInfo(a, bdg["I"]);
       }
     }
     else
@@ -273,7 +273,7 @@ bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::
   }
 }
 
-bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName)
+bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std::string individualOfAnnotator)
 {
   std::vector<std::string> resultDomain;
   if(lookupAnnotatorDomain(annotatorName, resultDomain))
@@ -281,7 +281,9 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName)
     for (auto d:resultDomain)
     {
         outInfo(d);
-        //TODO: now assert these in KnowRob;
+        d[0] = std::toupper(d[0]);
+        if(!addNamespace(d)) outWarn("output domain element: [ "<<d<<" ] is not defined in Ontology");
+
     }
   }
 }
