@@ -38,7 +38,7 @@
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
 
-#include <rs/flowcontrol/RSParallelAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 
 #ifdef WITH_JSON_PROLOG
 #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
@@ -54,7 +54,7 @@ public:
 
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
-    aengine = ((RSParallelAnalysisEngine *)engine);
+    aengine = ((RSAggregatedAnalysisEngine *)engine);
     original_annotators = aengine->iv_annotatorMgr.iv_vecEntries;
     use_default_pipeline = false;
 
@@ -91,7 +91,7 @@ public:
   // private:
   /* data */
   uima::AnalysisEngine *engine;
-  RSParallelAnalysisEngine *aengine;
+  RSAggregatedAnalysisEngine *aengine;
   uima::FlowConstraints *flow;
 
   bool use_default_pipeline; // set to false again,if you want to disable the default pipeline order

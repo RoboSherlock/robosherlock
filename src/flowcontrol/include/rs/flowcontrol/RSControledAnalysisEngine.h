@@ -4,7 +4,7 @@
 #include <rs/utils/common.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/flowcontrol/RSPipelineManager.h>
-#include <rs/flowcontrol/RSParallelAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 #include <rs/scene_cas.h>
 
 #include <image_transport/image_transport.h>

@@ -16,8 +16,8 @@
  * limitations under the License.
  */
 
-#ifndef __RSPARALLEL_ANALYSIS_ENGINE_H__
-#define __RSPARALLEL_ANALYSIS_ENGINE_H__
+#ifndef __RSAGGREGATED_ANALYSIS_ENGINE_H__
+#define __RSAGGREGATED_ANALYSIS_ENGINE_H__
 
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
@@ -35,19 +35,19 @@
 #include <mutex>
 #include <assert.h>
 
-class RSParallelAnalysisEngine : public uima::internal::AggregateEngine
+class RSAggregatedAnalysisEngine : public uima::internal::AggregateEngine
 {
 public:
   typedef std::vector< std::vector<std::string> > AnnotatorOrderings;
   typedef std::vector< std::vector<int> >         AnnotatorOrderingIndices;
 
-  RSParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+  RSAggregatedAnalysisEngine(uima::AnnotatorContext &rANC,
                            bool bOwnsANC,
                            bool bOwnsTAESpecififer,
                            uima::internal::CASDefinition &casDefs,
                            bool ownsCasDefs);
 
-  ~RSParallelAnalysisEngine();
+  ~RSAggregatedAnalysisEngine();
 
   uima::TyErrorId annotatorProcess(std::string annotatorName,
                                    uima::CAS &cas,

@@ -96,7 +96,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
       {
         if(rspm->querySuccess)
         {
-          RSParallelAnalysisEngine *pEngine = (RSParallelAnalysisEngine *) engine;
+          RSAggregatedAnalysisEngine *pEngine = (RSAggregatedAnalysisEngine *) engine;
           pEngine->paralleledProcess(*cas);
         }
         else

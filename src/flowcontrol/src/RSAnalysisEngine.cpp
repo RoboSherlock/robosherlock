@@ -114,7 +114,7 @@ void RSAnalysisEngine::process()
       {
         if(rspm->querySuccess)
         {
-          RSParallelAnalysisEngine *pEngine = (RSParallelAnalysisEngine *) engine;
+          RSAggregatedAnalysisEngine *pEngine = (RSAggregatedAnalysisEngine *) engine;
           pEngine->paralleledProcess(*cas);
         }
         else

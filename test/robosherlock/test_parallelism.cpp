@@ -4,7 +4,7 @@
 #include <uima/api.hpp>
 
 #include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/flowcontrol/RSParallelAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
@@ -23,11 +23,11 @@ protected:
                                            "NormalEstimator",
                                            "PlaneAnnotator"};
 
-    RSParallelAnalysisEngine::AnnotatorOrderings orderings = {{"CollectionReader"},
-                                                             {"ImagePreprocessor"},
-                                                             {"PointCloudFilter"},
-                                                             {"NormalEstimator", "PlaneAnnotator"}};
-    RSParallelAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}, {2}, {3, 4}};
+    RSAggregatedAnalysisEngine::AnnotatorOrderings orderings = {{"CollectionReader"},
+                                                                {"ImagePreprocessor"},
+                                                                {"PointCloudFilter"},
+                                                                {"NormalEstimator", "PlaneAnnotator"}};
+    RSAggregatedAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}, {2}, {3, 4}};
 
 
     virtual void SetUp()

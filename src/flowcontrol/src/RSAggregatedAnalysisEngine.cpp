@@ -1,22 +1,22 @@
-#include <rs/flowcontrol/RSParallelAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 
-RSParallelAnalysisEngine::RSParallelAnalysisEngine(uima::AnnotatorContext &rANC,
-                                                   bool bOwnsANC,
-                                                   bool bOwnsTAESpecififer,
-                                                   uima::internal::CASDefinition & casDefs,
-                                                   bool ownsCasDefs) :
-                          uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs)
+RSAggregatedAnalysisEngine::RSAggregatedAnalysisEngine(uima::AnnotatorContext &rANC,
+                                                       bool bOwnsANC,
+                                                       bool bOwnsTAESpecififer,
+                                                       uima::internal::CASDefinition & casDefs,
+                                                       bool ownsCasDefs) :
+                            uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs)
 {
   process_mutex.reset(new std::mutex);
 }
 
-RSParallelAnalysisEngine::~RSParallelAnalysisEngine()
+RSAggregatedAnalysisEngine::~RSAggregatedAnalysisEngine()
 {
 }
 
-uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(std::string annotatorName,
-                                                           uima::CAS &cas,
-                                                           uima::ResultSpecification &resultSpec)
+uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(std::string annotatorName,
+                                                             uima::CAS &cas,
+                                                             uima::ResultSpecification &resultSpec)
 {
   //find target PrimitveEngine base on annotator name on current pipeline orderings
   icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(StringPiece(annotatorName.c_str()));
@@ -33,9 +33,9 @@ uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(std::string annotator
   return this->annotatorProcess(index, cas, resultSpec);
 }
 
-uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(int index,
-                                                           uima::CAS &cas,
-                                                           uima::ResultSpecification &resultSpec)
+uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(int index,
+                                                             uima::CAS &cas,
+                                                             uima::ResultSpecification &resultSpec)
 {
   if(index < 0 || index >= iv_annotatorMgr.iv_vecEntries.size())
   {
@@ -109,8 +109,8 @@ uima::TyErrorId RSParallelAnalysisEngine::annotatorProcess(int index,
 }
 
 
-uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
-                                                            uima::ResultSpecification const &resSpec)
+uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas,
+                                                              uima::ResultSpecification const &resSpec)
 {
   uima::TyErrorId err = UIMA_ERR_NONE;
   uima::ResultSpecification resultSpec = resSpec;
@@ -153,7 +153,7 @@ uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas,
   return err;
 }
 
-uima::TyErrorId RSParallelAnalysisEngine::paralleledProcess(uima::CAS &cas)
+uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas)
 {
   //generate ResultSpecification from TaeSpecifier
   return this->paralleledProcess(cas, this->getCompleteResultSpecification());
@@ -224,7 +224,7 @@ namespace rs
     {
       // create the engine depending on the framework (UIMACPP or JEDII) or if it is primitive or aggregate.
       uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
-      pResult = new RSParallelAnalysisEngine( rANC, true, true, casDefinition, true );
+      pResult = new RSAggregatedAnalysisEngine( rANC, true, true, casDefinition, true );
 
       if (pResult == NULL)
       {
