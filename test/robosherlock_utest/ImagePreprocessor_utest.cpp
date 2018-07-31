@@ -13,7 +13,7 @@
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
-#include </home/mirrorice/catkin_ws2/src/robosherlock/src/core/include/rs/conversion/conversion.h>
+#include <rs/conversion/conversion.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
