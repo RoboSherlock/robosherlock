@@ -207,8 +207,8 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test.cpp
     #test/segmentation/symmetry_segmentation_test.cpp
-    test/robosherlock_utest/test_storage.cpp)
-    #test/robosherlock_utest/ImagePreprocessor_utest.cpp)
+    test/robosherlock_utest/test_storage.cpp
+    test/robosherlock_utest/ImagePreprocessor_utest.cpp)
     #test/test_reconfig/test_reconfig.cpp)
     #test/segmentation/symmetry_segmentation_test.cpp)
 target_link_libraries(${PROJECT_NAME}-test

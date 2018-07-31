@@ -29,9 +29,6 @@
 int preprocessingTest()
 {
 
-  uima::CAS *cas;
-  cas = engine.newCAS();
-
   UnicodeString ustrInputText;
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
@@ -39,8 +36,8 @@ int preprocessingTest()
   //uima::AnnotatorContext &annotContext = engine.getAnnotatorContext();
   //uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
 
-  //std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor"};
-  //engine.getPipelineManager()->setPipelineOrdering(engineList);
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
+  engine.getPipelineManager()->setPipelineOrdering(engineList);
 
  try
     {

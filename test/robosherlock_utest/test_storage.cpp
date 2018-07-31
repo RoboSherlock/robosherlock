@@ -52,9 +52,7 @@ int processEngine()
 
   //data.getName().toUTF8String(name);
   //std::cerr<<"Enigne: " << name<<std::endl;
-  uima::CAS *cas;
 
-  cas = engine.newCAS();
 
   /*if(cas == NULL)
   {
@@ -72,7 +70,8 @@ int processEngine()
   //std::string aeDescription;
   //aeMetaData.getDescription().toUTF8String(aeDescription);
   
-  	
+  std::vector<std::string> engineList = {"CollectionReader","StorageWriter"};
+  engine.getPipelineManager()->setPipelineOrdering(engineList);	
 
  try
     {
@@ -108,7 +107,6 @@ int processEngine()
   }
   catch(const rs::FrameFilterException &){}
   engine.collectionProcessComplete();
-  engine.destroy();
 }
 
 

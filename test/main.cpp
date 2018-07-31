@@ -12,6 +12,7 @@
    mongo::client::GlobalInstance instance;
    std::string engineFile;
    RSAnalysisEngine engine;
+   uima::CAS *cas;
 
 int main(int argc, char **argv)
 {
@@ -41,8 +42,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, std::string("RoboSherlock"));
 
   }
-   testing::InitGoogleTest(&argc, argv);
-   return RUN_ALL_TESTS();
+  cas = engine.newCAS();
+
+  testing::InitGoogleTest(&argc, argv);
+  RUN_ALL_TESTS();
+  engine.destroy();
+  return 1;
 }
 
 

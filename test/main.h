@@ -9,6 +9,7 @@
   extern uima::ErrorInfo errorInfo; */
   extern RSAnalysisEngine engine;
   extern std::string enginePath;
+  extern uima::CAS *cas;
   
 
 #endif
