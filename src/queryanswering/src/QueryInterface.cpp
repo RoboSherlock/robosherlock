@@ -118,7 +118,6 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   new_pipeline_order.push_back("StorageWriter");
   res.insert(res.end(), new_pipeline_order.begin(), new_pipeline_order.end());
 
-
   return true;
 
 }
@@ -293,21 +292,6 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
     }
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
-}
-
-bool QueryInterface::getAnnotatorInOutConstraints(std::vector<std::string> &annotators, JsonPrologInterface::AnnotatorDependencies &dependencies)
-{
-    bool success = false;
-    try
-    {
-      success = jsonPrologInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
-    }
-    catch(...)
-    {
-      outError("jsonPrologInterface query failed!");
-    }
-
-    return success;
 }
 
 #endif //WITH_JSON_PROLOG

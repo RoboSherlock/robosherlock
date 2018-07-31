@@ -138,7 +138,7 @@ bool RSPipelineManager::planParallelPipelineOrderings(std::vector<std::string> &
   }
 
   JsonPrologInterface::AnnotatorDependencies dependencies;
-  success = queryInterface->getAnnotatorInOutConstraints(annotators, dependencies);
+  success = queryInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
 
   if(dependencies.empty() || !success)
   {
@@ -159,7 +159,7 @@ bool RSPipelineManager::initParallelPipelineManager()
 {
   try
   {
-    queryInterface = new QueryInterface();
+    queryInterface.reset(new JsonPrologInterface());
 
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);

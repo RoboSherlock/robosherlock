@@ -28,6 +28,7 @@
 #include <condition_variable>
 #include <algorithm>
 #include <exception>
+#include <memory>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -41,7 +42,7 @@
 
 #ifdef WITH_JSON_PROLOG
 #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
-#include <rs/queryanswering/QueryInterface.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
 #endif
 
 class RSPipelineManager
@@ -104,8 +105,7 @@ public:
   bool parallel_;
   bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
 
-  QueryInterface *queryInterface;
-
+  std::shared_ptr<JsonPrologInterface> queryInterface;
   RSParallelPipelinePlanner parallelPlanner;
   RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
   RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
