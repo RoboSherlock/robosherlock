@@ -49,7 +49,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
   size_t pos = file.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
-  engine = rs::createParallelAnalysisEngine(file.c_str(), errorInfo);
+  engine = (RSAggregatedAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), errorInfo);
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
@@ -114,8 +114,7 @@ void RSAnalysisEngine::process()
       {
         if(rspm->querySuccess)
         {
-          RSAggregatedAnalysisEngine *pEngine = (RSAggregatedAnalysisEngine *) engine;
-          pEngine->paralleledProcess(*cas);
+          engine->paralleledProcess(*cas);
         }
         else
         {

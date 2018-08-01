@@ -28,13 +28,13 @@ std::vector<icu::UnicodeString> &RSPipelineManager::getFlowConstraintNodes()
 
 void RSPipelineManager::resetPipelineOrdering()
 {
-  aengine->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
+  engine->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
 
 #ifdef WITH_JSON_PROLOG
   if(parallel_)
   {
-    aengine->currentOrderings = original_annotator_orderings;
-    aengine->currentOrderingIndices = original_annotator_ordering_indices;
+    engine->currentOrderings = original_annotator_orderings;
+    engine->currentOrderingIndices = original_annotator_ordering_indices;
   }
 #endif
 
@@ -68,9 +68,9 @@ void RSPipelineManager::getCurrentAnnotatorFlow(std::vector<std::string> &annota
 {
   annotators.clear();
 
-  for(int i = 0; i < aengine->iv_annotatorMgr.iv_vecEntries.size(); i++)
+  for(int i = 0; i < engine->iv_annotatorMgr.iv_vecEntries.size(); i++)
   {
-    uima::AnalysisEngine* pEngine = aengine->iv_annotatorMgr.iv_vecEntries[i].iv_pEngine;
+    uima::AnalysisEngine* pEngine = engine->iv_annotatorMgr.iv_vecEntries[i].iv_pEngine;
     std::string tempNode;
     pEngine->getAnalysisEngineMetaData().getName().toUTF8String(tempNode);
     annotators.push_back(tempNode);
@@ -108,7 +108,7 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
     // return;
   }
   // Pass the new pipeline to uima's annotator manager
-  aengine->iv_annotatorMgr.iv_vecEntries = new_annotators;
+  engine->iv_annotatorMgr.iv_vecEntries = new_annotators;
 
   //update parallel orderings
 #ifdef WITH_JSON_PROLOG
@@ -116,7 +116,7 @@ void RSPipelineManager::setPipelineOrdering(std::vector<std::string> annotators)
   {
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);
-    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, engine->currentOrderings, engine->currentOrderingIndices);
 
     outInfo("Parallel pipeline after set new pipeline orderings: ");
     this->parallelPlanner.print();
@@ -163,10 +163,10 @@ bool RSPipelineManager::initParallelPipelineManager()
 
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);
-    querySuccess = this->planParallelPipelineOrderings(currentFlow, aengine->currentOrderings, aengine->currentOrderingIndices);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow, engine->currentOrderings, engine->currentOrderingIndices);
 
-    original_annotator_orderings = aengine->currentOrderings;
-    original_annotator_ordering_indices = aengine->currentOrderingIndices;
+    original_annotator_orderings = engine->currentOrderings;
+    original_annotator_ordering_indices = engine->currentOrderingIndices;
   }
   catch(std::exception &e)
   {

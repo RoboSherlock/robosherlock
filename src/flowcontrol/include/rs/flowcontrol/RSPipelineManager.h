@@ -48,14 +48,13 @@
 class RSPipelineManager
 {
 public:
-  RSPipelineManager(uima::AnalysisEngine *engine, bool parallel)
+  RSPipelineManager(RSAggregatedAnalysisEngine *engine, bool parallel)
   {
     this->engine = engine;
 
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
-    aengine = ((RSAggregatedAnalysisEngine *)engine);
-    original_annotators = aengine->iv_annotatorMgr.iv_vecEntries;
+    original_annotators = engine->iv_annotatorMgr.iv_vecEntries;
     use_default_pipeline = false;
 
 #ifdef WITH_JSON_PROLOG
@@ -90,8 +89,7 @@ public:
 public:
   // private:
   /* data */
-  uima::AnalysisEngine *engine;
-  RSAggregatedAnalysisEngine *aengine;
+  RSAggregatedAnalysisEngine *engine;
   uima::FlowConstraints *flow;
 
   bool use_default_pipeline; // set to false again,if you want to disable the default pipeline order

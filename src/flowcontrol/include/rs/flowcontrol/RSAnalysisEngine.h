@@ -36,7 +36,7 @@ public:
 
 
 protected:
-  uima::AnalysisEngine *engine;
+  RSAggregatedAnalysisEngine *engine;
   uima::CAS *cas;
   RSPipelineManager *rspm;
 

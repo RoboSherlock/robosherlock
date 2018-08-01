@@ -7,7 +7,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   size_t pos = AEFile.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == AEFile.npos ? AEFile : AEFile.substr(pos)));
 
-  engine = rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
+  engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
@@ -32,7 +32,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   rspm->parallelPlanner.print();
 #endif
 
-  int numAnnotators = rspm->aengine->getNbrOfAnnotators();
+  int numAnnotators = rspm->engine->getNbrOfAnnotators();
   outInfo("*** Number of Annotators in AnnotatorManager: " << numAnnotators);
 
   if(pervasive){
@@ -96,8 +96,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
       {
         if(rspm->querySuccess)
         {
-          RSAggregatedAnalysisEngine *pEngine = (RSAggregatedAnalysisEngine *) engine;
-          pEngine->paralleledProcess(*cas);
+          engine->paralleledProcess(*cas);
         }
         else
         {

@@ -37,8 +37,8 @@ protected:
       engine.initPipelineManager();
 
       engine.getPipelineManager()->setPipelineOrdering(engineList);
-      engine.getPipelineManager()->aengine->currentOrderings = orderings;
-      engine.getPipelineManager()->aengine->currentOrderingIndices = orderingIndices;
+      engine.getPipelineManager()->engine->currentOrderings = orderings;
+      engine.getPipelineManager()->engine->currentOrderingIndices = orderingIndices;
     }
 
     virtual void TearDown()
@@ -52,7 +52,7 @@ protected:
 
 TEST_F(ParallelismTest, ParallelExecutionTest)
 {
-  uima::TyErrorId error = engine.getPipelineManager()->aengine->paralleledProcess(*engine.getCas());
+  uima::TyErrorId error = engine.getPipelineManager()->engine->paralleledProcess(*engine.getCas());
 
   EXPECT_TRUE(error == UIMA_ERR_NONE);
 }
