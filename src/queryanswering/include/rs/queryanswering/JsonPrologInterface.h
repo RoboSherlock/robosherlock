@@ -89,6 +89,9 @@ public:
    * */
   bool assertAnnotators(std::vector<std::string> annotatorNames);
 
+
+  bool expandToFullUri(std::string &entry);
+
   /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
    * in: annotator name
    * returns: true for succes

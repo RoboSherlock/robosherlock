@@ -271,6 +271,7 @@ bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::
     delete errHandler;
     return false;
   }
+  return false;
 }
 
 bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std::string individualOfAnnotator)
@@ -278,14 +279,45 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std
   std::vector<std::string> resultDomain;
   if(lookupAnnotatorDomain(annotatorName, resultDomain))
   {
-    for (auto d:resultDomain)
+    std::stringstream query;
+    query<<"set_annotator_domain("<<individualOfAnnotator<<",[";
+    std::string separator =",";
+    for (int i=0;i<resultDomain.size();++i)
     {
-        outInfo(d);
+        std::string d = resultDomain[i];
         d[0] = std::toupper(d[0]);
-        if(!addNamespace(d)) outWarn("output domain element: [ "<<d<<" ] is not defined in Ontology");
-
+        if(!addNamespace(d)) {outWarn("output domain element: [ "<<d<<" ] is not defined in Ontology"); continue;}
+        expandToFullUri(d);
+        outInfo(d);
+        if(i==resultDomain.size()-1) separator="";
+        query<<d<<separator;
     }
+    query<<"]).";
+    outInfo("Query: "<<query.str());
+    json_prolog::Prolog pl;
+    json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
+    if(bdgs.begin() != bdgs.end())
+    {
+        return true;
+    }
+    return false;
   }
+  return false;
+}
+
+bool JsonPrologInterface::expandToFullUri(std::string &entry)
+{
+    json_prolog::Prolog pl;
+    std::stringstream prologQuery;
+    prologQuery << "rdf_global_id("<<entry<<",A).";
+    json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
+    for(auto bdg : bdgs)
+    {
+      std::string newentry = bdg["A"];
+      entry=newentry;
+      return true;
+    }
+    return false;
 }
 
 bool JsonPrologInterface::addNamespace(const std::string &entry, std::string &results)
