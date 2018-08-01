@@ -43,9 +43,14 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
                    iter->name.GetString()) != std::end(special_keys))
       {
         outInfo("Asserting value key pair: " << iter->value.GetString());
-        std::stringstream assertionQuery;
-        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," << iter->value.GetString() << ")";
+
         json_prolog::Prolog pl;
+        std::string d = iter->value.GetString();
+        d[0] = std::toupper(d[0]);
+        if(!addNamespace(d)) outWarn("No OWL definitions for "<<d<<" under any of the known namespaces");
+        std::stringstream assertionQuery;
+        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," <<d<< ")";
+
         json_prolog::PrologQueryProxy bdgs = pl.query(assertionQuery.str());
         if(bdgs.begin() != bdgs.end())
         {
@@ -282,7 +287,7 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std
     std::stringstream query;
     query<<"set_annotator_domain("<<individualOfAnnotator<<",[";
     std::string separator =",";
-    for (int i=0;i<resultDomain.size();++i)
+    for (size_t i=0;i<resultDomain.size();++i)
     {
         std::string d = resultDomain[i];
         d[0] = std::toupper(d[0]);
