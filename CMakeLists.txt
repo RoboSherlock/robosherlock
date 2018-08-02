@@ -116,7 +116,14 @@ if(json_prolog_FOUND)
     include_directories(${json_prolog_INCLUDE_DIRS})
 else()
     message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
+endif()
 
+find_package(yaml-cpp REQUIRED)
+if(yaml-cpp_FOUND)
+  message(STATUS "yaml-cpp FOUND")
+  include_directories(${YAML_CPP_INCLUDE_DIR})
+else()
+  message(STATUS "libyaml_cpp not found.")
 endif()
 
 ################################################################################

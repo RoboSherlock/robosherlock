@@ -175,11 +175,7 @@
       <fixedFlow>
       <node>CollectionReader</node>
       <node>ImagePreprocessor</node>
-      <node>PlaneAnnotator</node>
       <node>PointCloudClusterExtractor</node>
-      <node>PointCloudFilter</node>
-      <node>NormalEstimator</node>
-      <node>StorageWriter</node>
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

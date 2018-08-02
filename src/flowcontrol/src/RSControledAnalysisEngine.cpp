@@ -1,11 +1,37 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
+static std::string ANNOT_SEARCHPATH = "/descriptors/annotators";
+
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
   uima::ErrorInfo errorInfo;
 
   size_t pos = AEFile.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == AEFile.npos ? AEFile : AEFile.substr(pos)));
+
+  // Before creating the analysis engine, we need to find the annotators
+  // that belongs to the fixed flow by simpling looking for keyword fixedFlow
+  std::vector<std::string> annotators, annotatorPaths;
+  getFixedFlow(AEFile, annotators);
+  for (std::string& a : annotators) {
+    std::string path = getAnnotatorPath(a);
+    // If the path is yaml file, we need to convert it to xml
+    if (boost::algorithm::ends_with(path, "yaml")) {
+      YamlToXMLConverter converter(path);
+      converter.parseYamlFile();
+      std::string xmlPath = path.substr(0, path.size()-4) + "xml";
+      try {
+        std::ofstream of(xmlPath);
+        converter.getOutput(of);
+        annotatorPaths.push_back(xmlPath);
+      }
+      catch (std::exception &e) {
+        outError("Exception happened when creating the output file: " << e.what());
+        return;
+      }
+    } else
+      annotatorPaths.push_back(path);
+  }
 
   engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
 
@@ -406,3 +432,92 @@ template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const st
 template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson);
+
+void RSControledAnalysisEngine::getFixedFlow(const std::string filePath,
+                                                                 std::vector<std::string>& annotators) {
+  try {
+    std::ifstream fs(filePath);
+    size_t pos, pos_;
+
+    std::stringstream buffer;
+    buffer << fs.rdbuf();
+    std::string content = buffer.str();
+
+    if ((pos = content.find("<fixedFlow>")) != std::string::npos)
+      content = content.substr(pos+11);
+    else {
+      outError("There is no Fixed Flow specified in the given AE xml file.");
+    }
+
+    if ((pos_ = content.find("</fixedFlow>")) != std::string::npos)
+      content = content.substr(0, pos_);
+    else {
+      outError("There is no </fixedFlow> tag in the given xml file.");
+    }
+
+    pos = 0;
+    while (pos < content.size()) {
+      if ((pos = content.find("<node>", pos)) == std::string::npos)
+        break;
+      else {
+        pos += 6;
+        if ((pos_ = content.find("</node>", pos)) != std::string::npos) {
+          std::string anno = content.substr(pos, pos_ - pos);
+          std::cout << "what the hell: ---------------------> " << anno << std::endl;
+          annotators.push_back(anno);
+          pos = pos_ + 7;
+        } else {
+          outError("There is no </node> tag in the given xml file.");
+        }
+      }
+    }
+  }
+  catch (std::exception &e) {
+    outError("Exception happened when reading the file: " << e.what());
+  }
+}
+
+
+std::string RSControledAnalysisEngine::getAnnotatorPath(const std::string annotator)
+{
+  std::vector<std::string> searchPaths;
+
+  searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(ANNOT_SEARCHPATH));
+  std::vector<std::string> child_packages;
+  ros::package::command("depends-on robosherlock", child_packages);
+  for(size_t i = 0; i < child_packages.size(); ++i)
+  {
+    searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(ANNOT_SEARCHPATH));
+  }
+
+  for(auto sp : searchPaths)
+  {
+    boost::filesystem::path p(sp);
+    try
+    {
+      boost::filesystem::recursive_directory_iterator dir(p), end;
+      while(dir != end)
+      {
+        if(boost::filesystem::is_regular_file(dir->path()))
+        {
+          if (dir->path().stem() == annotator)
+          {
+            outDebug("Found it at: "<<dir->path().string());
+            return dir->path().string();
+          }
+        }
+        if(dir->path().filename() == ".")
+        {
+          dir.no_push(); // don't recurse into this directory.
+        }
+        dir++;
+      }
+    }
+    catch(boost::filesystem::filesystem_error err)
+    {
+      outDebug(err.what());
+    }
+  }
+  //look for packages dependent on core and find their full path
+  return "";
+}

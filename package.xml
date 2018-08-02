@@ -37,6 +37,8 @@
   <depend>uimacpp_ros                </depend>
   <depend>robosherlock_msgs          </depend>
   <depend>libmongocxx_ros            </depend>
+  <depend>libyaml-cpp-dev            </depend>
+  <depend>libyaml-cpp0.5v5           </depend>
   
   <export>
   </export>
