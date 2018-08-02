@@ -66,13 +66,6 @@ public:
   {
     return rspm;
   }
-/*
-  uima::AnalysisEngineMetaData& getAnalysisEngineMetaData()
-  {
-    return engine->getAnalysisEngineMetaData();
-  } 
-*/
-  
   uima::CAS* newCAS()
   {
     return engine->newCAS();
@@ -96,15 +89,10 @@ public:
   template < typename T >
   inline T const& overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
   {
-    uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
-    uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
-
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    //uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
     UnicodeString ucs_delegate(annotName.c_str());
-    uima::AnnotatorContext *cr_context =  annotContext.extractDelegate(ucs_delegate);
-
- //   std::vector<UnicodeString> new_configs;
- //   new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
- //   new_configs.push
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
     cr_context->assignValue(UnicodeString(paramName.c_str()),param);
   }
  };
