@@ -5,6 +5,7 @@ add_library(rs_utils SHARED
   src/BlurDetector.cpp
   src/Graph.cpp
   src/WeightedGraph.cpp
+  src/DirectedGraph.cpp
   src/GraphPrimitives.cpp
 )
 target_link_libraries(rs_utils rs_core)

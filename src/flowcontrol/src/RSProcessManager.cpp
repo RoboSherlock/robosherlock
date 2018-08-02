@@ -40,7 +40,7 @@ RSProcessManager::~RSProcessManager()
   outInfo("RSControledAnalysisEngine Stoped");
 }
 
-void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool pervasive)
+void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool pervasive, bool parallel)
 {
   outInfo("initializing");
 
@@ -73,7 +73,9 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
     outWarn("No low-level pipeline defined. Setting empty!");
   }
 
-  engine_.init(xmlFile, lowLvlPipeline_, pervasive);
+  engine_.init(xmlFile, lowLvlPipeline_, pervasive, parallel);
+
+  parallel_ = parallel;
 
   visualizer_.start();
   if(pervasive)
@@ -89,7 +91,7 @@ void RSProcessManager::setInspectionAE(std::string inspectionAEPath)
   outInfo("initializing inspection AE");
   std::vector<std::string> llvlp;
   llvlp.push_back("CollectionReader");
-  inspectionEngine_.init(inspectionAEPath, llvlp, false);
+  inspectionEngine_.init(inspectionAEPath, llvlp, false, parallel_); // set parallel false for now, need discussion for future use of parallel execution
 }
 
 
@@ -194,7 +196,7 @@ bool RSProcessManager::resetAE(std::string newContextName)
 
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      this->init(contextAEPath, configFile_, false);
+      this->init(contextAEPath, configFile_, false, parallel_);
     }
     //shouldn't there be an fs.release() here?
 
@@ -306,7 +308,3 @@ bool RSProcessManager::renderOffscreen(std::string object)
   processing_mutex_.unlock();
   return true;
 }
-
-
-
-

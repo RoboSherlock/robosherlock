@@ -59,12 +59,12 @@ public:
     uima::ResourceManager::deleteInstance();
   }
 
-  void init(const std::vector<std::string> &files)
+  void init(const std::vector<std::string> &files, bool parallel)
   {
     engines.resize(files.size());
     for(size_t i = 0; i < engines.size(); ++i)
     {
-      engines[i].init(files[i]);
+      engines[i].init(files[i], parallel);
     }
     if(useVisualizer)
     {

@@ -4,6 +4,7 @@
 #include <rs/utils/common.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/flowcontrol/RSPipelineManager.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 #include <rs/scene_cas.h>
 
 #include <image_transport/image_transport.h>
@@ -39,6 +40,7 @@ private:
   int counter_;
   double totalTime_;
   float avgProcessingTime_;
+  bool parallel_;
 
 public:
 
@@ -92,7 +94,7 @@ public:
 
 
   inline void changeLowLevelPipeline(std::vector<std::string> &pipeline)
-  { 
+  {
     rspm->setDefaultPipelineOrdering(pipeline);
     rspm->setPipelineOrdering(pipeline);
   }
@@ -133,7 +135,7 @@ public:
   }
 
 
-  void init(const std::string &file,const std::vector<std::string> &lowLvLPipeline, bool pervasive);
+  void init(const std::string &file,const std::vector<std::string> &lowLvLPipeline, bool pervasive, bool parallel);
 
   void process();
 
