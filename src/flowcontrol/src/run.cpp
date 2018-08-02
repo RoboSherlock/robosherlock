@@ -109,7 +109,7 @@ int main(int argc, char *argv[])
 
   nh.param("save_path", savePath, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
-  nh.param("parallel", parallel, true);
+  nh.param("parallel", parallel, false);
   nh.param("withIDRes", useObjIDRes,false);
 
   nh.deleteParam("ae");
