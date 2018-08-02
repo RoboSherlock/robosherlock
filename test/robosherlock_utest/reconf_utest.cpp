@@ -75,11 +75,11 @@ void processReconfig()
   //Overwrite a float
   engine.overwriteParam("NormalEstimator","radiusSearch",3.5);
   //Overwrite a vector
-  //std::vector<std::string > overWriteVector;
-  //std::string overWriteValue = "mockupstring";
-  //overWriteVector.insert(overWriteValue);
-  //outInfo(overWriteVector.front());
- // engine.overwriteParam("CollectionReader","camera_config_files",overWriteVector);
+  std::vector<std::string > overWriteVector;
+  std::string overWriteValue = "config_mongodb_playback_utest.ini";
+  //std::string * overWritePointer  = &overWriteValue;
+  overWriteVector.push_back("mockupstring");
+  engine.overwriteParam("CollectionReader","camera_config_files",&overWriteVector);
   engine.reconfigure();
 
   UnicodeString ucs_delegate("NormalEstimator");
@@ -114,10 +114,10 @@ TEST(ReconfTest,CheckString)
 TEST(ReconfTest,CheckBool)
 {
 }*/
-/*
+
 TEST(ReconfTest,CheckVec)
 { 
   outError(*(testVec.front()));
   //EXPECT_EQ("mockupstring",testVec.at(0).c_str());
-}*/
+}
 
