@@ -19,6 +19,7 @@
 #include <rs/utils/output.h>
 #include <rs/queryanswering/KRDefinitions.h>
 #include <rs/utils/common.h>
+#include <rs/queryanswering/query_rules.h>
 
 
 //json_prolog interface
@@ -26,6 +27,10 @@
 
 //STD
 #include <memory>
+#include <map>
+#include <vector>
+#include <utility>
+#include <unordered_set>
 
 //json
 #include <rapidjson/document.h>
@@ -36,6 +41,11 @@ class JsonPrologInterface
   std::vector<std::string> krNamespaces;
 
 public:
+
+  typedef std::map< std::string,
+                    std::pair< std::unordered_set<std::string>,
+                               std::unordered_set<std::string> > > AnnotatorDependencies;
+
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
@@ -48,6 +58,9 @@ public:
    */
   bool planPipelineQuery(const std::vector<std::string> &keys,
                          std::vector<std::string> &pipeline);
+
+  bool retrieveAnnotatorsInputOutput(std::vector<std::string> &annotators,
+                                     AnnotatorDependencies &dependencies);
 
   /*brief
    * ask prolog if child is of type parent

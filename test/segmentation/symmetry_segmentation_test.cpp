@@ -33,30 +33,27 @@ protected:
                                          "OverSegmentationAnnotator",
                                          "RotationalSymmetryAnnotator",
                                          "RotationalSymmetrySegmentation",
-                                         "OverSegmentationAnnotator",
                                          "BilateralSymmetryAnnotator",
                                          "BilateralSymmetrySegmentation"};
 
   virtual void SetUp()
   {
     rs::common::getAEPaths("object_segmentation", engineFile);
-    engine.init(engineFile);
+    engine.init(engineFile, false); // do not run parallel for now
     engine.initPipelineManager();
-    engine.getPipelineManager()->setPipelineOrdering(engineList);
-
   }
 
   virtual void TearDown()
   {
     //clean up
-    engine.getPipelineManager()->resetPipelineOrdering();
-    engine.resetCas();
     engine.stop();
   }
 
   //there is no ground truth for this test, so for simply we just test if there are segments
   inline float test()
   {
+    engine.getPipelineManager()->setPipelineOrdering(engineList);
+
     uima::CAS* tcas = engine.getCas();
     rs::SceneCas cas(*tcas);
 

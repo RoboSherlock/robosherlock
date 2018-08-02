@@ -64,6 +64,7 @@ void help()
               << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
               << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
               << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
+              << "        _parallel:=true|false      Enable/Disable parallel execution of pipeline (json_prolog is required)"<< std::endl
               << "        _withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl
               << std::endl
               << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
@@ -73,8 +74,9 @@ void help()
               << "     visualization:=true|false     Enable/disable visualization" << std::endl
               << "               vis:=true|false     shorter version for visualization" << std::endl
               << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-              << "              wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
-              << "         pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
+              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
+              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
+              << "        _parallel:=true|false      Enable/Disable parallel execution of pipeline (json_prolog is required)"<< std::endl
               << "         withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl;
 
 }
@@ -96,7 +98,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   std::string analysisEnginesName, analysisEngineFile, savePath;
-  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive;
+  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel;
 
   nh.param("ae", analysisEnginesName, std::string(""));
   nh.param("analysis_engines", analysisEnginesName, analysisEnginesName);
@@ -107,6 +109,7 @@ int main(int argc, char *argv[])
 
   nh.param("save_path", savePath, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
+  nh.param("parallel", parallel, false);
   nh.param("withIDRes", useObjIDRes,false);
 
   nh.deleteParam("ae");
@@ -116,6 +119,7 @@ int main(int argc, char *argv[])
   nh.deleteParam("save_path");
   nh.deleteParam("wait");
   nh.deleteParam("pervasive");
+  nh.deleteParam("parallel");
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -147,7 +151,7 @@ int main(int argc, char *argv[])
     RSProcessManager manager(useVisualizer, waitForServiceCall, nh, savePath);
     manager.setUseIdentityResolution(useObjIDRes);
     manager.pause();
-    manager.init(analysisEngineFile, configFile, pervasive);
+    manager.init(analysisEngineFile, configFile, pervasive, parallel);
     manager.run();
     manager.stop();
   }

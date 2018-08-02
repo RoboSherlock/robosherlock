@@ -293,4 +293,5 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
 }
+
 #endif //WITH_JSON_PROLOG
