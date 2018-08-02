@@ -138,6 +138,7 @@ public:
     {
       ctx.extractValue("cluster_min_size", cluster_min_size);
     }
+    setAnnotatorContext(ctx);
     return UIMA_ERR_NONE;
   }
 

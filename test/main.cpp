@@ -9,11 +9,20 @@
 #include "main.h"
 
 
-  uima::AnalysisEngine *engine;
+   mongo::client::GlobalInstance instance;
+   std::string engineFile;
+   RSAnalysisEngine engine;
+   uima::CAS *cas;
 
 int main(int argc, char **argv)
 {
   char *userEnv = getenv("USER");
+  uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+  resourceManager.setLoggingLevel(uima::LogStream::EnError);
+  rs::common::getAEPaths("u_test",engineFile);
+  engine.init(engineFile);
+  engine.initPipelineManager();
+ 
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;
   std::vector<std::string> analysisEngineFiles;
@@ -33,18 +42,12 @@ int main(int argc, char **argv)
     ros::init(argc, argv, std::string("RoboSherlock"));
 
   }
+  cas = engine.newCAS();
 
-   std::string enginePath;
-   rs::common::getAEPaths(std::string("u_test"), enginePath);	
-   engine_file = enginePath;
-
-   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
-   resourceManager.setLoggingLevel(uima::LogStream::EnError);
-  
-   engine = uima::Framework::createAnalysisEngine(engine_file.c_str(), errorInfo);
-
-   testing::InitGoogleTest(&argc, argv);
-   return RUN_ALL_TESTS();
+  testing::InitGoogleTest(&argc, argv);
+  RUN_ALL_TESTS();
+  engine.destroy();
+  return 1;
 }
 
 

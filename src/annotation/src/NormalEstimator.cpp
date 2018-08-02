@@ -89,10 +89,21 @@ public:
     {
       ctx.extractValue("radiusSearch", radiusSearch);
     }
-
+    setAnnotatorContext(ctx);
     return UIMA_ERR_NONE;
   }
-
+/*
+  TyErrorId reconfigure()
+  {
+    outError("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    if(ctx.isParameterDefined("radiusSearch"))
+    {
+      outInfo("radiusSearch is rewritten-ish");
+    }
+    return UIMA_ERR_NONE;
+  }
+*/
   TyErrorId destroy()
   {
     outInfo("destroy");
