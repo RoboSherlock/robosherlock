@@ -30,6 +30,9 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
   rapidjson::Document json;
   json.Parse(desig->c_str());
 
+  json_prolog::Prolog pl;
+  json_prolog::PrologQueryProxy bdgs = pl.query("retract(requestedValueForKey(_,_))");
+
   //add the ones that are interpretable to the queriedKeys;
   for(rapidjson::Value::ConstMemberIterator iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter)
   {
@@ -42,20 +45,17 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
       if(std::find(special_keys.begin(), special_keys.end(),
                    iter->name.GetString()) != std::end(special_keys))
       {
-        outInfo("Asserting value key pair: " << iter->value.GetString());
-
         json_prolog::Prolog pl;
         std::string d = iter->value.GetString();
         d[0] = std::toupper(d[0]);
         if(!addNamespace(d)) outWarn("No OWL definitions for "<<d<<" under any of the known namespaces");
         std::stringstream assertionQuery;
-        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," <<d<< ")";
-
+        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," <<d<< "))";
+        outInfo("Calilng query: "<<assertionQuery.str() );
         json_prolog::PrologQueryProxy bdgs = pl.query(assertionQuery.str());
         if(bdgs.begin() != bdgs.end())
         {
           outInfo("Asserted: " << assertionQuery.str());
-          return true;
         }
       }
     }
@@ -89,7 +89,7 @@ bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string *desig,
 
 std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std::string> &keys)
 {
-  std::string prologQuery = "build_single_pipeline_from_predicates([";
+  std::string prologQuery = "build_pipeline_from_predicates([";
   for(int i = 0; i < keys.size(); i++)
   {
     prologQuery += keys.at(i);
@@ -284,20 +284,25 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std
   std::vector<std::string> resultDomain;
   if(lookupAnnotatorDomain(annotatorName, resultDomain))
   {
+    std::vector<std::string> resultDomainInKnowRob;
+    for (auto d: resultDomain)
+    {
+        d[0] = std::toupper(d[0]);
+        if(!addNamespace(d)) {outWarn("output domain element: [ "<<d<<" ] is not defined in Ontology. Will not be considered durin query answering"); continue;}
+        outInfo(d);
+        resultDomainInKnowRob.push_back(d);
+    }
+
     std::stringstream query;
     query<<"set_annotator_domain("<<individualOfAnnotator<<",[";
     std::string separator =",";
-    for (size_t i=0;i<resultDomain.size();++i)
+    for (auto it= resultDomainInKnowRob.begin(); it!=resultDomainInKnowRob.end();++it )
     {
-        std::string d = resultDomain[i];
-        d[0] = std::toupper(d[0]);
-        if(!addNamespace(d)) {outWarn("output domain element: [ "<<d<<" ] is not defined in Ontology"); continue;}
-        expandToFullUri(d);
-        outInfo(d);
-        if(i==resultDomain.size()-1) separator="";
-        query<<d<<separator;
+        if(std::next(it) == resultDomainInKnowRob.end()) separator="";
+        query<<*it<<separator;
     }
     query<<"]).";
+
     outInfo("Query: "<<query.str());
     json_prolog::Prolog pl;
     json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
