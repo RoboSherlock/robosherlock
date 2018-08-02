@@ -66,6 +66,62 @@ public:
   {
     return rspm;
   }
-
-};
+  uima::CAS* newCAS()
+  {
+    return engine->newCAS();
+  }
+  uima::AnnotatorContext& getAnnotatorContext()
+  {
+    return engine->getAnnotatorContext();
+  }
+  void reconfigure()
+  {
+    engine->reconfigure();
+  }
+  void collectionProcessComplete()
+  {
+    engine->collectionProcessComplete();
+  }
+  void destroy()
+  {
+    engine->destroy();
+  }
+  template < class T >
+  void overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()),param);
+  }
+  template < class T >
+  void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<T> & param)
+  {
+   uima::AnnotatorContext &annotContext = getAnnotatorContext();
+   UnicodeString ucs_delegate(annotName.c_str());
+   uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+   cr_context->assignValue(UnicodeString(paramName.c_str()),param); 
+  }
+  //Ease case for the user
+  void overwriteParam(const std::string& annotName,const std::string& paramName, std::string const& param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()),(UnicodeString) param.c_str());
+  }
+  void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<std::string> & param)
+  {
+   uima::AnnotatorContext &annotContext = getAnnotatorContext();
+   UnicodeString ucs_delegate(annotName.c_str());
+   //Convert the std::string vector into UnicodeString and then overwrite with that variable
+   std::vector<UnicodeString> conversionString;
+   for (std::string i : param)
+   {
+    conversionString.push_back(UnicodeString(i.c_str()));
+   }
+   uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString); 
+  }
+ };
 #endif // RSANALYSISENGINE_H
