@@ -86,14 +86,23 @@ public:
   {
     engine->destroy();
   }
-  template < typename T >
-  inline T const& overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
+  template < class T >
+  void overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    //outError( param->front() );
     //uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
     UnicodeString ucs_delegate(annotName.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
     cr_context->assignValue(UnicodeString(paramName.c_str()),param);
+  }
+  template < class T >
+  void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<T> & param)
+  {
+   uima::AnnotatorContext &annotContext = getAnnotatorContext();
+   UnicodeString ucs_delegate(annotName.c_str());
+   uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+   cr_context->assignValue(UnicodeString(paramName.c_str()),param); 
   }
  };
 #endif // RSANALYSISENGINE_H
