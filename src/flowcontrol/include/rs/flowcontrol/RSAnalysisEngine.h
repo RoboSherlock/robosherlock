@@ -46,7 +46,7 @@ public:
 
   ~RSAnalysisEngine();
 
-  virtual void init(const std::string &file, bool parallel);
+  virtual void init(const std::string &file, bool parallel=false);
 
   void initPipelineManager();
 
