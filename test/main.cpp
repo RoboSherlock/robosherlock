@@ -20,15 +20,15 @@ int main(int argc, char **argv)
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
   resourceManager.setLoggingLevel(uima::LogStream::EnError);
   rs::common::getAEPaths("u_test",engineFile);
-  engine.init(engineFile);
+  engine.init(engineFile, false); //set parallel to false as default
   engine.initPipelineManager();
- 
+
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;
   std::vector<std::string> analysisEngineFiles;
   std::ostringstream engineList;
   std::string engine_file;
- 
+
   uima::ErrorInfo errorInfo;
   mongo::client::GlobalInstance instance;
 
@@ -49,14 +49,3 @@ int main(int argc, char **argv)
   engine.destroy();
   return 1;
 }
-
-
-
-
-
-
-
-
-
-
-
