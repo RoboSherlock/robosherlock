@@ -31,6 +31,8 @@
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
 
+#include <unordered_map>
+
 class RSControledAnalysisEngine: public RSAnalysisEngine
 {
 

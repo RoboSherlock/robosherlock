@@ -126,6 +126,13 @@ else()
   message(STATUS "libyaml_cpp not found.")
 endif()
 
+FIND_PACKAGE(XercesC)
+IF(XercesC_FOUND)
+  INCLUDE_DIRECTORIES(${XercesC_INCLUDE_DIRS})
+ELSE()
+  MESSAGE(FATAL_ERROR "XercesC library not found")
+ENDIF(XercesC_FOUND)
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
@@ -179,7 +186,7 @@ include_directories(
 ################################################################################
 
 ## Update xml list of annotators inside analysis engines
-update_analysis_engines()
+# update_analysis_engines()
 
 ## generate classes from the typesystem xml files
 generate_type_system()

@@ -11,8 +11,10 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
 
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simpling looking for keyword fixedFlow
-  std::vector<std::string> annotators, annotatorPaths;
+  std::unordered_map<std::string, std::string> delegates;
+  std::vector<std::string> annotators;
   getFixedFlow(AEFile, annotators);
+
   for (std::string& a : annotators) {
     std::string path = getAnnotatorPath(a);
     // If the path is yaml file, we need to convert it to xml
@@ -23,24 +25,27 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
       try {
         std::ofstream of(xmlPath);
         converter.getOutput(of);
-        annotatorPaths.push_back(xmlPath);
+        delegates[a] = xmlPath;
       }
       catch (std::exception &e) {
         outError("Exception happened when creating the output file: " << e.what());
         return;
       }
     } else
-      annotatorPaths.push_back(path);
+      delegates[a] = path;
   }
 
-  engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
+  // engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
+  engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), delegates, errorInfo);
 
+  outInfo("here?" << std::endl);
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed." << errorInfo.asString());
     throw uima::Exception(errorInfo);
   }
 
+  outInfo("here?" << std::endl);
   rspm = new RSPipelineManager(engine, parallel);
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 
