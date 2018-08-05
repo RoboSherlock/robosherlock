@@ -9,7 +9,32 @@
 <version>1.0</version>
 <vendor/>
 
+<configurationParameters>
+<configurationParameter>
+<name>
+camera_config_files
+</name>
+<type>
+String
+</type>
+<multiValued>true</multiValued>
+<mandatory>false</mandatory>
+</configurationParameter>
+</configurationParameters>
 
+<configurationParameterSettings>
+<nameValuePair>
+<name>
+camera_config_files
+</name>
+<value>
+<array>
+<string>config_kinect_robot.ini
+</string>
+</array>
+</value>
+</nameValuePair>
+</configurationParameterSettings>
 
 <capabilities>
 <capability>

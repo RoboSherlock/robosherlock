@@ -257,6 +257,7 @@ namespace rs
       uima::AnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                                                        *apCASDef.release(),
                                                                        errInfo);
+      outInfo("here?" << std::endl);
       return pResult;
     }
     catch (uima::Exception & rExc)
@@ -277,8 +278,11 @@ namespace rs
     try
     {
       // create the engine depending on the framework (UIMACPP or JEDII) or if it is primitive or aggregate.
+      outInfo("here?" << std::endl);
       uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
+      outInfo("here?" << std::endl);
       pResult = new RSAggregatedAnalysisEngine( rANC, true, true, casDefinition, true );
+      outInfo("here?" << std::endl);
 
       if (pResult == NULL)
       {
@@ -286,7 +290,9 @@ namespace rs
         return NULL;
       }
 
+      outInfo("here?" << std::endl);
       uima::TyErrorId utErrorID = pResult->initialize( crTAESpecifier );
+      outInfo("here?" << std::endl);
       if (utErrorID != UIMA_ERR_NONE)
       {
         uima::ErrorInfo const &crLastError = pResult->getAnnotatorContext().getLogger().getLastError();
