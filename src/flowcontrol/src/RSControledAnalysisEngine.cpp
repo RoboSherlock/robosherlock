@@ -14,6 +14,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   std::unordered_map<std::string, std::string> delegates;
   std::vector<std::string> annotators;
   getFixedFlow(AEFile, annotators);
+  annotators.push_back("Trigger");
 
   for (std::string& a : annotators) {
     std::string path = getAnnotatorPath(a);
@@ -468,7 +469,6 @@ void RSControledAnalysisEngine::getFixedFlow(const std::string filePath,
         pos += 6;
         if ((pos_ = content.find("</node>", pos)) != std::string::npos) {
           std::string anno = content.substr(pos, pos_ - pos);
-          std::cout << "what the hell: ---------------------> " << anno << std::endl;
           annotators.push_back(anno);
           pos = pos_ + 7;
         } else {

@@ -111,7 +111,6 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
 
     tmpXMLCh = XMLString::transcode("location");
     const XMLCh * annoLoc = XMLString::transcode(del.second.c_str());
-    outInfo("location is ................" << del.second);
     p_Location->setAttribute(tmpXMLCh, annoLoc);
     XMLString::release(&tmpXMLCh);
     p_DelAnno->appendChild(p_Location);
@@ -120,13 +119,8 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
   }
 
   DOMNodeList * children = p_DelegateElement->getChildNodes();
-  outInfo(" how many nodes are there ???????????????" << children->getLength());
 
   p_RootElem->appendChild(p_DelegateElement);
 
   buildAnalysisEngineDescription(taeSpec, p_RootElem, convert(crInputSource.getSystemId()), true);
-  // if (bHasOwnErrorHandler) {
-  //   delete iv_pXMLErrorHandler;
-  //   iv_pXMLErrorHandler = NULL;
-  // }
 }
