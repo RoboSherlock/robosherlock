@@ -168,4 +168,3 @@ TEST(UnitTest, CheckExistingMaskHD)
 // {
 //    EXPECT_EQ(1, exist_thermal_cloud);
 // }
->>>>>>> c7f771eaa09edb50f7b245209dc3d6923de21721

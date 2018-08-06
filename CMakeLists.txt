@@ -210,6 +210,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/segmentation/symmetry_segmentation_test.cpp
     test/robosherlock_utest/test_storage.cpp
     test/robosherlock_utest/ImagePreprocessor_utest.cpp
+    test/robosherlock_utest/PlaneAnnotator_utest.cpp
     test/robosherlock_utest/reconf_utest.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol
