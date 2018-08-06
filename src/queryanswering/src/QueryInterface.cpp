@@ -122,7 +122,10 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 }
 
-bool getConfigForKey(std::string key, std::string &location, std::string &check, double &thresh, bool &keepLower)
+bool getConfigForKey(std::string key, std::vector<std::string> &location,
+                     std::vector<std::string> &check,
+                     double &thresh,
+                     bool &keepLower)
 {
   const std::string &configFile = ros::package::getPath("robosherlock") + "/config/filter_config.ini";
 
@@ -134,10 +137,13 @@ bool getConfigForKey(std::string key, std::string &location, std::string &check,
     if(pt.find(key) == pt.not_found())
       return false;
 
-    location = pt.get<std::string>(key + ".location", "/" + key);
-    check = pt.get<std::string>(key + ".check", "EQUAL");
+    std::string l = pt.get<std::string>(key + ".location", "/" + key);
+    std::string c = pt.get<std::string>(key + ".check", "EQUAL");
     thresh = pt.get<double> (key + ".threshold", 0.f);
     keepLower = pt.get<bool> (key + ".keepLower", true);
+
+    boost::split(location,l, boost::is_any_of(","), boost::token_compress_on);
+    boost::split(check, c, boost::is_any_of(","), boost::token_compress_on);
 
     return true;
   }
@@ -177,7 +183,7 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
           return true;
       }
       else if(listIt->value.GetDouble() < threshold)
-          return true;
+        return true;
 
     }
   }
@@ -194,7 +200,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
 
   for(rapidjson::Value::ConstMemberIterator queryIt = detectQuery.MemberBegin(); queryIt != detectQuery.MemberEnd(); ++queryIt)
   {
-    std::string location, check;
+    std::vector<std::string> location, check;
     std::string key = queryIt->name.GetString();
     double thresh;
     bool keepLower;
@@ -208,80 +214,85 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
       rapidjson::Document resultJson;
       resultJson.Parse(resultDesignators[i].c_str());
 
-      //check if this query key exists in the result
-      if(rapidjson::Value *value = rapidjson::Pointer(location).Get(resultJson))
+      for(size_t j = 0; j < location.size(); ++j)
       {
-        if(check == "EQUAL")
+        //check if this query key exists in the result
+        if(rapidjson::Value *value = rapidjson::Pointer(location[j]).Get(resultJson))
         {
-          if(value->GetType() == rapidjson::Type::kStringType)
+          if(check[j] == "EQUAL")
           {
-            std::string resultValue = value->GetString();;
-            if(resultValue != queryValue && queryValue != "")
+            if(value->GetType() == rapidjson::Type::kStringType)
+            {
+              std::string resultValue = value->GetString();;
+              if(resultValue != queryValue && queryValue != "")
+                designatorsToKeep[i] = false;
+              else
+                 designatorsToKeep[i] = true;
+            }
+            else
+              designatorsToKeep[i] = false;
+          }
+          else if(check[j] == "CLASS")
+          {
+            const std::string resultValue = value->GetString();
+            if(!checkSubClass(resultValue, queryValue))
+              designatorsToKeep[i] = false;
+          }
+          else if(check[j] == "GEQ")
+          {
+            float volumeofCurrentObj = value->GetDouble();
+            float volumeAsked = atof(queryValue.c_str());
+            outWarn("Volume asked as float: " << volumeAsked);
+            if(volumeAsked > volumeofCurrentObj)
+            {
+              designatorsToKeep[i] = false;
+            }
+          }
+          else if(check[j] == "THRESHLIST")
+          {
+            if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "")
+            {
+              designatorsToKeep[i] = false;
+            }
+          }
+          else if(check[j] == "CONTAINS")
+          {
+            bool found = false;
+            for(auto &v : value->GetArray())
+              if(v == queryValue)
+                found = true;
+            if(!found)
               designatorsToKeep[i] = false;
           }
           else
-            designatorsToKeep[i] = false;
-        }
-        else if(check == "CLASS")
-        {
-          const std::string resultValue = value->GetString();
-          if(!checkSubClass(resultValue, queryValue))
-            designatorsToKeep[i] = false;
-        }
-        else if(check == "GEQ")
-        {
-          float volumeofCurrentObj = value->GetDouble();
-          float volumeAsked = atof(queryValue.c_str());
-          outWarn("Volume asked as float: " << volumeAsked);
-          if(volumeAsked > volumeofCurrentObj)
           {
+            outWarn("There is no such check: " + check[j] + ". Please check the filter_config.ini");
             designatorsToKeep[i] = false;
           }
         }
-        else if(check == "THRESHLIST")
+        else if(check[j] == "CONTAINSEQUAL")
         {
-          if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "")
+          std::string delimiter = "*";
+          int delLoc = location[j].find(delimiter);
+          std::string prefix = location[j].substr(0, delLoc - 1);
+          std::string suffix = location[j].substr(delLoc + 1, location[j].size());
+          if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson))
           {
-            designatorsToKeep[i] = false;
-          }
-        }
-        else if(check == "CONTAINS")
-        {
-          bool found = false;
-          for(auto &v : value->GetArray())
-            if(v == queryValue)
-              found = true;
-          if(!found)
-            designatorsToKeep[i] = false;
-        }
-        else
-        {
-          outWarn("There is no such check: " + check + ". Please check the filter_config.ini");
-          designatorsToKeep[i] = false;
-        }
-      }
-      else if(check == "CONTAINSEQUAL")
-      {
-        std::string delimiter = "*";
-        int delLoc = location.find(delimiter);
-        std::string prefix = location.substr(0, delLoc - 1);
-        std::string suffix = location.substr(delLoc + 1, location.size());
-        if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson))
-        {
-          for(int i = 0; i < suffixVal->Size(); i ++)
-          {
-            std::string newLocation = prefix + " / " + std::to_string(i) + suffix;
-            if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
+            for(int i = 0; i < suffixVal->Size(); i ++)
             {
-              std::string resultValue = value->GetString();;
-              if(resultValue != queryValue)
-                designatorsToKeep[i] = false;
+              std::string newLocation = prefix + " / " + std::to_string(i) + suffix;
+              if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
+              {
+                std::string resultValue = value->GetString();;
+                if(resultValue != queryValue)
+                  designatorsToKeep[i] = false;
+              }
             }
           }
         }
+        else
+          designatorsToKeep[i] = false;
       }
-      else
-        designatorsToKeep[i] = false;
     }
   }
   for(int i = 0; i < designatorsToKeep.size(); ++i)
