@@ -32,7 +32,6 @@ protected:
     mongo::client::GlobalInstance instance;
     std::string engineFile;
     RSAnalysisEngine engine;
-    outError("Setup
 };
 
 TEST_F(ExampleTest, ProcessTest)
