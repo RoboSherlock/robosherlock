@@ -1,9 +1,62 @@
 #include <rs/utils/RSXMLParser.h>
 
+// void DoOutput2File(DOMDocument* pmyDOMDocument, const char * FullFilePath )
+// {
+
+//   DOMImplementation    *pImplement     = NULL;
+//   DOMLSSerializer      *pSerializer    = NULL;
+//   XMLFormatTarget      *pTarget        = NULL;
+
+//   /*
+//   Return the first registered implementation that
+//   has the desired features. In this case, we are after
+//   a DOM implementation that has the LS feature... or Load/Save.
+//   */
+//   XMLCh *tmpXMLCh = XMLString::transcode("LS");
+//   pImplement = DOMImplementationRegistry::getDOMImplementation(tmpXMLCh);
+
+//   /*
+//   From the DOMImplementation, create a DOMWriter.
+//   DOMWriters are used to serialize a DOM tree [back] into an XML document.
+//   */
+//   pSerializer = ((DOMImplementationLS*)pImplement)->createLSSerializer();
+
+
+//   /*
+//   This line is optional. It just sets a feature
+//   of the Serializer to make the output
+//   more human-readable by inserting line-feeds,
+//   without actually inserting any new elements/nodes
+//   into the DOM tree. (There are many different features to set.)
+//   Comment it out and see the difference.
+//   */
+//   DOMConfiguration* pDomConfiguration = pSerializer->getDomConfig();
+//   pDomConfiguration->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+
+//   /*
+//   Choose a location for the serialized output. The 3 options are:
+//       1) StdOutFormatTarget     (std output stream -  good for debugging)
+//       2) MemBufFormatTarget     (to Memory)
+//       3) LocalFileFormatTarget  (save to file)
+//       (Note: You'll need a different header file for each one)
+//       Don't forget to escape file-paths with a backslash character, or
+//       just specify a file to be saved in the exe directory.
+
+//         eg. c:\\example\\subfolder\\pfile.xml
+
+//   */
+//   pTarget = new LocalFileFormatTarget(FullFilePath);
+//   // Write the serialized output to the target.
+//   DOMLSOutput* pDomLsOutput = ((DOMImplementationLS*)pImplement)->createLSOutput();
+//   pDomLsOutput->setByteStream(pTarget);
+
+//   pSerializer->write(pmyDOMDocument, pDomLsOutput);
+// }
 
 void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription& taeSpec,
-                                                 const icu::UnicodeString& fileName,
-                                                 const std::unordered_map<std::string, std::string>& delegateEngines)
+                                                 const std::unordered_map<std::string, std::string>& delegateEngines,
+                                                 const icu::UnicodeString& fileName)
 {
   XMLPlatformUtils::Initialize();
   icu::UnicodeString const & fn = uima::ResourceManager::resolveFilename(fileName, ".");
@@ -73,22 +126,7 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
   DOMElement * p_RootElem = p_DOMDocument->getDocumentElement();
   assert(EXISTS(p_RootElem));
 
-  // Add the delegate engines into the dom
-  // DOMElement* child = rootElem->getFirstElementChild();
-  // XMLSize_t cnt = rootElem->getChildElementCount();
-  // for ( XMLSize_t i = 0; i < cnt; i++ )
-  // {
-  //   char* name = XMLString::transcode( child->getTagName() );
-  //   outInfo( "========" << name << std::endl );
-  //   XMLString::release( &name);
-
-  //   char* value = XMLString::transcode(child->getTextContent());
-  //   outInfo( "-------" << value << std::endl );
-  //   XMLString::release( &value );
-
-  //   child = child->getNextElementSibling();
-  // }
-
+  // -----------------------------------------------------------------------
   DOMElement * p_DelegateElement = NULL;
 
   XMLCh *tmpXMLCh = XMLString::transcode("delegateAnalysisEngineSpecifiers");
@@ -97,30 +135,34 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
 
   for (auto del : delegateEngines)
   {
-    tmpXMLCh = XMLString::transcode("delegateAnalysisEngine");
-    DOMElement * p_DelAnno = p_DOMDocument->createElement(tmpXMLCh);
-    XMLString::release(&tmpXMLCh);
+    XMLCh * tmpDelegateEngine = XMLString::transcode("delegateAnalysisEngine");
+    DOMElement * p_DelAnno = p_DOMDocument->createElement(tmpDelegateEngine);
+    XMLString::release(&tmpDelegateEngine);
 
-    const XMLCh * annoName = XMLString::transcode(del.first.c_str());
-    tmpXMLCh = XMLString::transcode("key");
-    p_DelAnno->setAttribute(tmpXMLCh, annoName);
+    XMLCh * annoName = XMLString::transcode(del.first.c_str());
+    XMLCh * tmpKey = XMLString::transcode("key");
+    p_DelAnno->setAttribute(tmpKey, annoName);
+    XMLString::release(&tmpKey);
+    XMLString::release(&annoName);
 
-    tmpXMLCh = XMLString::transcode("import");
-    DOMElement * p_Location = p_DOMDocument->createElement(tmpXMLCh);
-    XMLString::release(&tmpXMLCh);
+    XMLCh * tmpImport = XMLString::transcode("import");
+    DOMElement * p_Location = p_DOMDocument->createElement(tmpImport);
+    XMLString::release(&tmpImport);
 
-    tmpXMLCh = XMLString::transcode("location");
-    const XMLCh * annoLoc = XMLString::transcode(del.second.c_str());
-    p_Location->setAttribute(tmpXMLCh, annoLoc);
-    XMLString::release(&tmpXMLCh);
+    XMLCh * tmpLocation = XMLString::transcode("location");
+    XMLCh * annoLoc = XMLString::transcode(del.second.c_str());
+    p_Location->setAttribute(tmpLocation, annoLoc);
+    XMLString::release(&tmpLocation);
+    XMLString::release(&annoLoc);
     p_DelAnno->appendChild(p_Location);
 
     p_DelegateElement->appendChild(p_DelAnno);
   }
 
-  DOMNodeList * children = p_DelegateElement->getChildNodes();
-
   p_RootElem->appendChild(p_DelegateElement);
+
+  // -----------------------------------------------------------------------
+  // DoOutput2File(p_DOMDocument, XMLString::transcode("/home/shixin.li/output.xml"));
 
   buildAnalysisEngineDescription(taeSpec, p_RootElem, convert(crInputSource.getSystemId()), true);
 }

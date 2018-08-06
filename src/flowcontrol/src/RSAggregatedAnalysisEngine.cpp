@@ -229,7 +229,7 @@ namespace rs
 
 
       //parsing AEFile routine, using auto_ptr for auto-garbage collection if method failed
-  	  RSXMLParser builder;
+      RSXMLParser builder;
       std::auto_ptr<uima::AnalysisEngineDescription> apTAESpecifier( new uima::AnalysisEngineDescription() );
       if (apTAESpecifier.get() == NULL)
       {
@@ -237,7 +237,8 @@ namespace rs
         return NULL;
       }
 
-      builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), aeFile, delegateEngines);
+      builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), delegateEngines, aeFile);
+      // builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), aeFile);
 
       apTAESpecifier->validate();
       apTAESpecifier->commit();
@@ -249,7 +250,6 @@ namespace rs
         return NULL;
       }
 
-      outInfo("here?" << std::endl);
       std::auto_ptr<uima::internal::CASDefinition> apCASDef( uima::internal::CASDefinition::createCASDefinition(*apANC.get()) );
 
       // release auto_ptrs here because the createTAE transfers ownership to the engine
@@ -257,7 +257,6 @@ namespace rs
       uima::AnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                                                        *apCASDef.release(),
                                                                        errInfo);
-      outInfo("here?" << std::endl);
       return pResult;
     }
     catch (uima::Exception & rExc)
@@ -278,11 +277,8 @@ namespace rs
     try
     {
       // create the engine depending on the framework (UIMACPP or JEDII) or if it is primitive or aggregate.
-      outInfo("here?" << std::endl);
       uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
-      outInfo("here?" << std::endl);
       pResult = new RSAggregatedAnalysisEngine( rANC, true, true, casDefinition, true );
-      outInfo("here?" << std::endl);
 
       if (pResult == NULL)
       {
@@ -290,9 +286,7 @@ namespace rs
         return NULL;
       }
 
-      outInfo("here?" << std::endl);
       uima::TyErrorId utErrorID = pResult->initialize( crTAESpecifier );
-      outInfo("here?" << std::endl);
       if (utErrorID != UIMA_ERR_NONE)
       {
         uima::ErrorInfo const &crLastError = pResult->getAnnotatorContext().getLogger().getLastError();

@@ -13,6 +13,10 @@
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 #include <xercesc/util/XMLString.hpp>
+//Required for outputing a Xerces DOMDocument to a standard output stream (Also see: XMLFormatTarget)
+#include <xercesc/framework/StdOutFormatTarget.hpp>
+//Required for outputing a Xerces DOMDocument to the file system (Also see: XMLFormatTarget)
+#include <xercesc/framework/LocalFileFormatTarget.hpp>
 
 #include <uima/api.hpp>
 #include <uima/taespecifierbuilder.hpp>
@@ -30,8 +34,8 @@ public:
   RSXMLParser() : uima::XMLParser() {};
 
   void parseAnalysisEngineDescription(uima::AnalysisEngineDescription& taeSpec,
-                                      const icu::UnicodeString& fileName,
-                                      const std::unordered_map<std::string, std::string>& delegateEngines);
+                                      const std::unordered_map<std::string, std::string>& delegateEngines,
+                                      const icu::UnicodeString& fileName);
 };
 
 #endif

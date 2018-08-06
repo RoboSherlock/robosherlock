@@ -52,12 +52,9 @@ public:
   {
     this->engine = engine;
 
-    outInfo("here?" << std::endl);
     // outInfo(engine->getAnalysisEngineMetaData());
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
-    outInfo("here?" << std::endl);
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
-    outInfo("here?" << std::endl);
     original_annotators = engine->iv_annotatorMgr.iv_vecEntries;
     use_default_pipeline = false;
 

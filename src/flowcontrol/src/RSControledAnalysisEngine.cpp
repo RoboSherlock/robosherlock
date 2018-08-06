@@ -39,14 +39,13 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   // engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
   engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), delegates, errorInfo);
 
-  outInfo("here?" << std::endl);
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed." << errorInfo.asString());
     throw uima::Exception(errorInfo);
   }
 
-  outInfo("here?" << std::endl);
+  engine->getAnalysisEngineMetaData();
   rspm = new RSPipelineManager(engine, parallel);
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 
