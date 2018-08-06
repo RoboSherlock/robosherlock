@@ -39,6 +39,39 @@ void Vertex::print() const
   std::cout << '\n';
 }
 
+DirectedVertex::DirectedVertex() : parents(0), children(0), in_edges(0), out_edges(0) {}
+
+void DirectedVertex::print() const
+{
+  std::cout << "Parents: ";
+  for(size_t it = 0 ; it < parents.size(); it++)
+  {
+    std::cout << parents[it] << ", ";
+  }
+  std::cout << '\n';
+
+  std::cout << "Children: ";
+  for(size_t it = 0 ; it < children.size(); it++)
+  {
+    std::cout << children[it] << ", ";
+  }
+  std::cout << '\n';
+
+  std::cout << "In Edges: ";
+  for(size_t it = 0 ; it < in_edges.size(); it++)
+  {
+    std::cout << in_edges[it] << ", ";
+  }
+  std::cout << '\n';
+
+  std::cout << "Out Edges: ";
+  for(size_t it = 0 ; it < out_edges.size(); it++)
+  {
+    std::cout << out_edges[it] << ", ";
+  }
+  std::cout << '\n';
+}
+
 Edge::Edge() : v1(0), v2(0) {}
 Edge::Edge(const int v1, const int v2)
 {
@@ -60,4 +93,12 @@ WeightedEdge::WeightedEdge(const int v1, const int v2, const float weight) : Edg
 void WeightedEdge::print() const
 {
   std::cout << v1 << "<-- " << weight << " -->" << v2 << '\n';
+}
+
+DirectedEdge::DirectedEdge() : Edge() {}
+DirectedEdge::DirectedEdge(const int v1, const int v2) : Edge(v1, v2) {}
+
+void DirectedEdge::print() const
+{
+  std::cout << v1 << " --> " << v2 << '\n';
 }

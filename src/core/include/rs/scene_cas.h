@@ -20,6 +20,8 @@
 #define SCENE_CAS_H_
 
 #include <map>
+#include <mutex>
+#include <memory>
 
 #include <uima/api.hpp>
 
@@ -50,6 +52,7 @@ class SceneCas
 {
 private:
   uima::CAS &cas;
+  std::shared_ptr<std::mutex> mutex;
 
 public:
   SceneCas(uima::CAS &cas);
@@ -63,11 +66,13 @@ public:
 
   void reset()
   {
+    std::lock_guard<std::mutex> lock(*mutex);
     cas.reset();
   }
 
   void setText(std::string t)
   {
+    std::lock_guard<std::mutex> lock(*mutex);
     cas.setDocumentText(uima::UnicodeStringRef(t.c_str()));
   }
 

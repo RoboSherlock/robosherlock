@@ -142,7 +142,7 @@ static std::vector<std::string> rsQueryTerms =
 
 
 //make uri from namespace and class name
-static std::string makeUri(const std::string &a)
+/*static std::string makeUri(const std::string &a)
 {
   std::string prefix("http://knowrob.org/kb/");
   int tokenizerIdx = a.find(":");
@@ -155,7 +155,7 @@ static std::string makeUri(const std::string &a)
   std::stringstream stream;
   stream<<prefix<<begin<<".owl#"<<end;
   return stream.str();
-}
+}*/
 
 }//end of namespace
 

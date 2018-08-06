@@ -21,7 +21,7 @@ protected:
     virtual void SetUp()
     {
       rs::common::getAEPaths("u_test",engineFile);
-      engine.init(engineFile);
+      engine.init(engineFile, false); // do not run parallel for now
       engine.initPipelineManager();
     }
 

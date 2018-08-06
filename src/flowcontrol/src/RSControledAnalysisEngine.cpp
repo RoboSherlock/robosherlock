@@ -1,13 +1,13 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
-void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive)
+void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
   uima::ErrorInfo errorInfo;
 
   size_t pos = AEFile.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == AEFile.npos ? AEFile : AEFile.substr(pos)));
 
-  engine = uima::Framework::createAnalysisEngine(AEFile.c_str(), errorInfo);
+  engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
@@ -15,7 +15,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     throw uima::Exception(errorInfo);
   }
 
-  rspm = new RSPipelineManager(engine);
+  rspm = new RSPipelineManager(engine, parallel);
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
 
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
@@ -26,8 +26,14 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     outInfo(tempString);
   }
 
-  rspm->aengine->getNbrOfAnnotators();
-  outInfo("*** Number of Annotators in AnnotatorManager: " << rspm->aengine->getNbrOfAnnotators());
+#ifdef WITH_JSON_PROLOG
+  outInfo("*** Fetch the parallel ordering nodes");
+  rspm->initParallelPipelineManager();
+  rspm->parallelPlanner.print();
+#endif
+
+  int numAnnotators = rspm->engine->getNbrOfAnnotators();
+  outInfo("*** Number of Annotators in AnnotatorManager: " << numAnnotators);
 
   if(pervasive){
       // After all annotators have been initialized, pick the default pipeline
@@ -36,6 +42,8 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
       //this applies it
       rspm->setPipelineOrdering(lowLvlPipeline);
   }
+
+  parallel_ = parallel;
 
   // Get a new CAS
   outInfo("Creating a new CAS");
@@ -82,15 +90,28 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
     try
     {
       rs::StopWatch clock;
-      uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-      for(int i = 0; casIter.hasNext(); ++i)
-      {
-        uima::CAS &outCas = casIter.next();
 
-        // release CAS
-        outInfo("release CAS " << i);
-        engine->getAnnotatorContext().releaseCAS(outCas);
+#ifdef WITH_JSON_PROLOG
+      if(parallel_)
+      {
+        if(rspm->querySuccess)
+        {
+          engine->paralleledProcess(*cas);
+        }
+        else
+        {
+          outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
+          engine->process(*cas);
+        }
       }
+      else
+      {
+        engine->process(*cas);
+      }
+#else
+      engine->process(*cas);
+#endif
+
       counter_++;
       totalTime_ += clock.getTime();
     }
@@ -192,7 +213,7 @@ template <class T>
 bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson)
-{ 
+{
 
   rs::SceneCas sceneCas(*cas);
   rs::Scene scene = sceneCas.getScene();
@@ -215,14 +236,14 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   {
     sceneCas.get(VIEW_OBJECTS, clusters);
   }
- 
+
   outInfo("Clusters size: "<<clusters.size()<<"Designator size: "<<resultDesignators.size());
   int colorIdx = 0;
   if(clusters.size()!= resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
-  } 
+  }
   for(int i = 0; i < filter.size(); ++i)
   {
     if(!filter[i]) continue;
@@ -374,7 +395,7 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
   cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
   //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  pc_pub_.publish(cloudToAdvertise);  
+  pc_pub_.publish(cloudToAdvertise);
   return true;
 }
 

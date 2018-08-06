@@ -203,7 +203,7 @@ private:
  //     {
  //       newLocation = frameJsonOn->GetString();
  //     }
- 
+
       outWarn("location set: " << newLocation);
       if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation != "")
       {

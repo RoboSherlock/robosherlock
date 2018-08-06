@@ -27,6 +27,8 @@
 #include <chrono>
 #include <condition_variable>
 #include <algorithm>
+#include <exception>
+#include <memory>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -36,19 +38,38 @@
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
 
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
+
+#ifdef WITH_JSON_PROLOG
+#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
+#endif
+
 class RSPipelineManager
 {
 public:
-  RSPipelineManager(uima::AnalysisEngine *engine)
+  RSPipelineManager(RSAggregatedAnalysisEngine *engine, bool parallel)
   {
-    engine = engine;
+    this->engine = engine;
 
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
-    aengine = ((uima::internal::AggregateEngine *)engine);
-    original_annotators = aengine->iv_annotatorMgr.iv_vecEntries;
+    original_annotators = engine->iv_annotatorMgr.iv_vecEntries;
     use_default_pipeline = false;
+
+#ifdef WITH_JSON_PROLOG
+    parallel_ = parallel;
+    querySuccess = false;
+#endif
   }
+
+#ifdef WITH_JSON_PROLOG
+    bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
+                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                       RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
+
+    bool initParallelPipelineManager();
+#endif
 
   void resetPipelineOrdering();
 
@@ -63,10 +84,12 @@ public:
   // Get the index of the given annotator in this->flow_constraint_nodes.
   int getIndexOfAnnotator(std::string annotator_name);
 
+  void getCurrentAnnotatorFlow(std::vector<std::string> &annotators);
+
+public:
   // private:
   /* data */
-  uima::AnalysisEngine *engine;
-  uima::internal::AggregateEngine *aengine;
+  RSAggregatedAnalysisEngine *engine;
   uima::FlowConstraints *flow;
 
   bool use_default_pipeline; // set to false again,if you want to disable the default pipeline order
@@ -75,8 +98,16 @@ public:
   // This attribute will keep a copy of all the initialized annotators that have
   // been loaded on startup.
   uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
+
+#ifdef WITH_JSON_PROLOG
+  bool parallel_;
+  bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
+
+  std::shared_ptr<JsonPrologInterface> queryInterface;
+  RSParallelPipelinePlanner parallelPlanner;
+  RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
+  RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
+#endif
 };
 
 #endif
-
-

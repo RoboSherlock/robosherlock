@@ -151,6 +151,47 @@ std::vector< std::string > JsonPrologInterface::createPipelineFromPrologResult(s
   return new_pipeline;
 }
 
+bool JsonPrologInterface::retrieveAnnotatorsInputOutput(std::vector<std::string> &annotators,
+                                                        AnnotatorDependencies &dependencies)
+{
+  json_prolog::Prolog pl;
+  std::string query;
+
+  if (annotators.empty())
+  {
+    outWarn("Annotator list is empty!");
+    return false;
+  }
+
+  for(int it  = 0; it < annotators.size(); it++)
+  {
+    dependencies[annotators[it]] = std::make_pair(std::unordered_set<std::string>(), std::unordered_set<std::string>());
+    std::string token;
+
+    query = QUERY_ANNOTATOR_INPUTS(annotators[it]);
+    for(auto bdg : pl.query(query))
+    {
+      token = bdg[QUERY_ANNOTATOR_INPUTS_VAR].toString();
+      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
+      token.pop_back(); // erase last character
+
+      dependencies[annotators[it]].first.insert(token);
+    }
+
+    query = QUERY_ANNOTATOR_OUTPUTS(annotators[it]);
+    for(auto bdg : pl.query(query))
+    {
+      token = bdg[QUERY_ANNOTATOR_OUTPUTS_VAR].toString();
+      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
+      token.pop_back(); // erase last character
+
+      dependencies[annotators[it]].second.insert(token);
+    }
+  }
+
+  return true;
+}
+
 bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
 {
 

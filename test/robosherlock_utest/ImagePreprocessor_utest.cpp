@@ -148,23 +148,24 @@ TEST(UnitTest, CheckExistingMaskHD)
 {
    EXPECT_EQ(1, exist_mask_HD);
 }
-TEST(UnitTest, CheckExistingThermalImage)
-{
-   EXPECT_EQ(1, exist_thermal_image);
-}
-TEST(UnitTest, CheckExistingThermalColorImage)
-{
-   EXPECT_EQ(1, exist_thermal_color_image);
-}
-TEST(UnitTest, CheckExistingThermalDepthImage)
-{
-   EXPECT_EQ(1, exist_thermal_depth_image);
-}
-TEST(UnitTest, CheckExistingThermalFused)
-{
-   EXPECT_EQ(1, exist_thermal_fused_image);
-}
-TEST(UnitTest, CheckExistingThermalCloud)
-{
-   EXPECT_EQ(1, exist_thermal_cloud);
-}
+// TEST(UnitTest, CheckExistingThermalImage)
+// {
+//    EXPECT_EQ(1, exist_thermal_image);
+// }
+// TEST(UnitTest, CheckExistingThermalColorImage)
+// {
+//    EXPECT_EQ(1, exist_thermal_color_image);
+// }
+// TEST(UnitTest, CheckExistingThermalDepthImage)
+// {
+//    EXPECT_EQ(1, exist_thermal_depth_image);
+// }
+// TEST(UnitTest, CheckExistingThermalFused)
+// {
+//    EXPECT_EQ(1, exist_thermal_fused_image);
+// }
+// TEST(UnitTest, CheckExistingThermalCloud)
+// {
+//    EXPECT_EQ(1, exist_thermal_cloud);
+// }
+>>>>>>> c7f771eaa09edb50f7b245209dc3d6923de21721
