@@ -33,13 +33,17 @@ bool YamlToXMLConverter::parseYamlFile() {
         YAML::Node value = it->second;
         if (key.Type() == YAML::NodeType::Scalar) {
             string nodeName = key.as<string>();
+            std::cout << "node name is ------------------ " << nodeName << std::endl;
             if (nodeName == ANNOTATOR_NODE_NAME) {
+              std::cout << "parse yaml: node" << std::endl;
                 if (!genAnnotatorInfo(value)) return false;
             }
             else if (nodeName == CONFIG_PARAM_NODE_NAME) {
+              std::cout << "parse yaml: param" << std::endl;
                 if (!genConfigParamInfo(value)) return false;
             }
             else if (nodeName == CAPAB_NODE_NAME) {
+              std::cout << "parse yaml: capab" << std::endl;
                 if (!genCapabInfo(value)) return false;
             }
             else {

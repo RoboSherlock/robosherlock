@@ -1,6 +1,7 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
 static std::string ANNOT_SEARCHPATH = "/descriptors/annotators";
+static std::string GEN_XML_PATH = "generated_xmls";
 
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
@@ -22,8 +23,13 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     if (boost::algorithm::ends_with(path, "yaml")) {
       YamlToXMLConverter converter(path);
       converter.parseYamlFile();
-      std::string xmlPath = path.substr(0, path.size()-4) + "xml";
       try {
+        boost::filesystem::path p(path);
+        std::string dir = p.parent_path().string();
+        std::string xmlDir = dir + "/" + GEN_XML_PATH;
+        std::string xmlPath = xmlDir + "/" + a + ".xml";
+        if (!boost::filesystem::exists(xmlDir))
+          boost::filesystem::create_directory(xmlDir);
         std::ofstream of(xmlPath);
         converter.getOutput(of);
         delegates[a] = xmlPath;
@@ -510,7 +516,7 @@ std::string RSControledAnalysisEngine::getAnnotatorPath(const std::string annota
             return dir->path().string();
           }
         }
-        if(dir->path().filename() == ".")
+        if(dir->path().filename() == "." || dir->path().filename() == GEN_XML_PATH)
         {
           dir.no_push(); // don't recurse into this directory.
         }
