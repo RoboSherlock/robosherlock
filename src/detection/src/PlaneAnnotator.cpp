@@ -159,6 +159,21 @@ public:
 
     return UIMA_ERR_NONE;
   }
+  
+    TyErrorId reconfigure()
+  {
+    outError("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    initialize(ctx);
+    if(ctx.isParameterDefined("plane_estimation_mode"))
+    {
+      std::string sMode;
+      ctx.extractValue("plane_estimation_mode", sMode);
+      outInfo("mode set to: " << sMode);
+    }
+    return UIMA_ERR_NONE;
+  }
+
 
   TyErrorId destroy()
   {

@@ -206,11 +206,12 @@ add_subdirectory(src/queryanswering)
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test.cpp
-    test/robosherlock/test_parallelism.cpp
-    test/segmentation/symmetry_segmentation_test.cpp
+    #test/robosherlock/test_parallelism.cpp
+    #test/segmentation/symmetry_segmentation_test.cpp
     test/robosherlock_utest/test_storage.cpp
     test/robosherlock_utest/ImagePreprocessor_utest.cpp
     test/robosherlock_utest/PlaneAnnotator_utest.cpp
+    test/robosherlock_utest/PointCloudClusterExtractor_utest.cpp
     test/robosherlock_utest/reconf_utest.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol
