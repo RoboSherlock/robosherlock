@@ -2,6 +2,8 @@
 
 #include <rs/utils/YamlToXMLConverter.h>
 
+#include <ros/package.h>
+
 using namespace std;
 
 static const string INT_TYPE = "Integer";
@@ -35,23 +37,23 @@ bool YamlToXMLConverter::parseYamlFile() {
             string nodeName = key.as<string>();
             std::cout << "node name is ------------------ " << nodeName << std::endl;
             if (nodeName == ANNOTATOR_NODE_NAME) {
-              std::cout << "parse yaml: node" << std::endl;
+                std::cout << "parse yaml: node" << std::endl;
                 if (!genAnnotatorInfo(value)) return false;
             }
             else if (nodeName == CONFIG_PARAM_NODE_NAME) {
-              std::cout << "parse yaml: param" << std::endl;
+                std::cout << "parse yaml: param" << std::endl;
                 if (!genConfigParamInfo(value)) return false;
             }
             else if (nodeName == CAPAB_NODE_NAME) {
-              std::cout << "parse yaml: capab" << std::endl;
+                std::cout << "parse yaml: capab" << std::endl;
                 if (!genCapabInfo(value)) return false;
             }
             else {
-                cerr << "Node's name is unknow to us." << endl;
+                cout << "Node's name is unknow to us." << endl;
                 return false;
             }
         } else {
-            cerr << "Keyword should be scalar." << endl;
+            cout << "Keyword should be scalar." << endl;
             return false;
         }
     }
@@ -289,7 +291,9 @@ void YamlToXMLConverter::getOutput(ofstream& out) {
     out << configParams << endl;
     out << configParamSettings << endl;
     out << capabilities << endl;
-    out << "<typeSystemDescription>\n<imports>\n<import location=\"../../typesystem/all_types.xml\"/>\n</imports>\n</typeSystemDescription>\n" << endl;
+
+    string typePath = ros::package::getPath("robosherlock") + "/descriptors/typesystem/all_types.xml";
+    out << "<typeSystemDescription>\n<imports>\n<import location=" << "\"" << typePath << "\"/>\n</imports>\n</typeSystemDescription>\n" << endl;
     out << "<operationalProperties>\n<modifiesCas>true</modifiesCas>\n<multipleDeploymentAllowed>true</multipleDeploymentAllowed>\n<outputsNewCASes>false</outputsNewCASes>\n</operationalProperties>\n" << endl;
     out << "</analysisEngineMetaData>" << endl;
     out << "</taeDescription>" << endl;

@@ -1,4 +1,3 @@
----
 annotator:
   name: PointCloudClusterExtractor
   implementation: rs_PointCloudClusterExtractor

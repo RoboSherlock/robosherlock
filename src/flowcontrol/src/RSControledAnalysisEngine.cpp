@@ -1,7 +1,8 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
+#include <pwd.h>
 
 static std::string ANNOT_SEARCHPATH = "/descriptors/annotators";
-static std::string GEN_XML_PATH = "generated_xmls";
+static const string GEN_XML_PATH = ".ros/generated_xmls";
 
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
@@ -21,19 +22,30 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     std::string path = getAnnotatorPath(a);
     // If the path is yaml file, we need to convert it to xml
     if (boost::algorithm::ends_with(path, "yaml")) {
-      std::ifstream ifs(path);
-      YamlToXMLConverter converter(path);
 
+      // Following is to allow converter to grab all contents
+      // fast enough (from cache)
+      // std::ifstream ifs(path);
+      // std::string line;
+      // while (std::getline(ifs, line)) {std::cout << line << std::endl;}
+
+      YamlToXMLConverter converter(path);
       converter.parseYamlFile();
       try {
         boost::filesystem::path p(path);
         std::string dir = p.parent_path().parent_path().string();
-        std::string xmlDir = dir;
+
+        // To Get $HOME path
+        passwd* pw = getpwuid(getuid());
+        std::string HOMEPath(pw->pw_dir);
+        std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
         std::string xmlPath = xmlDir + "/" +  a + ".xml";
+
         if (!boost::filesystem::exists(xmlDir))
           boost::filesystem::create_directory(xmlDir);
         std::ofstream of(xmlPath);
         converter.getOutput(of);
+        of.close();
         delegates[a] = xmlPath;
       }
       catch (std::exception &e) {
