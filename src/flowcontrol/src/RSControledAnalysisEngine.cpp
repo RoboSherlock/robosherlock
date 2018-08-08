@@ -21,13 +21,15 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     std::string path = getAnnotatorPath(a);
     // If the path is yaml file, we need to convert it to xml
     if (boost::algorithm::ends_with(path, "yaml")) {
+      std::ifstream ifs(path);
       YamlToXMLConverter converter(path);
+
       converter.parseYamlFile();
       try {
         boost::filesystem::path p(path);
-        std::string dir = p.parent_path().string();
-        std::string xmlDir = dir + "/" + GEN_XML_PATH;
-        std::string xmlPath = xmlDir + "/" + a + ".xml";
+        std::string dir = p.parent_path().parent_path().string();
+        std::string xmlDir = dir;
+        std::string xmlPath = xmlDir + "/" +  a + ".xml";
         if (!boost::filesystem::exists(xmlDir))
           boost::filesystem::create_directory(xmlDir);
         std::ofstream of(xmlPath);

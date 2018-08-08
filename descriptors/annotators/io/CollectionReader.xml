@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
+  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+  <primitive>true</primitive>
+  <annotatorImplementationName>rs_CollectionReader</annotatorImplementationName>
+  <analysisEngineMetaData>
+    <name>CollectionReader</name>
+    <description>Uses Camera Bridges, as available, to fill the cas with sensor data.</description>
+    <version>1.0</version>
+    <vendor/>
+    <configurationParameters>
+      <configurationParameter>
+        <name>camera_config_files</name>
+        <description>path to config file that holds info about camera topics and tf frame names</description>
+        <type>String</type>
+        <multiValued>true</multiValued>
+        <mandatory>true</mandatory>
+      </configurationParameter>
+    </configurationParameters>
+
+    <configurationParameterSettings>
+      <nameValuePair>
+        <name>camera_config_files</name>
+        <value>
+          <array>
+<!--            <string>config_kinect2.ini</string>-->
+                <string>config_kinect_robot.ini</string>
+<!--            <string>config_Kinect_robot_urdf_filter.ini</string>-->
+<!--            <string>config_kinect_robot_not_loc.ini</string>-->
+<!--            <string>config_xtion.ini</string>-->
+<!--            <string>config_mongodb.ini</string>-->
+<!--            <string>config_flirE4.ini</string>-->
+          </array>
+        </value>
+      </nameValuePair>
+   </configurationParameterSettings>
+
+    <typeSystemDescription>
+      <imports>
+        <import location="../../typesystem/all_types.xml"/>
+      </imports>
+    </typeSystemDescription>
+
+    <typePriorities/>
+    <capabilities>
+      <capability>
+        <inputs/>
+        <outputs>
+          <type allAnnotatorFeatures="true">rs.cv.Mat</type>
+        </outputs>
+        <languagesSupported>
+          <language>x-unspecified</language>
+        </languagesSupported>
+      </capability>
+    </capabilities>
+    <operationalProperties>
+      <modifiesCas>true</modifiesCas>
+      <multipleDeploymentAllowed>true</multipleDeploymentAllowed>
+      <outputsNewCASes>false</outputsNewCASes>
+    </operationalProperties>
+  </analysisEngineMetaData>
+</taeDescription>

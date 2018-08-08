@@ -1,59 +1,5 @@
 #include <rs/utils/RSXMLParser.h>
 
-// void DoOutput2File(DOMDocument* pmyDOMDocument, const char * FullFilePath )
-// {
-
-//   DOMImplementation    *pImplement     = NULL;
-//   DOMLSSerializer      *pSerializer    = NULL;
-//   XMLFormatTarget      *pTarget        = NULL;
-
-//   /*
-//   Return the first registered implementation that
-//   has the desired features. In this case, we are after
-//   a DOM implementation that has the LS feature... or Load/Save.
-//   */
-//   XMLCh *tmpXMLCh = XMLString::transcode("LS");
-//   pImplement = DOMImplementationRegistry::getDOMImplementation(tmpXMLCh);
-
-//   /*
-//   From the DOMImplementation, create a DOMWriter.
-//   DOMWriters are used to serialize a DOM tree [back] into an XML document.
-//   */
-//   pSerializer = ((DOMImplementationLS*)pImplement)->createLSSerializer();
-
-
-//   /*
-//   This line is optional. It just sets a feature
-//   of the Serializer to make the output
-//   more human-readable by inserting line-feeds,
-//   without actually inserting any new elements/nodes
-//   into the DOM tree. (There are many different features to set.)
-//   Comment it out and see the difference.
-//   */
-//   DOMConfiguration* pDomConfiguration = pSerializer->getDomConfig();
-//   pDomConfiguration->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-
-
-//   /*
-//   Choose a location for the serialized output. The 3 options are:
-//       1) StdOutFormatTarget     (std output stream -  good for debugging)
-//       2) MemBufFormatTarget     (to Memory)
-//       3) LocalFileFormatTarget  (save to file)
-//       (Note: You'll need a different header file for each one)
-//       Don't forget to escape file-paths with a backslash character, or
-//       just specify a file to be saved in the exe directory.
-
-//         eg. c:\\example\\subfolder\\pfile.xml
-
-//   */
-//   pTarget = new LocalFileFormatTarget(FullFilePath);
-//   // Write the serialized output to the target.
-//   DOMLSOutput* pDomLsOutput = ((DOMImplementationLS*)pImplement)->createLSOutput();
-//   pDomLsOutput->setByteStream(pTarget);
-
-//   pSerializer->write(pmyDOMDocument, pDomLsOutput);
-// }
-
 void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription& taeSpec,
                                                  const std::unordered_map<std::string, std::string>& delegateEngines,
                                                  const icu::UnicodeString& fileName)
@@ -151,6 +97,7 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
 
     XMLCh * tmpLocation = XMLString::transcode("location");
     XMLCh * annoLoc = XMLString::transcode(del.second.c_str());
+    outInfo(" annotation location is: " << del.second.c_str());
     p_Location->setAttribute(tmpLocation, annoLoc);
     XMLString::release(&tmpLocation);
     XMLString::release(&annoLoc);
@@ -160,9 +107,6 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
   }
 
   p_RootElem->appendChild(p_DelegateElement);
-
-  // -----------------------------------------------------------------------
-  // DoOutput2File(p_DOMDocument, XMLString::transcode("/home/shixin.li/output.xml"));
 
   buildAnalysisEngineDescription(taeSpec, p_RootElem, convert(crInputSource.getSystemId()), true);
 }
