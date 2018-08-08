@@ -28,6 +28,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   }
 
 #ifdef WITH_JSON_PROLOG
+  ros::service::waitForService("json_prolog/simple_query");
   jsonPrologInterface.retractAllAnnotators();
   jsonPrologInterface.assertAnnotators(fixedFlow);
   
