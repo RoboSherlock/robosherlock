@@ -29,36 +29,32 @@ YamlToXMLConverter::YamlToXMLConverter(string path)
     }
 }
 
-bool YamlToXMLConverter::parseYamlFile() {
+void YamlToXMLConverter::parseYamlFile() {
     for (YAML::const_iterator it = config.begin(); it != config.end(); ++it){
         YAML::Node key = it->first;
         YAML::Node value = it->second;
         if (key.Type() == YAML::NodeType::Scalar) {
             string nodeName = key.as<string>();
-            std::cout << "node name is ------------------ " << nodeName << std::endl;
             if (nodeName == ANNOTATOR_NODE_NAME) {
-                std::cout << "parse yaml: node" << std::endl;
-                if (!genAnnotatorInfo(value)) return false;
+                genAnnotatorInfo(value);
             }
             else if (nodeName == CONFIG_PARAM_NODE_NAME) {
-                std::cout << "parse yaml: param" << std::endl;
-                if (!genConfigParamInfo(value)) return false;
+                genConfigParamInfo(value);
             }
             else if (nodeName == CAPAB_NODE_NAME) {
-                std::cout << "parse yaml: capab" << std::endl;
-                if (!genCapabInfo(value)) return false;
+                genCapabInfo(value);
             }
             else {
-                cout << "Node's name is unknow to us." << endl;
-                return false;
+                std::string msg = "Node's name is unknow to us.";
+                YAML::ParserException e(YAML::Mark::null_mark(), msg);
+                throw e;
             }
         } else {
-            cout << "Keyword should be scalar." << endl;
-            return false;
+            std::string msg = "Node's key should be scalar.";
+            YAML::ParserException e(YAML::Mark::null_mark(), msg);
+            throw e;
         }
     }
-
-    return true;
 }
 
 string YamlToXMLConverter::getType(const YAML::Node& node) {

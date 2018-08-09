@@ -1,6 +1,8 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 #include <pwd.h>
 
+#include <yaml-cpp/exceptions.h>
+
 static std::string ANNOT_SEARCHPATH = "/descriptors/annotators";
 static const string GEN_XML_PATH = ".ros/generated_xmls";
 
@@ -23,14 +25,15 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
     // If the path is yaml file, we need to convert it to xml
     if (boost::algorithm::ends_with(path, "yaml")) {
 
-      // Following is to allow converter to grab all contents
-      // fast enough (from cache)
-      // std::ifstream ifs(path);
-      // std::string line;
-      // while (std::getline(ifs, line)) {std::cout << line << std::endl;}
-
       YamlToXMLConverter converter(path);
-      converter.parseYamlFile();
+      try {
+          converter.parseYamlFile();
+      }
+      catch (YAML::ParserException e) {
+          outError("Exception happened when parsing the yaml file: " << path);
+          outError(e.what());
+      }
+
       try {
         boost::filesystem::path p(path);
         std::string dir = p.parent_path().parent_path().string();

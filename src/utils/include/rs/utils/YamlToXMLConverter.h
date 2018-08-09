@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include <yaml-cpp/exceptions.h>
+#include <yaml-cpp/mark.h>
 #include <yaml-cpp/yaml.h>
 
 using namespace std;
@@ -18,7 +19,7 @@ public:
     YamlToXMLConverter(const YamlToXMLConverter&) = delete;
     YamlToXMLConverter& operator=(const YamlToXMLConverter&) = delete;
 
-    bool parseYamlFile();
+    void parseYamlFile();
     void setAEName(string name);
     void setFrameImpl(string name);
     void setHeader(string name);
