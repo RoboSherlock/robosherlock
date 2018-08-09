@@ -26,6 +26,8 @@ public:
 
     void getOutput(ofstream& out);
 
+    string yamlPath;
+
 private:
 
     YAML::Node config;

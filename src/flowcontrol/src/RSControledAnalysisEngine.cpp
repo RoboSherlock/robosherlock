@@ -4,7 +4,7 @@
 #include <yaml-cpp/exceptions.h>
 
 static std::string ANNOT_SEARCHPATH = "/descriptors/annotators";
-static const string GEN_XML_PATH = ".ros/generated_xmls";
+static const string GEN_XML_PATH = ".ros/robosherlock/generated_xmls";
 
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {

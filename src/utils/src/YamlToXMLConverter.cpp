@@ -20,7 +20,8 @@ static const string CAPAB_NODE_NAME = "capabilities";
 YamlToXMLConverter::YamlToXMLConverter(string path)
     : frameImpl("org.apache.uima.cpp"),
       taeDesp("http://uima.apache.org/resourceSpecifier"),
-      header("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+      header("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
+      yamlPath(path)
 {
     try {
         config = YAML::LoadFile(path);
