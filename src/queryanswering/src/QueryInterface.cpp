@@ -142,7 +142,7 @@ bool getConfigForKey(std::string key, std::vector<std::string> &location,
     thresh = pt.get<double> (key + ".threshold", 0.f);
     keepLower = pt.get<bool> (key + ".keepLower", true);
 
-    boost::split(location,l, boost::is_any_of(","), boost::token_compress_on);
+    boost::split(location, l, boost::is_any_of(","), boost::token_compress_on);
     boost::split(check, c, boost::is_any_of(","), boost::token_compress_on);
 
     return true;
@@ -214,6 +214,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
       rapidjson::Document resultJson;
       resultJson.Parse(resultDesignators[i].c_str());
 
+      std::vector<bool> matchingDescription(location.size(), true);
       for(size_t j = 0; j < location.size(); ++j)
       {
         //check if this query key exists in the result
@@ -225,18 +226,16 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             {
               std::string resultValue = value->GetString();;
               if(resultValue != queryValue && queryValue != "")
-                designatorsToKeep[i] = false;
-              else
-                 designatorsToKeep[i] = true;
+                matchingDescription[j] = false;
             }
             else
-              designatorsToKeep[i] = false;
+              matchingDescription[j] = false;
           }
           else if(check[j] == "CLASS")
           {
             const std::string resultValue = value->GetString();
             if(!checkSubClass(resultValue, queryValue))
-              designatorsToKeep[i] = false;
+              matchingDescription[j] = false;
           }
           else if(check[j] == "GEQ")
           {
@@ -245,14 +244,14 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             outWarn("Volume asked as float: " << volumeAsked);
             if(volumeAsked > volumeofCurrentObj)
             {
-              designatorsToKeep[i] = false;
+              matchingDescription[j] = false;
             }
           }
           else if(check[j] == "THRESHLIST")
           {
             if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "")
             {
-              designatorsToKeep[i] = false;
+              matchingDescription[j] = false;
             }
           }
           else if(check[j] == "CONTAINS")
@@ -262,12 +261,12 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
               if(v == queryValue)
                 found = true;
             if(!found)
-              designatorsToKeep[i] = false;
+              matchingDescription[j] = false;
           }
           else
           {
             outWarn("There is no such check: " + check[j] + ". Please check the filter_config.ini");
-            designatorsToKeep[i] = false;
+            matchingDescription[j] = false;
           }
         }
         else if(check[j] == "CONTAINSEQUAL")
@@ -285,14 +284,20 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
               {
                 std::string resultValue = value->GetString();;
                 if(resultValue != queryValue)
-                  designatorsToKeep[i] = false;
+                  matchingDescription[j] = false;
               }
             }
           }
         }
         else
-          designatorsToKeep[i] = false;
+          matchingDescription[j] = false;
       }
+      bool what =false;
+      for(auto m : matchingDescription)
+      {
+         what =m| what;
+      }
+      designatorsToKeep[i] = what;
     }
   }
   for(int i = 0; i < designatorsToKeep.size(); ++i)
