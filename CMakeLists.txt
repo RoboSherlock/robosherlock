@@ -126,13 +126,6 @@ else()
   message(STATUS "libyaml_cpp not found.")
 endif()
 
-FIND_PACKAGE(XercesC)
-IF(XercesC_FOUND)
-  INCLUDE_DIRECTORIES(${XercesC_INCLUDE_DIRS})
-ELSE()
-  MESSAGE(FATAL_ERROR "XercesC library not found")
-ENDIF(XercesC_FOUND)
-
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
