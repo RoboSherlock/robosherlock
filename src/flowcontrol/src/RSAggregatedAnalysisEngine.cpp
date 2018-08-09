@@ -214,6 +214,60 @@ namespace rs
     return NULL;
   }
 
+  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+                                                     const std::unordered_map<std::string, std::string>& delegateEngines,
+                                                     uima::ErrorInfo errInfo)
+  {
+    try
+    {
+      errInfo.reset();
+      if (! uima::ResourceManager::hasInstance())
+      {
+        errInfo.setErrorId(UIMA_ERR_ENGINE_RESMGR_NOT_INITIALIZED);
+        return NULL;
+      }
+
+
+      //parsing AEFile routine, using auto_ptr for auto-garbage collection if method failed
+      RSXMLParser builder;
+      std::auto_ptr<uima::AnalysisEngineDescription> apTAESpecifier( new uima::AnalysisEngineDescription() );
+      if (apTAESpecifier.get() == NULL)
+      {
+        errInfo.setErrorId(UIMA_ERR_ENGINE_OUT_OF_MEMORY);
+        return NULL;
+      }
+
+      builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), delegateEngines, aeFile);
+      // builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), aeFile);
+
+      apTAESpecifier->validate();
+      apTAESpecifier->commit();
+
+      std::auto_ptr<uima::AnnotatorContext> apANC( new uima::AnnotatorContext(apTAESpecifier.get()) );
+      if (apANC.get() == NULL)
+      {
+        errInfo.setErrorId(UIMA_ERR_ENGINE_OUT_OF_MEMORY);
+        return NULL;
+      }
+
+      std::auto_ptr<uima::internal::CASDefinition> apCASDef( uima::internal::CASDefinition::createCASDefinition(*apANC.get()) );
+
+      // release auto_ptrs here because the createTAE transfers ownership to the engine
+      apTAESpecifier.release();
+      uima::AnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
+                                                                       *apCASDef.release(),
+                                                                       errInfo);
+      return pResult;
+    }
+    catch (uima::Exception & rExc)
+    {
+        errInfo = rExc.getErrorInfo();
+    }
+
+    assert( errInfo.getErrorId() != UIMA_ERR_NONE );
+    return NULL;
+  }
+
   uima::AnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
                                                      uima::internal::CASDefinition &casDefinition,
                                                      uima::ErrorInfo &errInfo)

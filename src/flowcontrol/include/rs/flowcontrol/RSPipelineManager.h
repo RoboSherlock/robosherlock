@@ -52,6 +52,7 @@ public:
   {
     this->engine = engine;
 
+    // outInfo(engine->getAnalysisEngineMetaData());
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
     original_annotators = engine->iv_annotatorMgr.iv_vecEntries;

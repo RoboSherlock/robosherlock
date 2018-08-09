@@ -41,7 +41,7 @@
       <import location="../annotators/tracker/ClusterTracker.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="CollectionReader">
-      <import location="../annotators/io/CollectionReader.xml"/>
+      <import location="../annotators/io/CollectionReader_.xml"/>
     </delegateAnalysisEngine>
     <delegateAnalysisEngine key="FeatureAnnotator">
       <import location="../annotators/annotation/FeatureAnnotator.xml"/>

@@ -1,53 +1,70 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <taeDescription xmlns="http://uima.apache.org/resourceSpecifier">
   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
-  <primitive>true</primitive>
-  <annotatorImplementationName>rs_CollectionReader</annotatorImplementationName>
+  <primitive>false</primitive>
   <analysisEngineMetaData>
-    <name>CollectionReader</name>
-    <description>Uses Camera Bridges, as available, to fill the cas with sensor data.</description>
+    <name>demo</name>
+    <description>Simple pipeline for demo</description>
     <version>1.0</version>
     <vendor/>
-    <configurationParameters>
+    <configurationParameters searchStrategy="none">
       <configurationParameter>
         <name>camera_config_files</name>
         <description>path to config file that holds info about camera topics and tf frame names</description>
         <type>String</type>
         <multiValued>true</multiValued>
         <mandatory>true</mandatory>
+        <overrides>
+          <parameter>CollectionReader/camera_config_files</parameter>
+        </overrides>
       </configurationParameter>
+<configurationParameter>
+  <name>storagedb</name>
+  <type>String</type>
+  <multiValued>false</multiValued>
+  <mandatory>false</mandatory>
+  <overrides>
+    <parameter>StorageWriter/storagedb</parameter>
+  </overrides>
+</configurationParameter>
     </configurationParameters>
-
     <configurationParameterSettings>
       <nameValuePair>
         <name>camera_config_files</name>
         <value>
           <array>
-<!--            <string>config_kinect2.ini</string>-->
-                <string>config_kinect_robot.ini</string>
-<!--            <string>config_Kinect_robot_urdf_filter.ini</string>-->
-<!--            <string>config_kinect_robot_not_loc.ini</string>-->
-<!--            <string>config_xtion.ini</string>-->
-<!--            <string>config_mongodb.ini</string>-->
-<!--            <string>config_flirE4.ini</string>-->
+            <string>config_data_loader_utest.ini</string>
           </array>
         </value>
       </nameValuePair>
-   </configurationParameterSettings>
-
-    <typeSystemDescription>
-      <imports>
-        <import location="../../typesystem/all_types.xml"/>
-      </imports>
-    </typeSystemDescription>
-
+      <nameValuePair>
+        <name>storagedb</name>
+        <value>
+         <string>Scenes</string>
+        </value>
+      </nameValuePair>	
+    </configurationParameterSettings>
+    <flowConstraints>
+      <fixedFlow>
+      <node>CollectionReader</node>
+      <node>ImagePreprocessor</node>
+      <node>PointCloudClusterExtractor</node>
+      </fixedFlow>
+    </flowConstraints>
     <typePriorities/>
+    <fsIndexCollection>
+      <fsIndexes>
+        <fsIndexDescription>
+          <label>general</label>
+          <typeName>uima.cas.TOP</typeName>
+          <kind>bag</kind>
+        </fsIndexDescription>
+      </fsIndexes>
+    </fsIndexCollection>
     <capabilities>
       <capability>
         <inputs/>
-        <outputs>
-          <type allAnnotatorFeatures="true">rs.cv.Mat</type>
-        </outputs>
+        <outputs/>
         <languagesSupported>
           <language>x-unspecified</language>
         </languagesSupported>
