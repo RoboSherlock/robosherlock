@@ -245,6 +245,7 @@ void Visualizer::imageViewer()
     }
     if(!headless_)
       keyboardEventImageViewer(disp);
+    usleep(100);
   }
   if(!headless_)
     cv::destroyWindow(windowImage);
