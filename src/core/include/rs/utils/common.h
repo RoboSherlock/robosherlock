@@ -26,6 +26,7 @@
 #include <errno.h>
 #include <math.h>
 #include <map>
+#include <boost/filesystem.hpp>
 
 #include <opencv/highgui.h>
 
@@ -38,7 +39,8 @@
 namespace rs
 {
 
-#define SEARCHPATH "/descriptors/analysis_engines/"
+#define AE_SEARCHPATH "/descriptors/analysis_engines/"
+#define ANNOT_SEARCHPATH "/descriptors/annotators/"
 
 namespace common
 {
@@ -70,15 +72,15 @@ static const uint32_t colors[] =
 
 static const std::map<std::string, cv::Scalar> colorMap
 {
-  {"red", CV_RGB(255,0,0)},
+  {"red", CV_RGB(255, 0, 0)},
   {"yellow", CV_RGB(255, 255, 0)},
   {"green", CV_RGB(0, 255, 0)},
   {"cyan", CV_RGB(0, 255, 255)},
   {"blue", CV_RGB(0, 0, 255)},
-  {"magenta",CV_RGB(255, 0, 255)},
-  {"white",CV_RGB(255, 255, 255)},
-  {"black",CV_RGB(0, 0, 0)},
-  {"grey",CV_RGB(127, 127, 127)}
+  {"magenta", CV_RGB(255, 0, 255)},
+  {"white", CV_RGB(255, 255, 255)},
+  {"black", CV_RGB(0, 0, 0)},
+  {"grey", CV_RGB(127, 127, 127)}
 };
 
 static const cv::Scalar cvScalarColors[] =
@@ -188,14 +190,14 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
   std::vector<std::string> searchPaths;
   searchPaths.push_back("");
   //add core package path
-  searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(SEARCHPATH));
+  searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(AE_SEARCHPATH));
 
   //look for packages dependent on core and find their full path
   std::vector<std::string> child_packages;
   ros::package::command("depends-on robosherlock", child_packages);
   for(size_t i = 0; i < child_packages.size(); ++i)
   {
-    searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(SEARCHPATH));
+    searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(AE_SEARCHPATH));
   }
 
   struct stat fileStat;
@@ -224,6 +226,54 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
   {
     return true;
   }
+}
+/* brief recursively look through a folders for possible Annotator locations
+ *
+ * */
+
+
+inline std::string getAnnotatorPath(const std::string annotator)
+{
+  std::vector<std::string> searchPaths;
+
+  searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(ANNOT_SEARCHPATH));
+  std::vector<std::string> child_packages;
+  ros::package::command("depends-on robosherlock", child_packages);
+  for(size_t i = 0; i < child_packages.size(); ++i)
+  {
+    searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(ANNOT_SEARCHPATH));
+  }
+
+  for(auto sp : searchPaths)
+  {
+    boost::filesystem::path p(sp);
+    try
+    {
+      boost::filesystem::recursive_directory_iterator dir(p), end;
+      while(dir != end)
+      {
+        if(boost::filesystem::is_regular_file(dir->path()))
+        {            
+            if (dir->path().stem() == annotator)
+            {
+                outDebug("Found it at: "<<dir->path().string());
+                return dir->path().string();
+            }
+        }
+        if(dir->path().filename() == ".")
+        {
+          dir.no_push(); // don't recurse into this directory.
+        }
+        dir++;
+      }
+    }
+    catch(boost::filesystem::filesystem_error err)
+    {
+      outDebug(err.what());
+    }
+  }
+  //look for packages dependent on core and find their full path
+  return "";
 }
 
 inline void projectPointOnPlane(tf::Stamped<tf::Pose> &pose, std::vector<float> plane_model)
@@ -257,10 +307,10 @@ inline double pointToPointDistanceSqrt(const double x1, const double y1, const d
   return std::sqrt(pointToPointDistanceSimple(x1, y1, z1, x2, y2, z2));
 }
 
-inline double pointToPointDistance2DSqrt(const double x1, const double y1, const double x2, const double y2 )
+inline double pointToPointDistance2DSqrt(const double x1, const double y1, const double x2, const double y2)
 {
 
-  return std::sqrt( (x1-x2)*(x1-x2)+ (y1-y2)*(y1-y2));
+  return std::sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
 
