@@ -2,6 +2,7 @@
 #define RSCONTROLEDANALYSISENGINE_H
 
 #include <rs/utils/common.h>
+#include <rs/utils/YamlToXMLConverter.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/flowcontrol/RSPipelineManager.h>
 #include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
@@ -19,6 +20,18 @@
 #include <tf_conversions/tf_eigen.h>
 
 #include <rs/queryanswering/DesignatorWrapper.h>
+
+#include <fstream>
+
+#include <ros/package.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
+#include <uima/api.hpp>
+#include <uima/internal_aggregate_engine.hpp>
+
+#include <unordered_map>
 #include <rs/queryanswering/JsonPrologInterface.h>
 
 class RSControledAnalysisEngine: public RSAnalysisEngine
@@ -154,6 +167,9 @@ public:
                           const std::vector<std::string> &resultDesignators,
                           std::string &requestJson);
 
+  std::string getAnnotatorPath(const std::string annotator);
 
+  void getFixedFlow(const std::string filePath,
+                    std::vector<std::string>& annotators);
 };
 #endif // RSCONTROLEDANALYSISENGINE_H
