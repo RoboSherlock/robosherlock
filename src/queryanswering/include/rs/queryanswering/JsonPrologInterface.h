@@ -5,12 +5,20 @@
 //boost
 #include <boost/algorithm/string.hpp>
 
+//xerces
+#include <xercesc/parsers/XercesDOMParser.hpp>
+#include <xercesc/dom/DOM.hpp>
+#include <xercesc/sax/HandlerBase.hpp>
+#include <xercesc/util/XMLString.hpp>
+#include <xercesc/util/PlatformUtils.hpp>
+
 //ros
 #include <ros/package.h>
 
 //robosherlock
 #include <rs/utils/output.h>
 #include <rs/queryanswering/KRDefinitions.h>
+#include <rs/utils/common.h>
 #include <rs/queryanswering/query_rules.h>
 
 
@@ -30,12 +38,6 @@
 //wrapper class for Prolog Engine based on SWI-C++
 class JsonPrologInterface
 {
-#ifdef WITH_JSON_PROLOG
-
-//  typedef std::shared_ptr<PlEngine> PlEnginePtr;
-//  PlEnginePtr engine;
-#endif
-
   std::vector<std::string> krNamespaces;
 
 public:
@@ -47,13 +49,8 @@ public:
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
+       xercesc::XMLPlatformUtils::Terminate();
   }
-
-
-  /*brief
-   * initialize the necessary knowrob packages
-   */
-  void init();
 
   /*
    * in: vector of keys extracted from query
@@ -69,6 +66,8 @@ public:
    * ask prolog if child is of type parent
    * */
   bool q_subClassOf(std::string child, std::string parent);
+
+  bool addNamespace(const std::string &entry, std::string &results);
 
   bool addNamespace(std::string &entry);
 
@@ -92,6 +91,27 @@ public:
    * */
   bool buildPrologQueryFromDesignator(std::string *desig,
                                       std::string &prologQuery);
+
+
+  bool retractAllAnnotators();
+
+  /*brief
+   * create individuals for the anntators in the list
+   * in: vector containing annotator names
+   * return true on succes:
+   * */
+  bool assertAnnotators(std::vector<std::string> annotatorNames);
+
+
+  bool expandToFullUri(std::string &entry);
+
+  /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
+   * in: annotator name
+   * returns: true for succes
+   * */
+  bool assertAnnotatorMetaInfo(std::string , std::string);
+
+  bool lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

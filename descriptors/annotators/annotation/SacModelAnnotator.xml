@@ -7,6 +7,7 @@
     <name>SacModelAnnotator</name>
     <description/>
     <version>1.0</version>
+    <outputDomain>cylinder</outputDomain>
     <vendor/>
     <configurationParameters>
       <configurationParameter>

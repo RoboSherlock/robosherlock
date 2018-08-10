@@ -45,18 +45,19 @@ RSAnalysisEngine::~RSAnalysisEngine()
 
 void RSAnalysisEngine::init(const std::string &file, bool parallel)
 {
-  uima::ErrorInfo errorInfo;
-
   size_t pos = file.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
+  uima::ErrorInfo errorInfo;
   engine = (RSAggregatedAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), errorInfo);
+
+
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
   }
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-  data.getName().toUTF8String(name);
+  data.getName().toUTF8String(name_);
 
   // Get a new CAS
   outInfo("Creating a new CAS");
@@ -73,8 +74,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
   parallel_ = parallel;
 
-  outInfo("initialization done: " << name << std::endl
-          << std::endl << FG_YELLOW << "********************************************************************************" << std::endl);
 }
 
 void RSAnalysisEngine::initPipelineManager()
@@ -84,6 +83,7 @@ void RSAnalysisEngine::initPipelineManager()
   if(parallel_)
   {
     rspm->initParallelPipelineManager();
+    rspm->parallelPlanner.print();
   }
 #endif
 }
@@ -93,16 +93,16 @@ void RSAnalysisEngine::stop()
   engine->collectionProcessComplete();
   engine->destroy();
 
-  outInfo("Analysis engine stopped: " << name);
+  outInfo("Analysis engine stopped: " << name_);
 }
 
 void RSAnalysisEngine::process()
 {
-  outInfo("executing analisys engine: " << name);
+  outInfo("executing analisys engine: " << name_);
   try
   {
     UnicodeString ustrInputText;
-    ustrInputText.fromUTF8(name);
+    ustrInputText.fromUTF8(name_);
     cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
 
     rs::StopWatch clock;

@@ -33,6 +33,7 @@
 
 #include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
+#include <rs/io/Storage.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -71,10 +72,10 @@ int main(int argc, char *argv[])
   {
     ros::init(argc, argv, std::string("RoboSherlock"));
   }
-
+  outInfo(rs::common::getAnnotatorPath("PlaneAnnotator"));
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;
-
+ mongo::client::GlobalInstance instance;
   ros::NodeHandle priv_nh = ros::NodeHandle("~");
 
   for(int argI = 1; argI < argc; ++argI)
