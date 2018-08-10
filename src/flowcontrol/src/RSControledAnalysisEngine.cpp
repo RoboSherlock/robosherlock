@@ -38,9 +38,12 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   }
 
 #ifdef WITH_JSON_PROLOG
-  ros::service::waitForService("json_prolog/simple_query");
-  jsonPrologInterface.retractAllAnnotators();
-  jsonPrologInterface.assertAnnotators(fixedFlow);
+  if( ros::service::waitForService("json_prolog/simple_query",ros::Duration(2.0)))
+  {jsonPrologInterface.retractAllAnnotators();
+  jsonPrologInterface.assertAnnotators(fixedFlow);}
+  else{
+      outWarn("Json Prolog is not running! Query answering will not be possible");
+  }
 #endif
 
   if(pervasive)

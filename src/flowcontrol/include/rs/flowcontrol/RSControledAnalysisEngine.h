@@ -57,7 +57,7 @@ public:
     pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
   }
 
-  ~RSControledAnalysisEngine();
+  ~RSControledAnalysisEngine(){}
 
   /*set the next order of AEs to be executed*/
   void setNextPipeline(std::vector<std::string> l)
