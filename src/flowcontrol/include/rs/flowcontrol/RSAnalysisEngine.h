@@ -29,11 +29,10 @@
 
 class RSAnalysisEngine
 {
-public:
-  std::string name;
 
+public:    
+  std::string name_;
   bool parallel_;
-
 
 protected:
   RSAggregatedAnalysisEngine *engine;
@@ -46,7 +45,7 @@ public:
 
   ~RSAnalysisEngine();
 
-  virtual void init(const std::string &file, bool parallel=false);
+  void init(const std::string &file, bool parallel=false);
 
   void initPipelineManager();
 
@@ -88,6 +87,7 @@ public:
   {
     engine->destroy();
   }
+
   template < class T >
   void overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
   {

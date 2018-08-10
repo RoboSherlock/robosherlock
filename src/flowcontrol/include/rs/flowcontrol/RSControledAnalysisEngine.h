@@ -25,8 +25,6 @@ class RSControledAnalysisEngine: public RSAnalysisEngine
 {
 
 private:
-  RSPipelineManager *rspm;
-  std::string currentAEName;
   std::vector<std::string> next_pipeline_order;
   boost::shared_ptr<std::mutex> process_mutex;
 
@@ -51,7 +49,7 @@ private:
 public:
 
   RSControledAnalysisEngine(ros::NodeHandle nh) : RSAnalysisEngine(),
-    rspm(NULL),currentAEName(""),query_(""),nh_(nh),it_(nh_),useIdentityResolution_(false),counter_(0),totalTime_(0.0),avgProcessingTime_(0.0f)
+    query_(""),nh_(nh),it_(nh_),useIdentityResolution_(false),counter_(0),totalTime_(0.0),avgProcessingTime_(0.0f)
   {
     process_mutex = boost::shared_ptr<std::mutex>(new std::mutex);
     base64ImgPub = nh_.advertise<std_msgs::String>(std::string("image_base64"), 5);
@@ -59,25 +57,7 @@ public:
     pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
   }
 
-  ~RSControledAnalysisEngine()
-  {
-    if(cas)
-    {
-      delete cas;
-      cas = NULL;
-    }
-    if(engine)
-    {
-      delete engine;
-      engine = NULL;
-    }
-
-    if(rspm)
-    {
-      delete rspm;
-      rspm = NULL;
-    }
-  }
+  ~RSControledAnalysisEngine();
 
   /*set the next order of AEs to be executed*/
   void setNextPipeline(std::vector<std::string> l)
@@ -123,7 +103,7 @@ public:
 
   inline std::string getCurrentAEName()
   {
-    return currentAEName;
+    return name_;
   }
 
   bool defaultPipelineEnabled()
