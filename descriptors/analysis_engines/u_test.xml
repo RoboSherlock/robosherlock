@@ -179,7 +179,7 @@
       <node>PointCloudClusterExtractor</node>
       <node>PointCloudFilter</node>
       <node>NormalEstimator</node>
-      <node>StorageWriter</node>
+      <node>StorageWriter</node> 
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>
