@@ -88,6 +88,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
         of.close();
         delegates[a] = xmlPath;
       }
+      catch (std::runtime_error &e) {
+        outError("Exception happened when creating the output file: " << e.what());
+        return;
+      }
       catch (std::exception &e) {
         outError("Exception happened when creating the output file: " << e.what());
         return;
@@ -98,15 +102,12 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
   engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
 
-  outInfo("here??");
-
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
   }
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-  outInfo("here??");
   data.getName().toUTF8String(name_);
 
   // Get a new CAS

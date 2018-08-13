@@ -274,6 +274,20 @@ bool YamlToXMLConverter::genCapabInfo(const YAML::Node& node) {
     capabilities.append("</capabilities>\n");
 }
 
+string YamlToXMLConverter::getTypeFilePath() {
+    size_t pos;
+    string typeFilePath;
+    if ((pos = yamlPath.find("descriptors/")) != std::string::npos) {
+        typeFilePath = yamlPath.substr(0, pos+12);
+        typeFilePath += "typesystem/all_types.xml";
+    }
+    else {
+        string msg = "Annotator file path is illegal.";
+        throw(std::runtime_error(msg));
+    }
+    return typeFilePath;
+}
+
 void YamlToXMLConverter::getOutput(ofstream& out) {
     out << header << endl;
     out << "<taeDescription xmlns=\"" << taeDesp << "\">" << endl;
@@ -289,7 +303,14 @@ void YamlToXMLConverter::getOutput(ofstream& out) {
     out << configParamSettings << endl;
     out << capabilities << endl;
 
-    string typePath = ros::package::getPath("robosherlock") + "/descriptors/typesystem/all_types.xml";
+    string typePath;
+    try {
+        typePath = getTypeFilePath();
+    }
+    catch (std::runtime_error &e) {
+        throw e;
+    }
+
     out << "<typeSystemDescription>\n<imports>\n<import location=" << "\"" << typePath << "\"/>\n</imports>\n</typeSystemDescription>\n" << endl;
     out << "<operationalProperties>\n<modifiesCas>true</modifiesCas>\n<multipleDeploymentAllowed>true</multipleDeploymentAllowed>\n<outputsNewCASes>false</outputsNewCASes>\n</operationalProperties>\n" << endl;
     out << "</analysisEngineMetaData>" << endl;

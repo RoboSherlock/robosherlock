@@ -44,6 +44,7 @@ private:
     string capabilities;
 
     string getType(const YAML::Node& node);
+    string getTypeFilePath();
 
     bool genAnnotatorInfo(const YAML::Node& node);
     bool genConfigParamInfo(const YAML::Node& node);
