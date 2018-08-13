@@ -179,6 +179,7 @@
       <node>PointCloudClusterExtractor</node>
       <node>ImageSegmentationAnnotator</node>
       <node>PointCloudFilter</node>
+      <node>Cluster3DGeometryAnnotator</node>
       <node>NormalEstimator</node>
       <node>StorageWriter</node> 
       </fixedFlow>
