@@ -177,6 +177,7 @@
       <node>ImagePreprocessor</node>
       <node>PlaneAnnotator</node>
       <node>PointCloudClusterExtractor</node>
+      <node>ImageSegmentationAnnotator</node>
       <node>PointCloudFilter</node>
       <node>NormalEstimator</node>
       <node>StorageWriter</node> 
