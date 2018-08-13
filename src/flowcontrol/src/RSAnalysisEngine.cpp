@@ -56,7 +56,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
   std::unordered_map<std::string, std::string> delegates;
   std::vector<std::string> annotators;
   getFixedFlow(file, annotators);
-  annotators.push_back("Trigger");
 
   for (std::string& a : annotators) {
     std::string path = rs::common::getAnnotatorPath(a);
@@ -88,7 +87,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
         converter.getOutput(of);
         of.close();
         delegates[a] = xmlPath;
-        std::cout << xmlPath << std::endl;
       }
       catch (std::exception &e) {
         outError("Exception happened when creating the output file: " << e.what());
@@ -100,12 +98,15 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
   engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
 
+  outInfo("here??");
+
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
   }
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
+  outInfo("here??");
   data.getName().toUTF8String(name_);
 
   // Get a new CAS

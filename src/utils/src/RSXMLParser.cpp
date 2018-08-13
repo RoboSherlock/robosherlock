@@ -97,7 +97,6 @@ void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription
 
     XMLCh * tmpLocation = XMLString::transcode("location");
     XMLCh * annoLoc = XMLString::transcode(del.second.c_str());
-    outInfo(" annotation location is: " << del.second.c_str());
     p_Location->setAttribute(tmpLocation, annoLoc);
     XMLString::release(&tmpLocation);
     XMLString::release(&annoLoc);

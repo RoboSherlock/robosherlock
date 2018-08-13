@@ -10,7 +10,7 @@ add_library(rs_utils SHARED
   src/YamlToXMLConverter.cpp
   src/RSXMLParser.cpp
 )
-target_link_libraries(rs_utils rs_core ${YAML_CPP_LIBRARIES} ${catkin_LIBRARIES} ${XercesC_LIBRARIES})
+target_link_libraries(rs_utils rs_core ${YAML_CPP_LIBRARIES} ${catkin_LIBRARIES})
 
 rs_add_library(rs_BlurDetectorAnnotator src/BlurDetectorAnnotator.cpp)
 target_link_libraries(rs_BlurDetectorAnnotator rs_core rs_utils)
