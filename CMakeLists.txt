@@ -214,6 +214,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/robosherlock_utest/PointCloudClusterExtractor_utest.cpp
     test/robosherlock_utest/ImageSegmentationAnnotator_utest.cpp
     test/robosherlock_utest/Cluster3DGeometry_utest.cpp
+    test/robosherlock_utest/ClusterColorHistogramCalculator_utest.cpp
     test/robosherlock_utest/reconf_utest.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol

@@ -180,6 +180,7 @@
       <node>ImageSegmentationAnnotator</node>
       <node>PointCloudFilter</node>
       <node>Cluster3DGeometryAnnotator</node>
+      <node>ClusterColorHistogramCalculator</node>
       <node>NormalEstimator</node>
       <node>StorageWriter</node> 
       </fixedFlow>
