@@ -109,8 +109,6 @@ public:
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
     UnicodeString ucs_delegate(annotName.c_str());
-    outError("The error parameter is:");
-    outError(param);
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
     cr_context->assignValue(UnicodeString(paramName.c_str()),(UnicodeString) param.c_str());
   }

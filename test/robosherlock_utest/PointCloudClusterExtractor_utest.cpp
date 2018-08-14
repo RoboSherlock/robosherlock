@@ -39,16 +39,8 @@
 #define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
 
-
-
-void pointCloudExtractorTest()
+void processCluster(uima::CAS *cas)
 {
-
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
-
-  engine.process();
-  cas = engine.getCas();
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
@@ -67,6 +59,32 @@ void pointCloudExtractorTest()
     EXPECT_TRUE(roi.height>0);
   }
   cv::Rect roi;
+}
+
+void pointCloudExtractorTest()
+{
+
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor"};
+  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  
+  engine.overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
+  engine.reconfigure();
+  engine.process();
+  cas = engine.getCas();
+  processCluster(cas);	
+  
+  engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("EC"));
+  engine.reconfigure();
+  engine.process();
+  cas = engine.getCas();
+  processCluster(cas);
+  
+  engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("OEC_prism"));
+  engine.reconfigure();
+  engine.process();
+  cas = engine.getCas();
+  processCluster(cas);
+  
   
 }
 
