@@ -227,7 +227,6 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
   sceneCas.get(VIEW_CLOUD, *dispCloud);
 
-  uint64_t now = sceneCas.getScene().timestamp();
   std::vector<T> clusters;
   if(std::is_same<T, rs::Cluster>::value)
   {
