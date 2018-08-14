@@ -19,7 +19,13 @@
 #include <tf_conversions/tf_eigen.h>
 
 #include <rs/queryanswering/DesignatorWrapper.h>
+
+#include <fstream>
+
+#include <uima/api.hpp>
+
 #include <rs/queryanswering/JsonPrologInterface.h>
+
 
 class RSControledAnalysisEngine: public RSAnalysisEngine
 {
@@ -153,7 +159,5 @@ public:
   bool drawResulstOnImage(const std::vector<bool> &filter,
                           const std::vector<std::string> &resultDesignators,
                           std::string &requestJson);
-
-
 };
 #endif // RSCONTROLEDANALYSISENGINE_H
