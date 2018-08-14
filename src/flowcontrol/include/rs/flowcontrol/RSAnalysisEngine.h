@@ -20,12 +20,26 @@
 #ifndef RSANALYSISENGINE_H
 #define RSANALYSISENGINE_H
 
+#include <rs/utils/common.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
+#include <rs/utils/YamlToXMLConverter.h>
 #include <rs/flowcontrol/RSPipelineManager.h>
 
 #include <uima/api.hpp>
+#include <uima/internal_aggregate_engine.hpp>
+
+#include <fstream>
+#include <pwd.h>
+#include <string>
+#include <unordered_map>
+
+#include <ros/package.h>
+
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+
 
 class RSAnalysisEngine
 {
@@ -125,5 +139,8 @@ public:
    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
    cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString); 
   }
+
+  void getFixedFlow(const std::string filePath,
+                    std::vector<std::string>& annotators);
  };
 #endif // RSANALYSISENGINE_H

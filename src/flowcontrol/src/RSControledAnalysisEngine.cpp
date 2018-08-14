@@ -22,6 +22,7 @@
 
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
+
   RSAnalysisEngine::init(AEFile, parallel);
 
   this->initPipelineManager();
@@ -406,3 +407,4 @@ template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const st
 template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson);
+
