@@ -82,7 +82,7 @@ public:
 
     outDebug("creating " << keypointDetector << " key points detector...");
 
-#if CV_MAJOR_VERSION == 2
+  #if CV_MAJOR_VERSION == 2
     detector = cv::BRISK::create(keypointDetector);
 
     if(detector.empty())
@@ -90,12 +90,13 @@ public:
       outError("creation failed!");
       return UIMA_ERR_ANNOTATOR_MISSING_INIT;
     }
-    setupAlgorithm(detector);
+    setupAlgorithm(&detector);
 #if OUT_LEVEL == OUT_LEVEL_DEBUG
     printParams(detector);
 #endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(detector, keypointDetector);
+    detector==NULL?outError("Detector is null"):outError("Detector not null");
 #endif
 
     outDebug("creating " << featureExtractor << " feature extractor...");
@@ -112,6 +113,7 @@ public:
 #endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(extractor, keypointDetector);
+    extractor==NULL?outError("Extractor is null"):outError("Extractor not null");
 #endif
 
     if(featureExtractor == "SIFT" || featureExtractor == "SURF")
@@ -123,6 +125,15 @@ public:
       featureType = "binary";
     }
 
+    return UIMA_ERR_NONE;
+  }
+  
+  
+   TyErrorId reconfigure()
+  {
+    outError("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    initialize(ctx);
     return UIMA_ERR_NONE;
   }
 
@@ -222,7 +233,7 @@ private:
     }
   }
 #elif CV_MAJOR_VERSION ==3
-  void setupAlgorithm(cv::Algorithm *algorithm, std::string name)
+  void setupAlgorithm(cv::Ptr<cv::Feature2D> &algorithm, std::string name)
   {
     if(name == "BRISK")
     {
@@ -344,7 +355,7 @@ private:
     rs::SceneCas cas(tcas);
 
     cas.get(VIEW_COLOR_IMAGE_HD, color);
-
+    
     keypoints.clear();
     processClusters(tcas);
 
@@ -353,8 +364,8 @@ private:
 
   void extract(const cv::Mat &color, const cv::Rect &roi, const cv::Mat &mask, std::vector<cv::KeyPoint> &keypoints, cv::Mat &descriptors)
   {
-    detector->detect(color(roi), keypoints, mask);
-
+    cv::Mat temp = color(roi);
+    detector->detect(temp, keypoints, mask);
     for(size_t i = 0; i < keypoints.size(); ++i)
     {
       cv::KeyPoint &p = keypoints[i];
@@ -374,42 +385,35 @@ private:
     rs::Scene scene = cas.getScene();
     std::vector<rs::Cluster> clusters;
     scene.identifiables.filter(clusters);
-
     cv::Mat objMask, descriptors;
     cv::Rect roi;
     std::vector<cv::KeyPoint> keypoints;
-
     outDebug("clusters: " << clusters.size());
     for(size_t i = 0; i < clusters.size(); ++i)
-    {
+    { 
       rs::ImageROI image_rois = clusters[i].rois.get();
-
       rs::conversion::from(image_rois.roi_hires(), roi);
       rs::conversion::from(image_rois.mask_hires(), objMask);
 
       extract(color, roi, objMask, keypoints, descriptors);
       outDebug("features found: " << keypoints.size());
-
       if(keypoints.empty())
       {
         outInfo("no features found. skipping cluster");
         continue;
       }
-
       outDebug("creating features annotation...");
       rs::Features feats = rs::create<rs::Features>(tcas);
       //feats.detector(keypointDetector);
       feats.source(featureExtractor);
       feats.descriptorType(featureType);
       feats.descriptors(rs::conversion::to(tcas, descriptors));
-
       //feats.points.allocate(keypoints.size());
       //for(size_t j = 0; j < keypoints.size(); ++j)
       //{
       //  feats.points.set(j, rs::conversion::to(tcas, keypoints[j]));
       //}
       clusters[i].annotations.prepend(feats);
-
       this->keypoints.insert(this->keypoints.end(), keypoints.begin(), keypoints.end());
       keypoints.clear();
     }
