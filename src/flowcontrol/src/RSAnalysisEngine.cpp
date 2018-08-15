@@ -74,7 +74,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
       try {
         boost::filesystem::path p(path);
-        std::string dir = p.parent_path().parent_path().string();
 
         // To Get $HOME path
         passwd* pw = getpwuid(getuid());
