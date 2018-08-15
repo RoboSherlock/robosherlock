@@ -53,6 +53,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
 
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
+  //mapping between the name of the annotator to the path of it
   std::unordered_map<std::string, std::string> delegates;
   std::vector<std::string> annotators;
   getFixedFlow(file, annotators);

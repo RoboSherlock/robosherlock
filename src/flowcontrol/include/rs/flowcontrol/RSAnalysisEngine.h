@@ -24,7 +24,8 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
-#include <rs/utils/YamlToXMLConverter.h>
+
+#include <rs/flowcontrol/YamlToXMLConverter.h>
 #include <rs/flowcontrol/RSPipelineManager.h>
 
 #include <uima/api.hpp>

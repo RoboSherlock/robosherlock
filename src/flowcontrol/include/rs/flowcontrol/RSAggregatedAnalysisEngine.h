@@ -22,7 +22,7 @@
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
 #include <rs/utils/exception.h>
-#include <rs/utils/RSXMLParser.h>
+#include <rs/flowcontrol/RSXMLParser.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
