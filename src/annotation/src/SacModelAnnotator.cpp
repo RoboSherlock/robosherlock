@@ -80,7 +80,7 @@ public:
     {
       pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
       rs::conversion::from(((rs::ReferenceClusterPoints)it->points.get()).indices(), *clusterIndices);
-
+      
 
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
       pcl::PointCloud<pcl::Normal>::Ptr clusterNormal(new pcl::PointCloud<pcl::Normal>);

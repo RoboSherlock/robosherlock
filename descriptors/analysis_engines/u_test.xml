@@ -184,6 +184,7 @@
       <node>PrimitiveShapeAnnotator</node> 
       <node>NormalEstimator</node>
       <node>FeatureAnnotator</node>
+      <node>SacModelAnnotator</node>
       <node>StorageWriter</node> 
       </fixedFlow>
     </flowConstraints>
