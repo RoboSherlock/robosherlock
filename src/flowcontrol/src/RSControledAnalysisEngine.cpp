@@ -27,7 +27,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, std::vector<std:
 
   this->initPipelineManager();
 
-  std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
+  std::vector<icu::UnicodeString> &non_const_nodes = engine->getFlowConstraintNodes();
   std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
   for(int i = 0; i < non_const_nodes.size(); i++)
@@ -98,7 +98,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
 #ifdef WITH_JSON_PROLOG
       if(parallel_)
       {
-        if(rspm->querySuccess)
+        if(engine->querySuccess)
         {
           engine->paralleledProcess(*cas);
         }

@@ -50,7 +50,6 @@ private:
   int counter_;
   double totalTime_;
   float avgProcessingTime_;
-  bool parallel_;
 
 public:
 
@@ -82,27 +81,25 @@ public:
     return next_pipeline_order;
   }
 
-
-
   inline void changeLowLevelPipeline(std::vector<std::string> &pipeline)
   {
-    rspm->setDefaultPipelineOrdering(pipeline);
-    rspm->setPipelineOrdering(pipeline);
+    engine->setDefaultPipelineOrdering(pipeline);
+    engine->setPipelineOrdering(pipeline);
   }
 
   inline void applyNextPipeline()
   {
-    if(rspm)
+    if(engine)
     {
-      rspm->setPipelineOrdering(next_pipeline_order);
+      engine->setPipelineOrdering(next_pipeline_order);
     }
   }
 
   inline void resetPipelineOrdering()
   {
-    if(rspm)
+    if(engine)
     {
-      rspm->resetPipelineOrdering();
+      engine->resetPipelineOrdering();
     }
   }
 
@@ -113,9 +110,9 @@ public:
 
   bool defaultPipelineEnabled()
   {
-    if(rspm)
+    if(engine)
     {
-      return rspm->use_default_pipeline;
+      return engine->use_default_pipeline_;
     }
     return false;
   }

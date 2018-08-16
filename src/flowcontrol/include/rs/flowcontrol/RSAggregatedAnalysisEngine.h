@@ -239,21 +239,30 @@ public:
 
     return querySuccess;
   }
+
+  void set_original_annotators()
+  {
+    original_annotators = this->iv_annotatorMgr.iv_vecEntries;
+  }
 #endif
 
   ///END NEW STUFF
 
-private:
-  uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
+public:
+  bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
   bool use_default_pipeline_;
+  RSParallelPipelinePlanner parallelPlanner;
+
+private:
+
   std::vector<std::string> default_pipeline_annotators;
+  uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
 
 #ifdef WITH_JSON_PROLOG
   bool parallel_;
-  bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
 
   std::shared_ptr<JsonPrologInterface> queryInterface;
-  RSParallelPipelinePlanner parallelPlanner;
+
   RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
   RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
 #endif
@@ -266,14 +275,14 @@ protected:
 
 namespace rs
 {
-uima::AnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     uima::ErrorInfo errInfo);
 
-uima::AnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+RSAggregatedAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
     uima::internal::CASDefinition &casDefinition,
     uima::ErrorInfo &errInfo);
 
-uima::AnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     const std::unordered_map<std::string, std::string> &delegateEngines,
     uima::ErrorInfo errInfo);
 }

@@ -8,7 +8,6 @@ RSAggregatedAnalysisEngine::RSAggregatedAnalysisEngine(uima::AnnotatorContext &r
                             uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs)
 {
   process_mutex.reset(new std::mutex);
-  original_annotators = this->iv_annotatorMgr.iv_vecEntries;
 }
 
 RSAggregatedAnalysisEngine::~RSAggregatedAnalysisEngine()
@@ -162,7 +161,7 @@ uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas)
 
 namespace rs
 {
-  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+  RSAggregatedAnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
                                                      uima::ErrorInfo errInfo)
   {
     try
@@ -200,7 +199,7 @@ namespace rs
 
       // release auto_ptrs here because the createTAE transfers ownership to the engine
       apTAESpecifier.release();
-      uima::AnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
+      RSAggregatedAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                                                        *apCASDef.release(),
                                                                        errInfo);
 
@@ -215,7 +214,7 @@ namespace rs
     return NULL;
   }
 
-  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+ RSAggregatedAnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
                                                      const std::unordered_map<std::string, std::string>& delegateEngines,
                                                      uima::ErrorInfo errInfo)
   {
@@ -255,7 +254,7 @@ namespace rs
 
       // release auto_ptrs here because the createTAE transfers ownership to the engine
       apTAESpecifier.release();
-      uima::AnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
+      RSAggregatedAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                                                        *apCASDef.release(),
                                                                        errInfo);
       return pResult;
@@ -269,11 +268,11 @@ namespace rs
     return NULL;
   }
 
-  uima::AnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+  RSAggregatedAnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
                                                      uima::internal::CASDefinition &casDefinition,
                                                      uima::ErrorInfo &errInfo)
   {
-    uima::AnalysisEngine *pResult = NULL;
+    RSAggregatedAnalysisEngine *pResult = NULL;
     assert( errInfo.getErrorId() == UIMA_ERR_NONE );
     try
     {
@@ -288,6 +287,8 @@ namespace rs
       }
 
       uima::TyErrorId utErrorID = pResult->initialize( crTAESpecifier );
+      pResult->set_original_annotators();
+
       if (utErrorID != UIMA_ERR_NONE)
       {
         uima::ErrorInfo const &crLastError = pResult->getAnnotatorContext().getLogger().getLastError();
