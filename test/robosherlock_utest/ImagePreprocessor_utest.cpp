@@ -10,7 +10,7 @@
 
 #include <ros/ros.h>
 #include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
+
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
 

@@ -2,7 +2,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <gtest/gtest.h>
-#include "rs/flowcontrol/RSAnalysisEngineManager.h"
 #include "rs/flowcontrol/RSPipelineManager.h"
 
 #include "rs/flowcontrol/RSAnalysisEngine.h"
@@ -27,7 +26,6 @@
 
 #include <ros/ros.h>
 #include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
 
