@@ -183,8 +183,10 @@
       <node>ClusterColorHistogramCalculator</node>
       <node>PrimitiveShapeAnnotator</node> 
       <node>NormalEstimator</node>
-      <node>FeatureAnnotator</node>
-      <node>SacModelAnnotator</node>
+      <node>FeatureAnnotator</node> 
+      <node>SacModelAnnotator</node> 
+      <!--<node>MLNInferencer</node>-->
+      <node>PCLDescriptorExtractor</node>
       <node>StorageWriter</node> 
       </fixedFlow>
     </flowConstraints>

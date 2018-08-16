@@ -28,7 +28,6 @@ void processFeatureCluster(uima::CAS *cas)
     cluster.annotations.filter(features);
     for ( int j = 0; j<features.size();j++)
     {
-      outError(features[j].descriptorType.get());
       EXPECT_TRUE(features[j].descriptorType.get() != "NULL");
     }
   }

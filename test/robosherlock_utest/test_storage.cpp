@@ -10,34 +10,13 @@
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
 
-#include <pcl/point_types.h>
-#include <ros/ros.h>
-
-
-
-#include <stdio.h>
-#include <string.h>
 #include <gtest/gtest.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <thread>
-#include <mutex>
-#include <chrono>
-#include <condition_variable>
-
-#include <ros/ros.h>
-#include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
-#include <rs/utils/common.h>
-#include <rs/io/Storage.h>
-
-#include <ros/ros.h>
-#include <ros/package.h>
 #include <rs/scene_cas.h>
-
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
+
 
 //Variables to be tested
 int initial_image_width = 0;
