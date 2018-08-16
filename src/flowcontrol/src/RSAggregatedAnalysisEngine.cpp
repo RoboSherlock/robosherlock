@@ -8,6 +8,7 @@ RSAggregatedAnalysisEngine::RSAggregatedAnalysisEngine(uima::AnnotatorContext &r
                             uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs)
 {
   process_mutex.reset(new std::mutex);
+  original_annotators = this->iv_annotatorMgr.iv_vecEntries;
 }
 
 RSAggregatedAnalysisEngine::~RSAggregatedAnalysisEngine()
