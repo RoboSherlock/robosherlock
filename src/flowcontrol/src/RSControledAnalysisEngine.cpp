@@ -309,19 +309,7 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
   outImgMsgs.image = rgb;
 
-  std::vector<uchar> imageData;
-  std::vector<int> params = {CV_IMWRITE_JPEG_QUALITY, 90, 0};
-  cv::imencode(".jpg", rgb, imageData, params);
-
-  std::string encoded = rs::common::base64_encode(&imageData[0], imageData.size());
-
-  std_msgs::String strMsg;
-  strMsg.data = "data:image/jpg;base64," + encoded;
-  base64ImgPub.publish(strMsg);
   image_pub_.publish(outImgMsgs.toImageMsg());
-  image_pub_.publish(outImgMsgs.toImageMsg());
-  image_pub_.publish(outImgMsgs.toImageMsg());
-
 
   tf::StampedTransform camToWorld;
   camToWorld.setIdentity();

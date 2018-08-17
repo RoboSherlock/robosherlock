@@ -3,6 +3,7 @@
 
 #include <rs/utils/common.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/queryanswering/DesignatorWrapper.h>
 #include <rs/scene_cas.h>
 
 #include <image_transport/image_transport.h>
@@ -16,12 +17,8 @@
 
 #include <tf_conversions/tf_eigen.h>
 
-#include <rs/queryanswering/DesignatorWrapper.h>
-
 #include <fstream>
-
 #include <uima/api.hpp>
-
 #include <rs/queryanswering/JsonPrologInterface.h>
 
 
@@ -35,7 +32,6 @@ private:
   std::string query_;
 
   ros::NodeHandle nh_;
-  ros::Publisher base64ImgPub;
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
   image_transport::ImageTransport it_;
@@ -54,7 +50,6 @@ public:
   RSControledAnalysisEngine(ros::NodeHandle nh) : RSAnalysisEngine(),
     query_(""),nh_(nh),it_(nh_),useIdentityResolution_(false),counter_(0),totalTime_(0.0),avgProcessingTime_(0.0f)
   {
-    base64ImgPub = nh_.advertise<std_msgs::String>(std::string("image_base64"), 5);
     image_pub_ = it_.advertise("result_image", 1, true);
     pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
   }
