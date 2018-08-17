@@ -240,12 +240,13 @@ public:
     return querySuccess;
   }
 
+
+#endif
+
   void set_original_annotators()
   {
     original_annotators = this->iv_annotatorMgr.iv_vecEntries;
   }
-#endif
-
   ///END NEW STUFF
 
 public:

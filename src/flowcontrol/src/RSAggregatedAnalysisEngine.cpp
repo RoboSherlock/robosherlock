@@ -287,6 +287,7 @@ namespace rs
       }
 
       uima::TyErrorId utErrorID = pResult->initialize( crTAESpecifier );
+
       pResult->set_original_annotators();
 
       if (utErrorID != UIMA_ERR_NONE)
