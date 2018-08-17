@@ -26,7 +26,7 @@
 #include <rs/utils/exception.h>
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
-#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -50,7 +50,7 @@ public:
   bool parallel_;
 
 protected:
-  RSAggregatedAnalysisEngine *engine;
+  RSAggregateAnalysisEngine *engine;
   uima::CAS *cas;
 
 public:
@@ -87,8 +87,8 @@ public:
       engine->setPipelineOrdering(order);
   }
 
-  void setParallelOrderings(RSAggregatedAnalysisEngine::AnnotatorOrderings orderings,
-                            RSAggregatedAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
+  void setParallelOrderings(RSAggregateAnalysisEngine::AnnotatorOrderings orderings,
+                            RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
   {
       engine->currentOrderings = orderings;
       engine->currentOrderingIndices = orderingIndices;

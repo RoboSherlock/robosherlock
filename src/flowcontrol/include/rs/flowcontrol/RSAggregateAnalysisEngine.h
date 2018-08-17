@@ -42,19 +42,19 @@
 #include <assert.h>
 #include <unordered_map>
 
-class RSAggregatedAnalysisEngine : public uima::internal::AggregateEngine
+class RSAggregateAnalysisEngine : public uima::internal::AggregateEngine
 {
 public:
   typedef std::vector< std::vector<std::string> > AnnotatorOrderings;
   typedef std::vector< std::vector<int> >         AnnotatorOrderingIndices;
 
-  RSAggregatedAnalysisEngine(uima::AnnotatorContext &rANC,
+  RSAggregateAnalysisEngine(uima::AnnotatorContext &rANC,
                              bool bOwnsANC,
                              bool bOwnsTAESpecififer,
                              uima::internal::CASDefinition &casDefs,
                              bool ownsCasDefs);
 
-  ~RSAggregatedAnalysisEngine();
+  ~RSAggregateAnalysisEngine();
 
   uima::TyErrorId annotatorProcess(std::string annotatorName,
                                    uima::CAS &cas,
@@ -134,14 +134,14 @@ protected:
 
 namespace rs
 {
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     uima::ErrorInfo errInfo);
 
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
     uima::internal::CASDefinition &casDefinition,
     uima::ErrorInfo &errInfo);
 
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     const std::unordered_map<std::string, std::string> &delegateEngines,
     uima::ErrorInfo errInfo);
 }

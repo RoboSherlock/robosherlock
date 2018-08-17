@@ -1,6 +1,6 @@
-#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
-RSAggregatedAnalysisEngine::RSAggregatedAnalysisEngine(uima::AnnotatorContext &rANC,
+RSAggregateAnalysisEngine::RSAggregateAnalysisEngine(uima::AnnotatorContext &rANC,
     bool bOwnsANC,
     bool bOwnsTAESpecififer,
     uima::internal::CASDefinition &casDefs,
@@ -10,11 +10,11 @@ RSAggregatedAnalysisEngine::RSAggregatedAnalysisEngine(uima::AnnotatorContext &r
   process_mutex.reset(new std::mutex);
 }
 
-RSAggregatedAnalysisEngine::~RSAggregatedAnalysisEngine()
+RSAggregateAnalysisEngine::~RSAggregateAnalysisEngine()
 {
 }
 
-uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(std::string annotatorName,
+uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(std::string annotatorName,
     uima::CAS &cas,
     uima::ResultSpecification &resultSpec)
 {
@@ -33,7 +33,7 @@ uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(std::string annotat
   return this->annotatorProcess(index, cas, resultSpec);
 }
 
-uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(int index,
+uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
     uima::CAS &cas,
     uima::ResultSpecification &resultSpec)
 {
@@ -109,7 +109,7 @@ uima::TyErrorId RSAggregatedAnalysisEngine::annotatorProcess(int index,
 }
 
 
-uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas,
+uima::TyErrorId RSAggregateAnalysisEngine::paralleledProcess(uima::CAS &cas,
     uima::ResultSpecification const &resSpec)
 {
   uima::TyErrorId err = UIMA_ERR_NONE;
@@ -156,14 +156,14 @@ uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas,
   return err;
 }
 
-uima::TyErrorId RSAggregatedAnalysisEngine::paralleledProcess(uima::CAS &cas)
+uima::TyErrorId RSAggregateAnalysisEngine::paralleledProcess(uima::CAS &cas)
 {
   //generate ResultSpecification from TaeSpecifier
   return this->paralleledProcess(cas, this->getCompleteResultSpecification());
 }
 
 #ifdef WITH_JSON_PROLOG
-bool RSAggregatedAnalysisEngine::planParallelPipelineOrderings(
+bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
   std::vector<std::string> &annotators,
   RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
   RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices)
@@ -195,7 +195,7 @@ bool RSAggregatedAnalysisEngine::planParallelPipelineOrderings(
 }
 
 
-bool RSAggregatedAnalysisEngine::initParallelPipelineManager()
+bool RSAggregateAnalysisEngine::initParallelPipelineManager()
 {
   try
   {
@@ -224,7 +224,7 @@ bool RSAggregatedAnalysisEngine::initParallelPipelineManager()
 #endif
 
 
-std::vector<icu::UnicodeString> &RSAggregatedAnalysisEngine::getFlowConstraintNodes()
+std::vector<icu::UnicodeString> &RSAggregateAnalysisEngine::getFlowConstraintNodes()
 {
   uima::FlowConstraints *flow;
   uima::FlowConstraints const *pFlow = this->getAnalysisEngineMetaData().getFlowConstraints();
@@ -234,7 +234,7 @@ std::vector<icu::UnicodeString> &RSAggregatedAnalysisEngine::getFlowConstraintNo
   return flow_constraint_nodes;
 }
 
-void RSAggregatedAnalysisEngine::resetPipelineOrdering()
+void RSAggregateAnalysisEngine::resetPipelineOrdering()
 {
   this->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
 
@@ -254,13 +254,13 @@ void RSAggregatedAnalysisEngine::resetPipelineOrdering()
 }
 
 
-void RSAggregatedAnalysisEngine::setContinuousPipelineOrder(std::vector<std::string> annotators)
+void RSAggregateAnalysisEngine::setContinuousPipelineOrder(std::vector<std::string> annotators)
 {
   use_default_pipeline_ = true;
   default_pipeline_annotators = annotators;
 }
 
-int RSAggregatedAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
+int RSAggregateAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
 {
   icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(StringPiece(annotator_name.c_str()));
 
@@ -273,7 +273,7 @@ int RSAggregatedAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
   return std::distance(nodes.begin(), it);
 }
 
-void RSAggregatedAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string> &annotators)
+void RSAggregateAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string> &annotators)
 {
   annotators.clear();
 
@@ -286,7 +286,7 @@ void RSAggregatedAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string
   }
 }
 
-void RSAggregatedAnalysisEngine::setPipelineOrdering(std::vector<std::string> annotators)
+void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> annotators)
 {
   // Create empty list of
   //  typedef std::vector < EngineEntry > TyAnnotatorEntries;
@@ -333,7 +333,7 @@ void RSAggregatedAnalysisEngine::setPipelineOrdering(std::vector<std::string> an
 
 namespace rs
 {
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     uima::ErrorInfo errInfo)
 {
   try
@@ -371,7 +371,7 @@ RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString cons
 
     // release auto_ptrs here because the createTAE transfers ownership to the engine
     apTAESpecifier.release();
-    RSAggregatedAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
+    RSAggregateAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                           *apCASDef.release(),
                                           errInfo);
 
@@ -386,7 +386,7 @@ RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString cons
   return NULL;
 }
 
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     const std::unordered_map<std::string, std::string> &delegateEngines,
     uima::ErrorInfo errInfo)
 {
@@ -426,7 +426,7 @@ RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString cons
 
     // release auto_ptrs here because the createTAE transfers ownership to the engine
     apTAESpecifier.release();
-    RSAggregatedAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
+    RSAggregateAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
                                           *apCASDef.release(),
                                           errInfo);
     return pResult;
@@ -440,17 +440,17 @@ RSAggregatedAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString cons
   return NULL;
 }
 
-RSAggregatedAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
+RSAggregateAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
     uima::internal::CASDefinition &casDefinition,
     uima::ErrorInfo &errInfo)
 {
-  RSAggregatedAnalysisEngine *pResult = NULL;
+  RSAggregateAnalysisEngine *pResult = NULL;
   assert(errInfo.getErrorId() == UIMA_ERR_NONE);
   try
   {
     // create the engine depending on the framework (UIMACPP or JEDII) or if it is primitive or aggregate.
     uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
-    pResult = new RSAggregatedAnalysisEngine(rANC, true, true, casDefinition, true);
+    pResult = new RSAggregateAnalysisEngine(rANC, true, true, casDefinition, true);
 
     if(pResult == NULL)
     {

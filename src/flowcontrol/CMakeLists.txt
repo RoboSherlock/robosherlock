@@ -5,7 +5,7 @@ add_library(rs_flowcontrol
     src/RSControledAnalysisEngine.cpp
     src/RSProcessManager.cpp
     src/RSParallelPipelinePlanner.cpp
-    src/RSAggregatedAnalysisEngine.cpp
+    src/RSAggregateAnalysisEngine.cpp
     src/RSXMLParser.cpp
     src/YamlToXMLConverter.cpp)
 add_dependencies(rs_flowcontrol robosherlock_msgs_generate_messages_cpp)

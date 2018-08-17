@@ -103,7 +103,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
       delegates[a] = path;
   }
 
-  engine = (RSAggregatedAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  engine = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
