@@ -69,7 +69,7 @@ int processEngine()
   //aeMetaData.getDescription().toUTF8String(aeDescription);
   
   std::vector<std::string> engineList = {"CollectionReader","StorageWriter"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);	
+  engine.setPipelineOrdering(engineList);
 
  try
     {

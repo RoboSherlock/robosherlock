@@ -49,7 +49,7 @@ void processReconfig()
   //std::string aeDescription;
   //aeMetaData.getDescription().toUTF8String(aeDescription);
   std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);	
+  engine.setPipelineOrdering(engineList);
 
 
  /* uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();

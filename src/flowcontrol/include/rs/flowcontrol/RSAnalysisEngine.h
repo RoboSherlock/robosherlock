@@ -68,6 +68,11 @@ public:
 
   virtual void process();
 
+  uima::TyErrorId parallelProcess(uima::CAS &cas)
+  {
+    return engine->paralleledProcess(cas);
+  }
+
   inline void resetCas()
   {
     cas->reset();
@@ -78,10 +83,18 @@ public:
     return cas;
   }
 
-  RSPipelineManager* getPipelineManager()
+  void setPipelineOrdering(std::vector<std::string> order)
   {
-    return rspm;
+      engine->setPipelineOrdering(order);
   }
+
+  void setParallelOrderings(RSAggregatedAnalysisEngine::AnnotatorOrderings orderings,
+                            RSAggregatedAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
+  {
+      engine->currentOrderings = orderings;
+      engine->currentOrderingIndices = orderingIndices;
+  }
+
   uima::CAS* newCAS()
   {
     return engine->newCAS();

@@ -41,7 +41,7 @@ int preprocessingTest()
 
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
 
  try
     {

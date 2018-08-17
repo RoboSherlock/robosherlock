@@ -182,65 +182,13 @@ public:
 #endif
   }
 
-#ifdef WITH_JSON_PROLOG
 
+#ifdef WITH_JSON_PROLOG
   bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
       RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
-      RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices)
-  {
-    bool success = true;
-    if(annotators.empty())
-    {
-      outWarn("Annotators flow is not set! Parallel orderings will not be planned!");
-      return false;
-    }
+      RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
 
-    JsonPrologInterface::AnnotatorDependencies dependencies;
-    success = queryInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
-
-    if(dependencies.empty() || !success)
-    {
-      outWarn("Querying annotators dependency data is empty! Parallel orderings will not be planned!");
-      return false;
-    }
-
-    parallelPlanner.setAnnotatorList(annotators);
-    parallelPlanner.planPipelineStructure(dependencies);
-
-    parallelPlanner.getPlannedPipeline(orderings);
-    parallelPlanner.getPlannedPipelineIndices(orderingIndices);
-
-    return success;
-  }
-
-  bool initParallelPipelineManager()
-  {
-    try
-    {
-      queryInterface.reset(new JsonPrologInterface());
-
-      std::vector<std::string> currentFlow;
-      this->getCurrentAnnotatorFlow(currentFlow);
-      querySuccess = this->planParallelPipelineOrderings(currentFlow, this->currentOrderings, this->currentOrderingIndices);
-
-      original_annotator_orderings = this->currentOrderings;
-      original_annotator_ordering_indices = this->currentOrderingIndices;
-    }
-    catch(std::exception &e)
-    {
-      outError("std c++ error");
-      std::cerr << e.what();
-      return false;
-    }
-    catch(...)
-    {
-      outError("Unknown error has occured! Probaly you have not run json_prolog yet.");
-    }
-
-    return querySuccess;
-  }
-
-
+  bool initParallelPipelineManager();
 #endif
 
   void set_original_annotators()

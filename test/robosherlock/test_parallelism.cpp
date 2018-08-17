@@ -16,6 +16,7 @@
 
 class ParallelismTest : public testing::Test
 {
+    friend class RSAggregatedAnalysisEngine;
 protected:
     std::vector<std::string> engineList = {"CollectionReader",
                                            "ImagePreprocessor",
@@ -36,9 +37,8 @@ protected:
       engine.init(engineFile, false); // set false for not query from knowrob, we will manually set variables
       engine.initPipelineManager();
 
-      engine.getPipelineManager()->setPipelineOrdering(engineList);
-      engine.getPipelineManager()->engine->currentOrderings = orderings;
-      engine.getPipelineManager()->engine->currentOrderingIndices = orderingIndices;
+      engine.setPipelineOrdering(engineList);
+      engine.setParallelOrderings(orderings,orderingIndices);
     }
 
     virtual void TearDown()
@@ -52,7 +52,7 @@ protected:
 
 TEST_F(ParallelismTest, ParallelExecutionTest)
 {
-  uima::TyErrorId error = engine.getPipelineManager()->engine->paralleledProcess(*engine.getCas());
+  uima::TyErrorId error = engine.parallelProcess(*engine.getCas());
 
   EXPECT_TRUE(error == UIMA_ERR_NONE);
 }

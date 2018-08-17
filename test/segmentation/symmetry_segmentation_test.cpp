@@ -27,7 +27,7 @@ protected:
   std::vector<std::string> engineList = {"CollectionReader",
                                          "ImagePreprocessor",
                                          "PointCloudFilter",
-				                                 "NormalEstimator",
+                                         "NormalEstimator",
                                          "PlaneAnnotator",
                                          "OverSegmentationAnnotator",
                                          "RotationalSymmetryAnnotator",
@@ -39,7 +39,6 @@ protected:
   {
     rs::common::getAEPaths("object_segmentation", engineFile);
     engine.init(engineFile, false); // do not run parallel for now
-    engine.initPipelineManager();
   }
 
   virtual void TearDown()
@@ -51,7 +50,7 @@ protected:
   //there is no ground truth for this test, so for simply we just test if there are segments
   inline float test()
   {
-    engine.getPipelineManager()->setPipelineOrdering(engineList);
+    engine.setPipelineOrdering(engineList);
 
     uima::CAS* tcas = engine.getCas();
     rs::SceneCas cas(*tcas);

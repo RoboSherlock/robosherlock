@@ -132,9 +132,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
   }
 
   parallel_ = parallel;
-
 }
 
+
+//TODO make this default in init
 void RSAnalysisEngine::initPipelineManager()
 { 
 #ifdef WITH_JSON_PROLOG
