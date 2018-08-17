@@ -3,7 +3,6 @@
 
 #include <rs/utils/common.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/flowcontrol/RSPipelineManager.h>
 #include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 #include <rs/scene_cas.h>
 
@@ -83,7 +82,7 @@ public:
 
   inline void changeLowLevelPipeline(std::vector<std::string> &pipeline)
   {
-    engine->setDefaultPipelineOrdering(pipeline);
+    engine->setContinuousPipelineOrder(pipeline);
     engine->setPipelineOrdering(pipeline);
   }
 

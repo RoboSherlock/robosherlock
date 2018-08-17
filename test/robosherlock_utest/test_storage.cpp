@@ -2,9 +2,8 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <gtest/gtest.h>
-#include "rs/flowcontrol/RSPipelineManager.h"
 
-#include "rs/flowcontrol/RSAnalysisEngine.h"
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>

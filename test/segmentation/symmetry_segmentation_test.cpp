@@ -1,6 +1,5 @@
 #include <string>
 #include <gtest/gtest.h>
-#include <rs/flowcontrol/RSPipelineManager.h>
 
 #include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/utils/common.h>

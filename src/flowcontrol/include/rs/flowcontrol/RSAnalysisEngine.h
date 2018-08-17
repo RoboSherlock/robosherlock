@@ -26,7 +26,7 @@
 #include <rs/utils/exception.h>
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
-#include <rs/flowcontrol/RSPipelineManager.h>
+#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -52,7 +52,6 @@ public:
 protected:
   RSAggregatedAnalysisEngine *engine;
   uima::CAS *cas;
-  RSPipelineManager *rspm;
 
 public:
 

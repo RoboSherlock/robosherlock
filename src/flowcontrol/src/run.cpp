@@ -38,8 +38,6 @@
 #include "uima/internal_aggregate_engine.hpp"
 #include "uima/annotator_mgr.hpp"
 
-#include <rs/flowcontrol/RSPipelineManager.h>
-//#include <rs/queryanswering/KRDefinitions.h>
 #include <rs/flowcontrol/RSProcessManager.h>
 
 #include <ros/ros.h>

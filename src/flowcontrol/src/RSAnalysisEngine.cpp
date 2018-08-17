@@ -22,7 +22,7 @@
 
 static const std::string GEN_XML_PATH = ".ros/robosherlock_generated_xmls";
 
-RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL), rspm(NULL)
+RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL)
 {
 }
 
@@ -32,11 +32,6 @@ RSAnalysisEngine::~RSAnalysisEngine()
   {
     delete cas;
     cas = NULL;
-  }
-  if(rspm)
-  {
-    delete rspm;
-    rspm = NULL;
   }
   if(engine)
   {
