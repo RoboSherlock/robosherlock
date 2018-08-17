@@ -251,7 +251,10 @@ public:
 public:
   bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
   bool use_default_pipeline_;
+
+#ifdef WITH_JSON_PROLOG
   RSParallelPipelinePlanner parallelPlanner;
+#endif
 
 private:
 
