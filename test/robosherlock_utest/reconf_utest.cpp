@@ -2,8 +2,6 @@
 #include <sys/stat.h>
 #include <stdio.h>
 #include <gtest/gtest.h>
-#include "rs/flowcontrol/RSAnalysisEngineManager.h"
-#include "rs/flowcontrol/RSPipelineManager.h"
 
 #include "rs/flowcontrol/RSAnalysisEngine.h"
 #include <rs/utils/common.h>
@@ -27,7 +25,6 @@
 
 #include <ros/ros.h>
 #include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
 
@@ -52,7 +49,7 @@ void processReconfig()
   //std::string aeDescription;
   //aeMetaData.getDescription().toUTF8String(aeDescription);
   std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);	
+  engine.setPipelineOrdering(engineList);
 
 
  /* uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();

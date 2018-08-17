@@ -10,7 +10,7 @@
 
 #include <ros/ros.h>
 #include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
+
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
 
@@ -41,7 +41,7 @@ int preprocessingTest()
 
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
 
  try
     {

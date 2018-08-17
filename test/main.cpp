@@ -1,8 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <rs/utils/common.h>
-#include "rs/flowcontrol/RSAnalysisEngineManager.h"
-#include "rs/flowcontrol/RSAnalysisEngine.h"
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 
 #include <mongo/client/dbclient.h>
 

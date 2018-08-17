@@ -1,4 +1,4 @@
-#include <rs/utils/RSXMLParser.h>
+#include <rs/flowcontrol/RSXMLParser.h>
 
 void RSXMLParser::parseAnalysisEngineDescription(uima::AnalysisEngineDescription& taeSpec,
                                                  const std::unordered_map<std::string, std::string>& delegateEngines,
