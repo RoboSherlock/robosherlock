@@ -1,8 +1,6 @@
 #ifndef __RSPROCESS_MANAGER_H__
 #define __RSPROCESS_MANAGER_H__
 
-#include <rs/flowcontrol/RSAnalysisEngineManager.h>
-
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 #include <rs/queryanswering/KRDefinitions.h>
 
@@ -10,6 +8,7 @@
 #include <rs/queryanswering/QueryInterface.h>
 #endif
 
+#include <rs/io/visualizer.h>
 #include <rs/queryanswering/DesignatorWrapper.h>
 
 #include <robosherlock_msgs/SetRSContext.h>

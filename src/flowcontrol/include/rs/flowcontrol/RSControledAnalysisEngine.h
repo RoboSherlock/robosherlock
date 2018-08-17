@@ -3,8 +3,6 @@
 
 #include <rs/utils/common.h>
 #include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/flowcontrol/RSPipelineManager.h>
-#include <rs/flowcontrol/RSAggregatedAnalysisEngine.h>
 #include <rs/scene_cas.h>
 
 #include <image_transport/image_transport.h>
@@ -32,7 +30,7 @@ class RSControledAnalysisEngine: public RSAnalysisEngine
 
 private:
   std::vector<std::string> next_pipeline_order;
-  boost::shared_ptr<std::mutex> process_mutex;
+  std::mutex process_mutex;
 
   std::string query_;
 
@@ -50,14 +48,12 @@ private:
   int counter_;
   double totalTime_;
   float avgProcessingTime_;
-  bool parallel_;
 
 public:
 
   RSControledAnalysisEngine(ros::NodeHandle nh) : RSAnalysisEngine(),
     query_(""),nh_(nh),it_(nh_),useIdentityResolution_(false),counter_(0),totalTime_(0.0),avgProcessingTime_(0.0f)
   {
-    process_mutex = boost::shared_ptr<std::mutex>(new std::mutex);
     base64ImgPub = nh_.advertise<std_msgs::String>(std::string("image_base64"), 5);
     image_pub_ = it_.advertise("result_image", 1, true);
     pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
@@ -83,27 +79,25 @@ public:
     return next_pipeline_order;
   }
 
-
-
   inline void changeLowLevelPipeline(std::vector<std::string> &pipeline)
   {
-    rspm->setDefaultPipelineOrdering(pipeline);
-    rspm->setPipelineOrdering(pipeline);
+    engine->setContinuousPipelineOrder(pipeline);
+    engine->setPipelineOrdering(pipeline);
   }
 
   inline void applyNextPipeline()
   {
-    if(rspm)
+    if(engine)
     {
-      rspm->setPipelineOrdering(next_pipeline_order);
+      engine->setPipelineOrdering(next_pipeline_order);
     }
   }
 
   inline void resetPipelineOrdering()
   {
-    if(rspm)
+    if(engine)
     {
-      rspm->resetPipelineOrdering();
+      engine->resetPipelineOrdering();
     }
   }
 
@@ -114,9 +108,9 @@ public:
 
   bool defaultPipelineEnabled()
   {
-    if(rspm)
+    if(engine)
     {
-      return rspm->use_default_pipeline;
+      return engine->use_default_pipeline_;
     }
     return false;
   }
@@ -127,32 +121,12 @@ public:
   }
 
 
-  void init(const std::string &file,const std::vector<std::string> &lowLvLPipeline, bool pervasive, bool parallel);
+  void init(const std::string &file, std::vector<std::string> &lowLvLPipeline, bool pervasive, bool parallel);
 
   void process();
 
   void process(std::vector<std::string> &designator_response,
                std::string query);
-
-  void process(bool reset_pipeline_after_process,
-               std::vector<std::string> &designator_response);
-
-  // Call process() and
-  // decide if the pipeline should be reset or not
-  void process(bool reset_pipeline_after_process);
-
-  // Define a pipeline that should be executed,
-  // process(reset_pipeline_after_process) everything and
-  // decide if the pipeline should be reset or not
-  void process(std::vector<std::string> annotators,
-               bool reset_pipeline_after_process,
-               std::vector<std::string> &designator_response,
-               std::string query="");
-
-  // Define a pipeline that should be executed,
-  // process(reset_pipeline_after_process) everything and
-  // decide if the pipeline should be reset or not
-  void process(std::vector<std::string> annotators, bool reset_pipeline_after_process);
 
   //draw results on an image
   template <class T>
