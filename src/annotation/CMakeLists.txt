@@ -15,9 +15,6 @@ target_link_libraries(rs_FeatureAnnotator rs_core)
 rs_add_library(rs_NormalEstimator src/NormalEstimator.cpp)
 target_link_libraries(rs_NormalEstimator rs_core)
 
-rs_add_library(rs_PCLVFHFeatureExtractor src/PCLVFHFeatureExtractor.cpp)
-target_link_libraries(rs_PCLVFHFeatureExtractor rs_core )
-
 rs_add_library(rs_PrimitiveShapeAnnotator src/PrimitiveShapeAnnotator.cpp)
 target_link_libraries(rs_PrimitiveShapeAnnotator rs_core )
 

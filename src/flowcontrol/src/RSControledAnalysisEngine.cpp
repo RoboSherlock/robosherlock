@@ -1,84 +1,85 @@
+/**
+ * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
+ * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
+ *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
+ *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
+
 
 void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
-  uima::ErrorInfo errorInfo;
 
-  size_t pos = AEFile.rfind('/');
-  outInfo("Creating analysis engine: " FG_BLUE << (pos == AEFile.npos ? AEFile : AEFile.substr(pos)));
+  RSAnalysisEngine::init(AEFile, parallel);
 
-  engine = (RSAggregatedAnalysisEngine* ) rs::createParallelAnalysisEngine(AEFile.c_str(), errorInfo);
+  this->initPipelineManager();
 
-  if(errorInfo.getErrorId() != UIMA_ERR_NONE)
-  {
-    outError("createAnalysisEngine failed." << errorInfo.asString());
-    throw uima::Exception(errorInfo);
-  }
-
-  rspm = new RSPipelineManager(engine, parallel);
   std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
-
+  std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
   for(int i = 0; i < non_const_nodes.size(); i++)
   {
     std::string tempString;
     non_const_nodes.at(i).toUTF8String(tempString);
     outInfo(tempString);
+    fixedFlow.push_back(tempString);
   }
 
 #ifdef WITH_JSON_PROLOG
-  outInfo("*** Fetch the parallel ordering nodes");
-  rspm->initParallelPipelineManager();
-  rspm->parallelPlanner.print();
+  if( ros::service::waitForService("json_prolog/simple_query",ros::Duration(2.0)))
+  {jsonPrologInterface.retractAllAnnotators();
+  jsonPrologInterface.assertAnnotators(fixedFlow);}
+  else{
+      outWarn("Json Prolog is not running! Query answering will not be possible");
+  }
 #endif
 
-  int numAnnotators = rspm->engine->getNbrOfAnnotators();
-  outInfo("*** Number of Annotators in AnnotatorManager: " << numAnnotators);
-
-  if(pervasive){
-      // After all annotators have been initialized, pick the default pipeline
-      //this stores the pipeline
-      rspm->setDefaultPipelineOrdering(lowLvlPipeline);
-      //this applies it
-      rspm->setPipelineOrdering(lowLvlPipeline);
+  if(pervasive)
+  {
+    //After all annotators have been initialized, pick the default pipeline
+    //this stores the pipeline
+    rspm->setDefaultPipelineOrdering(lowLvlPipeline);
+    //this applies it
+    rspm->setPipelineOrdering(lowLvlPipeline);
   }
-
-  parallel_ = parallel;
 
   // Get a new CAS
   outInfo("Creating a new CAS");
-  cas = engine->newCAS();
 
-  if(cas == NULL)
-  {
-    outError("Creating new CAS failed.");
-    engine->destroy();
-    delete engine;
-    engine = NULL;
-    throw uima::Exception(uima::ErrorMessage(UIMA_ERR_ENGINE_NO_CAS), UIMA_ERR_ENGINE_NO_CAS, uima::ErrorInfo::unrecoverable);
-  }
-
-  outInfo("initialization done: " << name << std::endl
+  outInfo("initialization done: " << name_ << std::endl
           << std::endl << FG_YELLOW << "********************************************************************************" << std::endl);
-  currentAEName = AEFile;
+
 }
 
 void RSControledAnalysisEngine::process()
 {
   std::vector<std::string> desigResponse;
-  process(desigResponse,query_);
+  process(desigResponse, query_);
   setQuery("");
 }
 
 void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResponse,
                                         std::string queryString)
 {
-  outInfo("executing analisys engine: " << name);
+  outInfo("executing analisys engine: " << name_);
   cas->reset();
   try
   {
     UnicodeString ustrInputText;
-    ustrInputText.fromUTF8(name);
+    ustrInputText.fromUTF8(name_);
     cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
 
     rs::SceneCas sceneCas(*cas);
@@ -206,7 +207,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> annotators,
 void RSControledAnalysisEngine::process(std::vector<std::string> annotators, bool reset_pipeline_after_process)
 {
   std::vector<std::string> designator_response;
-  process(annotators, reset_pipeline_after_process, designator_response,query_);
+  process(annotators, reset_pipeline_after_process, designator_response, query_);
 }
 
 template <class T>
@@ -237,9 +238,9 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
     sceneCas.get(VIEW_OBJECTS, clusters);
   }
 
-  outInfo("Clusters size: "<<clusters.size()<<"Designator size: "<<resultDesignators.size());
+  outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if(clusters.size()!= resultDesignators.size())
+  if(clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
@@ -406,3 +407,4 @@ template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const st
 template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson);
+

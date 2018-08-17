@@ -22,6 +22,7 @@
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
 #include <rs/utils/exception.h>
+#include <rs/utils/RSXMLParser.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -34,6 +35,7 @@
 #include <functional>
 #include <mutex>
 #include <assert.h>
+#include <unordered_map>
 
 class RSAggregatedAnalysisEngine : public uima::internal::AggregateEngine
 {
@@ -82,6 +84,10 @@ namespace rs
   uima::AnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext &rANC,
                                                      uima::internal::CASDefinition &casDefinition,
                                                      uima::ErrorInfo &errInfo);
+
+  uima::AnalysisEngine* createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
+                                                     const std::unordered_map<std::string, std::string>& delegateEngines,
+                                                     uima::ErrorInfo errInfo);
 }
 
 

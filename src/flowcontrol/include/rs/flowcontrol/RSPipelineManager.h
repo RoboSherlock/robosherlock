@@ -45,6 +45,9 @@
 #include <rs/queryanswering/JsonPrologInterface.h>
 #endif
 
+/* description
+ * Class for managing the fixed flow of annotators in an aggregate engine
+ * */
 class RSPipelineManager
 {
 public:
@@ -52,6 +55,7 @@ public:
   {
     this->engine = engine;
 
+    // outInfo(engine->getAnalysisEngineMetaData());
     uima::FlowConstraints const *pFlow = engine->getAnalysisEngineMetaData().getFlowConstraints();
     flow = CONST_CAST(uima::FlowConstraints *, pFlow);
     original_annotators = engine->iv_annotatorMgr.iv_vecEntries;
@@ -64,11 +68,11 @@ public:
   }
 
 #ifdef WITH_JSON_PROLOG
-    bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
-                                       RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
-                                       RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
+  bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
+                                     RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                     RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
 
-    bool initParallelPipelineManager();
+  bool initParallelPipelineManager();
 #endif
 
   void resetPipelineOrdering();

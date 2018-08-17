@@ -1,0 +1,16 @@
+annotator:
+  name: ImagePreprocessor
+  implementation: rs_ImagePreprocessor
+  description: 'Creates missing images.'
+parameters:
+  enableDepthSmoothing: false
+  enableHoleFilling: false
+  thresholdThermalImages: true
+  thermalImageThreshold: 110
+  useKinect: true
+  useThermal: false
+  borderErosion: 5
+  borderDilation: 12
+capabilities:
+  inputs: ['rs.cv.Mat']
+  outputs: ['rs.pcl.PointCloud']
