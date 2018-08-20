@@ -29,7 +29,7 @@ void PCLDescriptorExtractorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PCLDescriptorExtractor"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.overwriteParam("PCLDescriptorExtractor","descriptorType", std::string("VFH"));
   engine.reconfigure();

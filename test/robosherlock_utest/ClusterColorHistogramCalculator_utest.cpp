@@ -11,7 +11,7 @@ void clusterColorHistogramCalculator()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","ClusterColorHistogramCalculator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.process();
   cas = engine.getCas();

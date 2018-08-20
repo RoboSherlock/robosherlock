@@ -31,7 +31,7 @@ void pointCloudExtractorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
   engine.reconfigure();

@@ -11,7 +11,7 @@ void imageSegmentationAnnotatorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","ImageSegmentationAnnotator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
 
   engine.process();
   cas = engine.getCas();

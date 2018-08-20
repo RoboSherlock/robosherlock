@@ -36,7 +36,7 @@ void featureAnnotator()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","FeatureAnnotator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.process();
   cas = engine.getCas();

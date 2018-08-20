@@ -11,7 +11,7 @@ void SacModelAnnotator()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","SacModelAnnotator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.process();
   cas = engine.getCas();

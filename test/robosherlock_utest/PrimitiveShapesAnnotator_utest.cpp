@@ -11,7 +11,7 @@ void PrimitiveShapeAnnotator()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PrimitiveShapeAnnotator"};
-  engine.getPipelineManager()->setPipelineOrdering(engineList);
+  engine.setPipelineOrdering(engineList);
   
   engine.process();
   cas = engine.getCas();
