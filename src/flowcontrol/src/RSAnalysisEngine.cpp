@@ -22,21 +22,21 @@
 
 static const std::string GEN_XML_PATH = ".ros/robosherlock_generated_xmls";
 
-RSAnalysisEngine::RSAnalysisEngine() : engine(NULL), cas(NULL)
+RSAnalysisEngine::RSAnalysisEngine() : engine_(NULL), cas_(NULL),query_(""),useIdentityResolution_(false)
 {
 }
 
 RSAnalysisEngine::~RSAnalysisEngine()
 {
-  if(cas)
+  if(cas_)
   {
-    delete cas;
-    cas = NULL;
+    delete cas_;
+    cas_ = NULL;
   }
-  if(engine)
+  if(engine_)
   {
-    delete engine;
-    engine = NULL;
+    delete engine_;
+    engine_ = NULL;
   }
 }
 
@@ -103,26 +103,26 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
       delegates[a] = path;
   }
 
-  engine = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
   }
-  const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
+  const uima::AnalysisEngineMetaData &data = engine_->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name_);
 
   // Get a new CAS
   outInfo("Creating a new CAS");
-  cas = engine->newCAS();
+  cas_ = engine_->newCAS();
 
-  if(cas == NULL)
+  if(cas_ == NULL)
   {
     outError("Creating new CAS failed.");
-    engine->destroy();
-    delete engine;
-    engine = NULL;
+    engine_->destroy();
+    delete engine_;
+    engine_ = NULL;
     throw uima::Exception(uima::ErrorMessage(UIMA_ERR_ENGINE_NO_CAS), UIMA_ERR_ENGINE_NO_CAS, uima::ErrorInfo::unrecoverable);
   }
 
@@ -136,16 +136,16 @@ void RSAnalysisEngine::initPipelineManager()
 #ifdef WITH_JSON_PROLOG
   if(parallel_)
   {
-    engine->initParallelPipelineManager();
-    engine->parallelPlanner.print();
+    engine_->initParallelPipelineManager();
+    engine_->parallelPlanner.print();
   }
 #endif
 }
 
 void RSAnalysisEngine::stop()
 {
-  engine->collectionProcessComplete();
-  engine->destroy();
+  engine_->collectionProcessComplete();
+  engine_->destroy();
 
   outInfo("Analysis engine stopped: " << name_);
 }
@@ -157,7 +157,7 @@ void RSAnalysisEngine::process()
   {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
-    cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
+    cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
 
     rs::StopWatch clock;
     outInfo("processing CAS");
@@ -166,22 +166,22 @@ void RSAnalysisEngine::process()
 #ifdef WITH_JSON_PROLOG
       if(parallel_)
       {
-        if(engine->querySuccess)
+        if(engine_->querySuccess)
         {
-          engine->paralleledProcess(*cas);
+          engine_->paralleledProcess(*cas_);
         }
         else
         {
           outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
-          engine->process(*cas);
+          engine_->process(*cas_);
         }
       }
       else
       {
-        engine->process(*cas);
+        engine_->process(*cas_);
       }
 #else
-      engine->process(*cas);
+      engine_->process(*cas);
 #endif
     }
     catch(const rs::FrameFilterException &)

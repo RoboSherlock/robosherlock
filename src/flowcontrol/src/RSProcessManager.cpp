@@ -2,7 +2,8 @@
 
 RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
                                    ros::NodeHandle n, const std::string &savePath):
-  engine_(n), inspectionEngine_(n), nh_(n), waitForServiceCall_(waitForServiceCall),
+  engine_(n), inspectionEngine_(n), nh_(n), it_(nh_),
+  waitForServiceCall_(waitForServiceCall),
   useVisualizer_(useVisualizer), useIdentityResolution_(false),
   pause_(true), inspectFromAR_(false), visualizer_(savePath, !useVisualizer)
 {
@@ -23,11 +24,13 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
     resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
     break;
   }
+
+  //ROS interface declarations
   result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
-
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
-
   visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
+  image_pub_ = it_.advertise("result_image", 1, true);
+  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
 
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);

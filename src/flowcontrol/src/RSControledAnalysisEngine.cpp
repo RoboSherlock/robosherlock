@@ -27,7 +27,7 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, std::vector<std:
 
   this->initPipelineManager();
 
-  std::vector<icu::UnicodeString> &non_const_nodes = engine->getFlowConstraintNodes();
+  std::vector<icu::UnicodeString> &non_const_nodes = engine_->getFlowConstraintNodes();
   std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
   for(int i = 0; i < non_const_nodes.size(); i++)
@@ -78,39 +78,38 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
 {
   std::lock_guard<std::mutex> lock(process_mutex);
   outInfo("executing analisys engine: " << name_);
-  cas->reset();
+  cas_->reset();
   try
   {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
-    cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
+    cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
 
-    rs::SceneCas sceneCas(*cas);
-    rs::Query query = rs::create<rs::Query>(*cas);
-    query.asJson.set(queryString);
+    rs::SceneCas sceneCas(*cas_);
+    rs::Query query = rs::create<rs::Query>(*cas_);
+    query.query.set(queryString);
     sceneCas.set("QUERY", query);
 
     outInfo("processing CAS");
     try
     {
       rs::StopWatch clock;
-
 #ifdef WITH_JSON_PROLOG
       if(parallel_)
       {
-        if(engine->querySuccess)
+        if(engine_->querySuccess)
         {
-          engine->paralleledProcess(*cas);
+          engine_->paralleledProcess(*cas_);
         }
         else
         {
           outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
-          engine->process(*cas);
+          engine_->process(*cas_);
         }
       }
       else
       {
-        engine->process(*cas);
+        engine_->process(*cas_);
       }
 #else
       engine->process(*cas);
@@ -149,16 +148,10 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
   }
 
   // Make a designator from the result
-  rs::DesignatorWrapper dw(cas);
-  if(useIdentityResolution_)
-  {
-    dw.setMode(rs::DesignatorWrapper::OBJECT);
-  }
-  else
-  {
-    dw.setMode(rs::DesignatorWrapper::CLUSTER);
-  }
+  rs::DesignatorWrapper dw(cas_);
+  useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT):dw.setMode(rs::DesignatorWrapper::CLUSTER);
   dw.getObjectDesignators(designatorResponse);
+
   setQuery("");
   outInfo("processing finished");
 }
@@ -169,7 +162,7 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
     std::string &requestJson)
 {
 
-  rs::SceneCas sceneCas(*cas);
+  rs::SceneCas sceneCas(*cas_);
   rs::Scene scene = sceneCas.getScene();
   cv::Mat rgb = cv::Mat::zeros(480, 640, CV_64FC3);
 
@@ -304,39 +297,40 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
     }
   }
 
-  cv_bridge::CvImage outImgMsgs;
-  outImgMsgs.header = cam_info.header;
-  outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
-  outImgMsgs.image = rgb;
+//TODO: migrate this part of the code to some place else; (RSProcessManager perhaps?)
+//  cv_bridge::CvImage outImgMsgs;
+//  outImgMsgs.header = cam_info.header;
+//  outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
+//  outImgMsgs.image = rgb;
 
-  image_pub_.publish(outImgMsgs.toImageMsg());
+//  image_pub_.publish(outImgMsgs.toImageMsg());
 
-  tf::StampedTransform camToWorld;
-  camToWorld.setIdentity();
-  if(scene.viewPoint.has())
-  {
-    rs::conversion::from(scene.viewPoint.get(), camToWorld);
-  }
+//  tf::StampedTransform camToWorld;
+//  camToWorld.setIdentity();
+//  if(scene.viewPoint.has())
+//  {
+//    rs::conversion::from(scene.viewPoint.get(), camToWorld);
+//  }
 
-  Eigen::Affine3d eigenTransform;
-  tf::transformTFToEigen(camToWorld, eigenTransform);
+//  Eigen::Affine3d eigenTransform;
+//  tf::transformTFToEigen(camToWorld, eigenTransform);
 
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
-      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
+//  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
+//      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+//  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
 
 
-  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
-  float leaf_size = 0.005;
-  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
-  vg.setInputCloud(transformed);
-  vg.filter(*dsCloud);
+//  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
+//  float leaf_size = 0.005;
+//  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
+//  vg.setInputCloud(transformed);
+//  vg.filter(*dsCloud);
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
-  pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
-  cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
-  //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  pc_pub_.publish(cloudToAdvertise);
+//  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
+//  pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
+//  cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
+//  //  dispCloud->header.stamp = ros::Time::now().toNSec();
+//  pc_pub_.publish(cloudToAdvertise);
   return true;
 }
 

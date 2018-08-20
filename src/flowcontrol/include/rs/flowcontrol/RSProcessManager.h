@@ -33,9 +33,9 @@ public:
 
   RSControledAnalysisEngine engine_;
   RSControledAnalysisEngine inspectionEngine_;
-  #ifdef WITH_JSON_PROLOG
+#ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
-  #endif
+#endif
 
   mongo::client::GlobalInstance instance;
 
@@ -44,6 +44,10 @@ public:
   ros::ServiceServer service, singleService, setContextService, jsonService, visService;
 
   ros::Publisher result_pub;
+  ros::Publisher pc_pub_;
+  image_transport::Publisher image_pub_;
+  image_transport::ImageTransport it_;
+
 
   bool waitForServiceCall_;
   const bool useVisualizer_;
