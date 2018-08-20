@@ -12,6 +12,11 @@
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/PlatformUtils.hpp>
 
+//YAML parsing
+#include <yaml-cpp/exceptions.h>
+#include <yaml-cpp/mark.h>
+#include <yaml-cpp/yaml.h>
+
 //ros
 #include <ros/package.h>
 

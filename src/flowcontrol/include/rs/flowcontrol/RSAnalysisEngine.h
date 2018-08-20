@@ -24,8 +24,9 @@
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
 #include <rs/utils/exception.h>
-#include <rs/utils/YamlToXMLConverter.h>
-#include <rs/flowcontrol/RSPipelineManager.h>
+
+#include <rs/flowcontrol/YamlToXMLConverter.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -49,9 +50,8 @@ public:
   bool parallel_;
 
 protected:
-  RSAggregatedAnalysisEngine *engine;
+  RSAggregateAnalysisEngine *engine;
   uima::CAS *cas;
-  RSPipelineManager *rspm;
 
 public:
 
@@ -67,6 +67,11 @@ public:
 
   virtual void process();
 
+  uima::TyErrorId parallelProcess(uima::CAS &cas)
+  {
+    return engine->paralleledProcess(cas);
+  }
+
   inline void resetCas()
   {
     cas->reset();
@@ -77,10 +82,18 @@ public:
     return cas;
   }
 
-  RSPipelineManager* getPipelineManager()
+  void setPipelineOrdering(std::vector<std::string> order)
   {
-    return rspm;
+      engine->setPipelineOrdering(order);
   }
+
+  void setParallelOrderings(RSAggregateAnalysisEngine::AnnotatorOrderings orderings,
+                            RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
+  {
+      engine->currentOrderings = orderings;
+      engine->currentOrderingIndices = orderingIndices;
+  }
+
   uima::CAS* newCAS()
   {
     return engine->newCAS();

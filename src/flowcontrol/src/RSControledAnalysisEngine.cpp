@@ -20,14 +20,14 @@
 #include <rs/flowcontrol/RSControledAnalysisEngine.h>
 
 
-void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
+void RSControledAnalysisEngine::init(const std::string &AEFile, std::vector<std::string> &lowLvlPipeline, bool pervasive, bool parallel)
 {
 
   RSAnalysisEngine::init(AEFile, parallel);
 
   this->initPipelineManager();
 
-  std::vector<icu::UnicodeString> &non_const_nodes = rspm->getFlowConstraintNodes();
+  std::vector<icu::UnicodeString> &non_const_nodes = engine->getFlowConstraintNodes();
   std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
   for(int i = 0; i < non_const_nodes.size(); i++)
@@ -39,11 +39,14 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   }
 
 #ifdef WITH_JSON_PROLOG
-  if( ros::service::waitForService("json_prolog/simple_query",ros::Duration(2.0)))
-  {jsonPrologInterface.retractAllAnnotators();
-  jsonPrologInterface.assertAnnotators(fixedFlow);}
-  else{
-      outWarn("Json Prolog is not running! Query answering will not be possible");
+  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
+  {
+    jsonPrologInterface.retractAllAnnotators();
+    jsonPrologInterface.assertAnnotators(fixedFlow);
+  }
+  else
+  {
+    outWarn("Json Prolog is not running! Query answering will not be possible");
   }
 #endif
 
@@ -51,9 +54,8 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, const std::vecto
   {
     //After all annotators have been initialized, pick the default pipeline
     //this stores the pipeline
-    rspm->setDefaultPipelineOrdering(lowLvlPipeline);
-    //this applies it
-    rspm->setPipelineOrdering(lowLvlPipeline);
+    changeLowLevelPipeline(lowLvlPipeline);
+    setNextPipeline(lowLvlPipeline);
   }
 
   // Get a new CAS
@@ -74,6 +76,7 @@ void RSControledAnalysisEngine::process()
 void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResponse,
                                         std::string queryString)
 {
+  std::lock_guard<std::mutex> lock(process_mutex);
   outInfo("executing analisys engine: " << name_);
   cas->reset();
   try
@@ -95,7 +98,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
 #ifdef WITH_JSON_PROLOG
       if(parallel_)
       {
-        if(rspm->querySuccess)
+        if(engine->querySuccess)
         {
           engine->paralleledProcess(*cas);
         }
@@ -156,58 +159,8 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
     dw.setMode(rs::DesignatorWrapper::CLUSTER);
   }
   dw.getObjectDesignators(designatorResponse);
-  outInfo("processing finished");
-}
-
-// Call process() and decide if the pipeline should be reset or not
-void RSControledAnalysisEngine::process(bool reset_pipeline_after_process)
-{
-  std::vector<std::string> designator_results;
-  process(reset_pipeline_after_process, designator_results);
-}
-
-// Call process() and decide if the pipeline should be reset or not
-void RSControledAnalysisEngine::process(bool reset_pipeline_after_process, std::vector<std::string> &designatorResponse)
-{
-  process_mutex->lock();
-  outInfo(FG_CYAN << "process(bool,desig) - LOCK OBTAINED");
-  outInfo("++++++++++++");
-  outInfo(query_);
-  process(designatorResponse, query_);
-  if(reset_pipeline_after_process)
-  {
-    resetPipelineOrdering();  // reset pipeline to default
-  }
   setQuery("");
-  process_mutex->unlock();
-  outInfo(FG_CYAN << "process(bool,desig) - LOCK RELEASED");
-}
-
-
-// Define a pipeline that should be executed,
-// process(reset_pipeline_after_process) everything and
-// decide if the pipeline should be reset or not
-void RSControledAnalysisEngine::process(std::vector<std::string> annotators,
-                                        bool reset_pipeline_after_process,
-                                        std::vector<std::string> &designator_response,
-                                        std::string queryString)
-{
-  process_mutex->lock();
-  setNextPipeline(annotators);
-  applyNextPipeline();
-  process(designator_response, queryString);
-  if(reset_pipeline_after_process)
-    resetPipelineOrdering();  // reset pipeline to default
-  process_mutex->unlock();
-}
-
-// Define a pipeline that should be executed,
-// process(reset_pipeline_after_process) everything and
-// decide if the pipeline should be reset or not
-void RSControledAnalysisEngine::process(std::vector<std::string> annotators, bool reset_pipeline_after_process)
-{
-  std::vector<std::string> designator_response;
-  process(annotators, reset_pipeline_after_process, designator_response, query_);
+  outInfo("processing finished");
 }
 
 template <class T>
@@ -227,7 +180,6 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
   sceneCas.get(VIEW_CLOUD, *dispCloud);
 
-  uint64_t now = sceneCas.getScene().timestamp();
   std::vector<T> clusters;
   if(std::is_same<T, rs::Cluster>::value)
   {

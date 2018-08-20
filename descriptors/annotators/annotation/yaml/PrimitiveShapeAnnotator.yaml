@@ -1,0 +1,8 @@
+annotator:
+  name: PrimitiveShapeAnnotator
+  implementation: rs_PrimitiveShapeAnnotator
+  description: 'Annotate hypotheses with a romitive shape type, one of: box, round or flat'
+capabilities:
+  inputs: ['rs.scene.MergedCluster','rs.annotation.Geometry','rs.annotation.Plane','rs.pcl.NormalsCloud']
+  outputs: ['rs.annotation.Shape']
+  domain: ['box','round','flat']
