@@ -107,7 +107,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   engine_->setParallel(parallel);
 
 #ifdef WITH_JSON_PROLOG
-  if(parallel_)
+  if(parallel)
   {
     engine_->initParallelPipelineManager();
     engine_->parallelPlanner.print();
