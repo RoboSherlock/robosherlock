@@ -63,8 +63,6 @@ public:
 
   void init(const std::string &file, bool parallel=false);
 
-  void initPipelineManager();
-
   void stop();
 
   virtual void process();

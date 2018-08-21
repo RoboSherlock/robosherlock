@@ -11,8 +11,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   outInfo("Creating resource manager");
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
-  switch(OUT_LEVEL)
-  {
+  switch(OUT_LEVEL) {
   case OUT_LEVEL_NOOUT:
   case OUT_LEVEL_ERROR:
     resourceManager.setLoggingLevel(uima::LogStream::EnError);
@@ -30,7 +29,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
   image_pub_ = it_.advertise("result_image", 1, true);
-  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5 );
+  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
@@ -52,27 +51,22 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
 #endif
   this->configFile_ = configFile;
 
-  try
-  {
+  try {
     cv::FileStorage fs(cv::String(configFile), cv::FileStorage::READ);
 
-    if(lowLvlPipeline_.empty()) //if not set programatically, load from a config file
-    {
+    if(lowLvlPipeline_.empty()) { //if not set programatically, load from a config file
       cv::FileNode n = fs["annotators"];
-      if(n.type() != cv::FileNode::SEQ)
-      {
+      if(n.type() != cv::FileNode::SEQ) {
         outError("Annotators missing from config file");
       }
       cv::FileNodeIterator it = n.begin(), it_end = n.end(); // Go through the node
-      for(; it != it_end; ++it)
-      {
+      for(; it != it_end; ++it) {
         lowLvlPipeline_.push_back(*it);
       }
     }
     fs.release();
   }
-  catch(cv::Exception &e)
-  {
+  catch(cv::Exception &e) {
     outWarn("No low-level pipeline defined. Setting empty!");
   }
 
@@ -81,8 +75,7 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
   parallel_ = parallel;
 
   visualizer_.start();
-  if(pervasive)
-  {
+  if(pervasive) {
     visualizer_.setActiveAnnotators(lowLvlPipeline_);
   }
   outInfo("done intializing");
@@ -100,16 +93,13 @@ void RSProcessManager::setInspectionAE(std::string inspectionAEPath)
 
 void RSProcessManager::run()
 {
-  for(; ros::ok();)
-  {
+  for(; ros::ok();) {
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if(waitForServiceCall_ || pause_)
-      {
+      if(waitForServiceCall_ || pause_) {
         usleep(100000);
       }
-      else
-      {
+      else {
         engine_.process();
       }
     }
@@ -132,17 +122,14 @@ bool RSProcessManager::visControlCallback(robosherlock_msgs::RSVisControl::Reque
   std::string command = req.command;
   bool result = true;
   std::string activeAnnotator = "";
-  if(command == "next")
-  {
+  if(command == "next") {
     activeAnnotator = visualizer_.nextAnnotator();
 
   }
-  else if(command == "previous")
-  {
+  else if(command == "previous") {
     activeAnnotator = visualizer_.prevAnnotator();
   }
-  else if(command != "")
-  {
+  else if(command != "") {
     activeAnnotator = visualizer_.selectAnnotator(command);
   }
   if(activeAnnotator == "")
@@ -159,12 +146,10 @@ bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request 
 {
   std::string newContextName = req.newAe;
 
-  if(resetAE(newContextName))
-  {
+  if(resetAE(newContextName)) {
     return true;
   }
-  else
-  {
+  else {
     outError("Contexts need to have a an AE defined");
     outInfo("releasing lock");
     processing_mutex_.unlock();
@@ -175,22 +160,19 @@ bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request 
 bool RSProcessManager::resetAE(std::string newContextName)
 {
   std::string contextAEPath;
-  if(rs::common::getAEPaths(newContextName, contextAEPath))
-  {
+  if(rs::common::getAEPaths(newContextName, contextAEPath)) {
     outInfo("Setting new context: " << newContextName);
     cv::FileStorage fs(cv::String(configFile_), cv::FileStorage::READ);
 
     cv::FileNode n = fs["annotators"];
-    if(n.type() != cv::FileNode::SEQ)
-    {
+    if(n.type() != cv::FileNode::SEQ) {
       outError("Somethings wrong with pipeline definition");
       return 1;
     }
 
     std::vector<std::string> lowLvlPipeline;
     cv::FileNodeIterator it = n.begin(), it_end = n.end(); // Go through the node
-    for(; it != it_end; ++it)
-    {
+    for(; it != it_end; ++it) {
       lowLvlPipeline.push_back(*it);
     }
 
@@ -204,8 +186,7 @@ bool RSProcessManager::resetAE(std::string newContextName)
 
     return true;
   }
-  else
-  {
+  else {
     return false;
   }
 }
@@ -226,8 +207,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
-    if(queryType == QueryInterface::QueryType::DETECT)
-    {
+    if(queryType == QueryInterface::QueryType::DETECT) {
       std::vector<std::string> resultDesignators;
 
 
@@ -248,26 +228,29 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
       queryInterface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
+      cv::Mat resImage;
+      if(useIdentityResolution_) {
+        engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);
+      }
+      else {
+        engine_.drawResulstOnImage<rs::Cluster>(desigsToKeep, resultDesignators, request, resImage);
+      }
 
-      if(useIdentityResolution_)
-      {
-        engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request);
-      }
-      else
-      {
-        engine_.drawResulstOnImage<rs::Cluster>(desigsToKeep, resultDesignators, request);
-      }
+      cv_bridge::CvImage outImgMsgs;
+//      outImgMsgs.header = cam_info.header;
+      outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
+      outImgMsgs.image = resImage;
+      image_pub_.publish(outImgMsgs.toImageMsg());
 
       result.insert(result.end(), filteredResponse.begin(), filteredResponse.end());
-
       robosherlock_msgs::RSObjectDescriptions objDescriptions;
       objDescriptions.obj_descriptions = result;
       result_pub.publish(objDescriptions);
 
       return true;
     }
-    else if(queryType == QueryInterface::QueryType::INSPECT){
-      if(!newPipelineOrder.empty()){
+    else if(queryType == QueryInterface::QueryType::INSPECT) {
+      if(!newPipelineOrder.empty()) {
         outInfo("planned new pipeline: ");
         for(auto s : newPipelineOrder)
           outInfo(s);
@@ -299,8 +282,7 @@ bool RSProcessManager::renderOffscreen(std::string object)
                                                "GetRenderedViews"
                                               };
 
-  std::for_each(newPipelineOrder.begin(), newPipelineOrder.end(), [](std::string & p)
-  {
+  std::for_each(newPipelineOrder.begin(), newPipelineOrder.end(), [](std::string & p) {
     outInfo(p);
   });
   std::vector<std::string> resultDesignators;

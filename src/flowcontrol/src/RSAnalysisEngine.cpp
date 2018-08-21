@@ -104,6 +104,15 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
   }
 
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  engine_->setParallel(parallel);
+
+#ifdef WITH_JSON_PROLOG
+  if(parallel_)
+  {
+    engine_->initParallelPipelineManager();
+    engine_->parallelPlanner.print();
+  }
+#endif
 
   if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
@@ -127,19 +136,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel)
   }
 
   parallel_ = parallel;
-}
-
-
-//TODO make this default in init
-void RSAnalysisEngine::initPipelineManager()
-{ 
-#ifdef WITH_JSON_PROLOG
-  if(parallel_)
-  {
-    engine_->initParallelPipelineManager();
-    engine_->parallelPlanner.print();
-  }
-#endif
 }
 
 void RSAnalysisEngine::stop()

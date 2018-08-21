@@ -63,15 +63,6 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
   std::string req = strBuff.GetString();
 
-  if(rs::DesignatorWrapper::req_designator)
-  {
-    delete rs::DesignatorWrapper::req_designator;
-  }
-
-  rs::DesignatorWrapper::req_designator = new rapidjson::Document();
-  rs::DesignatorWrapper::req_designator->Parse(req.c_str());
-  rs::DesignatorWrapper::req_designator->AddMember("type", "action", rs::DesignatorWrapper::req_designator->GetAllocator());
-
   std::vector<std::string> keys;
   std::vector<std::string> new_pipeline_order;
   jsonPrologInterface->extractQueryKeysFromDesignator(&req, keys);

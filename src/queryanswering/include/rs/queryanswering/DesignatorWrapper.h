@@ -34,9 +34,6 @@ public:
   };
 
   DesignatorProcessMode mode;
-  // Pointer to the one persistent object
-  static rapidjson::Document *req_designator;
-  static rapidjson::Document *res_designator;
 
   uint64_t now;
   uima::CAS *tcas;

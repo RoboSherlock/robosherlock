@@ -6,9 +6,6 @@
 #include <rs/queryanswering/DesignatorWrapper.h>
 #include <rs/scene_cas.h>
 
-#include <image_transport/image_transport.h>
-#include <cv_bridge/cv_bridge.h>
-#include <sensor_msgs/image_encodings.h>
 #include <std_msgs/String.h>
 
 #include <pcl_ros/point_cloud.h>
@@ -58,6 +55,7 @@ public:
   template <class T>
   bool drawResulstOnImage(const std::vector<bool> &filter,
                           const std::vector<std::string> &resultDesignators,
-                          std::string &requestJson);
+                          std::string &requestJson,
+                          cv::Mat &resImage);
 };
 #endif // RSCONTROLEDANALYSISENGINE_H

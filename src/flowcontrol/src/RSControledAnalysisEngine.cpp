@@ -25,13 +25,10 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, std::vector<std:
 
   RSAnalysisEngine::init(AEFile, parallel);
 
-  this->initPipelineManager();
-
   std::vector<icu::UnicodeString> &non_const_nodes = engine_->getFlowConstraintNodes();
   std::vector<std::string> fixedFlow;
   outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
-  for(int i = 0; i < non_const_nodes.size(); i++)
-  {
+  for(int i = 0; i < non_const_nodes.size(); i++) {
     std::string tempString;
     non_const_nodes.at(i).toUTF8String(tempString);
     outInfo(tempString);
@@ -39,19 +36,16 @@ void RSControledAnalysisEngine::init(const std::string &AEFile, std::vector<std:
   }
 
 #ifdef WITH_JSON_PROLOG
-  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
-  {
+  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0))) {
     jsonPrologInterface.retractAllAnnotators();
     jsonPrologInterface.assertAnnotators(fixedFlow);
   }
-  else
-  {
+  else {
     outWarn("Json Prolog is not running! Query answering will not be possible");
   }
 #endif
 
-  if(pervasive)
-  {
+  if(pervasive) {
     //After all annotators have been initialized, pick the default pipeline
     //this stores the pipeline
     changeLowLevelPipeline(lowLvlPipeline);
@@ -79,8 +73,7 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
   std::lock_guard<std::mutex> lock(process_mutex);
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
-  try
-  {
+  try {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
     cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
@@ -91,77 +84,71 @@ void RSControledAnalysisEngine::process(std::vector<std::string> &designatorResp
     sceneCas.set("QUERY", query);
 
     outInfo("processing CAS");
-    try
-    {
+    try {
       rs::StopWatch clock;
 #ifdef WITH_JSON_PROLOG
-      if(parallel_)
-      {
-        if(engine_->querySuccess)
-        {
+      if(parallel_) {
+        if(engine_->querySuccess) {
           engine_->paralleledProcess(*cas_);
         }
-        else
-        {
+        else {
           outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
           engine_->process(*cas_);
         }
       }
-      else
-      {
+      else {
         engine_->process(*cas_);
       }
 #else
-      engine->process(*cas);
+      engine_->process(*cas);
 #endif
 
       counter_++;
       totalTime_ += clock.getTime();
     }
-    catch(const rs::FrameFilterException &)
-    {
+    catch(const rs::FrameFilterException &) {
       //we could handle image logging here
       //handle extra pipeline here->signal thread that we can start processing
       outError("Got Interrputed with Frame Filter, not time here");
     }
-    if(counter_ > 0)
-    {
+    if(counter_ > 0) {
       outWarn("Avg processing time: " << totalTime_ / counter_);
       outWarn("Frames processed: " << counter_);
     }
   }
-  catch(const rs::Exception &e)
-  {
+  catch(const rs::Exception &e) {
     outError("Exception: " << std::endl << e.what());
   }
-  catch(const uima::Exception &e)
-  {
+  catch(const uima::Exception &e) {
     outError("Exception: " << std::endl << e);
   }
-  catch(const std::exception &e)
-  {
+  catch(const std::exception &e) {
     outError("Exception: " << std::endl << e.what());
   }
-  catch(...)
-  {
+  catch(...) {
     outError("Unknown exception!");
   }
 
   // Make a designator from the result
   rs::DesignatorWrapper dw(cas_);
-  useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT):dw.setMode(rs::DesignatorWrapper::CLUSTER);
+  useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
   dw.getObjectDesignators(designatorResponse);
 
   setQuery("");
   outInfo("processing finished");
 }
 
+
 template <class T>
 bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson)
+    std::string &requestJson, cv::Mat &outImg)
 {
 
+  if(filter.size() != resultDesignators.size()) {
+    outError("Filter and results descriptions sizes don't match");
+    return false;
+  }
   rs::SceneCas sceneCas(*cas_);
   rs::Scene scene = sceneCas.getScene();
   cv::Mat rgb = cv::Mat::zeros(480, 640, CV_64FC3);
@@ -174,31 +161,26 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
   sceneCas.get(VIEW_CLOUD, *dispCloud);
 
   std::vector<T> clusters;
-  if(std::is_same<T, rs::Cluster>::value)
-  {
+  if(std::is_same<T, rs::Cluster>::value) {
     scene.identifiables.filter(clusters);
   }
-  else
-  {
+  else {
     sceneCas.get(VIEW_OBJECTS, clusters);
   }
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if(clusters.size() != resultDesignators.size())
-  {
+  if(clusters.size() != resultDesignators.size()) {
     outInfo("Undefined behaviour");
     return false;
   }
-  for(int i = 0; i < filter.size(); ++i)
-  {
+  for(int i = 0; i < filter.size(); ++i) {
     if(!filter[i]) continue;
 
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
-    if(desig.HasMember("id"))
-    {
+    if(desig.HasMember("id")) {
       std::string cID(desig["id"].GetString());
       int clusterId = std::atoi(cID.c_str());
 
@@ -213,71 +195,30 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
 
       //Color points in Point Cloud
       pcl::PointIndicesPtr inliers(new pcl::PointIndices());
-      if(clusters[clusterId].points.has())
-      {
+      if(clusters[clusterId].points.has()) {
         rs::conversion::from(((rs::ReferenceClusterPoints)clusters[clusterId].points()).indices(), *inliers);
-        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx)
-        {
+        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx) {
           dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
           dispCloud->points[inliers->indices[idx]].a = 255;
         }
       }
       colorIdx++;
     }
-    if(desig.HasMember("handle"))
-    {
-      std::string handleKvp = desig["handle"].GetString();
-
-      if(handleKvp != NULL)
-      {
-        //color the pixels of the handle
-        std::vector<rs::HandleAnnotation> handles;
-        scene.annotations.filter(handles);
-        for(int i = 0; i < handles.size(); ++i)
-        {
-          outInfo("Actual name: " << handles[i].name());
-          outInfo("Queried name: " << handleKvp);
-          if(handles[i].name() == handleKvp)
-          {
-            pcl::PointIndices indices;
-            rs::conversion::from(handles[i].indices(), indices);
-            outInfo("Number of inliers in handle " << i << ": " << indices.indices.size());
-            for(int j = 0; j < indices.indices.size(); ++j)
-            {
-              int idx = indices.indices[j];
-              cv::Vec3b new_color;
-              new_color[0] = 0;
-              new_color[0] = 0;
-              new_color[0] = 255;
-              rgb.at<cv::Vec3b>(cv::Point(idx % 640, idx / 640)) = new_color;
-
-              dispCloud->points[indices.indices[j]].rgba = rs::common::colors[i % rs::common::numberOfColors];
-              dispCloud->points[indices.indices[j]].a = 255;
-            }
-          }
-        }
-      }
-    }
   }
 
   rapidjson::Document request;
   request.Parse(requestJson.c_str());
-  if(request.HasMember("obj-part"))
-  {
-    for(int i = 0; i < clusters.size(); ++i)
-    {
+  if(request.HasMember("obj-part")) {
+    for(int i = 0; i < clusters.size(); ++i) {
       rs::Cluster &cluster = clusters[i];
       std::vector<rs::ClusterPart> parts;
       cluster.annotations.filter(parts);
-      for(int pIdx = 0; pIdx < parts.size(); ++pIdx)
-      {
+      for(int pIdx = 0; pIdx < parts.size(); ++pIdx) {
         rs::ClusterPart &part = parts[pIdx];
-        if(part.name() == request["obj-part"] || request["obj-part"] == "")
-        {
+        if(part.name() == request["obj-part"] || request["obj-part"] == "") {
           pcl::PointIndices indices;
           rs::conversion::from(part.indices(), indices);
-          for(int iIdx = 0; iIdx < indices.indices.size(); ++iIdx)
-          {
+          for(int iIdx = 0; iIdx < indices.indices.size(); ++iIdx) {
             int idx = indices.indices[iIdx];
             rgb.at<cv::Vec3b>(cv::Point(idx % cam_info.width, idx / cam_info.width)) = rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
             dispCloud->points[idx].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
@@ -288,57 +229,49 @@ bool RSControledAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filt
       }
     }
   }
-  if(request.HasMember("ingredient") || request.HasMember("cad-model"))
-  {
-    if(sceneCas.has("VIEW_DISPLAY_IMAGE"))
-    {
+  if(request.HasMember("cad-model")) {
+    if(sceneCas.has("VIEW_DISPLAY_IMAGE")) {
       outInfo("Scene has a display image");
       sceneCas.get("VIEW_DISPLAY_IMAGE", rgb);
     }
   }
-
-//TODO: migrate this part of the code to some place else; (RSProcessManager perhaps?)
-//  cv_bridge::CvImage outImgMsgs;
-//  outImgMsgs.header = cam_info.header;
-//  outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
-//  outImgMsgs.image = rgb;
-
-//  image_pub_.publish(outImgMsgs.toImageMsg());
-
-//  tf::StampedTransform camToWorld;
-//  camToWorld.setIdentity();
-//  if(scene.viewPoint.has())
-//  {
-//    rs::conversion::from(scene.viewPoint.get(), camToWorld);
-//  }
-
-//  Eigen::Affine3d eigenTransform;
-//  tf::transformTFToEigen(camToWorld, eigenTransform);
-
-//  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
-//      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-//  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
+  outImg = rgb.clone();
 
 
-//  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
-//  float leaf_size = 0.005;
-//  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
-//  vg.setInputCloud(transformed);
-//  vg.filter(*dsCloud);
+  //  tf::StampedTransform camToWorld;
+  //  camToWorld.setIdentity();
+  //  if(scene.viewPoint.has())
+  //  {
+  //    rs::conversion::from(scene.viewPoint.get(), camToWorld);
+  //  }
 
-//  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
-//  pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
-//  cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
-//  //  dispCloud->header.stamp = ros::Time::now().toNSec();
-//  pc_pub_.publish(cloudToAdvertise);
+  //  Eigen::Affine3d eigenTransform;
+  //  tf::transformTFToEigen(camToWorld, eigenTransform);
+
+  //  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
+  //      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+  //  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
+
+
+  //  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
+  //  float leaf_size = 0.005;
+  //  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
+  //  vg.setInputCloud(transformed);
+  //  vg.filter(*dsCloud);
+
+  //  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
+  //  pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
+  //  cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
+  //  //  dispCloud->header.stamp = ros::Time::now().toNSec();
+  //  pc_pub_.publish(cloudToAdvertise);
   return true;
 }
 
 template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson);
+    std::string &requestJson, cv::Mat &resImage);
 
 template bool RSControledAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson);
+    std::string &requestJson,cv::Mat &resImage);
 

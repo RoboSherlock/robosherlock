@@ -20,7 +20,6 @@ protected:
     {
       rs::common::getAEPaths("u_test",engineFile);
       engine.init(engineFile, false); // do not run parallel for now
-      engine.initPipelineManager();
     }
 
     virtual void TearDown()
