@@ -122,7 +122,7 @@ public:
 
   /*brief
    * Create a vector of Annotator Names from the result of the knowrob_rs library.
-   * This vector can be used as input for RSControledAnalysisEngine::setNextPipelineOrder
+   * This vector can be used as input for RSAnalysisEngine::setNextPipelineOrder
    */
   std::vector<std::string> createPipelineFromPrologResult(std::string result);
 
