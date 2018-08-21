@@ -1,7 +1,7 @@
 #ifndef __RSPROCESS_MANAGER_H__
 #define __RSPROCESS_MANAGER_H__
 
-#include <rs/flowcontrol/RSControledAnalysisEngine.h>
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/queryanswering/KRDefinitions.h>
 
 #ifdef WITH_JSON_PROLOG
@@ -25,17 +25,23 @@
 
 #include <std_srvs/Trigger.h>
 
+#include <image_transport/image_transport.h>
+#include <cv_bridge/cv_bridge.h>
+#include <sensor_msgs/image_encodings.h>
+
+#include <pcl_ros/point_cloud.h>
+
 //TODO: Make this the ROS communication interface class
 class RSProcessManager
 {
 
 public:
 
-  RSControledAnalysisEngine engine_;
-  RSControledAnalysisEngine inspectionEngine_;
-  #ifdef WITH_JSON_PROLOG
+  RSAnalysisEngine engine_;
+  RSAnalysisEngine inspectionEngine_;
+#ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
-  #endif
+#endif
 
   mongo::client::GlobalInstance instance;
 
@@ -44,6 +50,10 @@ public:
   ros::ServiceServer service, singleService, setContextService, jsonService, visService;
 
   ros::Publisher result_pub;
+  ros::Publisher pc_pub_;
+  image_transport::Publisher image_pub_;
+  image_transport::ImageTransport it_;
+
 
   bool waitForServiceCall_;
   const bool useVisualizer_;

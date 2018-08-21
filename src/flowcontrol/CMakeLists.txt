@@ -2,7 +2,6 @@ project(rs_flowcontrol)
 
 add_library(rs_flowcontrol
     src/RSAnalysisEngine.cpp
-    src/RSControledAnalysisEngine.cpp
     src/RSProcessManager.cpp
     src/RSParallelPipelinePlanner.cpp
     src/RSAggregateAnalysisEngine.cpp

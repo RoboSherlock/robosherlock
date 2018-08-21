@@ -73,6 +73,10 @@ public:
   std::vector<icu::UnicodeString> &getFlowConstraintNodes();
 
 
+  inline void setParallel(bool f){
+      parallel_ = f;
+  }
+
   void resetPipelineOrdering();
 
 
@@ -117,9 +121,9 @@ private:
   std::vector<std::string> default_pipeline_annotators;
   uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
 
-#ifdef WITH_JSON_PROLOG
   bool parallel_;
 
+#ifdef WITH_JSON_PROLOG
   std::shared_ptr<JsonPrologInterface> queryInterface;
 
   RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;

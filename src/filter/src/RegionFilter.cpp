@@ -178,10 +178,10 @@ private:
     regionsToLookAt.assign(defaultRegions.begin(), defaultRegions.end());
     regions.clear();
 
-    if(cas.getFS("QUERY", qs) && qs.asJson() != "")
+    if(cas.getFS("QUERY", qs) && qs.query() != "")
     {
       rapidjson::Document jsonDoc;
-      std::string jsonString  = qs.asJson();
+      std::string jsonString  = qs.query();
       jsonDoc.Parse(jsonString);
       outWarn("query in CAS : " << jsonString);
 
