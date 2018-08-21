@@ -2,7 +2,7 @@
 
 RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
                                    ros::NodeHandle n, const std::string &savePath):
-  engine_(n), inspectionEngine_(n), nh_(n), it_(nh_),
+  engine_(), inspectionEngine_(), nh_(n), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
   useVisualizer_(useVisualizer), useIdentityResolution_(false),
   pause_(true), inspectFromAR_(false), visualizer_(savePath, !useVisualizer)
@@ -29,7 +29,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
   image_pub_ = it_.advertise("result_image", 1, true);
-  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
+//  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
@@ -70,7 +70,7 @@ void RSProcessManager::init(std::string &xmlFile, std::string configFile, bool p
     outWarn("No low-level pipeline defined. Setting empty!");
   }
 
-  engine_.init(xmlFile, lowLvlPipeline_, pervasive, parallel);
+  engine_.init(xmlFile, parallel, pervasive , lowLvlPipeline_);
 
   parallel_ = parallel;
 
@@ -87,7 +87,7 @@ void RSProcessManager::setInspectionAE(std::string inspectionAEPath)
   outInfo("initializing inspection AE");
   std::vector<std::string> llvlp;
   llvlp.push_back("CollectionReader");
-  inspectionEngine_.init(inspectionAEPath, llvlp, false, parallel_); // set parallel false for now, need discussion for future use of parallel execution
+  inspectionEngine_.init(inspectionAEPath, parallel_,false, llvlp); // set parallel false for now, need discussion for future use of parallel execution
 }
 
 
@@ -237,7 +237,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       }
 
       cv_bridge::CvImage outImgMsgs;
-//      outImgMsgs.header = cam_info.header;
+      //      outImgMsgs.header = cam_info.header;
       outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
       outImgMsgs.image = resImage;
       image_pub_.publish(outImgMsgs.toImageMsg());

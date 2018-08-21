@@ -1,7 +1,7 @@
 #ifndef __RSPROCESS_MANAGER_H__
 #define __RSPROCESS_MANAGER_H__
 
-#include <rs/flowcontrol/RSControledAnalysisEngine.h>
+#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/queryanswering/KRDefinitions.h>
 
 #ifdef WITH_JSON_PROLOG
@@ -35,8 +35,8 @@ class RSProcessManager
 
 public:
 
-  RSControledAnalysisEngine engine_;
-  RSControledAnalysisEngine inspectionEngine_;
+  RSAnalysisEngine engine_;
+  RSAnalysisEngine inspectionEngine_;
 #ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
 #endif

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef RSANALYSISENGINE_H
 #define RSANALYSISENGINE_H
 
@@ -27,6 +26,9 @@
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+
+#include <rs/queryanswering/JsonPrologInterface.h>
+#include <rs/queryanswering/DesignatorWrapper.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -55,17 +57,25 @@ protected:
   RSAggregateAnalysisEngine *engine_;
   uima::CAS *cas_;
 
+#ifdef WITH_JSON_PROLOG
+  JsonPrologInterface jsonPrologInterface;
+#endif
+
 public:
 
   RSAnalysisEngine();
 
   ~RSAnalysisEngine();
 
-  void init(const std::string &file, bool parallel=false);
+  void init(const std::string &file, bool parallel=false,
+            bool pervasive=false,std::vector<std::string> contPipeline = {});
 
   void stop();
 
   virtual void process();
+
+  void process(std::vector<std::string> &designator_response,
+               std::string query);
 
   uima::TyErrorId parallelProcess(uima::CAS &cas)
   {
@@ -81,6 +91,7 @@ public:
   {
     return cas_;
   }
+
 
   void setPipelineOrdering(std::vector<std::string> order)
   {
@@ -216,5 +227,12 @@ public:
 
   void getFixedFlow(const std::string filePath,
                     std::vector<std::string>& annotators);
+
+  //draw results on an image
+  template <class T>
+  bool drawResulstOnImage(const std::vector<bool> &filter,
+                          const std::vector<std::string> &resultDesignators,
+                          std::string &requestJson,
+                          cv::Mat &resImage);
  };
 #endif // RSANALYSISENGINE_H
