@@ -29,7 +29,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
   image_pub_ = it_.advertise("result_image", 1, true);
-//  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
+  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
   jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
@@ -229,11 +229,15 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       queryInterface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
       cv::Mat resImage;
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud (new pcl::PointCloud<pcl::PointXYZRGBA>());
+
       if(useIdentityResolution_) {
         engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);
+        engine_.highlightResultsInCloud<rs::Object>(desigsToKeep, resultDesignators, request, dispCloud);
       }
       else {
         engine_.drawResulstOnImage<rs::Cluster>(desigsToKeep, resultDesignators, request, resImage);
+        engine_.highlightResultsInCloud<rs::Cluster>(desigsToKeep, resultDesignators, request, dispCloud);
       }
 
       cv_bridge::CvImage outImgMsgs;
@@ -241,6 +245,8 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       outImgMsgs.encoding = sensor_msgs::image_encodings::BGR8;
       outImgMsgs.image = resImage;
       image_pub_.publish(outImgMsgs.toImageMsg());
+
+      pc_pub_.publish(dispCloud);
 
       result.insert(result.end(), filteredResponse.begin(), filteredResponse.end());
       robosherlock_msgs::RSObjectDescriptions objDescriptions;

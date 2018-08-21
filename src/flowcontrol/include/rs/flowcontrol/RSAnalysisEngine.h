@@ -43,11 +43,16 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <tf_conversions/tf_eigen.h>
+
+#include <pcl_ros/point_cloud.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/common/transforms.h>
 
 class RSAnalysisEngine
 {
 
-public:    
+public:
   std::string name_;
   bool parallel_, useIdentityResolution_;
   std::vector<std::string> next_pipeline_order;
@@ -200,7 +205,7 @@ public:
    uima::AnnotatorContext &annotContext = getAnnotatorContext();
    UnicodeString ucs_delegate(annotName.c_str());
    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),param); 
+   cr_context->assignValue(UnicodeString(paramName.c_str()),param);
   }
 
   //Ease case for the user
@@ -222,7 +227,7 @@ public:
     conversionString.push_back(UnicodeString(i.c_str()));
    }
    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString); 
+   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString);
   }
 
   void getFixedFlow(const std::string filePath,
@@ -234,5 +239,11 @@ public:
                           const std::vector<std::string> &resultDesignators,
                           std::string &requestJson,
                           cv::Mat &resImage);
+
+  template <class T>
+  bool highlightResultsInCloud(const std::vector<bool> &filter,
+      const std::vector<std::string> &resultDesignators,
+      std::string & requestJson,
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
  };
 #endif // RSANALYSISENGINE_H

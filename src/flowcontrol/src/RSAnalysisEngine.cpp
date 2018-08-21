@@ -22,19 +22,17 @@
 
 static const std::string GEN_XML_PATH = ".ros/robosherlock_generated_xmls";
 
-RSAnalysisEngine::RSAnalysisEngine() : useIdentityResolution_(false),query_(""),engine_(NULL), cas_(NULL)
+RSAnalysisEngine::RSAnalysisEngine() : useIdentityResolution_(false), query_(""), engine_(NULL), cas_(NULL)
 {
 }
 
 RSAnalysisEngine::~RSAnalysisEngine()
 {
-  if(cas_)
-  {
+  if(cas_) {
     delete cas_;
     cas_ = NULL;
   }
-  if(engine_)
-  {
+  if(engine_) {
     delete engine_;
     engine_ = NULL;
   }
@@ -53,26 +51,21 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   std::vector<std::string> annotators;
   getFixedFlow(file, annotators);
 
-  for(std::string &a : annotators)
-  {
+  for(std::string &a : annotators) {
     std::string path = rs::common::getAnnotatorPath(a);
     // If the path is yaml file, we need to convert it to xml
-    if(boost::algorithm::ends_with(path, "yaml"))
-    {
+    if(boost::algorithm::ends_with(path, "yaml")) {
 
       YamlToXMLConverter converter(path);
-      try
-      {
+      try {
         converter.parseYamlFile();
       }
-      catch(YAML::ParserException e)
-      {
+      catch(YAML::ParserException e) {
         outError("Exception happened when parsing the yaml file: " << path);
         outError(e.what());
       }
 
-      try
-      {
+      try {
         boost::filesystem::path p(path);
 
         // To Get $HOME path
@@ -88,13 +81,11 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
         of.close();
         delegates[a] = xmlPath;
       }
-      catch(std::runtime_error &e)
-      {
+      catch(std::runtime_error &e) {
         outError("Exception happened when creating the output file: " << e.what());
         return;
       }
-      catch(std::exception &e)
-      {
+      catch(std::exception &e) {
         outError("Exception happened when creating the output file: " << e.what());
         return;
       }
@@ -107,15 +98,13 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   engine_->setParallel(parallel);
 
 #ifdef WITH_JSON_PROLOG
-  if(parallel)
-  {
+  if(parallel) {
     engine_->initParallelPipelineManager();
     engine_->parallelPlanner.print();
   }
 #endif
 
-  if(errorInfo.getErrorId() != UIMA_ERR_NONE)
-  {
+  if(errorInfo.getErrorId() != UIMA_ERR_NONE) {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
   }
@@ -126,8 +115,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   outInfo("Creating a new CAS");
   cas_ = engine_->newCAS();
 
-  if(cas_ == NULL)
-  {
+  if(cas_ == NULL) {
     outError("Creating new CAS failed.");
     engine_->destroy();
     delete engine_;
@@ -188,39 +176,32 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 {
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
-  try
-  {
+  try {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
     cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
 
     rs::StopWatch clock;
     outInfo("processing CAS");
-    try
-    {
+    try {
 #ifdef WITH_JSON_PROLOG
-      if(parallel_)
-      {
-        if(engine_->querySuccess)
-        {
+      if(parallel_) {
+        if(engine_->querySuccess) {
           engine_->paralleledProcess(*cas_);
         }
-        else
-        {
+        else {
           outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
           engine_->process(*cas_);
         }
       }
-      else
-      {
+      else {
         engine_->process(*cas_);
       }
 #else
       engine_->process(*cas_);
 #endif
     }
-    catch(const rs::FrameFilterException &)
-    {
+    catch(const rs::FrameFilterException &) {
       //we could handle image logging here
       //handle extra pipeline here->signal thread that we can start processing
       outError("Got Interrputed with Frame Filter, not time here");
@@ -230,20 +211,16 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
     outInfo(clock.getTime() << " ms." << std::endl << std::endl << FG_YELLOW
             << "********************************************************************************" << std::endl);
   }
-  catch(const rs::Exception &e)
-  {
+  catch(const rs::Exception &e) {
     outError("Exception: " << std::endl << e.what());
   }
-  catch(const uima::Exception &e)
-  {
+  catch(const uima::Exception &e) {
     outError("Exception: " << std::endl << e);
   }
-  catch(const std::exception &e)
-  {
+  catch(const std::exception &e) {
     outError("Exception: " << std::endl << e.what());
   }
-  catch(...)
-  {
+  catch(...) {
     outError("Unknown exception!");
   }
 
@@ -258,8 +235,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 void RSAnalysisEngine::getFixedFlow(const std::string filePath,
                                     std::vector<std::string> &annotators)
 {
-  try
-  {
+  try {
     std::ifstream fs(filePath);
     size_t pos, pos_;
 
@@ -269,41 +245,34 @@ void RSAnalysisEngine::getFixedFlow(const std::string filePath,
 
     if((pos = content.find("<fixedFlow>")) != std::string::npos)
       content = content.substr(pos + 11);
-    else
-    {
+    else {
       outError("There is no Fixed Flow specified in the given AE xml file.");
     }
 
     if((pos_ = content.find("</fixedFlow>")) != std::string::npos)
       content = content.substr(0, pos_);
-    else
-    {
+    else {
       outError("There is no </fixedFlow> tag in the given xml file.");
     }
 
     pos = 0;
-    while(pos < content.size())
-    {
+    while(pos < content.size()) {
       if((pos = content.find("<node>", pos)) == std::string::npos)
         break;
-      else
-      {
+      else {
         pos += 6;
-        if((pos_ = content.find("</node>", pos)) != std::string::npos)
-        {
+        if((pos_ = content.find("</node>", pos)) != std::string::npos) {
           std::string anno = content.substr(pos, pos_ - pos);
           annotators.push_back(anno);
           pos = pos_ + 7;
         }
-        else
-        {
+        else {
           outError("There is no </node> tag in the given xml file.");
         }
       }
     }
   }
-  catch(std::exception &e)
-  {
+  catch(std::exception &e) {
     outError("Exception happened when reading the file: " << e.what());
   }
 }
@@ -323,12 +292,10 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
   rs::Scene scene = sceneCas.getScene();
   cv::Mat rgb = cv::Mat::zeros(480, 640, CV_64FC3);
 
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
   sensor_msgs::CameraInfo cam_info;
 
   sceneCas.get(VIEW_COLOR_IMAGE, rgb);
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
-  sceneCas.get(VIEW_CLOUD, *dispCloud);
 
   std::vector<T> clusters;
   if(std::is_same<T, rs::Cluster>::value) {
@@ -362,16 +329,6 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
       std::stringstream clusterName;
       clusterName << "cID_" << clusterId;
       cv::putText(rgb, clusterName.str(), cv::Point(cvRoi.x + 10, cvRoi.y - 10), cv::FONT_HERSHEY_COMPLEX, 0.7, rs::common::cvScalarColors[clusterId % rs::common::numberOfColors]);
-
-      //Color points in Point Cloud
-      pcl::PointIndicesPtr inliers(new pcl::PointIndices());
-      if(clusters[clusterId].points.has()) {
-        rs::conversion::from(((rs::ReferenceClusterPoints)clusters[clusterId].points()).indices(), *inliers);
-        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx) {
-          dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
-          dispCloud->points[inliers->indices[idx]].a = 255;
-        }
-      }
       colorIdx++;
     }
   }
@@ -391,8 +348,6 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
           for(int iIdx = 0; iIdx < indices.indices.size(); ++iIdx) {
             int idx = indices.indices[iIdx];
             rgb.at<cv::Vec3b>(cv::Point(idx % cam_info.width, idx / cam_info.width)) = rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
-            dispCloud->points[idx].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
-            dispCloud->points[idx].a = 255;
           }
           colorIdx++;
         }
@@ -406,34 +361,84 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     }
   }
   outImg = rgb.clone();
+  return true;
+}
+
+template <class T>
+bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud)
+{
+
+  if(filter.size() != resultDesignators.size()) {
+    outError("Filter and results descriptions sizes don't match");
+    return false;
+  }
+  rs::SceneCas sceneCas(*cas_);
+  rs::Scene scene = sceneCas.getScene();
+
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+  sensor_msgs::CameraInfo cam_info;
+
+  sceneCas.get(VIEW_CAMERA_INFO, cam_info);
+  sceneCas.get(VIEW_CLOUD, *dispCloud);
+
+  std::vector<T> clusters;
+  std::is_same<T, rs::Cluster>::value ? scene.identifiables.filter(clusters) : sceneCas.get(VIEW_OBJECTS, clusters);
 
 
-  //  tf::StampedTransform camToWorld;
-  //  camToWorld.setIdentity();
-  //  if(scene.viewPoint.has())
-  //  {
-  //    rs::conversion::from(scene.viewPoint.get(), camToWorld);
-  //  }
+  outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
+  int colorIdx = 0;
+  if(clusters.size() != resultDesignators.size()) {
+    outInfo("Undefined behaviour");
+    return false;
+  }
 
-  //  Eigen::Affine3d eigenTransform;
-  //  tf::transformTFToEigen(camToWorld, eigenTransform);
+  for(int i = 0; i < filter.size(); ++i) {
+    if(!filter[i]) continue;
 
-  //  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
-  //      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-  //  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
+    std::string desigString = resultDesignators[i];
+    rapidjson::Document desig;
+    desig.Parse(desigString.c_str());
+    if(desig.HasMember("id")) {
+      std::string cID(desig["id"].GetString());
+      int clusterId = std::atoi(cID.c_str());
+
+      pcl::PointIndicesPtr inliers(new pcl::PointIndices());
+      if(clusters[clusterId].points.has()) {
+        rs::conversion::from(((rs::ReferenceClusterPoints)clusters[clusterId].points()).indices(), *inliers);
+        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx) {
+          dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
+          dispCloud->points[inliers->indices[idx]].a = 255;
+        }
+      }
+      colorIdx++;
+    }
+  }
+
+  tf::StampedTransform camToWorld;
+  camToWorld.setIdentity();
+  if(scene.viewPoint.has()) {
+    rs::conversion::from(scene.viewPoint.get(), camToWorld);
+  }
+
+  Eigen::Affine3d eigenTransform;
+  tf::transformTFToEigen(camToWorld, eigenTransform);
+
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed(new pcl::PointCloud<pcl::PointXYZRGBA>()),
+      dsCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+  pcl::transformPointCloud<pcl::PointXYZRGBA>(*dispCloud, *transformed, eigenTransform);
 
 
-  //  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
-  //  float leaf_size = 0.005;
-  //  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
-  //  vg.setInputCloud(transformed);
-  //  vg.filter(*dsCloud);
+  pcl::VoxelGrid<pcl::PointXYZRGBA> vg;
+  float leaf_size = 0.005;
+  vg.setLeafSize(leaf_size, leaf_size, leaf_size);
+  vg.setInputCloud(transformed);
+  vg.filter(*dsCloud);
 
-  //  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
-  //  pcl::copyPointCloud(*dsCloud, *cloudToAdvertise);
-  //  cloudToAdvertise->header.frame_id = camToWorld.child_frame_id_; //map if localized..head_mount_kinect_rgb_optical_frame otherwise;
-  //  //  dispCloud->header.stamp = ros::Time::now().toNSec();
-  //  pc_pub_.publish(cloudToAdvertise);
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
+  pcl::copyPointCloud(*dsCloud, *cloud);
+  cloud->header.frame_id = camToWorld.child_frame_id_;
   return true;
 }
 
@@ -443,4 +448,12 @@ template bool RSAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector
 
 template bool RSAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson,cv::Mat &resImage);
+    std::string &requestJson, cv::Mat &resImage);
+
+template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+
+template bool RSAnalysisEngine::highlightResultsInCloud<rs::Cluster>(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
