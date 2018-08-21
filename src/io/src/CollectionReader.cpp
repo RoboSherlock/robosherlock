@@ -320,10 +320,10 @@ public:
     uint64_t timestamp = std::numeric_limits<uint64_t>::max();
 
     rs::Query qs = rs::create<rs::Query>(tcas);
-    if(cas.getFS("QUERY", qs) && qs.asJson() != "")
+    if(cas.getFS("QUERY", qs) && qs.query() != "")
     {
       rapidjson::Document jsonDoc;
-      std::string jsonString  = qs.asJson();
+      std::string jsonString  = qs.query();
       jsonDoc.Parse(jsonString);
 
       //TODO Is timestamp nested in something or right under detect?

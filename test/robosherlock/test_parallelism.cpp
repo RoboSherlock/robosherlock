@@ -35,7 +35,6 @@ protected:
     {
       rs::common::getAEPaths("u_test",engineFile);
       engine.init(engineFile, false); // set false for not query from knowrob, we will manually set variables
-      engine.initPipelineManager();
 
       engine.setPipelineOrdering(engineList);
       engine.setParallelOrderings(orderings,orderingIndices);

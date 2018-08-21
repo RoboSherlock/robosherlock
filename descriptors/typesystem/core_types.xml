@@ -34,23 +34,8 @@
           <rangeTypeName>uima.cas.Long</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>location</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>inspect</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>ingredient</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>asJson</name>
-          <description/>
+          <name>query</name>
+          <description>json string format of query</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>

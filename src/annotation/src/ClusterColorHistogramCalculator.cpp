@@ -149,14 +149,14 @@ private:
     rapidjson::Document jsonDoc;
     std::string jsonQuery;
     bool found = false;
-    if(cas.getFS("QUERY", qs) && qs.asJson()!="")
+    if(cas.getFS("QUERY", qs) && qs.query()!="")
     {
-      jsonQuery = qs.asJson();
+      jsonQuery = qs.query();
       jsonDoc.Parse(jsonQuery);
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes
       rapidjson::Value &detectQuery = jsonDoc["detect"];
-      outWarn("json query: " << qs.asJson());
+      outWarn("json query: " << qs.query());
       if(detectQuery.IsObject()){
           //TODO How do we know what keywords can be found at what level in the json?
           rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");

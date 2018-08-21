@@ -20,6 +20,7 @@ int main(int argc, char **argv)
   resourceManager.setLoggingLevel(uima::LogStream::EnError);
   rs::common::getAEPaths("u_test",engineFile);
   engine.init(engineFile,false);
+
  
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;

@@ -16,7 +16,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #ifndef RSANALYSISENGINE_H
 #define RSANALYSISENGINE_H
 
@@ -27,6 +26,9 @@
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+
+#include <rs/queryanswering/JsonPrologInterface.h>
+#include <rs/queryanswering/DesignatorWrapper.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -41,17 +43,28 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 
+#include <tf_conversions/tf_eigen.h>
+
+#include <pcl_ros/point_cloud.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/common/transforms.h>
 
 class RSAnalysisEngine
 {
 
-public:    
+public:
   std::string name_;
-  bool parallel_;
+  bool parallel_, useIdentityResolution_;
+  std::vector<std::string> next_pipeline_order;
+  std::string query_;
 
 protected:
-  RSAggregateAnalysisEngine *engine;
-  uima::CAS *cas;
+  RSAggregateAnalysisEngine *engine_;
+  uima::CAS *cas_;
+
+#ifdef WITH_JSON_PROLOG
+  JsonPrologInterface jsonPrologInterface;
+#endif
 
 public:
 
@@ -59,60 +72,122 @@ public:
 
   ~RSAnalysisEngine();
 
-  void init(const std::string &file, bool parallel=false);
-
-  void initPipelineManager();
+  void init(const std::string &file, bool parallel=false,
+            bool pervasive=false,std::vector<std::string> contPipeline = {});
 
   void stop();
 
   virtual void process();
 
+  void process(std::vector<std::string> &designator_response,
+               std::string query);
+
   uima::TyErrorId parallelProcess(uima::CAS &cas)
   {
-    return engine->paralleledProcess(cas);
+    return engine_->paralleledProcess(cas);
   }
 
   inline void resetCas()
   {
-    cas->reset();
+    cas_->reset();
   }
 
   uima::CAS* getCas()
   {
-    return cas;
+    return cas_;
   }
+
 
   void setPipelineOrdering(std::vector<std::string> order)
   {
-      engine->setPipelineOrdering(order);
+      engine_->setPipelineOrdering(order);
   }
 
   void setParallelOrderings(RSAggregateAnalysisEngine::AnnotatorOrderings orderings,
                             RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
   {
-      engine->currentOrderings = orderings;
-      engine->currentOrderingIndices = orderingIndices;
+      engine_->currentOrderings = orderings;
+      engine_->currentOrderingIndices = orderingIndices;
   }
 
   uima::CAS* newCAS()
   {
-    return engine->newCAS();
+    return engine_->newCAS();
   }
   uima::AnnotatorContext& getAnnotatorContext()
   {
-    return engine->getAnnotatorContext();
+    return engine_->getAnnotatorContext();
   }
   void reconfigure()
   {
-    engine->reconfigure();
+    engine_->reconfigure();
   }
   void collectionProcessComplete()
   {
-    engine->collectionProcessComplete();
+    engine_->collectionProcessComplete();
   }
   void destroy()
   {
-    engine->destroy();
+    engine_->destroy();
+  }
+
+  /*set the next order of AEs to be executed*/
+  void setNextPipeline(std::vector<std::string> l)
+  {
+    next_pipeline_order = l;
+  }
+
+
+  void setQuery(std::string q)
+  {
+    query_ = q;
+  }
+
+  /*get the next order of AEs to be executed*/
+  inline std::vector<std::string> &getNextPipeline()
+  {
+    return next_pipeline_order;
+  }
+
+  inline void changeLowLevelPipeline(std::vector<std::string> &pipeline)
+  {
+    engine_->setContinuousPipelineOrder(pipeline);
+    engine_->setPipelineOrdering(pipeline);
+  }
+
+  inline void applyNextPipeline()
+  {
+    if(engine_)
+    {
+      engine_->setPipelineOrdering(next_pipeline_order);
+    }
+  }
+
+  inline void resetPipelineOrdering()
+  {
+    if(engine_)
+    {
+      engine_->resetPipelineOrdering();
+    }
+  }
+
+  inline std::string getCurrentAEName()
+  {
+    return name_;
+  }
+
+  bool defaultPipelineEnabled()
+  {
+    if(engine_)
+    {
+      return engine_->use_default_pipeline_;
+    }
+    return false;
+  }
+
+  inline void useIdentityResolution(const bool useIDres)
+  {
+      useIdentityResolution_=useIDres;
   }
 
   template < class T >
@@ -123,14 +198,16 @@ public:
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
     cr_context->assignValue(UnicodeString(paramName.c_str()),param);
   }
+
   template < class T >
   void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<T> & param)
   {
    uima::AnnotatorContext &annotContext = getAnnotatorContext();
    UnicodeString ucs_delegate(annotName.c_str());
    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),param); 
+   cr_context->assignValue(UnicodeString(paramName.c_str()),param);
   }
+
   //Ease case for the user
   void overwriteParam(const std::string& annotName,const std::string& paramName, std::string const& param)
   {
@@ -150,10 +227,23 @@ public:
     conversionString.push_back(UnicodeString(i.c_str()));
    }
    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString); 
+   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString);
   }
 
   void getFixedFlow(const std::string filePath,
                     std::vector<std::string>& annotators);
+
+  //draw results on an image
+  template <class T>
+  bool drawResulstOnImage(const std::vector<bool> &filter,
+                          const std::vector<std::string> &resultDesignators,
+                          std::string &requestJson,
+                          cv::Mat &resImage);
+
+  template <class T>
+  bool highlightResultsInCloud(const std::vector<bool> &filter,
+      const std::vector<std::string> &resultDesignators,
+      std::string & requestJson,
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
  };
 #endif // RSANALYSISENGINE_H
