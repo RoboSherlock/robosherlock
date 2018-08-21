@@ -216,7 +216,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
         engine_->process(*cas_);
       }
 #else
-      engine_->process(*cas);
+      engine_->process(*cas_);
 #endif
     }
     catch(const rs::FrameFilterException &)
