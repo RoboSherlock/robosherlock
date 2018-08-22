@@ -10,7 +10,7 @@
 void PrimitiveShapeAnnotator()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PrimitiveShapeAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","PrimitiveShapeAnnotator"};
   engine.setPipelineOrdering(engineList);
   
   engine.process();

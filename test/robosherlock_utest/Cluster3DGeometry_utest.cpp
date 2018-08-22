@@ -9,7 +9,7 @@
 void cluster3DGeometryTest()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","Cluster3DGeometryAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","Cluster3DGeometryAnnotator"};
   engine.setPipelineOrdering(engineList);
   
   engine.process();
