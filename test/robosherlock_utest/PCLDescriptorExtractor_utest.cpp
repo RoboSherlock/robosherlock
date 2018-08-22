@@ -28,7 +28,7 @@ void processPCL(uima::CAS *cas)
 void PCLDescriptorExtractorTest()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PCLDescriptorExtractor"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","PCLDescriptorExtractor"};
   engine.setPipelineOrdering(engineList);
   
   engine.overwriteParam("PCLDescriptorExtractor","descriptorType", std::string("VFH"));
