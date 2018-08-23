@@ -19,7 +19,8 @@ int main(int argc, char **argv)
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
   resourceManager.setLoggingLevel(uima::LogStream::EnError);
   rs::common::getAEPaths("u_test",engineFile);
-  engine.init(engineFile);
+  engine.init(engineFile,false);
+
  
   std::string analysisEnginesArg, savePath;
   std::vector<std::string> analysisEngines;

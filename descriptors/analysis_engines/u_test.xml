@@ -50,9 +50,17 @@
       <node>ImagePreprocessor</node>
       <node>PlaneAnnotator</node>
       <node>PointCloudClusterExtractor</node>
+      <node>ImageSegmentationAnnotator</node>
       <node>PointCloudFilter</node>
+      <node>Cluster3DGeometryAnnotator</node>
+      <node>ClusterColorHistogramCalculator</node>
+      <node>PrimitiveShapeAnnotator</node> 
       <node>NormalEstimator</node>
-      <node>StorageWriter</node>
+      <node>FeatureAnnotator</node> 
+      <node>SacModelAnnotator</node> 
+      <!--<node>MLNInferencer</node>-->
+      <node>PCLDescriptorExtractor</node>
+      <node>StorageWriter</node> 
       </fixedFlow>
     </flowConstraints>
     <typePriorities/>

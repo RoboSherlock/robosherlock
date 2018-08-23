@@ -30,6 +30,7 @@
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
 #include <pcl/surface/convex_hull.h>
+#include <pcl/surface/impl/convex_hull.hpp>
 #include <pcl/common/centroid.h>
 #include <pcl/segmentation/extract_polygonal_prism_data.h>
 #include <pcl/segmentation/extract_clusters.h>
@@ -139,6 +140,14 @@ public:
       ctx.extractValue("cluster_min_size", cluster_min_size);
     }
     setAnnotatorContext(ctx);
+    return UIMA_ERR_NONE;
+  }
+  
+  TyErrorId reconfigure()
+  {
+    outInfo("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    initialize(ctx);
     return UIMA_ERR_NONE;
   }
 
