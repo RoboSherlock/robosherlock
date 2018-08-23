@@ -30,6 +30,8 @@ void cluster3DGeometryTest()
     std::vector<rs::Geometry> geometry;
    
     cluster.annotations.filter(geometry);
+    EXPECT_TURE(geometry.size()>0);
+    
     for (int i = 0; i<geometry.size();i++)
     {
       rs::BoundingBox3D boundingBox = geometry[i].boundingBox.get();
