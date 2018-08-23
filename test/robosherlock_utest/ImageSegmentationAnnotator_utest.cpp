@@ -10,9 +10,9 @@
 void imageSegmentationAnnotatorTest()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","ImageSegmentationAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","ImageSegmentationAnnotator"};
   engine.setPipelineOrdering(engineList);
-
+  engine.resetCas();
   engine.process();
   cas = engine.getCas();
   rs::SceneCas sceneCas(*cas);
@@ -20,7 +20,6 @@ void imageSegmentationAnnotatorTest()
   rs::Scene scene = sceneCas.getScene();
   std::vector<rs::Cluster> clusters;
   scene.identifiables.filter(clusters);
-  EXPECT_TRUE(clusters.size()>0);
   //Cluster3DGeometry
   for (int i = 0; i<clusters.size();i++)
   {

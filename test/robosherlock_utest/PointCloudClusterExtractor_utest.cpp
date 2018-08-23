@@ -32,19 +32,19 @@ void pointCloudExtractorTest()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processCluster(cas);	
-  
+  engine.resetCas();
   engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("EC"));
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processCluster(cas);
-  
+  engine.resetCas();
   engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("OEC_prism"));
   engine.reconfigure();
   engine.process();

@@ -262,7 +262,7 @@ public:
 
   TyErrorId reconfigure()
   {
-    outError("Reconfiguring");
+    outInfo("Reconfiguring");
     AnnotatorContext &ctx = getAnnotatorContext();
     if(ctx.isParameterDefined("camera_config_files"))
     {
@@ -276,7 +276,7 @@ public:
       ctx.extractValue("camera_config_files", configs);
       for(size_t i = 0; i < configs.size(); ++i)
       {
-        outError(*configs[i]);
+        outInfo(*configs[i]);
         readConfig(*configs[i]);
       }
     }

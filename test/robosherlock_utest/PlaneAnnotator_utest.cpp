@@ -21,7 +21,7 @@ int planeTest()
   pcl::PointCloud<pcl::Normal>::Ptr cloud_normals(new pcl::PointCloud<pcl::Normal>);
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator"};
   engine.setPipelineOrdering(engineList);
-
+  engine.resetCas();
   engine.process();
   
   cas = engine.getCas();
@@ -41,12 +41,8 @@ int planeTest()
   pcl::PointIndices::Ptr plane_inliers(new pcl::PointIndices());
   
   scene.annotations.filter(planes);
-
-  if(planes.empty())
-    {
-      outInfo("NO PLANE COEFFICIENTS SET!! RUN A PLANE ESIMTATION BEFORE!!!");
-      exist_plane_pcl = false;
-    }
+  EXPECT_TRUE( planes.empty()==false );
+  if (planes.empty()) exist_plane_pcl = false;
 
   plane_coefficients->values = planes[0].model();
   plane_inliers->indices = planes[0].inliers();

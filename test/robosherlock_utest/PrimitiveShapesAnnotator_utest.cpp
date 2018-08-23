@@ -12,7 +12,7 @@ void PrimitiveShapeAnnotator()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","PrimitiveShapeAnnotator"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.process();
   cas = engine.getCas();
   
@@ -29,8 +29,8 @@ void PrimitiveShapeAnnotator()
   {
     rs::Cluster &cluster = clusters[i];
     std::vector<rs::Shape> shape_annot;
-   
     cluster.annotations.filter(shape_annot);
+    EXPECT_TRUE(shape_annot.size()>0);
     for ( int j = 0; j<shape_annot.size();j++)
     {
        EXPECT_TRUE(shape_annot[j].shape.get()!="");

@@ -37,7 +37,7 @@ void featureAnnotator()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","FeatureAnnotator"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.process();
   cas = engine.getCas();
   processFeatureCluster(cas);
@@ -56,14 +56,13 @@ void featureAnnotator()
   engine.process();
   cas = engine.getCas();
   processFeatureCluster(cas);
-  
+  //THESE DO NOT WORK
   /*engine.overwriteParam("FeatureAnnotator","keypointDetector",std::string("FAST"));
   engine.overwriteParam("FeatureAnnotator","featureExtractor",std::string("FREAK")); 
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processFeatureCluster(cas);*/		
-  outError("DONE");
   
 }
 

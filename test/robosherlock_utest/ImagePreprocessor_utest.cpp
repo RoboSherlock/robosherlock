@@ -47,6 +47,7 @@ int preprocessingTest()
     {
       //we process here
       //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
+      engine.resetCas();
       engine.process();
       cas = engine.getCas();
       rs::SceneCas sceneCas(*cas);
