@@ -143,6 +143,14 @@ public:
     outInfo("typeSystemInit");
     return UIMA_ERR_NONE;
   }
+  
+  TyErrorId reconfigure()
+  {
+    outInfo("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    initialize(ctx);
+    return UIMA_ERR_NONE;
+  }
 
   TyErrorId destroy()
   {

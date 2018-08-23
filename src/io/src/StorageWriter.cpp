@@ -42,11 +42,12 @@ public:
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
+    
     outInfo("initialize");
     std::vector<std::string *> enableViews;
     bool clearStorageOnStart = false;
     bool unique = false;
-
+   
     if(ctx.isParameterDefined("enableViews"))
     {
       ctx.extractValue("enableViews", enableViews);
@@ -67,15 +68,25 @@ public:
     {
       ctx.extractValue("newUniqueDB", unique);
     }
-
+    
     if(unique)
     {
       std::ostringstream oss;
       oss << db << '_' << ros::Time::now().toNSec();
       db = oss.str();
-    }
-
+    }	
+    try{
     storage = rs::Storage(host, db, clearStorageOnStart);
+    }
+    catch(std::exception& e)
+    { //This catches the seg fault when it cannot connect to MongoDB
+      //Please ensure a safe return or kill the program after you write the error message 
+      //Usually it will end itself since it is SIGSEV
+      outError("The Mongodb is not valid");
+      outError(e.what());
+      return 5;
+    }
+    
 
     outInfo("Setting db to: " << db);
     outInfo("Views stored:");
