@@ -53,6 +53,11 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
   for(std::string &a : annotators) {
     std::string path = rs::common::getAnnotatorPath(a);
+    if(path == "") {
+      outError("Annotator defined in fixedFlow: " << a << " can not be found! Exiting!");
+      exit(1);
+    }
+
     // If the path is yaml file, we need to convert it to xml
     if(boost::algorithm::ends_with(path, "yaml")) {
 
@@ -95,6 +100,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   }
 
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  if(engine_ == nullptr) {
+    outInfo("Could now create RSAggregateAnalysisEngine. Terminating");
+    exit(1);
+  }
   engine_->setParallel(parallel);
 
 #ifdef WITH_JSON_PROLOG
@@ -232,6 +241,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
   outInfo("processing finished");
 }
 
+//TODO: this is buggy: it does not recognize comments
 void RSAnalysisEngine::getFixedFlow(const std::string filePath,
                                     std::vector<std::string> &annotators)
 {
