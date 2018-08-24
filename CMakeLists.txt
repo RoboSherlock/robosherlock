@@ -110,13 +110,17 @@ if(${RapidJSON_FOUND})
 endif()
 
 find_package(json_prolog QUIET)
-if(json_prolog_FOUND)
+option(WITH_JSON_PROLOG "build using json prolog" False)
+
+if(json_prolog_FOUND or ${WITH_JSON_PROLOG})
     message(STATUS "json_prolog FOUND")
     add_definitions(-DWITH_JSON_PROLOG)
     include_directories(${json_prolog_INCLUDE_DIRS})
 else()
     message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
 endif()
+
+
 
 find_package(yaml-cpp REQUIRED)
 if(yaml-cpp_FOUND)
