@@ -35,8 +35,7 @@ Visualizer::Visualizer(const std::string &savePath, bool headless) : windowImage
   running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh("~"), headless_(headless)
 {
   this->savePath = savePath;
-  if(this->savePath[this->savePath.size() - 1] != '/')
-  {
+  if(this->savePath[this->savePath.size() - 1] != '/') {
     this->savePath += '/';
   }
 }
@@ -53,8 +52,7 @@ bool Visualizer::start()
   saveParams.push_back(9);
 
   DrawingAnnotator::getAnnotatorNames(names);
-  if(names.empty())
-  {
+  if(names.empty()) {
     return false;
   }
   //Initially, all annotators are active
@@ -76,8 +74,7 @@ bool Visualizer::start()
 void Visualizer::stop()
 {
   outInfo("stopping visualizer!");
-  if(running)
-  {
+  if(running) {
     running = false;
     imageViewerThread.join();
     if(!headless_)
@@ -95,14 +92,12 @@ void Visualizer::callbackMouse(const int event, const int x, const int y, const 
 
 void Visualizer::callbackMouseHandler(const int event, const int x, const int y)
 {
-  try
-  {
+  try {
     bool needupdate_img = annotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
     updateImage = needupdate_img | updateImage;
     updateCloud = needupdate_img | updateCloud;
   }
-  catch(...)
-  {
+  catch(...) {
     outError("Exception in " << annotator->name << "::callbackMouse!");
   }
 }
@@ -110,22 +105,18 @@ void Visualizer::callbackMouseHandler(const int event, const int x, const int y)
 void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
 {
   // Catch space for triggering
-  if(key == ' ')
-  {
-    if(trigger)
-    {
+  if(key == ' ') {
+    if(trigger) {
       *trigger = true;
     }
     return;
   }
-  try
-  {
+  try {
     bool needupdate_img = annotator->callbackKey(key, source);
     updateImage = needupdate_img | updateImage;
     updateCloud = needupdate_img | updateCloud;
   }
-  catch(...)
-  {
+  catch(...) {
     outError("Exception in " << annotator->name << "::callbackKey!");
   }
 }
@@ -149,37 +140,43 @@ void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
 
 std::string Visualizer::nextAnnotator()
 {
-  lock.lock();
-  index = (index + 1) % activeAnnotators.size();
-  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-  annotator->update = false;
-  updateImage = true;
-  updateCloud = true;
-  changedAnnotator = true;
-  lock.unlock();
+  {
+    std::lock_guard<std::mutex> lock_guard(lock);
+    if(activeAnnotators.empty()) return "";
+    index = (index + 1) % activeAnnotators.size();
+    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+    annotator->update = false;
+    updateImage = true;
+    updateCloud = true;
+    changedAnnotator = true;
+  }
   outDebug("switching to annotator: " << activeAnnotators[index]);
   return activeAnnotators[index];
 }
 
 std::string Visualizer::prevAnnotator()
 {
-  lock.lock();
-  index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
-  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-  annotator->update = false;
-  updateImage = true;
-  updateCloud = true;
-  changedAnnotator = true;
-  lock.unlock();
+  {
+    std::lock_guard<std::mutex> lock_guard(lock);
+    if(activeAnnotators.empty()) return "";
+    index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
+    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+    annotator->update = false;
+    updateImage = true;
+    updateCloud = true;
+    changedAnnotator = true;
+  }
   outDebug("switching to annotator: " << activeAnnotators[index]);
   return activeAnnotators[index];
 }
 
 std::string Visualizer::selectAnnotator(std::string anno)
 {
-  lock.lock();
+  std::lock_guard<std::mutex> lock_guard(lock);
   ptrdiff_t pos = distance(activeAnnotators.begin(), find(activeAnnotators.begin(), activeAnnotators.end(), anno));
   index = pos;
+  if(index >= activeAnnotators.size())
+    return "";
   annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
   annotator->update = false;
   updateImage = true;
@@ -194,8 +191,7 @@ std::string Visualizer::selectAnnotator(std::string anno)
 void Visualizer::checkAnnotator()
 {
   lock.lock();
-  if(annotator->update)
-  {
+  if(annotator->update) {
     annotator->update = false;
     updateImage = true;
     updateCloud = true;
@@ -218,18 +214,15 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
-  if(!headless_)
-  {
+  if(!headless_) {
     cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
     //cv::moveWindow(windowImage, 0, 0);
     cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
   }
-  for(; ros::ok();)
-  {
+  for(; ros::ok();) {
     checkAnnotator();
 
-    if(updateImage)
-    {
+    if(updateImage) {
       updateImage = false;
       annotator->drawImage(disp);
       cv::putText(disp, "Annotator: " + activeAnnotators[index], pos, font, sizeText, color, lineText, CV_AA);
@@ -269,26 +262,21 @@ void Visualizer::cloudViewer()
   visualizer->spinOnce();
   visualizer->setSize(1280, 960);
 
-  while(ros::ok())
-  {
+  while(ros::ok()) {
     checkAnnotator();
 
-    if(updateCloud)
-    {
-      if(changedAnnotator)
-      {
+    if(updateCloud) {
+      if(changedAnnotator) {
         visualizer->removeAllPointClouds();
         visualizer->removeAllShapes();
         visualizer->addText(annotator->name, 2, 20, 12, 1, 1, 1, annotatorName);
       }
-      if(annotator->fillVisualizer(*visualizer, changedAnnotator))
-      {
+      if(annotator->fillVisualizer(*visualizer, changedAnnotator)) {
         updateCloud = false;
         changedAnnotator = false;
       }
     }
-    if(save)
-    {
+    if(save) {
       save = false;
       saveCloud(cloud, visualizer);
     }
@@ -308,12 +296,10 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 #else
   key = cv::waitKey(10);
 #endif
-  if(key == 0)
-  {
+  if(key == 0) {
     return;
   }
-  switch(key)
-  {
+  switch(key) {
   case 110: // next (n)
     nextAnnotator();
     break;
@@ -325,12 +311,10 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     break;
   }
 
-  if((key & 0xFF) == 27) //Escape
-  {
+  if((key & 0xFF) == 27) { //Escape
     shutdown();
   }
-  else
-  {
+  else {
     callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
   }
 
@@ -338,26 +322,20 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 
 void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
 {
-  if(event.keyUp())
-  {
-    if(event.getKeySym() == "Left")
-    {
+  if(event.keyUp()) {
+    if(event.getKeySym() == "Left") {
       nextAnnotator();
     }
-    else if(event.getKeySym() == "Right")
-    {
+    else if(event.getKeySym() == "Right") {
       prevAnnotator();
     }
-    else if(event.getKeySym() == "Escape")
-    {
+    else if(event.getKeySym() == "Escape") {
       shutdown();
     }
-    else if(event.getKeySym() == "Insert")
-    {
+    else if(event.getKeySym() == "Insert") {
       save = true;
     }
-    else if(event.getKeyCode() > 0)
-    {
+    else if(event.getKeyCode() > 0) {
       callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER);
     }
   }
