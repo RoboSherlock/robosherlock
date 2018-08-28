@@ -225,6 +225,7 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
     engine_.resetPipelineOrdering();
     engine_.setNextPipeline(lowLvlPipeline_);
     res.object_descriptions.obj_descriptions = objDescriptions;
+    result_pub.publish(res.object_descriptions);
   }
 
   return true;
