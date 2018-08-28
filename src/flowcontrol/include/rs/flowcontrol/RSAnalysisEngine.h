@@ -58,10 +58,11 @@ public:
   std::vector<std::string> next_pipeline_order;
   std::string query_;
 
+
 protected:
   RSAggregateAnalysisEngine *engine_;
   uima::CAS *cas_;
-
+  std::vector<std::string> delegates_;
 #ifdef WITH_JSON_PROLOG
   JsonPrologInterface jsonPrologInterface;
 #endif
@@ -72,8 +73,8 @@ public:
 
   ~RSAnalysisEngine();
 
-  void init(const std::string &file, bool parallel=false,
-            bool pervasive=false,std::vector<std::string> contPipeline = {});
+  void init(const std::string &file, bool parallel = false,
+            bool pervasive = false, std::vector<std::string> contPipeline = {});
 
   void stop();
 
@@ -87,12 +88,20 @@ public:
     return engine_->paralleledProcess(cas);
   }
 
+  inline bool isInDelegateList(std::string d)
+  {
+    if(std::find(delegates_.begin(), delegates_.end(), d) != std::end(delegates_))
+      return true;
+    else
+      return false;
+  }
+
   inline void resetCas()
   {
     cas_->reset();
   }
 
-  uima::CAS* getCas()
+  uima::CAS *getCas()
   {
     return cas_;
   }
@@ -100,21 +109,21 @@ public:
 
   void setPipelineOrdering(std::vector<std::string> order)
   {
-      engine_->setPipelineOrdering(order);
+    engine_->setPipelineOrdering(order);
   }
 
   void setParallelOrderings(RSAggregateAnalysisEngine::AnnotatorOrderings orderings,
                             RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices)
   {
-      engine_->currentOrderings = orderings;
-      engine_->currentOrderingIndices = orderingIndices;
+    engine_->currentOrderings = orderings;
+    engine_->currentOrderingIndices = orderingIndices;
   }
 
-  uima::CAS* newCAS()
+  uima::CAS *newCAS()
   {
     return engine_->newCAS();
   }
-  uima::AnnotatorContext& getAnnotatorContext()
+  uima::AnnotatorContext &getAnnotatorContext()
   {
     return engine_->getAnnotatorContext();
   }
@@ -157,16 +166,14 @@ public:
 
   inline void applyNextPipeline()
   {
-    if(engine_)
-    {
+    if(engine_) {
       engine_->setPipelineOrdering(next_pipeline_order);
     }
   }
 
   inline void resetPipelineOrdering()
   {
-    if(engine_)
-    {
+    if(engine_) {
       engine_->resetPipelineOrdering();
     }
   }
@@ -176,10 +183,10 @@ public:
     return name_;
   }
 
+
   bool defaultPipelineEnabled()
   {
-    if(engine_)
-    {
+    if(engine_) {
       return engine_->use_default_pipeline_;
     }
     return false;
@@ -187,51 +194,50 @@ public:
 
   inline void useIdentityResolution(const bool useIDres)
   {
-      useIdentityResolution_=useIDres;
+    useIdentityResolution_ = useIDres;
   }
 
   template < class T >
-  void overwriteParam(const std::string& annotName,const std::string& paramName, T const& param)
+  void overwriteParam(const std::string &annotName, const std::string &paramName, T const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
     UnicodeString ucs_delegate(annotName.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()),param);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
   }
 
   template < class T >
-  void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<T> & param)
+  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<T> &param)
   {
-   uima::AnnotatorContext &annotContext = getAnnotatorContext();
-   UnicodeString ucs_delegate(annotName.c_str());
-   uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),param);
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
   }
 
   //Ease case for the user
-  void overwriteParam(const std::string& annotName,const std::string& paramName, std::string const& param)
+  void overwriteParam(const std::string &annotName, const std::string &paramName, std::string const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
     UnicodeString ucs_delegate(annotName.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()),(UnicodeString) param.c_str());
+    cr_context->assignValue(UnicodeString(paramName.c_str()), (UnicodeString) param.c_str());
   }
-  void overwriteParam(const std::string& annotName, const std::string& paramName, const std::vector<std::string> & param)
+  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<std::string> &param)
   {
-   uima::AnnotatorContext &annotContext = getAnnotatorContext();
-   UnicodeString ucs_delegate(annotName.c_str());
-   //Convert the std::string vector into UnicodeString and then overwrite with that variable
-   std::vector<UnicodeString> conversionString;
-   for (std::string i : param)
-   {
-    conversionString.push_back(UnicodeString(i.c_str()));
-   }
-   uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-   cr_context->assignValue(UnicodeString(paramName.c_str()),conversionString);
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    //Convert the std::string vector into UnicodeString and then overwrite with that variable
+    std::vector<UnicodeString> conversionString;
+    for(std::string i : param) {
+      conversionString.push_back(UnicodeString(i.c_str()));
+    }
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), conversionString);
   }
 
   void getFixedFlow(const std::string filePath,
-                    std::vector<std::string>& annotators);
+                    std::vector<std::string> &annotators);
 
   //draw results on an image
   template <class T>
@@ -242,8 +248,8 @@ public:
 
   template <class T>
   bool highlightResultsInCloud(const std::vector<bool> &filter,
-      const std::vector<std::string> &resultDesignators,
-      std::string & requestJson,
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
- };
+                               const std::vector<std::string> &resultDesignators,
+                               std::string &requestJson,
+                               pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+};
 #endif // RSANALYSISENGINE_H

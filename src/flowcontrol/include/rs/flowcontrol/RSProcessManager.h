@@ -15,6 +15,7 @@
 #include <robosherlock_msgs/RSQueryService.h>
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 #include <robosherlock_msgs/RSVisControl.h>
+#include <robosherlock_msgs/ExecutePipeline.h>
 
 #include <mongo/client/dbclient.h>
 
@@ -47,7 +48,7 @@ public:
 
 
   ros::NodeHandle nh_;
-  ros::ServiceServer service, singleService, setContextService, jsonService, visService;
+  ros::ServiceServer setContextService_, queryService_, visService_, setFlowService_;
 
   ros::Publisher result_pub;
   ros::Publisher pc_pub_;
@@ -73,7 +74,7 @@ public:
   std::vector<std::string> lowLvlPipeline_;
 
   RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
-                   ros::NodeHandle n, const std::string& savePath);
+                   ros::NodeHandle n, const std::string &savePath);
 
   ~RSProcessManager();
 
@@ -88,13 +89,16 @@ public:
                        robosherlock_msgs::SetRSContext::Response &res);
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-                         robosherlock_msgs::RSVisControl::Response &res);
+                          robosherlock_msgs::RSVisControl::Response &res);
+
+  bool executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
+                               robosherlock_msgs::ExecutePipeline::Response &res);
 #ifdef WITH_JSON_PROLOG
 
   bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
                          robosherlock_msgs::RSQueryService::Response &res);
 
-  bool virtual handleQuery(std::string& req, std::vector<std::string>& res);
+  bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
 #endif
   //special case for offscreen rendering the beliefstate using Unreal Engine
   bool renderOffscreen(std::string object);

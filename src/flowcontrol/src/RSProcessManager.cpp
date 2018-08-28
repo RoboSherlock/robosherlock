@@ -25,14 +25,17 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   }
 
   //ROS interface declarations
+
+  setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
+  visService_ = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
+  setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
+
   result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
-  setContextService = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
-  visService = nh_.advertiseService("vis_command", &RSProcessManager::visControlCallback, this);
   image_pub_ = it_.advertise("result_image", 1, true);
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
-  jsonService = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+  queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
 #endif
 }
 
@@ -87,7 +90,7 @@ void RSProcessManager::setInspectionAE(std::string inspectionAEPath)
   outInfo("initializing inspection AE");
   std::vector<std::string> llvlp;
   llvlp.push_back("CollectionReader");
-  inspectionEngine_.init(inspectionAEPath, parallel_,false, llvlp); // set parallel false for now, need discussion for future use of parallel execution
+  inspectionEngine_.init(inspectionAEPath, parallel_, false, llvlp); // set parallel false for now, need discussion for future use of parallel execution
 }
 
 
@@ -190,6 +193,43 @@ bool RSProcessManager::resetAE(std::string newContextName)
     return false;
   }
 }
+
+
+bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
+    robosherlock_msgs::ExecutePipeline::Response &res)
+{
+  if(req.annotators.empty()) {
+    return false;
+  }
+
+  std::vector<std::string> newPipelineOrder = req.annotators;
+  outInfo("Setting new pipeline: ");
+  for(auto a : newPipelineOrder) {
+    if(!engine_.isInDelegateList(a)) {
+      outError(a << " was not initialized in current analysis engine");
+      return false;
+    }
+    else {
+      outInfo(a);
+    }
+  }
+  std::vector<std::string> objDescriptions;
+  {
+    std::lock_guard<std::mutex> lock(processing_mutex_);
+
+    visualizer_.setActiveAnnotators(newPipelineOrder);
+
+    engine_.setNextPipeline(newPipelineOrder);
+    engine_.applyNextPipeline();
+    engine_.process(objDescriptions, "");
+    engine_.resetPipelineOrdering();
+    engine_.setNextPipeline(lowLvlPipeline_);
+    res.object_descriptions.obj_descriptions = objDescriptions;
+  }
+
+  return true;
+}
+
 #ifdef WITH_JSON_PROLOG
 bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
     robosherlock_msgs::RSQueryService::Response &res)
@@ -229,7 +269,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       queryInterface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
       cv::Mat resImage;
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud (new pcl::PointCloud<pcl::PointXYZRGBA>());
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
 
       if(useIdentityResolution_) {
         engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);

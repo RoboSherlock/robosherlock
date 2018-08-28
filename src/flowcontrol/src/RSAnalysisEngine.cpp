@@ -47,11 +47,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
-  std::unordered_map<std::string, std::string> delegates;
-  std::vector<std::string> annotators;
-  getFixedFlow(file, annotators);
+  std::unordered_map<std::string, std::string> delegateMapping;
+  getFixedFlow(file, delegates_);
 
-  for(std::string &a : annotators) {
+  for(std::string &a : delegates_) {
     std::string path = rs::common::getAnnotatorPath(a);
     if(path == "") {
       outError("Annotator defined in fixedFlow: " << a << " can not be found! Exiting!");
@@ -84,7 +83,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
         std::ofstream of(xmlPath);
         converter.getOutput(of);
         of.close();
-        delegates[a] = xmlPath;
+        delegateMapping[a] = xmlPath;
       }
       catch(std::runtime_error &e) {
         outError("Exception happened when creating the output file: " << e.what());
@@ -96,10 +95,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
       }
     }
     else
-      delegates[a] = path;
+      delegateMapping[a] = path;
   }
 
-  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could now create RSAggregateAnalysisEngine. Terminating");
     exit(1);
