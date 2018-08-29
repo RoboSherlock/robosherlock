@@ -213,6 +213,12 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
       outInfo(a);
     }
   }
+
+
+  if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end()){
+    newPipelineOrder.push_back("ObjectIdentityResolution");
+  }
+
   std::vector<std::string> objDescriptions;
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
