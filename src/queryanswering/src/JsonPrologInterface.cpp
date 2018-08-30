@@ -93,7 +93,7 @@ bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string *desig,
 
 std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std::string> &keys)
 {
-  std::string prologQuery = "build_pipeline_from_predicates([";
+  std::string prologQuery = "pipeline_from_predicates_with_domain_constraint([";
   for(int i = 0; i < keys.size(); i++)
   {
     prologQuery += keys.at(i);
