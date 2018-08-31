@@ -250,6 +250,6 @@ public:
   bool highlightResultsInCloud(const std::vector<bool> &filter,
                                const std::vector<std::string> &resultDesignators,
                                std::string &requestJson,
-                               pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+                               pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 };
 #endif // RSANALYSISENGINE_H

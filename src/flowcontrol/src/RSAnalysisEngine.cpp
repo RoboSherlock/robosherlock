@@ -376,7 +376,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
 template <class T>
 bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud)
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud)
 {
 
   if(filter.size() != resultDesignators.size()) {
@@ -445,7 +445,6 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
   vg.setInputCloud(transformed);
   vg.filter(*dsCloud);
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
   pcl::copyPointCloud(*dsCloud, *cloud);
   cloud->header.frame_id = camToWorld.child_frame_id_;
   return true;
@@ -461,8 +460,8 @@ template bool RSAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vecto
 
 template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
 template bool RSAnalysisEngine::highlightResultsInCloud<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);

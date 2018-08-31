@@ -276,7 +276,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       queryInterface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
       cv::Mat resImage;
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+      pcl::PointCloud<pcl::PointXYZRGB>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 
       if(useIdentityResolution_) {
         engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);
