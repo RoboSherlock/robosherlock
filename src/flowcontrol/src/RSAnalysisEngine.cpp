@@ -184,6 +184,13 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 {
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
+
+  if(queryString != "") {
+    rs::Query query = rs::create<rs::Query>(*cas_);
+    query.query.set(queryString);
+    rs::SceneCas sceneCas(*cas_);
+    sceneCas.set("QUERY", query);
+  }
   try {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
