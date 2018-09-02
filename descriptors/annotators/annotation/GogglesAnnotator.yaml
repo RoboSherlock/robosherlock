@@ -1,0 +1,9 @@
+annotator:
+  implementation: rs_gogglesAnnotator
+  name: GogglesAnnotator
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  outputs:
+  - rs.annotation.Goggles
+parameters: {}

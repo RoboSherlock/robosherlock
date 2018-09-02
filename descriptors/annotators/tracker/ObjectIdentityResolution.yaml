@@ -1,0 +1,21 @@
+annotator:
+  description: Object Identity Resolution.
+  implementation: rs_ObjectIdentityResolution
+  name: ObjectIdentityResolution
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  - rs.annotation.Shape
+  - rs.annotation.SemanticColor
+  - rs.annotation.Geometry
+  - rs.annotation.Detection
+  outputs:
+  - rs.scene.Object
+parameters:
+  fastMatchingThreshold: 0.5
+  fastmatching: true
+  host: localhost
+  identitydb: Objects
+  maxDifference: 0.35
+  mln: src/iai_robosherlock/rs.cpp/data/rs_resources/mln/entres/er-persists-actions.mln
+  removeObjects: true

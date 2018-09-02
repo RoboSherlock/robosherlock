@@ -1,0 +1,11 @@
+annotator:
+  description: Annotator for Linemod library.
+  implementation: rs_LinemodAnnotator
+  name: LinemodAnnotator
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  outputs:
+  - rs.annotation.Detection
+parameters:
+  modelsPath: robohow

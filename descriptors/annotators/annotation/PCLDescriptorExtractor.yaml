@@ -1,0 +1,8 @@
+annotator:
+  implementation: rs_pclDescriptorExtractor
+  name: PCLDescriptorExtractor
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  descriptorType: OUR-CVFH
