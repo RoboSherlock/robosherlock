@@ -100,7 +100,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
-    outInfo("Could now create RSAggregateAnalysisEngine. Terminating");
+    outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
   }
   engine_->setParallel(parallel);
