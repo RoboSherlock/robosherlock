@@ -51,51 +51,12 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   getFixedFlow(file, delegates_);
 
   for(std::string &a : delegates_) {
-    std::string path = rs::common::getAnnotatorPath(a);
-    if(path == "") {
-      outError("Annotator defined in fixedFlow: " << a << " can not be found! Exiting!");
-      exit(1);
-    }
 
-    // If the path is yaml file, we need to convert it to xml
-    if(boost::algorithm::ends_with(path, "yaml")) {
-
-      YamlToXMLConverter converter(path);
-      try {
-        converter.parseYamlFile();
-      }
-      catch(YAML::ParserException e) {
-        outError("Exception happened when parsing the yaml file: " << path);
-        outError(e.what());
-      }
-
-      try {
-        boost::filesystem::path p(path);
-
-        // To Get $HOME path
-        passwd *pw = getpwuid(getuid());
-        std::string HOMEPath(pw->pw_dir);
-        std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
-        std::string xmlPath = xmlDir + "/" +  a + ".xml";
-
-        if(!boost::filesystem::exists(xmlDir))
-          boost::filesystem::create_directory(xmlDir);
-        std::ofstream of(xmlPath);
-        converter.getOutput(of);
-        of.close();
-        delegateMapping[a] = xmlPath;
-      }
-      catch(std::runtime_error &e) {
-        outError("Exception happened when creating the output file: " << e.what());
-        return;
-      }
-      catch(std::exception &e) {
-        outError("Exception happened when creating the output file: " << e.what());
-        return;
-      }
-    }
+    std::string genXmlPath = convertYamlToXML(a);
+    if(genXmlPath != "")
+        delegateMapping[a]  = genXmlPath;
     else
-      delegateMapping[a] = path;
+        outError("Could not generate and XML for: "<<a);
   }
 
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
@@ -161,6 +122,52 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     setNextPipeline(contPipeline);
   }
 
+}
+
+std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
+{
+   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
+    if(yamlPath == "") {
+      outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
+      exit(1);
+    }
+  // If the path is yaml file, we need to convert it to xml
+  if(boost::algorithm::ends_with(yamlPath, "yaml")) {
+
+    YamlToXMLConverter converter(yamlPath);
+    try {
+      converter.parseYamlFile();
+    }
+    catch(YAML::ParserException e) {
+      outError("Exception happened when parsing the yaml file: " << yamlPath);
+      outError(e.what());
+    }
+
+    try {
+      boost::filesystem::path p(yamlPath);
+
+      // To Get $HOME path
+      passwd *pw = getpwuid(getuid());
+      std::string HOMEPath(pw->pw_dir);
+      std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
+      std::string xmlPath = xmlDir + "/" +  annotatorName + ".xml";
+
+      if(!boost::filesystem::exists(xmlDir))
+        boost::filesystem::create_directory(xmlDir);
+      std::ofstream of(xmlPath);
+      converter.getOutput(of);
+      of.close();
+      return xmlPath;
+    }
+    catch(std::runtime_error &e) {
+      outError("Exception happened when creating the output file: " << e.what());
+      return "";
+    }
+    catch(std::exception &e) {
+      outError("Exception happened when creating the output file: " << e.what());
+      return "";
+    }
+  }
 }
 
 void RSAnalysisEngine::stop()

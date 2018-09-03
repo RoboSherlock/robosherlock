@@ -265,68 +265,7 @@ bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::
   //  std::string pathToAnnot = rs::common::getAnnotatorPath(annotatorName);
   boost::filesystem::path pathToAnnot(rs::common::getAnnotatorPath(annotatorName));
 
-  if(pathToAnnot.extension() == ".xml")
-  {
-    XercesDOMParser *parser = new XercesDOMParser();
-    parser->setValidationScheme(XercesDOMParser::Val_Always);
-    parser->setDoNamespaces(true);    // optional
-
-    ErrorHandler *errHandler = (ErrorHandler *) new HandlerBase();
-    parser->setErrorHandler(errHandler);
-
-    const char *xmlFile = pathToAnnot.string().c_str();
-    try
-    {
-      parser->parse(xmlFile);
-      DOMNode *docRootNode = parser->getDocument()->getDocumentElement();
-      DOMNodeList *childNodes = docRootNode->getChildNodes();
-      const  XMLSize_t nodeCount = childNodes->getLength();
-
-      XMLCh *TAG_analysisEngineMetaData = XMLString::transcode("analysisEngineMetaData");
-      XMLCh *TAG_outputDomain = XMLString::transcode("outputDomain");
-      for(XMLSize_t xx = 0; xx < nodeCount; ++xx)
-      {
-        DOMNode *currentNode = childNodes->item(xx);
-        if(currentNode->getNodeType() && currentNode->getNodeType() == DOMElement::ELEMENT_NODE)
-        {
-          DOMElement *currentElement = dynamic_cast< xercesc::DOMElement * >(currentNode);
-          if(XMLString::equals(currentElement->getTagName(), TAG_analysisEngineMetaData))
-          {
-            //            outInfo(XMLString::transcode(currentNode->getNodeName()));
-            DOMNodeList *aeMDChildNodes = currentElement->getChildNodes();
-            const  XMLSize_t aeMDChildNodesCount = aeMDChildNodes->getLength();
-            for(XMLSize_t x = 0; x < aeMDChildNodesCount; ++x)
-            {
-              DOMNode *currentN = aeMDChildNodes->item(x);
-              if(currentN->getNodeType() && currentN->getNodeType() == DOMElement::ELEMENT_NODE)
-              {
-                DOMElement *currentElem = dynamic_cast< xercesc::DOMElement * >(currentN);
-                if(XMLString::equals(currentElem->getTagName(), TAG_outputDomain))
-                {
-                  //                  outInfo(XMLString::transcode(currentN->getNodeName()));
-                  std::string domainString(XMLString::transcode(currentElem->getTextContent()));
-                  //                  outInfo(domainString);
-                  boost::split(domain, domainString, boost::is_any_of(", "), boost::token_compress_on);
-                  return true;
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-    catch(const XMLException &toCatch)
-    {
-      char *message = XMLString::transcode(toCatch.getMessage());
-      std::cout << "Exception message is: \n"
-                << message << "\n";
-      XMLString::release(&message);
-      delete parser;
-      delete errHandler;
-      return false;
-    }
-  }
-  else if(pathToAnnot.extension() == ".yaml")
+  if(pathToAnnot.extension() == ".yaml")
   {
     YAML::Node config;
     config = YAML::LoadFile(pathToAnnot.string());

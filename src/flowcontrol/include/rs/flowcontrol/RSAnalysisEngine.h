@@ -76,6 +76,8 @@ public:
   void init(const std::string &file, bool parallel = false,
             bool pervasive = false, std::vector<std::string> contPipeline = {});
 
+  std::string convertYamlToXML(std::string);
+
   void stop();
 
   virtual void process();
