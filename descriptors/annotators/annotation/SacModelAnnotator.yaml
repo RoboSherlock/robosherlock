@@ -8,6 +8,7 @@ capabilities:
   outputs:
   - rs.annotation.Shape
   - rs.annotation.CylindricalShape
+  domain: [cylinder]
 parameters:
   apply_to_clusters: true
   distanceThreshold: 0.05

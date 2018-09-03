@@ -11,3 +11,4 @@ parameters:
 capabilities:
   inputs: ['rs.scene.MergedCluster']
   outputs: ['rs.annotation.Geometry']
+  domain: [small, medium, big]
