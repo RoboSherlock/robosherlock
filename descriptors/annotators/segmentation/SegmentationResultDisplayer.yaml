@@ -1,0 +1,10 @@
+annotator:
+  description: Display all segment computed from RotationalSymmetrySegmentation and
+    BilateralSymmetrySegmentation
+  implementation: rs_segmentationResultDisplayer
+  name: SegmentationResultDisplayer
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  processCorrespondence: true

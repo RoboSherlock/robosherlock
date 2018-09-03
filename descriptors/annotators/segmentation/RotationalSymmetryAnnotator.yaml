@@ -1,0 +1,21 @@
+annotator:
+  description: Annotate rotational symmetry from point cloud segments.
+  implementation: rs_rotationalSymmetryAnnotator
+  name: RotationalSymmetryAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  boundaryAngleThreshold: 2.356
+  boundaryRadiusSearch: 0.01
+  dist_map_resolution: 0.005
+  max_angle_diff: 0.174
+  max_dist_diff: 0.01
+  rotSymAnn_max_fit_angle: 1.047
+  rotSymAnn_max_occlusion_dist: 0.03
+  rotSymAnn_max_occlusion_score: 0.012
+  rotSymAnn_max_perpendicular_score: 0.6
+  rotSymAnn_max_sym_score: 0.02
+  rotSymAnn_min_coverage_score: 0.3
+  rotSymAnn_min_fit_angle: 0.175
+  rotSymAnn_min_occlusion_dist: 0.01

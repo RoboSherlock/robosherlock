@@ -1,0 +1,11 @@
+annotator:
+  description: Produces TFLocationAnnotation for each Cluster, if SegmentationLocationAnnotations
+    are there.
+  implementation: rs_ClusterTFLocationAnnotator
+  name: ClusterTFLocationAnnotator
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  outputs:
+  - rs.annotation.TFLocation
+parameters: {}
