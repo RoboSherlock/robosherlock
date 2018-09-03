@@ -1,0 +1,13 @@
+annotator:
+  description: Detector for chess or circle boards
+  implementation: rs_BoardDetector
+  name: BoardDetector
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  boardCols: 7
+  boardDistX: 0.02
+  boardDistY: 0.02
+  boardRows: 7
+  boardType: circle

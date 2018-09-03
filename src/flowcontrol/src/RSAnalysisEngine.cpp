@@ -47,61 +47,21 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
-  std::unordered_map<std::string, std::string> delegates;
-  std::vector<std::string> annotators;
-  getFixedFlow(file, annotators);
+  std::unordered_map<std::string, std::string> delegateMapping;
+  getFixedFlow(file, delegates_);
 
-  for(std::string &a : annotators) {
-    std::string path = rs::common::getAnnotatorPath(a);
-    if(path == "") {
-      outError("Annotator defined in fixedFlow: " << a << " can not be found! Exiting!");
-      exit(1);
-    }
+  for(std::string &a : delegates_) {
 
-    // If the path is yaml file, we need to convert it to xml
-    if(boost::algorithm::ends_with(path, "yaml")) {
-
-      YamlToXMLConverter converter(path);
-      try {
-        converter.parseYamlFile();
-      }
-      catch(YAML::ParserException e) {
-        outError("Exception happened when parsing the yaml file: " << path);
-        outError(e.what());
-      }
-
-      try {
-        boost::filesystem::path p(path);
-
-        // To Get $HOME path
-        passwd *pw = getpwuid(getuid());
-        std::string HOMEPath(pw->pw_dir);
-        std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
-        std::string xmlPath = xmlDir + "/" +  a + ".xml";
-
-        if(!boost::filesystem::exists(xmlDir))
-          boost::filesystem::create_directory(xmlDir);
-        std::ofstream of(xmlPath);
-        converter.getOutput(of);
-        of.close();
-        delegates[a] = xmlPath;
-      }
-      catch(std::runtime_error &e) {
-        outError("Exception happened when creating the output file: " << e.what());
-        return;
-      }
-      catch(std::exception &e) {
-        outError("Exception happened when creating the output file: " << e.what());
-        return;
-      }
-    }
+    std::string genXmlPath = convertYamlToXML(a);
+    if(genXmlPath != "")
+        delegateMapping[a]  = genXmlPath;
     else
-      delegates[a] = path;
+        outError("Could not generate and XML for: "<<a);
   }
 
-  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegates, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
-    outInfo("Could now create RSAggregateAnalysisEngine. Terminating");
+    outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
   }
   engine_->setParallel(parallel);
@@ -164,6 +124,52 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
 }
 
+std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
+{
+   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
+    if(yamlPath == "") {
+      outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
+      exit(1);
+    }
+  // If the path is yaml file, we need to convert it to xml
+  if(boost::algorithm::ends_with(yamlPath, "yaml")) {
+
+    YamlToXMLConverter converter(yamlPath);
+    try {
+      converter.parseYamlFile();
+    }
+    catch(YAML::ParserException e) {
+      outError("Exception happened when parsing the yaml file: " << yamlPath);
+      outError(e.what());
+    }
+
+    try {
+      boost::filesystem::path p(yamlPath);
+
+      // To Get $HOME path
+      passwd *pw = getpwuid(getuid());
+      std::string HOMEPath(pw->pw_dir);
+      std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
+      std::string xmlPath = xmlDir + "/" +  annotatorName + ".xml";
+
+      if(!boost::filesystem::exists(xmlDir))
+        boost::filesystem::create_directory(xmlDir);
+      std::ofstream of(xmlPath);
+      converter.getOutput(of);
+      of.close();
+      return xmlPath;
+    }
+    catch(std::runtime_error &e) {
+      outError("Exception happened when creating the output file: " << e.what());
+      return "";
+    }
+    catch(std::exception &e) {
+      outError("Exception happened when creating the output file: " << e.what());
+      return "";
+    }
+  }
+}
+
 void RSAnalysisEngine::stop()
 {
   engine_->collectionProcessComplete();
@@ -185,6 +191,13 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 {
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
+
+  if(queryString != "") {
+    rs::Query query = rs::create<rs::Query>(*cas_);
+    query.query.set(queryString);
+    rs::SceneCas sceneCas(*cas_);
+    sceneCas.set("QUERY", query);
+  }
   try {
     UnicodeString ustrInputText;
     ustrInputText.fromUTF8(name_);
@@ -377,7 +390,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
 template <class T>
 bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud)
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud)
 {
 
   if(filter.size() != resultDesignators.size()) {
@@ -446,7 +459,6 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
   vg.setInputCloud(transformed);
   vg.filter(*dsCloud);
 
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr cloudToAdvertise(new pcl::PointCloud<pcl::PointXYZRGB>);
   pcl::copyPointCloud(*dsCloud, *cloud);
   cloud->header.frame_id = camToWorld.child_frame_id_;
   return true;
@@ -462,8 +474,8 @@ template bool RSAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vecto
 
 template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
 template bool RSAnalysisEngine::highlightResultsInCloud<rs::Cluster>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud);
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);

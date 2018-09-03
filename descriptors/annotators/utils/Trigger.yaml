@@ -1,0 +1,8 @@
+annotator:
+  description: Listener for troggers
+  implementation: rs_Trigger
+  name: Trigger
+capabilities:
+  inputs: []
+  outputs: []
+parameters: {}
