@@ -263,8 +263,9 @@ bool JsonPrologInterface::assertAnnotators( const  std::map<std::string,rs::Anno
 
 bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> annotatorData, std::string individualOfAnnotator)
 {
-  std::vector<std::string> resultDomain;
-  if(lookupAnnotatorDomain(annotatorData.first, resultDomain))
+  std::vector<std::string> resultDomain = annotatorData.second.domain;
+
+  if(!resultDomain.empty())
   {
     std::vector<std::string> resultDomainInKnowRob;
     for(auto d : resultDomain)
