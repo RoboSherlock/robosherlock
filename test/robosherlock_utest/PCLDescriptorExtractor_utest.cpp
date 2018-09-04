@@ -18,6 +18,7 @@ void processPCL(uima::CAS *cas)
   {
     std::vector<rs::PclFeature> annotations;
     clusters[i].annotations.filter(annotations);
+    EXPECT_TRUE(annotations.size()>0);
     for (int j = 0; j<annotations.size();j++)
     {
       EXPECT_TRUE(annotations[j].feat_type.get() != NULL );
@@ -30,25 +31,25 @@ void PCLDescriptorExtractorTest()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","PCLDescriptorExtractor"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.overwriteParam("PCLDescriptorExtractor","descriptorType", std::string("VFH"));
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processPCL(cas);	
-  
+  engine.resetCas();
   engine.overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("CVFH"));
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processPCL(cas);
-  
+  engine.resetCas();
   engine.overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("OUR-CVFH"));
   engine.reconfigure();
   engine.process();
   cas = engine.getCas();
   processPCL(cas);
-  
+  engine.resetCas();
   
 }
 

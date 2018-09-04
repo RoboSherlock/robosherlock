@@ -1,0 +1,19 @@
+annotator:
+  description: Generates the MLN atoms for a handfull of annotations
+  implementation: rs_MLNInferencer
+  name: MLNInferencer
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  - rs.annotation.Shape
+  - rs.annotation.SemanticColor
+  - rs.annotation.Geometry
+  outputs:
+  - rs.annotation.Detection
+  - rs.annotation.MLNAtoms
+parameters:
+  fuzzy: true
+  mlnFile: /iros/mln/learned_model_iros_extra_spatula.mln
+  query_mln: true
+  save_to_file: true
+  wordnetGrounded: true

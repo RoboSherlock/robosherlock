@@ -1,0 +1,14 @@
+annotator:
+  description: foobar
+  implementation: rs_SuperVoxelAnnotator
+  name: SuperVoxelAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  color_importance: 0.2
+  normal_importance: 1.0
+  seed_resolution: 0.04
+  spatial_importance: 0.4
+  use_transform: true
+  voxel_resolution: 0.01

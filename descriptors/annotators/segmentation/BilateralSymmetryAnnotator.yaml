@@ -1,0 +1,27 @@
+annotator:
+  description: Detect bilateral symmetries from cloud segments.
+  implementation: rs_bilateralSymmetryAnnotator
+  name: BilateralSymmetryAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  angle_division: 2
+  bilSymAnn_isDownsampled: true
+  bilSymAnn_max_occlusion_dist: 0.03
+  bilSymAnn_max_occlusion_score: 0.05
+  bilSymAnn_min_occlusion_dist: 0.01
+  correspondence_max_normal_fit_error: 0.174
+  correspondence_max_sym_reflected_dist: 0.01
+  correspondence_min_sym_dist: 0.02
+  correspondence_search_radius: 0.01
+  dist_map_resolution: 0.005
+  downsample_voxel_size: 0.005
+  min_corres_inlier_score: 0.7
+  min_segment_inlier_score: 0.2
+  naive_detection: true
+  refine_max_inlier_sym_score: 0.232
+  refine_max_iteration: 20
+  refine_min_inlier_sym_score: 0.174
+  sym_angle_diff: 0.2
+  sym_dist_diff: 0.05

@@ -131,7 +131,7 @@ public:
   
    TyErrorId reconfigure()
   {
-    outError("Reconfiguring");
+    outInfo("Reconfiguring");
     AnnotatorContext &ctx = getAnnotatorContext();
     initialize(ctx);
     return UIMA_ERR_NONE;

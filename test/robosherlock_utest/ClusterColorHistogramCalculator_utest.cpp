@@ -12,7 +12,7 @@ void clusterColorHistogramCalculator()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","ClusterColorHistogramCalculator"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.process();
   cas = engine.getCas();
   
@@ -31,6 +31,7 @@ void clusterColorHistogramCalculator()
     std::vector<rs::ColorHistogram> color_histogram;
    
     cluster.annotations.filter(color_histogram);
+    EXPECT_TRUE(color_histogram.size()>0);
     for ( int j = 0; j<color_histogram.size();j++)
     {
        rs::Mat hist = color_histogram[j].hist.get();	
