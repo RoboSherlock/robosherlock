@@ -44,11 +44,41 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
   uima::ErrorInfo errorInfo;
 
+  //Get the processed XML file
+  passwd *pw = getpwuid(getuid());
+  std::string HOMEPath(pw->pw_dir); 
+  std::string AEXMLDir(HOMEPath + "/" + GEN_XML_PATH);
+  //Extract the AE name without the extension
+  boost::filesystem::path AEYamlPath(file);
+  std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() +".xml");
+  //Generate the xml from the yaml config and then process the XML
+  AEYamlToXMLConverter aeConverter(file);
+  aeConverter.parseYamlFile();
+  ofstream xmlOutput;
+  xmlOutput.open(AEXMLFile);
+  aeConverter.getOutput(xmlOutput);
+  xmlOutput.close();
+
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
-  std::unordered_map<std::string, std::string> delegateMapping;
-  getFixedFlow(file, delegates_);
+  std::unordered_map<std::string, std::string> delegates;
+  std::vector<std::string> annotators;
+  getFixedFlow(AEXMLFile, annotators);
+
+  for(std::string &a : annotators) {
+    std::string path = rs::common::getAnnotatorPath(a);
+    // If the path is yaml file, we need to convert it to xml
+    if(boost::algorithm::ends_with(path, "yaml")) {
+
+      YamlToXMLConverter converter(path);
+      try {
+        converter.parseYamlFile();
+      }
+      catch(YAML::ParserException e) {
+        outError("Exception happened when parsing the yaml file: " << path);
+        outError(e.what());
+      }
 
   for(std::string &a : delegates_) {
 
@@ -59,7 +89,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
         outError("Could not generate and XML for: "<<a);
   }
 
-  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
