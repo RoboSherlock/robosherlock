@@ -234,7 +234,7 @@ bool JsonPrologInterface::retractAllAnnotators()
   return true;
 }
 
-bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNames)
+bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNames,const  std::vector<rs::AnnotatorCapabilities> &annotatorCapabilities)
 {
   json_prolog::Prolog pl;
   for(auto a : annotatorNames)
@@ -260,42 +260,6 @@ bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNam
   return true;
 }
 
-bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain)
-{
-  //  std::string pathToAnnot = rs::common::getAnnotatorPath(annotatorName);
-  boost::filesystem::path pathToAnnot(rs::common::getAnnotatorPath(annotatorName));
-
-  if(pathToAnnot.extension() == ".yaml")
-  {
-    YAML::Node config;
-    config = YAML::LoadFile(pathToAnnot.string());
-    for(YAML::const_iterator it = config.begin(); it != config.end(); ++it)
-    {
-      YAML::Node key = it->first;
-      YAML::Node value = it->second;
-      if(key.Type() == YAML::NodeType::Scalar)
-      {
-        std::string nodeName = key.as<std::string>();
-        if(nodeName == "capabilities")
-        {
-          if(value.Type() == YAML::NodeType::Map)
-          {
-            for(YAML::const_iterator mit = value.begin(); mit != value.end(); ++mit)
-            {
-              std::string name = mit->first.as<std::string>();
-              if(name == "domain")
-              {
-                domain = mit->second.as<std::vector<std::string>>();
-                return true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return false;
-}
 
 bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std::string individualOfAnnotator)
 {
@@ -336,6 +300,44 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std
   }
   return false;
 }
+
+bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain)
+{
+  //  std::string pathToAnnot = rs::common::getAnnotatorPath(annotatorName);
+  boost::filesystem::path pathToAnnot(rs::common::getAnnotatorPath(annotatorName));
+
+  if(pathToAnnot.extension() == ".yaml")
+  {
+    YAML::Node config;
+    config = YAML::LoadFile(pathToAnnot.string());
+    for(YAML::const_iterator it = config.begin(); it != config.end(); ++it)
+    {
+      YAML::Node key = it->first;
+      YAML::Node value = it->second;
+      if(key.Type() == YAML::NodeType::Scalar)
+      {
+        std::string nodeName = key.as<std::string>();
+        if(nodeName == "capabilities")
+        {
+          if(value.Type() == YAML::NodeType::Map)
+          {
+            for(YAML::const_iterator mit = value.begin(); mit != value.end(); ++mit)
+            {
+              std::string name = mit->first.as<std::string>();
+              if(name == "domain")
+              {
+                domain = mit->second.as<std::vector<std::string>>();
+                return true;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return false;
+}
+
 
 bool JsonPrologInterface::expandToFullUri(std::string &entry)
 {

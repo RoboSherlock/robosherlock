@@ -105,7 +105,7 @@ public:
    * in: vector containing annotator names
    * return true on succes:
    * */
-  bool assertAnnotators(std::vector<std::string> annotatorNames);
+  bool assertAnnotators(std::vector<std::string> annotatorNames, const std::vector<rs::AnnotatorCapabilities> &annotCap);
 
 
   bool expandToFullUri(std::string &entry);

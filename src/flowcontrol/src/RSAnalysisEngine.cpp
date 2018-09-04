@@ -54,9 +54,11 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
     std::string genXmlPath = convertYamlToXML(a);
     if(genXmlPath != "")
-        delegateMapping[a]  = genXmlPath;
-    else
-        outError("Could not generate and XML for: "<<a);
+      delegateMapping[a]  = genXmlPath;
+    else {
+      outError("Could not generate and XML for: " << a);
+      exit(1);
+    }
   }
 
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
@@ -64,8 +66,13 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
   }
-  engine_->setParallel(parallel);
+  if(errorInfo.getErrorId() != UIMA_ERR_NONE) {
+    outError("createAnalysisEngine failed.");
+    throw std::runtime_error("An error occured during initializations;");
+  }
 
+  engine_->setParallel(parallel);
+  parallel_ = parallel;
 #ifdef WITH_JSON_PROLOG
   if(parallel) {
     engine_->initParallelPipelineManager();
@@ -73,10 +80,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   }
 #endif
 
-  if(errorInfo.getErrorId() != UIMA_ERR_NONE) {
-    outError("createAnalysisEngine failed.");
-    throw std::runtime_error("An error occured during initializations;");
-  }
   const uima::AnalysisEngineMetaData &data = engine_->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name_);
 
@@ -92,23 +95,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     throw uima::Exception(uima::ErrorMessage(UIMA_ERR_ENGINE_NO_CAS), UIMA_ERR_ENGINE_NO_CAS, uima::ErrorInfo::unrecoverable);
   }
 
-  parallel_ = parallel;
-
-
-  std::vector<icu::UnicodeString> &non_const_nodes = engine_->getFlowConstraintNodes();
-  std::vector<std::string> fixedFlow;
-  outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
-  for(int i = 0; i < non_const_nodes.size(); i++) {
-    std::string tempString;
-    non_const_nodes.at(i).toUTF8String(tempString);
-    outInfo(tempString);
-    fixedFlow.push_back(tempString);
-  }
-
 #ifdef WITH_JSON_PROLOG
   if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0))) {
     jsonPrologInterface.retractAllAnnotators();
-    jsonPrologInterface.assertAnnotators(fixedFlow);
+    jsonPrologInterface.assertAnnotators(delegates_, delegateCapabilities_);
   }
   else {
     outWarn("Json Prolog is not running! Query answering will not be possible");
@@ -126,26 +116,27 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
 std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
 {
-   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
-    if(yamlPath == "") {
-      outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
-      exit(1);
-    }
+  std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
+  if(yamlPath == "") {
+    outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
+    exit(1);
+  }
   // If the path is yaml file, we need to convert it to xml
   if(boost::algorithm::ends_with(yamlPath, "yaml")) {
 
     YamlToXMLConverter converter(yamlPath);
     try {
       converter.parseYamlFile();
+      rs::AnnotatorCapabilities constraints = converter.getAnnotatorCapabilities();
+      delegateCapabilities_.push_back(constraints);
     }
     catch(YAML::ParserException e) {
       outError("Exception happened when parsing the yaml file: " << yamlPath);
       outError(e.what());
+      return "";
     }
 
     try {
-      boost::filesystem::path p(yamlPath);
-
       // To Get $HOME path
       passwd *pw = getpwuid(getuid());
       std::string HOMEPath(pw->pw_dir);
@@ -155,7 +146,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
-      converter.getOutput(of);
+      converter.getXml(of);
       of.close();
       return xmlPath;
     }
@@ -168,6 +159,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       return "";
     }
   }
+  return "";
 }
 
 void RSAnalysisEngine::stop()

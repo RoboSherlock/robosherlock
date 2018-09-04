@@ -42,6 +42,13 @@ namespace rs
 #define AE_SEARCHPATH "/descriptors/analysis_engines/"
 #define ANNOT_SEARCHPATH "/descriptors/annotators/"
 
+struct AnnotatorCapabilities {
+    std::map<std::string,std::vector<std::string>> oTypeValueDomains;
+    std::map<std::string,std::vector<std::string>> iTypeValueRestrictions;
+    std::vector<std::string> domain;
+};
+
+
 namespace common
 {
 

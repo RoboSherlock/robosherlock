@@ -9,6 +9,9 @@
 #include <yaml-cpp/mark.h>
 #include <yaml-cpp/yaml.h>
 
+#include <rs/utils/output.h>
+#include <rs/utils/common.h>
+
 using namespace std;
 
 class YamlToXMLConverter {
@@ -23,14 +26,17 @@ public:
     void setAEName(string name);
     void setFrameImpl(string name);
     void setHeader(string name);
+    void getXml(ofstream& out);
 
-    void getOutput(ofstream& out);
+    rs::AnnotatorCapabilities getAnnotatorCapabilities();
 
     string yamlPath;
 
 private:
 
     YAML::Node config;
+
+    rs::AnnotatorCapabilities annotCap;
 
     string header;
     string AEName;
@@ -46,9 +52,10 @@ private:
     string getType(const YAML::Node& node);
     string getTypeFilePath();
 
-    bool genAnnotatorInfo(const YAML::Node& node);
-    bool genConfigParamInfo(const YAML::Node& node);
-    bool genCapabInfo(const YAML::Node& node);
+    bool parseAnnotatorInfo(const YAML::Node& node);
+    bool parseConfigParamInfo(const YAML::Node& node);
+    bool parseCapabInfo(const YAML::Node& node);
+
 };
 
 #endif
