@@ -162,7 +162,7 @@ public:
   
     TyErrorId reconfigure()
   {
-    outError("Reconfiguring");
+    outInfo("Reconfiguring");
     AnnotatorContext &ctx = getAnnotatorContext();
     initialize(ctx);
     if(ctx.isParameterDefined("plane_estimation_mode"))

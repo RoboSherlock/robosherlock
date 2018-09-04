@@ -1,0 +1,8 @@
+annotator:
+  description: Detects blur in image.
+  implementation: rs_BlurDetectorAnnotator
+  name: BlurDetectorAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters: {}

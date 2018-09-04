@@ -1,0 +1,16 @@
+annotator:
+  description: Over segment point cloud and produce point cloud clusters of same plane.
+  implementation: rs_overSegmentationAnnotator
+  name: OverSegmentationAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  curvatureThreshold: 0.5
+  maxClusterSize: 1000000
+  maxNormalThreshold: 0.15
+  minClusterSize: 120
+  minNormalThreshold: 0.13
+  neighborNumber: 5
+  numSegmentation: 2
+  overlapThreshold: 0.8

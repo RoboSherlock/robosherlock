@@ -1,0 +1,24 @@
+annotator:
+  implementation: rs_SacModelAnnotator
+  name: SacModelAnnotator
+capabilities:
+  inputs:
+  - rs.scene.MergedCluster
+  - rs.pcl.NormalsCloud
+  outputs:
+  - rs.annotation.Shape
+  - rs.annotation.CylindricalShape
+  domain: [cylinder]
+parameters:
+  apply_to_clusters: true
+  distanceThreshold: 0.05
+  distanceWeight: 0.1
+  downsample: true
+  downsampleLeafSize: 0.04
+  maxOpeningAngle: 0.7
+  minOpeningAngle: 0.1
+  minPoints: 200
+  radiusLimit1: 0.01
+  radiusLimit2: 0.5
+  sacModel: 6
+  useNormals: true

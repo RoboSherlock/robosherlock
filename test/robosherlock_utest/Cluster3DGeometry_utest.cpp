@@ -11,7 +11,7 @@ void cluster3DGeometryTest()
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","Cluster3DGeometryAnnotator"};
   engine.setPipelineOrdering(engineList);
-  
+  engine.resetCas();
   engine.process();
   cas = engine.getCas();
   
@@ -30,6 +30,7 @@ void cluster3DGeometryTest()
     std::vector<rs::Geometry> geometry;
    
     cluster.annotations.filter(geometry);
+    EXPECT_TRUE(geometry.size()>0);
     for (int i = 0; i<geometry.size();i++)
     {
       rs::BoundingBox3D boundingBox = geometry[i].boundingBox.get();

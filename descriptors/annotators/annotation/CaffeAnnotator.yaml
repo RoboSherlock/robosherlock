@@ -1,0 +1,13 @@
+annotator:
+  name: CaffeAnnotator 
+  implementation: rs_CaffeAnnotator
+  description: 'use CNNs trained in as feature exgtractors'
+parameters:
+  caffe_annotator_model_file: '/caffe/models/bvlc_reference_caffenet/deploy.prototxt' # paths are relative to rs_resources
+  caffe_annotator_trained_file: '/caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'
+  caffe_annotator_mean_file: '/caffe/data/imagenet_mean.binaryproto'
+  caffe_annotator_label_file: '/caffe/data/synset_words.txt'
+  caffe_annotator_noramlize: true
+capabilities:
+  inputs: ['rs.scene.MergedCluster']
+  outputs: ['rs.annotation.Features']
