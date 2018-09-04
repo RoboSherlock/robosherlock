@@ -98,7 +98,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 #ifdef WITH_JSON_PROLOG
   if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0))) {
     jsonPrologInterface.retractAllAnnotators();
-    jsonPrologInterface.assertAnnotators(delegates_, delegateCapabilities_);
+    jsonPrologInterface.assertAnnotators(delegateCapabilities_);
   }
   else {
     outWarn("Json Prolog is not running! Query answering will not be possible");
@@ -127,8 +127,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
     YamlToXMLConverter converter(yamlPath);
     try {
       converter.parseYamlFile();
-      rs::AnnotatorCapabilities constraints = converter.getAnnotatorCapabilities();
-      delegateCapabilities_.push_back(constraints);
+      delegateCapabilities_[annotatorName] =converter.getAnnotatorCapabilities();
     }
     catch(YAML::ParserException e) {
       outError("Exception happened when parsing the yaml file: " << yamlPath);

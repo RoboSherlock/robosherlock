@@ -64,7 +64,7 @@ protected:
   uima::CAS *cas_;
 
   std::vector<std::string> delegates_;
-  std::vector<rs::AnnotatorCapabilities> delegateCapabilities_;
+  std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
 
 #ifdef WITH_JSON_PROLOG
   JsonPrologInterface jsonPrologInterface;

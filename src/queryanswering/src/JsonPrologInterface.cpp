@@ -234,26 +234,26 @@ bool JsonPrologInterface::retractAllAnnotators()
   return true;
 }
 
-bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNames,const  std::vector<rs::AnnotatorCapabilities> &annotatorCapabilities)
+bool JsonPrologInterface::assertAnnotators( const  std::map<std::string,rs::AnnotatorCapabilities> &annotatorCapabilities)
 {
   json_prolog::Prolog pl;
-  for(auto a : annotatorNames)
+  for(auto a : annotatorCapabilities)
   {
     std::string nameWithNS;
-    if(addNamespace(a, nameWithNS))
+    if(addNamespace(a.first, nameWithNS))
     {
       std::stringstream prologQuery;
       prologQuery << "owl_instance_from_class(" << nameWithNS << "," << "I)";
       json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
       for(auto bdg : bdgs)
       {
-        //        outInfo("Individual generated: " << bdg["I"]);
+        //outInfo("Individual generated: " << bdg["I"]);
         assertAnnotatorMetaInfo(a, bdg["I"]);
       }
     }
     else
     {
-      outError("Annotator not modelled in KB:" << a);
+      outError("Annotator not modelled in KB:" << a.first);
       continue;
     }
   }
@@ -261,10 +261,10 @@ bool JsonPrologInterface::assertAnnotators(std::vector<std::string> annotatorNam
 }
 
 
-bool JsonPrologInterface::assertAnnotatorMetaInfo(std::string annotatorName, std::string individualOfAnnotator)
+bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> annotatorData, std::string individualOfAnnotator)
 {
   std::vector<std::string> resultDomain;
-  if(lookupAnnotatorDomain(annotatorName, resultDomain))
+  if(lookupAnnotatorDomain(annotatorData.first, resultDomain))
   {
     std::vector<std::string> resultDomainInKnowRob;
     for(auto d : resultDomain)
