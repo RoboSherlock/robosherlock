@@ -205,17 +205,25 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
   {
     const std::string file = searchPaths[j] + ae;
     const std::string fileXML = file + ".xml";
+    const std::string fileYAML = file + ".yaml";
     //AEs are accepted with or without the xml extension
     if(!stat(file.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
     {
       aePath = file;
       break;
     }
+    else if(!stat(fileYAML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
+    {
+      aePath = fileYAML;
+      break;
+    }
+    /*
     else if(!stat(fileXML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
     {
       aePath = fileXML;
       break;
     }
+    */
   }
   if(aePath.empty())
   {
