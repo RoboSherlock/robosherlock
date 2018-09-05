@@ -68,13 +68,7 @@ void AEYamlToXMLConverter::parseYamlFile() {
                 genConfigParamInfo(value,nodeName);
             }
             else
-	    {  
-	      if ((isConfigParamsEnded==false) && (isConfigParamsStart==true))
-		{
-		  isConfigParamsEnded = true;
-		  configParams.append("    </configurationParameters>\n");
-		  configParamSettings.append("    </configurationParameterSettings>\n");
-		}
+	    { 
 	      if (nodeName == CAPAB_NODE_NAME) {
                 genCapabInfo(value);
                 }
@@ -99,6 +93,12 @@ void AEYamlToXMLConverter::parseYamlFile() {
     { YAML::Node mockNode;
       genCapabInfo(mockNode);
     }
+    if ((!isConfigParamsEnded) && (isConfigParamsStart))
+	{
+	  isConfigParamsEnded = true;
+	  configParams.append("    </configurationParameters>\n");
+	  configParamSettings.append("    </configurationParameterSettings>\n");
+	}
 }
 
 string AEYamlToXMLConverter::getType(const YAML::Node& node) {

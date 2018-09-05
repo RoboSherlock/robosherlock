@@ -43,7 +43,7 @@ RotationalSymmetrySegmentation:
   rotSymSeg_isDownsampled: true
   rotSymSeg_adjacency_radius: 0.01
   rotSymSeg_num_adjacency_neighbors: 12
-  rotSymSeg_adjacency_wight_factor: 5.0
+  rotSymSeg_adjacency_weight_factor: 5.0
   rotSymSeg_min_fit_angle: 0.1
   rotSymSeg_max_fit_angle: 1.1
   rotSymSeg_min_occlusion_dist: 0.01
@@ -64,7 +64,7 @@ BilateralSymmetryAnnotator:
   refine_max_inlier_sym_score: 0.8
   bilSymAnn_min_occlusion_dist: 0.005
   bilSymAnn_max_occlusion_dist: 0.08
-  biltSymAnn_max_occlusion_score: 0.05
+  bilSymAnn_max_occlusion_score: 0.05
   min_segment_inlier_score: 0.2
   min_corres_inlier_score: 0.7
 BilateralSymmetrySegmentation:
