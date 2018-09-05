@@ -62,23 +62,8 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
-  std::unordered_map<std::string, std::string> delegates;
-  std::vector<std::string> annotators;
-  getFixedFlow(AEXMLFile, annotators);
-
-  for(std::string &a : annotators) {
-    std::string path = rs::common::getAnnotatorPath(a);
-    // If the path is yaml file, we need to convert it to xml
-    if(boost::algorithm::ends_with(path, "yaml")) {
-
-      YamlToXMLConverter converter(path);
-      try {
-        converter.parseYamlFile();
-      }
-      catch(YAML::ParserException e) {
-        outError("Exception happened when parsing the yaml file: " << path);
-        outError(e.what());
-      }
+  std::unordered_map<std::string, std::string> delegateMapping;
+  getFixedFlow(AEXMLFile, delegates_);
 
   for(std::string &a : delegates_) {
 

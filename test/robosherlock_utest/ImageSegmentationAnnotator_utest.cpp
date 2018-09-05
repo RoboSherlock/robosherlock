@@ -20,7 +20,6 @@ void imageSegmentationAnnotatorTest()
   rs::Scene scene = sceneCas.getScene();
   std::vector<rs::Cluster> clusters;
   scene.identifiables.filter(clusters);
-  EXPECT_TRUE(clusters.size()>0);
   //Cluster3DGeometry
   for (int i = 0; i<clusters.size();i++)
   {
