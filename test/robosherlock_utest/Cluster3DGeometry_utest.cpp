@@ -31,7 +31,6 @@ void cluster3DGeometryTest()
    
     cluster.annotations.filter(geometry);
     EXPECT_TRUE(geometry.size()>0);
-    
     for (int i = 0; i<geometry.size();i++)
     {
       rs::BoundingBox3D boundingBox = geometry[i].boundingBox.get();
