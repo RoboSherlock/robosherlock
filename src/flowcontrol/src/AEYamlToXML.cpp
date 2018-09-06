@@ -421,5 +421,4 @@ void AEYamlToXMLConverter::getOutput(ofstream &out)
   out << "    </operationalProperties>\n";
   out << "  </analysisEngineMetaData>\n";
   out << "</taeDescription>\n";
-  outInfo("For travis just to see");
 }

@@ -74,7 +74,6 @@ script:
   - catkin_test_results
 
 after_script:
-  - cat /home/travis/.ros/robosherlock_generated_xmls/u_test.xml
   - cd ~/catkin_ws/src/robosherlock
   - lcov --directory ~/catkin_ws/ --capture --output-file coverage_test.info
   - lcov -a coverage_base.info -a coverage_test.info -o ~/catkin_ws/src/robosherlock/coverage_total.info
