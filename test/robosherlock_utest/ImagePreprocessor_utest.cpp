@@ -40,7 +40,7 @@ int preprocessingTest()
   //uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
 
 
-  std::vector<std::string> engineList = {"CollectionReader","PointCloudClusterExtractor","ImagePreprocessor","NormalEstimator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
   engine.setPipelineOrdering(engineList);
 
  try
