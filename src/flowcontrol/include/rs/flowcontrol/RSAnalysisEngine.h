@@ -25,6 +25,8 @@
 #include <rs/utils/exception.h>
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
+#include <rs/flowcontrol/AEYamlToXML.h>
+
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>

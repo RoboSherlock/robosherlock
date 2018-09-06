@@ -96,6 +96,7 @@ public:
 #endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(detector, keypointDetector);
+    detector==NULL?outError("Detector is null"):outError("Detector not null");
 #endif
 
     outDebug("creating " << featureExtractor << " feature extractor...");
@@ -112,6 +113,7 @@ public:
 #endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(extractor, keypointDetector);
+    extractor==NULL?outError("Extractor is null"):outError("Extractor not null");
 #endif
 
     if(featureExtractor == "SIFT" || featureExtractor == "SURF")
