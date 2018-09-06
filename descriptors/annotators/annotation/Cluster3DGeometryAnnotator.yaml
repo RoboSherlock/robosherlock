@@ -10,5 +10,6 @@ parameters:
   overwriteExistingPoseEstimate: false 
 capabilities:
   inputs: ['rs.scene.MergedCluster']
-  outputs: ['rs.annotation.Geometry']
+  outputs: 
+    - rs.annotation.Geometry: [small, medium, big]
   domain: [small, medium, big]

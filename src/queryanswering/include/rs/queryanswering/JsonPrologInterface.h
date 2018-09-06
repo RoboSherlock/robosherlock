@@ -110,13 +110,11 @@ public:
 
   bool expandToFullUri(std::string &entry);
 
-  /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
-   * in: annotator name
+  /* brief:assert capabilities of an annotator of to the knowledge base
+   * in: annotator capabilities (I/O types and restrictions on them)
    * returns: true for succes
    * */
   bool assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> , std::string);
-
-  bool lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

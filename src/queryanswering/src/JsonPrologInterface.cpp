@@ -236,14 +236,47 @@ bool JsonPrologInterface::assertAnnotators(const  std::map<std::string, rs::Anno
 
 bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> annotatorData, std::string individualOfAnnotator)
 {
-  std::vector<std::string> resultDomain = annotatorData.second.domain;
   std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
   std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
 
   if(!inputRestrictions.empty()) {
-    for(auto iR : inputRestrictions) {
-      std::string type = iR.first;
-    }
+      for(auto iR : inputRestrictions) {
+        if(!iR.second.empty()) {
+          std::vector<std::string> inputTypeConstraintInKnowRob;
+          for(auto d : iR.second) {
+            d[0] = std::toupper(d[0]);
+            if(!addNamespace(d)) {
+              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+              continue;
+            }
+            outInfo(d);
+            inputTypeConstraintInKnowRob.push_back(d);
+          }
+
+          std::string typeName = iR.first, typeClass;
+          std::vector<std::string> typeSplit;
+          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+          for(auto &t : typeSplit) {
+            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+            t[0] = std::toupper(t[0]);
+            typeClass.append(t);
+          }
+          outInfo(typeName << ":" << typeClass);
+
+          std::stringstream query;
+          query << "set_annotator_input_type_constraint(" << individualOfAnnotator << ",[";
+          std::string separator = ",";
+          for(auto it = inputTypeConstraintInKnowRob.begin(); it != inputTypeConstraintInKnowRob.end(); ++it) {
+            if(std::next(it) == inputTypeConstraintInKnowRob.end()) separator = "";
+            query << *it << separator;
+          }
+          query << "], rs_components:'"<< typeClass<< "').";
+
+          outInfo("Query: " << query.str());
+          json_prolog::Prolog pl;
+          json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
+        }
+      }
   }
 
   if(!outputDomains.empty()) {
@@ -285,66 +318,7 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string, rs::Ann
       }
     }
   }
-
-  if(!resultDomain.empty()) {
-    std::vector<std::string> resultDomainInKnowRob;
-    for(auto d : resultDomain) {
-      d[0] = std::toupper(d[0]);
-      if(!addNamespace(d)) {
-        outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
-        continue;
-      }
-      outInfo(d);
-      resultDomainInKnowRob.push_back(d);
-    }
-    std::stringstream query;
-    query << "set_annotator_domain(" << individualOfAnnotator << ",[";
-    std::string separator = ",";
-    for(auto it = resultDomainInKnowRob.begin(); it != resultDomainInKnowRob.end(); ++it) {
-      if(std::next(it) == resultDomainInKnowRob.end()) separator = "";
-      query << *it << separator;
-    }
-    query << "]).";
-
-    outInfo("Query: " << query.str());
-    json_prolog::Prolog pl;
-    json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
-    if(bdgs.begin() != bdgs.end()) {
-      return true;
-    }
-    return false;
-  }
-  return false;
-}
-
-bool JsonPrologInterface::lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain)
-{
-  //  std::string pathToAnnot = rs::common::getAnnotatorPath(annotatorName);
-  boost::filesystem::path pathToAnnot(rs::common::getAnnotatorPath(annotatorName));
-
-  if(pathToAnnot.extension() == ".yaml") {
-    YAML::Node config;
-    config = YAML::LoadFile(pathToAnnot.string());
-    for(YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
-      YAML::Node key = it->first;
-      YAML::Node value = it->second;
-      if(key.Type() == YAML::NodeType::Scalar) {
-        std::string nodeName = key.as<std::string>();
-        if(nodeName == "capabilities") {
-          if(value.Type() == YAML::NodeType::Map) {
-            for(YAML::const_iterator mit = value.begin(); mit != value.end(); ++mit) {
-              std::string name = mit->first.as<std::string>();
-              if(name == "domain") {
-                domain = mit->second.as<std::vector<std::string>>();
-                return true;
-              }
-            }
-          }
-        }
-      }
-    }
-  }
-  return false;
+  return true;
 }
 
 
