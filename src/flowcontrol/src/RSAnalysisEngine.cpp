@@ -51,6 +51,8 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   //Extract the AE name without the extension
   boost::filesystem::path AEYamlPath(file);
   std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() +".xml");
+  
+  outInfo("Generating xml file:" << AEXMLFile);
   //Generate the xml from the yaml config and then process the XML
   AEYamlToXMLConverter aeConverter(file);
   aeConverter.parseYamlFile();
@@ -70,6 +72,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     std::string genXmlPath = convertYamlToXML(a);
     if(genXmlPath != "")
         delegateMapping[a]  = genXmlPath;
+        outInfo("Generated annotator XML: " <<genXmlPath);
     else
         outError("Could not generate and XML for: "<<a);
   }
