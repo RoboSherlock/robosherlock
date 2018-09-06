@@ -63,8 +63,8 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
   std::unordered_map<std::string, std::string> delegateMapping;
-  getFixedFlow(AEXMLFile, delegates_);
-
+  //getFixedFlow(AEXMLFile, delegates_);
+  aeConverter.getDelegates(delegates_);
   for(std::string &a : delegates_) {
 
     std::string genXmlPath = convertYamlToXML(a);
@@ -73,7 +73,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     else
         outError("Could not generate and XML for: "<<a);
   }
-
+  
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");

@@ -26,6 +26,7 @@ public:
     void setHeader(string name);
 
     void getOutput(ofstream& out);
+    void getDelegates(vector<string> &delegates_);
 
     string yamlPath;
 
@@ -54,5 +55,6 @@ private:
     bool genFlowConstraints(const YAML::Node& node);
     bool genFsIndexCollection(const YAML::Node& node);
     bool genCapabInfo(const YAML::Node& node);
+    vector<string> delegates_;
 };
 #endif

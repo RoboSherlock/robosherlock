@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include <rs/flowcontrol/AEYamlToXML.h>
-
+#include <rs/utils/common.h>
 #include <ros/package.h>
 
 using namespace std;
@@ -19,18 +19,6 @@ static const string CAPAB_NODE_NAME = "capabilities";
 
 //HERE ARE THE ANALYSIS ENGINEES STRING COSTANT PARAMETERS FOR THE YAML FILE
 static const string FIXED_FLOW_NODE_NAME = "fixedflow";
-static const vector<string> AE_NAMES = { "CollectionReader", "ImagePreprocessor", "PointCloudClusterExtractor", \
-  "NormalEstimator", "PlaneAnnotator", "ImageSegmentationAnnotator", "PointCloudFilter", "ClusterMerger", \
-  "Cluster3DGeometryAnnotator", "ClustColorHistogramCalculator", "PrimitiveShapeAnnotator", "FeatureAnnotator", \
-  "SacModelAnnotator", "PCLDescriptorExtractor", "StorageWriter", "OverSegmentationAnnotator", "RotationalSymmetryAnnotator",\
-  "RotationalSymmetrySegmentation","BilateralSymmetryAnnotator","BilateralSymmetrySegmentation","SegmentationResultDisplayer"
-  
-};
-  
-bool AEYamlToXMLConverter::isInAEList(const std::string value)
-{
-  return std::find(AE_NAMES.begin(),AE_NAMES.end(),value)!=AE_NAMES.end();
-}  
 
 AEYamlToXMLConverter::AEYamlToXMLConverter(string path)
     : frameImpl("org.apache.uima.cpp"),
@@ -43,6 +31,11 @@ AEYamlToXMLConverter::AEYamlToXMLConverter(string path)
     } catch(YAML::ParserException e) {
         cerr << "Error occurs when parsing the file." << std::endl;
     }
+}
+
+void AEYamlToXMLConverter::getDelegates(vector<string> &delegates)
+{
+  delegates = delegates_;
 }
 
 void AEYamlToXMLConverter::parseYamlFile() {
@@ -58,7 +51,7 @@ void AEYamlToXMLConverter::parseYamlFile() {
             if (nodeName == AE_NODE_NAME) {
                 genAEInfo(value);
             }
-            else if (isInAEList(nodeName)) {
+            else if (rs::common::getAnnotatorPath(nodeName)!="") {
 	        if (!isConfigParamsStart)
 		{
 		  isConfigParamsStart = true;
@@ -291,6 +284,7 @@ bool AEYamlToXMLConverter::genFlowConstraints(const YAML::Node& node) {
 	flowConstraints.append("        <node>");
 	flowConstraints.append(e);
 	flowConstraints.append("</node>\n");
+	delegates_.push_back(e);
     }
   }
   flowConstraints.append("      </fixedFlow>\n");
