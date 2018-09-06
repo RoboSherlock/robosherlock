@@ -64,7 +64,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
   std::unordered_map<std::string, std::string> delegateMapping;
-  //getFixedFlow(AEXMLFile, delegates_);
+  getFixedFlow(AEXMLFile, delegates_);
   aeConverter.getDelegates(delegates_);
   for(std::string &a : delegates_) {
 
@@ -77,6 +77,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     }
   }
   outInfo("generated XML for annotators");
+
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
@@ -271,8 +272,9 @@ void RSAnalysisEngine::getFixedFlow(const std::string filePath,
 
     std::stringstream buffer;
     buffer << fs.rdbuf();
-    std::string content = buffer.str();
 
+    std::string content = buffer.str();
+    outInfo(content);
     if((pos = content.find("<fixedFlow>")) != std::string::npos)
       content = content.substr(pos + 11);
     else {
