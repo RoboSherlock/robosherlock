@@ -63,7 +63,7 @@ void featureAnnotator()
   engine.process();
   cas = engine.getCas();
   processFeatureCluster(cas);*/		
-  
+  outError("DONE");
 }
 
 TEST(UnitTest,FeatureAnnotator)
