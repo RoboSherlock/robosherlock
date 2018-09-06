@@ -46,19 +46,20 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
   //Get the processed XML file
   passwd *pw = getpwuid(getuid());
-  std::string HOMEPath(pw->pw_dir); 
+  std::string HOMEPath(pw->pw_dir);
   std::string AEXMLDir(HOMEPath + "/" + GEN_XML_PATH);
   //Extract the AE name without the extension
   boost::filesystem::path AEYamlPath(file);
-  std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() +".xml");
+  std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() + ".xml");
   //Generate the xml from the yaml config and then process the XML
   AEYamlToXMLConverter aeConverter(file);
   aeConverter.parseYamlFile();
-  ofstream xmlOutput;
+  std::ofstream xmlOutput;
   xmlOutput.open(AEXMLFile);
   aeConverter.getOutput(xmlOutput);
+  xmlOutput.flush();
   xmlOutput.close();
-
+  outInfo("Converted to: " << AEXMLFile);
   // Before creating the analysis engine, we need to find the annotators
   // that belongs to the fixed flow by simply looking for keyword fixedFlow
   //mapping between the name of the annotator to the path of it
@@ -75,7 +76,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
       exit(1);
     }
   }
-  
+  outInfo("generated XML for annotators");
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
@@ -142,7 +143,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
     YamlToXMLConverter converter(yamlPath);
     try {
       converter.parseYamlFile();
-      delegateCapabilities_[annotatorName] =converter.getAnnotatorCapabilities();
+      delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
     }
     catch(YAML::ParserException e) {
       outError("Exception happened when parsing the yaml file: " << yamlPath);

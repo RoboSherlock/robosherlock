@@ -36,7 +36,6 @@ YamlToXMLConverter::YamlToXMLConverter(string path)
 
 void YamlToXMLConverter::parseYamlFile()
 {
-  outInfo("Parsing");
   for(YAML::const_iterator it = config.begin(); it != config.end(); ++it) {
     YAML::Node key = it->first;
     YAML::Node value = it->second;
@@ -300,7 +299,6 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node)
               int size = std::distance(n.begin(), n.end());
               if(size == 1) {
                 for(auto e : n) {
-                  outInfo(e.first);
                   if(e.second.Type() == YAML::NodeType::Sequence) {
                     std::vector<string> listValue = e.second.as<std::vector<string>>();
                     annotCap.oTypeValueDomains[e.first.as<std::string>()] = e.second.as<std::vector<std::string>>();
@@ -314,17 +312,6 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node)
             }
           }
         }
-      }
-      else if(name == "domain") {
-        outWarn("Deprecated use of domain: specify domain values as part of the output type;");
-        if(mit->second.Type() == YAML::NodeType::Scalar) {  // scalar
-          outError("Outputs must be sequence type.");
-          return false;
-        }
-        else if(mit->second.Type() == YAML::NodeType::Sequence) {
-          annotCap.domain = mit->second.as<std::vector<std::string>>();
-        }
-
       }
       else continue;
     }
