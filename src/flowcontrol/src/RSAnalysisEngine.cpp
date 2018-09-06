@@ -55,8 +55,12 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   AEYamlToXMLConverter aeConverter(file);
   aeConverter.parseYamlFile();
   std::ofstream xmlOutput;
+
   xmlOutput.open(AEXMLFile);
+  int i1 = xmlOutput::tellp();
   aeConverter.getOutput(xmlOutput);
+  int i2 = xmlOutput::tellp();
+  outInfo("Is this empty?: Size of ofstream"<<i2-i1);
   xmlOutput.flush();
   xmlOutput.close();
   outInfo("Converted to: " << AEXMLFile);
