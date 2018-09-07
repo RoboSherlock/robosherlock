@@ -22,6 +22,7 @@
 
 #include <iostream>
 #include <string.h>
+#include <ros/console.h>
 
 #define NO_COLOR        "\033[0m"
 
@@ -76,10 +77,12 @@
 #define OUT_AUX_INT(FILE_COLOR, MSG_COLOR, LEVEL, STREAM, MSG, FILE, LINE, FUNCTION) LEVEL <= OUT_LEVEL && STREAM << FILE_COLOR << FILE << NO_COLOR "(" FG_CYAN << LINE << NO_COLOR ")[" FG_YELLOW << FUNCTION << NO_COLOR "] " MSG_COLOR << MSG << NO_COLOR << std::endl << std::flush
 #define OUT_AUX(FILE_COLOR, MSG_COLOR, LEVEL, STREAM, MSG) OUT_AUX_INT(FILE_COLOR, MSG_COLOR, LEVEL, STREAM, MSG, OUT_FILENAME, __LINE__, __FUNCTION__)
 
-#define outDebug(msg) OUT_AUX(FG_BLUE, NO_COLOR, OUT_LEVEL_DEBUG, OUT_STD_STREAM, msg)
-#define outInfo(msg)  OUT_AUX(FG_GREEN, NO_COLOR, OUT_LEVEL_INFO,  OUT_STD_STREAM, msg)
-#define outWarn(msg) OUT_AUX(FG_YELLOW, FG_YELLOW, OUT_LEVEL_ERROR, OUT_ERR_STREAM, msg)
-#define outError(msg) OUT_AUX(FG_RED, FG_RED, OUT_LEVEL_ERROR, OUT_ERR_STREAM, msg)
+#define outDebug(msg) ROS_DEBUG_STREAM(FG_BLUE << OUT_FILENAME << NO_COLOR "(" FG_CYAN << __LINE__ << NO_COLOR ")[" FG_YELLOW << __FUNCTION__ << NO_COLOR "] " NO_COLOR << msg << NO_COLOR )
+#define outInfo(msg) ROS_INFO_STREAM(FG_GREEN << OUT_FILENAME << NO_COLOR "(" FG_CYAN << __LINE__ << NO_COLOR ")[" FG_YELLOW << __FUNCTION__ << NO_COLOR "] " NO_COLOR << msg << NO_COLOR )
+#define outWarn(msg) ROS_INFO_STREAM(FG_YELLOW << OUT_FILENAME << FG_YELLOW "(" FG_CYAN << __LINE__ << NO_COLOR ")[" FG_YELLOW << __FUNCTION__ << NO_COLOR "] " FG_YELLOW << msg << FG_YELLOW )
+#define outError(msg) ROS_ERROR_STREAM(FG_RED << OUT_FILENAME << NO_COLOR "(" FG_RED << __LINE__ << FG_RED ")[" FG_RED << __FUNCTION__ << FG_RED "] " FG_RED << msg << FG_RED )
+
+
 #define outAssert(expr,msg) if (!(expr)) OUT_AUX(FG_MAGENTA, FG_MAGENTA, OUT_LEVEL_ERROR, OUT_ERR_STREAM, msg)
 
 #endif /* OUTPUT_H_ */
