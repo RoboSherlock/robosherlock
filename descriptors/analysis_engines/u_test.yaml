@@ -1,0 +1,23 @@
+fixedflow:
+  - CollectionReader
+  - ImagePreprocessor
+  - PlaneAnnotator
+  - PointCloudClusterExtractor
+  - ImageSegmentationAnnotator
+  - PointCloudFilter
+  - Cluster3DGeometryAnnotator
+  - ClusterColorHistogramCalculator
+  - PrimitiveShapeAnnotator
+  - NormalEstimator
+  - FeatureAnnotator
+  - SacModelAnnotator
+  - PCLDescriptorExtractor
+  - StorageWriter
+ae:
+  name : u_test
+CollectionReader:
+  camera_config_files : ['config_data_loader_utest.ini']
+StorageWriter:
+  storagedb: 'Scenes'
+
+

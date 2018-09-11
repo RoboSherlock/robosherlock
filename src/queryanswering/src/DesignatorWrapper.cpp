@@ -215,7 +215,6 @@ void DesignatorWrapper::convert(rs::Shape &input, rapidjson::Document *object)
   {
     rapidjson::Value &array = (*object)["shape"];
     std::string size = std::to_string(array.Size());
-    outInfo(size);
     rapidjson::Pointer("/shape/" + size).Set(*object, input.shape());
   }
   //object->AddMember("shape",input.shape(),object->GetAllocator());
@@ -239,7 +238,7 @@ void DesignatorWrapper::convert(rs::PoseAnnotation &input, rapidjson::Document *
   nestedValue.AddMember("pose_stamped", poseJsonObj, object->GetAllocator());
 
   uint64_t diff = now - tf_stamped_pose.stamp_.toNSec();
-  outWarn("Time diff in poses: " << diff);
+  outDebug("Time diff in poses: " << diff);
   if(diff == 0)
   {
     if(!object->HasMember("poses"))

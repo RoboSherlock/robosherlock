@@ -42,14 +42,20 @@ namespace rs
 #define AE_SEARCHPATH "/descriptors/analysis_engines/"
 #define ANNOT_SEARCHPATH "/descriptors/annotators/"
 
+struct AnnotatorCapabilities {
+  std::map<std::string, std::vector<std::string>> oTypeValueDomains;
+  std::map<std::string, std::vector<std::string>> iTypeValueRestrictions;
+  std::vector<std::string> domain;
+};
+
+
 namespace common
 {
 
 #define COLOR_TO_SCALAR(i) CV_RGB((colors[i] >> 16) & 0xFF, (colors[i] >> 8) & 0xFF, colors[i] & 0xFF)
 #define COLOR_TO_VEC3B(i) cv::Vec3b(colors[i] & 0xFF, (colors[i] >> 8) & 0xFF, (colors[i] >> 16) & 0xFF)
 //BGR
-static const uint32_t colors[] =
-{
+static const uint32_t colors[] = {
   0xFF0000,
   0x00FF00,
   0x0000FF,
@@ -70,8 +76,7 @@ static const uint32_t colors[] =
   0x008080
 };
 
-static const std::map<std::string, cv::Scalar> colorMap
-{
+static const std::map<std::string, cv::Scalar> colorMap {
   {"red", CV_RGB(255, 0, 0)},
   {"yellow", CV_RGB(255, 255, 0)},
   {"green", CV_RGB(0, 255, 0)},
@@ -83,8 +88,7 @@ static const std::map<std::string, cv::Scalar> colorMap
   {"grey", CV_RGB(127, 127, 127)}
 };
 
-static const cv::Scalar cvScalarColors[] =
-{
+static const cv::Scalar cvScalarColors[] = {
   COLOR_TO_SCALAR(0),
   COLOR_TO_SCALAR(1),
   COLOR_TO_SCALAR(2),
@@ -105,8 +109,7 @@ static const cv::Scalar cvScalarColors[] =
   COLOR_TO_SCALAR(17)
 };
 
-static const cv::Vec3b cvVec3bColors[] =
-{
+static const cv::Vec3b cvVec3bColors[] = {
   COLOR_TO_VEC3B(0),
   COLOR_TO_VEC3B(1),
   COLOR_TO_VEC3B(2),
@@ -140,28 +143,23 @@ inline std::string base64_encode(unsigned char const *bytes_to_encode, unsigned 
   unsigned char char_array_3[3];
   unsigned char char_array_4[4];
 
-  while(in_len--)
-  {
+  while(in_len--) {
     char_array_3[i++] = *(bytes_to_encode++);
-    if(i == 3)
-    {
+    if(i == 3) {
       char_array_4[0] = (char_array_3[0] & 0xfc) >> 2;
       char_array_4[1] = ((char_array_3[0] & 0x03) << 4) + ((char_array_3[1] & 0xf0) >> 4);
       char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
       char_array_4[3] = char_array_3[2] & 0x3f;
 
-      for(i = 0; (i < 4) ; i++)
-      {
+      for(i = 0; (i < 4) ; i++) {
         ret += base64_chars[char_array_4[i]];
       }
       i = 0;
     }
   }
 
-  if(i)
-  {
-    for(j = i; j < 3; j++)
-    {
+  if(i) {
+    for(j = i; j < 3; j++) {
       char_array_3[j] = '\0';
     }
 
@@ -170,13 +168,11 @@ inline std::string base64_encode(unsigned char const *bytes_to_encode, unsigned 
     char_array_4[2] = ((char_array_3[1] & 0x0f) << 2) + ((char_array_3[2] & 0xc0) >> 6);
     char_array_4[3] = char_array_3[2] & 0x3f;
 
-    for(j = 0; (j < i + 1); j++)
-    {
+    for(j = 0; (j < i + 1); j++) {
       ret += base64_chars[char_array_4[j]];
     }
 
-    while((i++ < 3))
-    {
+    while((i++ < 3)) {
       ret += '=';
     }
 
@@ -195,35 +191,37 @@ inline bool getAEPaths(const std::string ae, std::string &aePath)
   //look for packages dependent on core and find their full path
   std::vector<std::string> child_packages;
   ros::package::command("depends-on robosherlock", child_packages);
-  for(size_t i = 0; i < child_packages.size(); ++i)
-  {
+  for(size_t i = 0; i < child_packages.size(); ++i) {
     searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(AE_SEARCHPATH));
   }
 
   struct stat fileStat;
-  for(size_t j = 0; j < searchPaths.size(); ++j)
-  {
+  for(size_t j = 0; j < searchPaths.size(); ++j) {
     const std::string file = searchPaths[j] + ae;
     const std::string fileXML = file + ".xml";
+    const std::string fileYAML = file + ".yaml";
     //AEs are accepted with or without the xml extension
-    if(!stat(file.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
-    {
+    if(!stat(file.c_str(), &fileStat) && S_ISREG(fileStat.st_mode)) {
       aePath = file;
       break;
     }
+    else if(!stat(fileYAML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode)) {
+      aePath = fileYAML;
+      break;
+    }
+    /*
     else if(!stat(fileXML.c_str(), &fileStat) && S_ISREG(fileStat.st_mode))
     {
       aePath = fileXML;
       break;
     }
+    */
   }
-  if(aePath.empty())
-  {
+  if(aePath.empty()) {
     outWarn("no AE found with that name");
     return false;
   }
-  else
-  {
+  else {
     return true;
   }
 }
@@ -239,36 +237,27 @@ inline std::string getAnnotatorPath(const std::string annotator)
   searchPaths.push_back(ros::package::getPath("robosherlock") + std::string(ANNOT_SEARCHPATH));
   std::vector<std::string> child_packages;
   ros::package::command("depends-on robosherlock", child_packages);
-  for(size_t i = 0; i < child_packages.size(); ++i)
-  {
+  for(size_t i = 0; i < child_packages.size(); ++i) {
     searchPaths.push_back(ros::package::getPath(child_packages[i]) + std::string(ANNOT_SEARCHPATH));
   }
 
-  for(auto sp : searchPaths)
-  {
+  for(auto sp : searchPaths) {
     boost::filesystem::path p(sp);
-    try
-    {
+    try {
       boost::filesystem::recursive_directory_iterator dir(p), end;
-      while(dir != end)
-      {
-        if(boost::filesystem::is_regular_file(dir->path()))
-        {            
-            if (dir->path().stem() == annotator)
-            {
-                outDebug("Found it at: "<<dir->path().string());
-                return dir->path().string();
-            }
+      while(dir != end) {
+        if(boost::filesystem::is_regular_file(dir->path())) {
+          if(dir->path().stem() == annotator) {
+            return dir->path().string();
+          }
         }
-        if(dir->path().filename() == ".")
-        {
+        if(dir->path().filename() == ".") {
           dir.no_push(); // don't recurse into this directory.
         }
         dir++;
       }
     }
-    catch(boost::filesystem::filesystem_error err)
-    {
+    catch(boost::filesystem::filesystem_error err) {
       outDebug(err.what());
     }
   }

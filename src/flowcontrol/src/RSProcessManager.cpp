@@ -103,7 +103,11 @@ void RSProcessManager::run()
         usleep(100000);
       }
       else {
-        engine_.process();
+        std::vector<std::string> objDescriptions;
+        engine_.process(objDescriptions, "");
+        robosherlock_msgs::RSObjectDescriptions objDescr;
+        objDescr.obj_descriptions = objDescriptions;
+        result_pub.publish(objDescr);
       }
     }
     usleep(100000);
@@ -215,7 +219,7 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
   }
 
 
-  if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end()){
+  if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end()) {
     newPipelineOrder.push_back("ObjectIdentityResolution");
   }
 

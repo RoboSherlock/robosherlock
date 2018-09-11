@@ -102,21 +102,19 @@ public:
 
   /*brief
    * create individuals for the anntators in the list
-   * in: vector containing annotator names
+   * in: map containing annotator names and capability information
    * return true on succes:
    * */
-  bool assertAnnotators(std::vector<std::string> annotatorNames);
+  bool assertAnnotators(const std::map<std::string,rs::AnnotatorCapabilities> &annotCap);
 
 
   bool expandToFullUri(std::string &entry);
 
-  /* brief: parse the annotator xmls and assert ceratin parts of it to the knowledgebase
-   * in: annotator name
+  /* brief:assert capabilities of an annotator of to the knowledge base
+   * in: annotator capabilities (I/O types and restrictions on them)
    * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::string , std::string);
-
-  bool lookupAnnotatorDomain(std::string annotatorName, std::vector<std::string> &domain);
+  bool assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> , std::string);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

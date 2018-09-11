@@ -44,28 +44,56 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
   uima::ErrorInfo errorInfo;
 
-  // Before creating the analysis engine, we need to find the annotators
-  // that belongs to the fixed flow by simply looking for keyword fixedFlow
-  //mapping between the name of the annotator to the path of it
-  std::unordered_map<std::string, std::string> delegateMapping;
-  getFixedFlow(file, delegates_);
+  //Get the processed XML file
+  passwd *pw = getpwuid(getuid());
+  std::string HOMEPath(pw->pw_dir);
+  std::string AEXMLDir(HOMEPath + "/" + GEN_XML_PATH);
+  if(!boost::filesystem::exists(AEXMLDir))
+    boost::filesystem::create_directory(AEXMLDir);
+  //Extract the AE name without the extension
+  boost::filesystem::path AEYamlPath(file);
+  std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() + ".xml");
+  //Generate the xml from the yaml config and then process the XML
+  AEYamlToXMLConverter aeConverter(file);
+  aeConverter.parseYamlFile();
+  std::ofstream xmlOutput;
 
+  xmlOutput.open(AEXMLFile);  
+  aeConverter.getOutput(xmlOutput);
+  xmlOutput.close();
+  outInfo("Converted to: " << AEXMLFile);
+
+  //Before creating the analysis engine, we need to find the annotators
+  //that belongs to the fixed flow by simply looking for keyword fixedFlow
+  //mapping between the name of the annotator to the path of it
+  //TODO replace this with a DOM creation;
+  std::unordered_map<std::string, std::string> delegateMapping;
+
+  aeConverter.getDelegates(delegates_);
   for(std::string &a : delegates_) {
 
     std::string genXmlPath = convertYamlToXML(a);
     if(genXmlPath != "")
-        delegateMapping[a]  = genXmlPath;
-    else
-        outError("Could not generate and XML for: "<<a);
+      delegateMapping[a]  = genXmlPath;
+    else {
+      outError("Could not generate and XML for: " << a);
+      exit(1);
+    }
   }
+  outInfo("generated XML for annotators");
 
-  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(file.c_str(), delegateMapping, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
   }
-  engine_->setParallel(parallel);
+  if(errorInfo.getErrorId() != UIMA_ERR_NONE) {
+    outError("createAnalysisEngine failed.");
+    throw std::runtime_error("An error occured during initializations;");
+  }
 
+  engine_->setParallel(parallel);
+  parallel_ = parallel;
 #ifdef WITH_JSON_PROLOG
   if(parallel) {
     engine_->initParallelPipelineManager();
@@ -73,10 +101,6 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   }
 #endif
 
-  if(errorInfo.getErrorId() != UIMA_ERR_NONE) {
-    outError("createAnalysisEngine failed.");
-    throw std::runtime_error("An error occured during initializations;");
-  }
   const uima::AnalysisEngineMetaData &data = engine_->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name_);
 
@@ -92,23 +116,10 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     throw uima::Exception(uima::ErrorMessage(UIMA_ERR_ENGINE_NO_CAS), UIMA_ERR_ENGINE_NO_CAS, uima::ErrorInfo::unrecoverable);
   }
 
-  parallel_ = parallel;
-
-
-  std::vector<icu::UnicodeString> &non_const_nodes = engine_->getFlowConstraintNodes();
-  std::vector<std::string> fixedFlow;
-  outInfo("*** Fetch the FlowConstraint nodes. Size is: "  << non_const_nodes.size());
-  for(int i = 0; i < non_const_nodes.size(); i++) {
-    std::string tempString;
-    non_const_nodes.at(i).toUTF8String(tempString);
-    outInfo(tempString);
-    fixedFlow.push_back(tempString);
-  }
-
 #ifdef WITH_JSON_PROLOG
   if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0))) {
     jsonPrologInterface.retractAllAnnotators();
-    jsonPrologInterface.assertAnnotators(fixedFlow);
+    jsonPrologInterface.assertAnnotators(delegateCapabilities_);
   }
   else {
     outWarn("Json Prolog is not running! Query answering will not be possible");
@@ -126,26 +137,26 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
 
 std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
 {
-   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
-    if(yamlPath == "") {
-      outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
-      exit(1);
-    }
+  std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
+  if(yamlPath == "") {
+    outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
+    exit(1);
+  }
   // If the path is yaml file, we need to convert it to xml
   if(boost::algorithm::ends_with(yamlPath, "yaml")) {
 
     YamlToXMLConverter converter(yamlPath);
     try {
       converter.parseYamlFile();
+      delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
     }
     catch(YAML::ParserException e) {
       outError("Exception happened when parsing the yaml file: " << yamlPath);
       outError(e.what());
+      return "";
     }
 
     try {
-      boost::filesystem::path p(yamlPath);
-
       // To Get $HOME path
       passwd *pw = getpwuid(getuid());
       std::string HOMEPath(pw->pw_dir);
@@ -155,7 +166,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
-      converter.getOutput(of);
+      converter.getXml(of);
       of.close();
       return xmlPath;
     }
@@ -168,6 +179,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       return "";
     }
   }
+  return "";
 }
 
 void RSAnalysisEngine::stop()
@@ -252,52 +264,6 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 
   setQuery("");
   outInfo("processing finished");
-}
-
-//TODO: this is buggy: it does not recognize comments
-void RSAnalysisEngine::getFixedFlow(const std::string filePath,
-                                    std::vector<std::string> &annotators)
-{
-  try {
-    std::ifstream fs(filePath);
-    size_t pos, pos_;
-
-    std::stringstream buffer;
-    buffer << fs.rdbuf();
-    std::string content = buffer.str();
-
-    if((pos = content.find("<fixedFlow>")) != std::string::npos)
-      content = content.substr(pos + 11);
-    else {
-      outError("There is no Fixed Flow specified in the given AE xml file.");
-    }
-
-    if((pos_ = content.find("</fixedFlow>")) != std::string::npos)
-      content = content.substr(0, pos_);
-    else {
-      outError("There is no </fixedFlow> tag in the given xml file.");
-    }
-
-    pos = 0;
-    while(pos < content.size()) {
-      if((pos = content.find("<node>", pos)) == std::string::npos)
-        break;
-      else {
-        pos += 6;
-        if((pos_ = content.find("</node>", pos)) != std::string::npos) {
-          std::string anno = content.substr(pos, pos_ - pos);
-          annotators.push_back(anno);
-          pos = pos_ + 7;
-        }
-        else {
-          outError("There is no </node> tag in the given xml file.");
-        }
-      }
-    }
-  }
-  catch(std::exception &e) {
-    outError("Exception happened when reading the file: " << e.what());
-  }
 }
 
 
