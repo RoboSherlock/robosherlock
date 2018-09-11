@@ -103,7 +103,9 @@ void RSProcessManager::run()
         usleep(100000);
       }
       else {
-        engine_.process();
+        std::vector<std::string> objDescriptions;
+        engine_.process(objDescriptions,"");
+        result_pub.publish(objDescriptions);
       }
     }
     usleep(100000);
