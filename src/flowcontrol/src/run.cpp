@@ -43,9 +43,6 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
-
 
 /**
  * Error output if program is called with wrong parameter.
@@ -90,6 +87,13 @@ int main(int argc, char *argv[])
   {
     help();
     return 1;
+  }
+
+  if(OUT_LEVEL == OUT_LEVEL_DEBUG)
+  {
+      if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
+         ros::console::notifyLoggerLevelsChanged();
+      }
   }
 
   ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));

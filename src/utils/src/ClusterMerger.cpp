@@ -102,7 +102,7 @@ public:
         for(size_t j = i + 1; j < clusters.size(); ++j)
         {
           rs::Cluster &cluster2 = clusters[j];
-          outInfo("Source: "<<cluster2.source());
+          outDebug("Source: "<<cluster2.source());
           pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
           rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
 

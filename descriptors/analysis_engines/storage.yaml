@@ -1,0 +1,12 @@
+ae:
+  name: Storage pipeline
+fixedflow:
+  - CollectionReader
+  - ImagePreprocessor
+  - StorageWriter
+StorageWriter:
+  -storagedb: 'Scenes' 
+  -enableViews: ['color_image_hd','depth_image_hd','camera_info','camera_info_hd','scene']
+  -clearStorageOnStart: true
+CollectionReader: 
+  -camera_config_files: ['config_kinect_robot.ini']

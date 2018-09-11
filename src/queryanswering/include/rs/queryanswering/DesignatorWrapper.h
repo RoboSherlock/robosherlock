@@ -117,12 +117,13 @@ public:
 
       if(objectDesignator.MemberCount() > 0)
       {
-        outInfo("Object as json:");
+        outDebug("Object as json:");
 
         rapidjson::StringBuffer buffer;
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+        writer.SetFormatOptions(rapidjson::PrettyFormatOptions::kFormatSingleLineArray);
         objectDesignator.Accept(writer);
-        outInfo(buffer.GetString());
+        outDebug(buffer.GetString());
         objectDesignators.push_back(jsonToString(objectDesignator));
       }
     }

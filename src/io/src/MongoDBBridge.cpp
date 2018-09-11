@@ -38,14 +38,11 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
 
   storage.getScenes(frames);
 
-  if(continual)
-  {
+  if(continual) {
     actualFrame = frames.size();
   }
-  else
-  {
-    if(frames.empty())
-    {
+  else {
+    if(frames.empty()) {
       outError("No frames in database found!");
       throw_exception_message("no frames found.")
     }
@@ -76,8 +73,7 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
   char *host_env = getenv("MONGO_PORT_27017_TCP_ADDR");
   char *port_env = getenv("MONGO_PORT_27017_TCP_PORT");
 
-  if(host_env != NULL && port_env != NULL)
-  {
+  if(host_env != NULL && port_env != NULL) {
     outInfo("Mongo host stet to: " + std::string(host_env) + ":" + std::string(port_env));
     host  = std::string(host_env) + ":" + std::string(port_env);
   }
@@ -88,64 +84,54 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
   MEASURE_TIME;
   const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
 
-  if(actualFrame >= frames.size())
-  {
-    if(continual)
-    {
+  if(actualFrame >= frames.size()) {
+    if(continual) {
       storage.getScenes(frames);
-      if(actualFrame >= frames.size())
-      {
+      if(actualFrame >= frames.size()) {
         return false;
       }
     }
-    else if(loop)
-    {
+    else if(loop) {
       actualFrame = 0;
     }
-    else
-    {
+    else {
       outInfo("last frame. shuting down.");
       cv::waitKey();
       ros::shutdown();
       return false;
     }
   }
-  if(isNextFrame)
-  {
+  if(isNextFrame) {
     outInfo("default behaviour");
     timestamp = frames[actualFrame];
     outInfo("setting data from frame: " << actualFrame << " (" << timestamp << ")");
   }
-  else if(timestamp < frames.size())
-  {
+  else if(timestamp < frames.size()) {
     timestamp = frames[timestamp];
     outInfo("setting data from frame with timestamp: (" << timestamp << ")");
   }
-  else if(timestamp >= frames.size())
-  {
-    timestamp = frames[timestamp % frames.size()];
+  else if(timestamp >= frames.size()) {
+    if(std::find(frames.begin(), frames.end(), timestamp) == frames.end()) {
+      outWarn("timestamp asked for is not in database");
+      return false;
+    }
   }
 
-  if(!storage.loadScene(*tcas.getBaseCas(), timestamp))
-  {
-    if(timestamp == 0)
-    {
+  if(!storage.loadScene(*tcas.getBaseCas(), timestamp)) {
+    if(timestamp == 0) {
       outInfo("loading frame failed. shuting down.");
       ros::shutdown();
       return false;
     }
-    else
-    {
+    else {
       outInfo("No frame with that timestamp");
       return false;
     }
   }
 
 
-  if(playbackSpeed > 0.0 && isNextFrame)
-  {
-    if(lastTimestamp > timestamp)
-    {
+  if(playbackSpeed > 0.0 && isNextFrame) {
+    if(lastTimestamp > timestamp) {
       lastTimestamp = timestamp;
       simTimeLast = frames[actualFrame];
       lastRun = ros::Time::now().toNSec();
@@ -153,8 +139,7 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 
     uint64_t now = ros::Time::now().toNSec();
     uint64_t simTime = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
-    if(simTime <= timestamp)
-    {
+    if(simTime <= timestamp) {
       uint64_t sleepTime = (timestamp - simTime) / playbackSpeed;
       outDebug("waiting for " << sleepTime / 1000000.0 << " ms.");
       std::this_thread::sleep_for(std::chrono::nanoseconds(sleepTime));
@@ -167,8 +152,7 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 
 
   ++actualFrame;
-  if(!continual && !loop && actualFrame == frames.size())
-  {
+  if(!continual && !loop && actualFrame == frames.size()) {
     _newData = false;
   }
   return true;

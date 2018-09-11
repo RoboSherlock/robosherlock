@@ -25,6 +25,8 @@
 #include <rs/utils/exception.h>
 
 #include <rs/flowcontrol/YamlToXMLConverter.h>
+#include <rs/flowcontrol/AEYamlToXML.h>
+
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
@@ -62,7 +64,10 @@ public:
 protected:
   RSAggregateAnalysisEngine *engine_;
   uima::CAS *cas_;
+
   std::vector<std::string> delegates_;
+  std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
+
 #ifdef WITH_JSON_PROLOG
   JsonPrologInterface jsonPrologInterface;
 #endif

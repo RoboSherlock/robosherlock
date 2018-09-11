@@ -127,8 +127,7 @@ void fromFeatureFeatureStructure(const uima::FeatureStructure &fs, const uima::F
 void toFeatureFeatureStructure(uima::CAS &cas, uima::FeatureStructure &fs, const uima::Feature &feature, const mongo::BSONElement &elem)
 {
   uima::FeatureStructure subFS = toFeatureStructureAux(cas, elem.Obj());
-  if(subFS.isValid())
-  {
+  if(subFS.isValid()) {
     fs.setFSValue(feature, subFS);
   }
 }
@@ -145,22 +144,18 @@ void fromFeature(const uima::FeatureStructure &fs, const uima::Feature &feature,
   const std::string &name = featureName.asUTF8();
 
   FromBasicTypes::const_iterator itB = fromBasicTypes.find(featureType);
-  if(itB != fromBasicTypes.end())
-  {
+  if(itB != fromBasicTypes.end()) {
     (*itB->second)(fs, feature, name, builder);
     return;
   }
 
   FromArrayTypes::const_iterator itA = fromArrayTypes.find(featureType);
-  if(itA != fromArrayTypes.end())
-  {
+  if(itA != fromArrayTypes.end()) {
     const uima::FeatureStructure &subFS = fs.getFSValue(feature);
-    if(!subFS.isValid())
-    {
+    if(!subFS.isValid()) {
       builder.append(name, mongo::BSONObj());
     }
-    else
-    {
+    else {
       mongo::BSONElement oid;
       builder.asTempObj().getObjectID(oid);
       (*itA->second)(subFS, name, builder, oid.OID());
@@ -179,17 +174,14 @@ void toFeature(uima::CAS &cas, uima::FeatureStructure fs, const uima::Type &fsTy
   feature.getRangeType(featureType);
 
   ToBasicTypes::const_iterator itB = toBasicTypes.find(featureType);
-  if(itB != toBasicTypes.end())
-  {
+  if(itB != toBasicTypes.end()) {
     (*itB->second)(cas, fs, feature, elem);
     return;
   }
 
   ToArrayTypes::const_iterator itA = toArrayTypes.find(featureType);
-  if(itA != toArrayTypes.end())
-  {
-    if(!elem.isABSONObj() || !elem.Obj().isEmpty())
-    {
+  if(itA != toArrayTypes.end()) {
+    if(!elem.isABSONObj() || !elem.Obj().isEmpty()) {
       fs.setFSValue(feature, (*itA->second)(cas, elem));
     }
     return;
@@ -209,34 +201,27 @@ void fromBasicFeatureStructure(const uima::FeatureStructure &fs, const uima::Typ
 
   uima::Feature idFeature;
   std::string id;
-  try
-  {
+  try {
     idFeature = fsType.getFeatureByBaseName(FIELD_ID_CAS);
-    if(fsType.isAppropriateFeature(idFeature))
-    {
+    if(fsType.isAppropriateFeature(idFeature)) {
       id = fs.getStringValue(idFeature).asUTF8();
     }
   }
-  catch(const uima::InvalidFSTypeObjectException)
-  {
+  catch(const uima::InvalidFSTypeObjectException) {
   }
 
-  if(!id.empty())
-  {
+  if(!id.empty()) {
     builder.append(FIELD_ID, mongo::OID(id));
   }
-  else
-  {
+  else {
     builder.genOID();
   }
   builder.append(FIELD_PARENT, parent);
   builder.append(FIELD_TYPE, type);
 
-  for(size_t i = 0; i < features.size(); ++i)
-  {
+  for(size_t i = 0; i < features.size(); ++i) {
     const uima::Feature &feature = features[i];
-    if(feature != idFeature)
-    {
+    if(feature != idFeature) {
       fromFeature(fs, feature, builder);
     }
   }
@@ -246,30 +231,24 @@ uima::FeatureStructure toBasicFeatureStructure(uima::CAS &cas, const uima::Type 
 {
   uima::FeatureStructure newFS = cas.createFS(fsType);
 
-  try
-  {
+  try {
     const uima::Feature &idFeature = fsType.getFeatureByBaseName(FIELD_ID_CAS);
-    if(fsType.isAppropriateFeature(idFeature))
-    {
+    if(fsType.isAppropriateFeature(idFeature)) {
       mongo::BSONElement elem;
-      if(object.getObjectID(elem))
-      {
+      if(object.getObjectID(elem)) {
         newFS.setStringValue(idFeature, UnicodeString::fromUTF8(elem.OID().toString()));
       }
     }
   }
-  catch(const uima::InvalidFSTypeObjectException)
-  {
+  catch(const uima::InvalidFSTypeObjectException) {
   }
 
   std::vector<mongo::BSONElement> elems;
   object.elems(elems);
 
-  for(size_t i = 0; i < elems.size(); ++i)
-  {
+  for(size_t i = 0; i < elems.size(); ++i) {
     const mongo::BSONElement &elem = elems[i];
-    if(elem.fieldName()[0] != '_')
-    {
+    if(elem.fieldName()[0] != '_') {
       toFeature(cas, newFS, fsType, elem);
     }
   }
@@ -453,13 +432,11 @@ void fromArrayFSString(const uima::FeatureStructure &fs, const std::string &fiel
 {
   uima::StringArrayFS arrayFS(fs);
   size_t size = 0;
-  if(arrayFS.isValid())
-  {
+  if(arrayFS.isValid()) {
     size = arrayFS.size();
   }
   std::vector<std::string> data(size);
-  for(size_t i = 0; i < size; ++i)
-  {
+  for(size_t i = 0; i < size; ++i) {
     uima::UnicodeStringRef ref = arrayFS.get(i);
     data[i] = ref.asUTF8();
   }
@@ -469,18 +446,16 @@ void fromArrayFSString(const uima::FeatureStructure &fs, const std::string &fiel
 uima::FeatureStructure toArrayFSString(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::vector<std::string> data;
-//  elem.Obj().Vals(data);
+  //  elem.Obj().Vals(data);
 
   mongo::BSONObjIterator i(elem.Obj());
-  while( i.more() )
-  {
+  while(i.more()) {
     std::string t;
     i.next().Val(t);
     data.push_back(t);
   }
   uima::StringArrayFS arrayFS = cas.createStringArrayFS(data.size());
-  for(size_t i = 0; i < data.size(); ++i)
-  {
+  for(size_t i = 0; i < data.size(); ++i) {
     UnicodeString str = UnicodeString::fromUTF8(data[i]);
     arrayFS.set(i, uima::UnicodeStringRef(str));
   }
@@ -495,13 +470,11 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
 {
   uima::ArrayFS arrayFS(fs);
   size_t size = 0;
-  if(arrayFS.isValid())
-  {
+  if(arrayFS.isValid()) {
     size = arrayFS.size();
   }
   std::vector<mongo::BSONObj> data(size);
-  for(size_t i = 0; i < size; ++i)
-  {
+  for(size_t i = 0; i < size; ++i) {
     data[i] = fromFeatureStructureAux(arrayFS.get(i), parent);
   }
   builder.append(fieldName, data);
@@ -512,15 +485,13 @@ uima::FeatureStructure toArrayFSFeatureStructure(uima::CAS &cas, const mongo::BS
   std::vector<mongo::BSONObj> objects;
   //elem.Obj().Vals(objects);
   mongo::BSONObjIterator i(elem.Obj());
-  while( i.more() )
-  {
+  while(i.more()) {
     mongo::BSONObj t;
     i.next().Val(t);
     objects.push_back(t);
   }
   uima::ArrayFS arrayFS = cas.createArrayFS(objects.size());
-  for(size_t i = 0; i < objects.size(); ++i)
-  {
+  for(size_t i = 0; i < objects.size(); ++i) {
     arrayFS.set(i, toFeatureStructureAux(cas, objects[i]));
   }
   return arrayFS;
@@ -648,13 +619,11 @@ void fromListFSString(const uima::FeatureStructure &fs, const std::string &field
 {
   uima::StringListFS listFS(fs);
   size_t size = 0;
-  if(listFS.isValid())
-  {
+  if(listFS.isValid()) {
     size = listFS.getLength();
   }
   std::vector<std::string> data(size);
-  for(size_t i = 0; i < size; ++i)
-  {
+  for(size_t i = 0; i < size; ++i) {
     uima::UnicodeStringRef ref = listFS.getHead();
     data[i] = ref.asUTF8();
     listFS.moveToNext();
@@ -667,15 +636,13 @@ uima::FeatureStructure toListFSString(uima::CAS &cas, const mongo::BSONElement &
   std::vector<std::string> data;
   //elem.Obj().Vals(data);
   mongo::BSONObjIterator i(elem.Obj());
-  while( i.more() )
-  {
+  while(i.more()) {
     std::string t;
     i.next().Val(t);
     data.push_back(t);
   }
   uima::StringListFS listFS = cas.createStringListFS();
-  for(int i = data.size() - 1; i >= 0; --i)
-  {
+  for(int i = data.size() - 1; i >= 0; --i) {
     UnicodeString str = UnicodeString::fromUTF8(data[i]);
     listFS.addFirst(uima::UnicodeStringRef(str));
   }
@@ -690,13 +657,11 @@ void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::str
 {
   uima::ListFS listFS(fs);
   size_t size = 0;
-  if(listFS.isValid())
-  {
+  if(listFS.isValid()) {
     size = listFS.getLength();
   }
   std::vector<mongo::BSONObj> data(size);
-  for(size_t i = 0; i < size; ++i)
-  {
+  for(size_t i = 0; i < size; ++i) {
     data[i] = fromFeatureStructureAux(listFS.getHead(), parent);
     listFS.moveToNext();
   }
@@ -708,16 +673,20 @@ uima::FeatureStructure toListFSFeatureStructure(uima::CAS &cas, const mongo::BSO
   std::vector<mongo::BSONObj> objects;
   //elem.Obj().Vals(objects);
   mongo::BSONObjIterator i(elem.Obj());
-  while( i.more() )
-  {
+  while(i.more()) {
     mongo::BSONObj t;
     i.next().Val(t);
     objects.push_back(t);
   }
   uima::ListFS listFS = cas.createListFS();
-  for(int i = objects.size() - 1; i >= 0; --i)
-  {
-    listFS.addFirst(toFeatureStructureAux(cas, objects[i]));
+  for(int i = objects.size() - 1; i >= 0; --i) {
+    try {
+      listFS.addFirst(toFeatureStructureAux(cas, objects[i]));
+    }
+    catch(const uima::InvalidFSTypeObjectException) {
+      outError(objects[i].getField("_type").toString() << "mongo entry could not be converted to UIMA type;");
+    }
+
   }
   return listFS;
 }
@@ -728,8 +697,7 @@ uima::FeatureStructure toListFSFeatureStructure(uima::CAS &cas, const mongo::BSO
 
 mongo::BSONObj fromFeatureStructureAux(const uima::FeatureStructure &fs, const mongo::OID &parent)
 {
-  if(!fs.isValid())
-  {
+  if(!fs.isValid()) {
     return mongo::BSONObj();
   }
   initMaps(fs.getCAS());
@@ -740,15 +708,13 @@ mongo::BSONObj fromFeatureStructureAux(const uima::FeatureStructure &fs, const m
   mongo::BSONObjBuilder builder;
 
   FromArrayTypes::const_iterator itA = fromArrayTypes.find(fsType);
-  if(itA != fromArrayTypes.end())
-  {
+  if(itA != fromArrayTypes.end()) {
     builder.genOID();
     builder.append(FIELD_TYPE, type);
     builder.append(FIELD_PARENT, parent);
     (*itA->second)(fs, FIELD_DATA, builder, parent);
   }
-  else
-  {
+  else {
     fromBasicFeatureStructure(fs, fsType, type, builder, parent);
   }
   return builder.obj();
@@ -757,8 +723,7 @@ mongo::BSONObj fromFeatureStructureAux(const uima::FeatureStructure &fs, const m
 uima::FeatureStructure toFeatureStructureAux(uima::CAS &cas, const mongo::BSONObj &object)
 {
   initMaps(cas);
-  if(object.isEmpty())
-  {
+  if(object.isEmpty()) {
     return uima::FeatureStructure();
   }
 
@@ -767,8 +732,7 @@ uima::FeatureStructure toFeatureStructureAux(uima::CAS &cas, const mongo::BSONOb
   const uima::Type &fsType = typeSys.getType(type);
 
   ToArrayTypes::const_iterator itA = toArrayTypes.find(fsType);
-  if(itA != toArrayTypes.end())
-  {
+  if(itA != toArrayTypes.end()) {
     return (*itA->second)(cas, object.getField(FIELD_DATA));
   }
   return toBasicFeatureStructure(cas, fsType, object);
@@ -780,8 +744,7 @@ uima::FeatureStructure toFeatureStructureAux(uima::CAS &cas, const mongo::BSONOb
 
 mongo::BSONObj fromFeatureStructure(const uima::FeatureStructure &fs, const mongo::OID &parent)
 {
-  if(!fs.isValid())
-  {
+  if(!fs.isValid()) {
     return mongo::BSONObj();
   }
   initMaps(fs.getCAS());
@@ -819,8 +782,7 @@ void initMaps(const uima::CAS &cas)
 {
   static bool isInitialized = false;
 
-  if(isInitialized)
-  {
+  if(isInitialized) {
     return;
   }
 
