@@ -246,25 +246,21 @@ bool AEYamlToXMLConverter::genConfigParamInfo(const YAML::Node &node, const stri
             configParamSettings.append("            <boolean>");
             configParamSettings.append(e);
             configParamSettings.append("</boolean>\n");
-            break;
           }
           else if(type == FLOAT_TYPE) {
             configParamSettings.append("            <float>");
             configParamSettings.append(e);
             configParamSettings.append("</float>\n");
-            break;
           }
           else if(type == INT_TYPE) {
             configParamSettings.append("            <integer>");
             configParamSettings.append(e);
             configParamSettings.append("</integer>\n");
-            break;
           }
           else if(type == STR_TYPE) {
             configParamSettings.append("            <string>");
             configParamSettings.append(e);
             configParamSettings.append("</string>\n");
-            break;
           }
           else
             return false;
