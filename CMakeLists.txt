@@ -112,7 +112,7 @@ endif()
 find_package(json_prolog QUIET)
 option(WITH_JSON_PROLOG "build using json prolog" False)
 
-if(jsn_prolog_FOUND OR ${WITH_JSON_PROLOG})
+if(json_prolog_FOUND OR ${WITH_JSON_PROLOG})
     message(STATUS "json_prolog FOUND")
     add_definitions(-DWITH_JSON_PROLOG)
     include_directories(${json_prolog_INCLUDE_DIRS})
