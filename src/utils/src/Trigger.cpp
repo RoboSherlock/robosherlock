@@ -24,6 +24,7 @@
 #include <ros/ros.h>
 #include <std_msgs/String.h>
 #include <sensor_msgs/Joy.h>
+#include <std_srvs/Trigger.h>
 
 #include <message_filters/sync_policies/approximate_time.h>
 
@@ -59,6 +60,8 @@ public:
     nh_ = new ros::NodeHandle("~");
     spinner_ = new ros::AsyncSpinner(0);
     joy_sub = nh_->subscribe(std::string("/joy"), 10, &Trigger::joystick_trigger_cb_, this);
+    srv_ = nh_->advertiseService("trigger", &Trigger::trigger_service_cb_, this);
+
     spinner_->start();
     rs::Visualizer::trigger = &trigger;
   }
@@ -93,6 +96,15 @@ public:
       check_ros();
     }
     return (TyErrorId) UIMA_ERR_NONE;
+  }
+
+  bool trigger_service_cb_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
+  {
+    outDebug("Triggered from Service");
+    trigger = true;
+    res.success = true;
+    res.message = "Trigger successfull";
+    return true;
   }
 
   void joystick_trigger_cb_(const sensor_msgs::Joy::ConstPtr &joy_msg)
