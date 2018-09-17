@@ -10,5 +10,5 @@ parameters:
   cluster_max_size: 30000
   mode: OEC_prism
 capabilities:
-  inputs: ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.RegionPointCloud']
+  inputs: ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
   outputs: ['rs.scene.Cluster']
