@@ -16,60 +16,20 @@ SOURCE_PATH = "/src/"
 
 def create_xml_def(pathToPackage,annotatorName):
     pathToXmlLocation = pathToPackage+XMLDEF_PATH
-    xmlFileName = annotatorName+".xml"
+    xmlFileName = annotatorName+".yaml"
     if os.path.isfile(pathToXmlLocation+xmlFileName):
         print "An Annotator with the name "+annotatorName+" already exists in "+pathToXmlLocation+".!"
         return()
     libName = "rs_"+annotatorName[:1].lower() + annotatorName[1:]
     print ("Creating "+xmlFileName+" in "+ pathToXmlLocation)
     f = open(pathToXmlLocation+xmlFileName, 'w')
-    txt = ("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
-           "<taeDescription xmlns=\"http://uima.apache.org/resourceSpecifier\">\n"
-           "  <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>\n"
-           "  <primitive>true</primitive>\n"
-           "  <annotatorImplementationName>"+libName+"</annotatorImplementationName>\n"
-           "  <analysisEngineMetaData>\n"
-           "    <name>"+annotatorName+"</name>\n"
-           "    <description/>\n"
-           "    <version>1.0</version>\n"
-           "    <vendor/>\n"
-           "    <configurationParameters>\n"
-           "        <configurationParameter>\n"
-           "            <name>test_param</name>\n"
-           "            <type>Float</type>\n"
-           "            <multiValued>false</multiValued>\n"
-           "            <mandatory>false</mandatory>\n"
-           "        </configurationParameter>\n"
-           "    </configurationParameters>\n"
-           "    <configurationParameterSettings>\n"
-           "        <nameValuePair>\n"
-           "            <name>test_param</name>\n"
-           "            <value>\n"
-           "                <float>0.01</float>\n"
-           "            </value>\n"
-           "        </nameValuePair>\n"
-           "    </configurationParameterSettings>\n"
-           "    <typeSystemDescription>\n"
-           "        <imports>\n"
-           "            <import location=\"../typesystem/all_types.xml\"/>\n"
-           "        </imports>\n"
-           "    </typeSystemDescription>\n"
-           "    <capabilities>\n"
-           "        <capability>\n"
-           "            <inputs/>\n"
-           "            <outputs/>\n"
-           "            <languagesSupported>\n"
-           "                <language>x-unspecified</language>\n"
-           "            </languagesSupported>\n"
-           "        </capability>\n"
-           "    </capabilities>\n"
-           "    <operationalProperties>\n"
-           "        <modifiesCas>true</modifiesCas>\n"
-           "        <multipleDeploymentAllowed>true</multipleDeploymentAllowed>\n"
-           "        <outputsNewCASes>false</outputsNewCASes>\n"
-           "    </operationalProperties>\n"
-           "  </analysisEngineMetaData>\n"
-           "</taeDescription>")
+    txt = ("annotator:\n"
+           "  implementation: "+libName+"\n"
+           "parameters:\n"
+           "  test_param: 0.01\n"
+           "capabilities:\n"
+           "  inputs: {}\n"
+           "  outputs: {}\n")
     f.write(txt)
     f.close()
     
@@ -120,7 +80,16 @@ def create_cpp_source(pathToPackage,annotatorName):
            "MAKE_AE("+annotatorName+")");
     f.write(txt)
     f.close()
-    
+
+
+def append_to_cmake(pathToPackage,annotatorName):
+    libName = "rs_"+annotatorName
+    f = open(pathToPackage+"/CMakeLists.txt",'a')
+
+    f.write("rs_add_library("+libName+" src/"+annotatorName+".cpp)\n")
+    f.write("target_link_libraries("+libName+" ${catkin_LIBRARIES})\n")
+    f.close()
+
 if __name__ == "__main__":
 
     if len(sys.argv) < 3:
@@ -129,7 +98,7 @@ if __name__ == "__main__":
         exit()
     packageName = sys.argv[1];
     annotatorName = sys.argv[2];
-    
+     
     rospack = rospkg.RosPack()
     package_names = rospack.get_depends_on('robosherlock')
     if packageName not in package_names and packageName != "robosherlock":
@@ -137,3 +106,4 @@ if __name__ == "__main__":
         exit()
     create_xml_def(rospack.get_path(packageName),annotatorName)
     create_cpp_source(rospack.get_path(packageName),annotatorName)
+    append_to_cmake(rospack.get_path(packageName),annotatorName)

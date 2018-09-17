@@ -70,8 +70,6 @@ echo '        )'>> $CMakefile
 echo '################################################################################'>> $CMakefile
 echo '## Update analysis engines, typesystem and include all relevant files         ##'>> $CMakefile
 echo '################################################################################'>> $CMakefile
-echo '##Update xml list of annotators inside analysis engines'>> $CMakefile
-echo 'update_analysis_engines(robosherlock)'>> $CMakefile
 echo '## generate classes from the typesystem xml files'>> $CMakefile
 echo 'generate_type_system(robosherlock)'>> $CMakefile
 echo '#find all relevant files'>> $CMakefile
