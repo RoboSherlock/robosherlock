@@ -31,3 +31,6 @@ target_link_libraries(rs_CollectionReader rs_core rs_io)
 
 rs_add_library(rs_TFBroadcaster src/TFBroadcaster.cpp)
 target_link_libraries(rs_TFBroadcaster rs_core)
+
+rs_add_library(rs_DrawResultImage src/DrawResultImage.cpp)
+target_link_libraries(rs_DrawResultImage rs_core)

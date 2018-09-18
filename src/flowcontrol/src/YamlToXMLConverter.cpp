@@ -203,25 +203,21 @@ bool YamlToXMLConverter::parseConfigParamInfo(const YAML::Node &node)
             configParamSettings.append("<boolean>");
             configParamSettings.append(e);
             configParamSettings.append("\n</boolean>\n");
-            break;
           }
           else if(type == FLOAT_TYPE) {
             configParamSettings.append("<float>");
             configParamSettings.append(e);
             configParamSettings.append("\n</float>\n");
-            break;
           }
           else if(type == INT_TYPE) {
             configParamSettings.append("<integer>");
             configParamSettings.append(e);
             configParamSettings.append("\n</integer>\n");
-            break;
           }
           else if(type == STR_TYPE) {
             configParamSettings.append("<string>");
             configParamSettings.append(e);
             configParamSettings.append("\n</string>\n");
-            break;
           }
           else
             return false;

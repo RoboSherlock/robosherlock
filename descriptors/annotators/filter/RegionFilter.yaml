@@ -15,6 +15,6 @@ parameters:
   - kitchen_island_counter_top
   depth_threshold: 0.01
   enable_change_detection: true
-  enable_frustum_culling: true
+  enable_frustum_culling: false 
   global_threshold: 0.12
   pixel_threshold: 0.15
