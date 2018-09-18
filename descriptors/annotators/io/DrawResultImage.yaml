@@ -1,0 +1,9 @@
+annotator:
+ name: DrawResultImage
+ implementation: rs_DrawResultImage
+ description: save results of an execution as an annotated image
+parameters:
+ save_path: "./" #local folder
+capabilities:
+ inputs: {}
+ outputs: {}
