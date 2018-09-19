@@ -288,7 +288,8 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
       {
          what =m| what;
       }
-      designatorsToKeep[i] = what;
+
+      designatorsToKeep[i] = what & designatorsToKeep[i];
     }
   }
   for(int i = 0; i < designatorsToKeep.size(); ++i)
