@@ -36,7 +36,7 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
                  iter->name.GetString()) != std::end(rs_queryanswering::rsQueryTerms)) {
       keys.push_back(iter->name.GetString());
       //for a select member of keys (type, class, shape, color) let's add value reasoning;
-      std::vector<std::string> special_keys = {"type", "class", "shape", "color"};
+      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size"};
       if(std::find(special_keys.begin(), special_keys.end(),
                    iter->name.GetString()) != std::end(special_keys)) {
         json_prolog::Prolog pl;
