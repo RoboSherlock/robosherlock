@@ -20,7 +20,7 @@ def create_xml_def(pathToPackage,annotatorName):
     if os.path.isfile(pathToXmlLocation+xmlFileName):
         print "An Annotator with the name "+annotatorName+" already exists in "+pathToXmlLocation+".!"
         return()
-    libName = "rs_"+annotatorName[:1].lower() + annotatorName[1:]
+    libName = "rs_"+annotatorName
     print ("Creating "+xmlFileName+" in "+ pathToXmlLocation)
     f = open(pathToXmlLocation+xmlFileName, 'w')
     txt = ("annotator:\n"
