@@ -17,8 +17,86 @@
  * limitations under the License.
  */
 
+// UIMA
+#include <uima/api.hpp>
+
+// OpenCV
+#include <opencv2/opencv.hpp>
+#include <opencv2/tracking.hpp>
+#include <opencv2/core/ocl.hpp>
+
+using namespace cv;
+using namespace std;
+
+// Convert to string
+#define SSTR( x ) static_cast< std::ostringstream & >( \
+( std::ostringstream() << std::dec << x ) ).str()
+
 class TrackingAnnotator : public DrawingAnnotator
 {
 private:
+    tracker = TrackerKCF::create();
 public:
+    TrackingAnnotator() : DrawingAnnotator(__func__)
+    {
+        //cv::initModule_nonfree();
+    }
+
+    /*
+     * Initializes annotator
+     */
+    TyErrorId initialize(AnnotatorContext &ctx) {
+        outInfo("initialize");
+
+        // TODO: Check and extract ctx parameters
+
+        #if (CV_MINOR_VERSION < 3)
+        {
+            tracker = Tracker::create(KCF);
+        }
+        #else
+        {
+            tracker = TrackerKCF::create();
+        }
+        #endif
+
+
+
+        return UIMA_ERR_NONE;
+    }
+
+    TyErrorId reconfigure()
+    {
+        outInfo("Reconfiguring");
+        AnnotatorContext &ctx = getAnnotatorContext();
+        initialize(ctx);
+        return UIMA_ERR_NONE;
+    }
+
+    // Destroys annotator
+    TyErrorId destroy()
+    {
+        outInfo("destroy");
+
+        detector.release();
+        extractor.release();
+
+        return UIMA_ERR_NONE;
+    }
+
+    // Processes a frame
+    TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
+    {
+        MEASURE_TIME;
+        outInfo("process begins");
+        rs::SceneCas cas(tcas);
+
+        cas.get(VIEW_COLOR_IMAGE_HD, color);
+
+        // TODO: Call tracking algo(-s) here, using tcas as parameter.
+
+        return UIMA_ERR_NONE;
+    }
 };
+
+MAKE_AE(TrackingAnnotator)
