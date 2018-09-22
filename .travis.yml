@@ -48,6 +48,8 @@ install:
   - ln -s $CI_SOURCE_PATH .
 
 before_script:
+  - cd ~/catkin_ws
+  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
   - echo "export APR_HOME=/usr" >> ~/.bashrc
   - echo "export ICU_HOME=/usr" >> ~/.bashrc
   - echo "export XERCES_HOME=/usr" >> ~/.bashrc
