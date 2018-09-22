@@ -27,9 +27,8 @@ env:
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-  - sudo add-apt-repository ppa:robosherlock/ppa -y
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler rapidjson lcov --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler lcov --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
@@ -49,11 +48,6 @@ install:
   - ln -s $CI_SOURCE_PATH .
 
 before_script:
-  - cd ~/catkin_ws/src
-  - git clone https://github.com/RoboSherlock/robosherlock_msgs.git
-  - git clone https://github.com/RoboSherlock/uimacpp_ros.git
-  - cd ~/catkin_ws
-  - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
   - echo "export APR_HOME=/usr" >> ~/.bashrc
   - echo "export ICU_HOME=/usr" >> ~/.bashrc
   - echo "export XERCES_HOME=/usr" >> ~/.bashrc
