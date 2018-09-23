@@ -1,0 +1,88 @@
+
+Forked from the original apache uimacpp repository with changes for running on Ubuntu 14.04 and allowing reconfiguration of AE-s.
+
+Apache UIMA C++ (Unstructured Information Management Architecture) v2.4.0
+-------------------------------------------------------------------------
+
+Getting Started
+----------------
+
+Apache UIMA C++ can be used as a standalone framework, but it is primarily intended to be integrated with the Apache UIMA Java framework. Interoperability is enhanced if the uimacpp SDK package is installed directly under the top level directory of the Apache UIMA Java framework. 
+
+For information about the Apache UIMA C++ package go to index.html in the uimacpp/docs directory. For more information about Apache UIMA, go to http://uima.apache.org, or to the documentation in the Apache UIMA Java package.
+
+
+Supported Platforms
+--------------------
+
+The Apache UIMA C++ SDK has been built and tested in 32-bit mode
+on Linux systems with gcc version 3.4.6 and on Windows 
+using MSVC version 8. 64-bit builds have only been tested on Linux with gcc 4.3.2.
+
+UIMACPP has dependencies on APR, ICU, Xerces-C and ActiveMQ-cpp
+libraries.  ActiveMQ-cpp has a dependency on apr-util. 
+
+The UIMA C++ SDK has been built with the following versions of these dependencies:
+
+- APR 1.3.8
+- ICU 3.6
+- XERCES 2.8.0
+- ACTIVEMQ CPP 3.4.1
+- APR-UTIL 1.3.8
+
+
+Environment Variables
+----------------------
+
+The following environmental variables are needed for UIMA C++ to function properly.
+
+    * UIMACPP_HOME should point to the uimacpp directory of your unpacked Apache UIMA C++
+      distribution. UIMACPP_HOME is used when compiling & linking UIMA C++ components.
+    * Append $UIMACPP_HOME/bin to your PATH to pick up the runAECpp test driver
+      and shared libraries (Windows)
+    * Append $UIMACPP_HOME/lib to your LD_LIBRARY_PATH (Linux) or DYLD_LIBRARY_PATH (MacOSX)
+      so that the necessary shared libraries can be found.
+
+Also note that UIMA C++ annotators are built as shared libraries, so they must be in a directory in the LD_LIBRARY_PATH, DYLD_LIBRARY_PATH or PATH (as appropriate to your platform) as well. An example of this is given in the next section.
+
+For better runtime integration between Java and C++, the Apache UIMA Java SDK command line utilities and Eclipse run configurations automatically add $UIMA_HOME/uimacpp/lib to LD_LIBRARY_PATH and DYLD_LIBRARY_PATH, and add $UIMA_HOME/uimacpp/bin to PATH.
+
+
+Verifying Your Installation
+----------------------------
+
+The procedure here is to first test that Apache UIMA C++ is installed and operating correctly. Then if desired, check if the code is interoperating properly with Apache UIMA Java.
+
+Set up the environment as described above. Go to $UIMACPP_HOME/examples/src to build the sample code and add the src directory to the appropriate path as follows.
+
+On Linux:  (Please see below Notes on lib/base.mak)
+    * make -f DaveDetector.mak
+    * LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
+
+On Windows:
+From a MSVC Command Prompt:
+    * devenv DaveDetector.vcproj /build release
+    * PATH=%PATH%;%CD%
+
+To test the sample code in the C++ environment, change back to the $UIMACPP_HOME/examples directory and run:
+    * runAECpp descriptors/DaveDetector.xml data
+
+The console should show that a Dave was found in some of the files in the data directory.
+
+To test interoperability with Java using the JNI, first verify that Apache UIMA Java is working from the current shell, as described in that package, and then use the runAE.sh utility (use runAE on Windows) from $UIMACPP_HOME/examples:
+    * runAE.sh descriptors/DaveDetector.xml data
+
+For more information about the C++ sample code see $UIMACPP_HOME/examples/readme.html.
+
+For more information about UIMA C++ $UIMACPP_HOME/RELEASE_NOTES.html.
+
+Notes on lib/base.mak
+---------------------
+
+The annotator and application Make files include lib/base.mak.
+
+1) To build on 64-bit arch using the 32-bit UIMA C++ binary distribution:
+   Edit lib/base.mak and uncomment the line #FORCE_32=-m32
+2) On Mac OS X, may be necessary to modify base.mak  line
+   INCLUDES=-I$(UIMACPP_HOME)/include -I$(UIMACPP_HOME)/include/apr-1
+   to correctly specify path to the APR include directory.

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+
+<CAS>
+ <uima.cas.Sofa _indexed="0" _id="1" sofaNum="2" sofaID="EnglishDocument" sofaString="this beer is good"/>
+ <uima.tcas.DocumentAnnotation _indexed="2" _id="8" _ref_sofa="1" begin="0" end="17" language=""/>
+ <test.primitives.Example _indexed="2" _id="13" _ref_sofa="1" begin="1" end="5" floatFeature="1.1" stringFeature="string1" boolFeature="0" byteFeature="122" shortFeature="10" longFeature="10000" doubleFeature="2.1e+011" _ref_intArrayFeature="76" _ref_floatArrayFeature="99" _ref_stringArrayFeature="53" _ref_boolArrayFeature="109" _ref_byteArrayFeature="106" _ref_shortArrayFeature="112" _ref_longArrayFeature="115" _ref_doubleArrayFeature="118" _ref_intListFeature="61" _ref_floatListFeature="84" _ref_stringListFeature="38" _ref_fsListFeature="133" _ref_fsArrayFeature="136"/>
+ <uima.cas.EmptyStringList _id="37"/>
+ <uima.cas.NonEmptyStringList _id="38" head="string1" _ref_tail="41"/>
+ <uima.cas.NonEmptyStringList _id="41" head="string3" _ref_tail="44"/>
+ <uima.cas.NonEmptyStringList _id="44" head="string2" _ref_tail="47"/>
+ <uima.cas.NonEmptyStringList _id="47" head="string5" _ref_tail="50"/>
+ <uima.cas.NonEmptyStringList _id="50" head="string4" _ref_tail="37"/>
+ <uima.cas.StringArray _id="53" size="5">
+  <i>string1</i>
+  <i>string3</i>
+  <i>string2</i>
+  <i>string5</i>
+  <i>string4</i>
+ </uima.cas.StringArray>
+ <uima.cas.EmptyIntegerList _id="60"/>
+ <uima.cas.NonEmptyIntegerList _id="61" head="1" _ref_tail="64"/>
+ <uima.cas.NonEmptyIntegerList _id="64" head="2" _ref_tail="67"/>
+ <uima.cas.NonEmptyIntegerList _id="67" head="3" _ref_tail="70"/>
+ <uima.cas.NonEmptyIntegerList _id="70" head="4" _ref_tail="73"/>
+ <uima.cas.NonEmptyIntegerList _id="73" head="5" _ref_tail="60"/>
+ <uima.cas.IntegerArray _id="76" size="5">
+  <i>1</i>
+  <i>2</i>
+  <i>3</i>
+  <i>4</i>
+  <i>5</i>
+ </uima.cas.IntegerArray>
+ <uima.cas.EmptyFloatList _id="83"/>
+ <uima.cas.NonEmptyFloatList _id="84" head="1.1" _ref_tail="87"/>
+ <uima.cas.NonEmptyFloatList _id="87" head="2.2" _ref_tail="90"/>
+ <uima.cas.NonEmptyFloatList _id="90" head="3.3" _ref_tail="93"/>
+ <uima.cas.NonEmptyFloatList _id="93" head="4.4" _ref_tail="96"/>
+ <uima.cas.NonEmptyFloatList _id="96" head="5.5" _ref_tail="83"/>
+ <uima.cas.FloatArray _id="99" size="5">
+  <i>1.1</i>
+  <i>2.2</i>
+  <i>3.3</i>
+  <i>4.4</i>
+  <i>5.5</i>
+ </uima.cas.FloatArray>
+ <uima.cas.ByteArray _id="106" size="5">
+  <i>97</i>
+  <i>98</i>
+  <i>99</i>
+  <i>99</i>
+  <i>100</i>
+ </uima.cas.ByteArray>
+ <uima.cas.BooleanArray _id="109" size="20">
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+  <i>1</i>
+  <i>0</i>
+ </uima.cas.BooleanArray>
+ <uima.cas.ShortArray _id="112" size="5">
+  <i>10</i>
+  <i>20</i>
+  <i>30</i>
+  <i>40</i>
+  <i>50</i>
+ </uima.cas.ShortArray>
+ <uima.cas.LongArray _id="115" size="5">
+  <i>10000</i>
+  <i>20000</i>
+  <i>30000</i>
+  <i>40000</i>
+  <i>50000</i>
+ </uima.cas.LongArray>
+ <uima.cas.DoubleArray _id="118" size="5">
+  <i>2.1e+011</i>
+  <i>3.1e+011</i>
+  <i>4.1e+011</i>
+  <i>5.1e+011</i>
+  <i>6.1e+011</i>
+ </uima.cas.DoubleArray>
+ <uima.cas.EmptyFSList _id="121"/>
+ <uima.tcas.Annotation _id="122" _ref_sofa="1" begin="0" end="5"/>
+ <uima.cas.NonEmptyFSList _id="126" _ref_head="122" _ref_tail="121"/>
+ <uima.tcas.Annotation _id="129" _ref_sofa="1" begin="1" end="6"/>
+ <uima.cas.NonEmptyFSList _id="133" _ref_head="129" _ref_tail="126"/>
+ <uima.cas.FSArray _id="136" size="3">
+ <i>141</i>
+ <i>145</i>
+ <i>149</i>
+</uima.cas.FSArray>
+ <uima.tcas.Annotation _id="141" _ref_sofa="1" begin="0" end="5"/>
+ <uima.tcas.Annotation _id="145" _ref_sofa="1" begin="1" end="6"/>
+ <uima.tcas.Annotation _id="149" _ref_sofa="1" begin="2" end="7"/>
+</CAS>

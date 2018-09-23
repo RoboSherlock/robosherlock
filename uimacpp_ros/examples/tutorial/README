@@ -1,0 +1,12 @@
+This directory contains a C++ version of one of the Java annotations in the
+UIMA tutorial. It can be built from the UIMACPP_HOME/examples/tutorial directory with:
+
+    make -C src -f MeetingAnnotator.mak
+or
+    devenv src\MeetingAnnotator.vcproj /build release
+
+It can be deployed as a stand-alone C++ service and tested by starting a broker and running the following:
+
+   runRemoteAsyncAE[.sh]  tcp://localhost:61616 MeetingAnnotator -d descriptors/Deploy_MeetingAnnotator.xml
+
+The deployment descriptor adds "src" (the relative location of the annotator) to the library search path.

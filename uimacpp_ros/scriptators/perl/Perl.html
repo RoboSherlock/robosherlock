@@ -1,0 +1,104 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+
+<html>
+<head>
+	<title>UIMA Perl Annotators and the Perltator</title>
+</head>
+
+<body>
+<h1>UIMA Perl Annotators and the Perlator</h1>
+
+<h2>What is a Perl Annotator?</h2>
+<p>A Perl Annotator is a UIMA annotator component written in PERL that can be used within the
+UIMA SDK framework.
+</p>
+
+<h2>What is the Perltator?</h2>
+<p>The Perltator is the linkage between the UIMA framework and a Perl Annotator.
+The Perltator is actually a UIMA C++ annotator which can be referenced by primitive annotator or CAS consumer descriptors.
+The descriptor must define one configuration parameter, a second is optional:
+  <ul>
+    <code>SourceFile</code> (mandatory) - a string holding the name of the Perl module to run, and<br>
+    <code>DebugLevel</code> (optional) - an integer value that specifies the debug level for tracing. Default value is 0. A value of 101 turns on Perltator tracing. Values 1-100 are reserved for annotator developer use.
+  </ul>
+When the Perltator is initialized, e.g. at CPE initialization, the C++ code creates a PERL interpreter, sources the specified script and calls the script's initialization method. Similarly, when other Perltator methods such as process() are called by the UIMA framework, the subroutines of the same name in the PERL script are called.
+</p>
+<p>The Perltator also provides a PERL library implementing an interface between PERL and the UIMA APIs of the UIMA C++ framework.
+</p>
+
+<h2>Supported Platforms</h2>
+<p>The Perltator has been tested with PERL version 5.8 on Linux and with ActivePerl-5.8.8.816-MSWin32-x86-255195.msi on Windows XP.
+</p>
+
+<h2>Prerequisites</h2>
+<p>The Perltator uses SWIG (http://www.swig.org/) to implement the PERL library interface to UIMA. SWIG version 1.3.29 or later is required.</p>
+<p>The UIMA C++ framework is required.</p>
+<p>Also necessary is the Perl development package. On some Unix platforms the dev kit is not included with the standard interpretor package. A Unix command line test for the dev kit is
+  <ul>
+    <code>perl -MExtUtils::Embed -e ccopts</code>
+  </ul>
+which returns the gcc options necessary to link with the interpretor.
+</p>
+
+<h2>Perltator Distribution</h2>
+<p>Perltator code is distributed in source form and must be built on the target platform.</p>
+<p>Perltator source and sample code is located in the $UIMACPP_HOME/scriptators directory.</p>
+
+<h2>Setting Environment Variables</h2>
+<p>The Perltator requires the standard environment for UIMA C++ components.
+In addition, the PERLLIB environment variable should point to the path to the perltator.pm file.
+</p>
+
+
+<h2>Building and Installing the Perltator</h2>
+Recursively copy the scriptators directory from the uimacpp distribution to a writable directory tree. CD to the writable scriptators/perl directory.
+
+<h3>On Linux</h3>
+  <ul>
+    <li><code>Check that you have the required Perl and Swig packages installed</code></li>
+    <li><code>make</code></li>
+  </ul>
+
+<h3>On Windows</h3>
+  <ul>
+    <li><code>UIMA C++ uses Apache APR as the platform portability library. There is an incompatibility between APR and ActivePerl typedefs which must be resolved by editing the ActivePerl header win32.h. Change uid_t and gid_t from "long" to "int".</code></li>
+    <li><code>Modify winmake.cmd to set the paths for your Perl and Swig installs</code></li>
+    <li><code>winmake</code></li>
+  </ul>  
+<p>Build results are the C++ annotator, perltator.so on Linux or perlator.dll on Windows, and the Perl module interface to UIMA APIs, perltator.pm.
+</p>
+<p>If you have write access to UIMA C++ distribution tree, on Linux copy perltator.pm and perltator.so to $UIMACPP_HOME/lib and add this directory to PERLLIB. On Windows copy perltator.dll and perltator.pm to $UIMACPP_HOME/bin and add this directory to PERLLIB.</p>
+<p>If you don't have write access, make sure that perlator.so|.dll is in the LD_LIBRARY_PATH or PATH, as appropriate, and that perltator.pm is in PERLLIB.
+</p>
+
+<h2>Testing the Perltator</h2>
+</>A simple Perl regular expression annotator <code>sample.pl</code> with descriptor <code>PerlSample.xml</code> is included in the distribution. Perl annotators <EM>must be</EM> located in the environmental PATH, and on Linux the .pl files <EM>must be</EM> executable. Use the descriptor as with any other UIMA annotator descriptor.</p>
+
+<h2>Known Perltator Issues</h2>
+<p>
+  <ul>
+    <li>Not all of the UIMA C++ APIs have been swig'ed. Missing functions can be added by extending the source file uima.i.
+    <li>The Perl interpreter supports multiple scripts running concurrently on different threads in the same process. The interpreter saves the state of each script on the thread handle of the thread initiating each script. UIMA Java components such as the CPE and the Vinci and SOAP service wrappers call analytics on different threads at different times. In order to resolve this potential incompatibility, the Perltator creates a "worker thread" for each Perl analytic that is used to call into the interpreter.
+  </ul>
+</p>
+
+</body>
+</html>
