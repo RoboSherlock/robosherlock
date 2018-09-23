@@ -1,0 +1,345 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+
+<html>
+ <head>
+   <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+   <title>Apache UIMA C++ Overview and Setup</title>
+   <link rel="stylesheet" href="css/stylesheet.css" type="text/css">
+ </head>
+<body bgcolor="white" text="black" link="#0000FF" vlink="#840084" alink="#0000FF">
+<div class="book" lang="en" id="d0e2">
+<div class="titlepage"><div><div>
+<h1 class="title"><a name="d0e2"></a>Apache UIMA C++ Overview and Setup</h1></div>
+<div><div class="authorgroup"><h3 class="corpauthor">Authors: The Apache UIMA Development Community</h3></div></div>
+<div><p class="releaseinfo">Version 2.4.0</p></div>
+<div><p class="copyright">Copyright &copy; 2006, 2012 The Apache Software Foundation</p></div>
+<div><p class="copyright">Copyright &copy; 2004, 2006 International Business Machines Corporation</p></div>
+<div><div class="legalnotice"><a name="d0e15"></a><p> </p>          
+<p> </p><p> </p><p><b>License and Disclaimer.&nbsp;</b>The ASF licenses this documentation
+           to you under the Apache License, Version 2.0 (the
+           "License"); you may not use this documentation except in compliance
+           with the License.  You may obtain a copy of the License at
+         
+         </p><div class="blockquote"><blockquote class="blockquote"><a href="http://www.apache.org/licenses/LICENSE-2.0" target="_top">http://www.apache.org/licenses/LICENSE-2.0</a></blockquote></div><p>
+         
+           Unless required by applicable law or agreed to in writing,
+           this documentation and its contents are distributed under the License 
+           on an 
+           "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+           KIND, either express or implied.  See the License for the
+           specific language governing permissions and limitations
+           under the License.
+         </p><p> </p><p> </p><p><b>Trademarks.&nbsp;</b>All terms mentioned in the text that are known to be trademarks or 
+        service marks have been appropriately capitalized.  Use of such terms
+        in this book should not be regarded as affecting the validity of the
+        the trademark or service mark.
+        </p></div></div><div><p class="pubdate">January, 2012</p></div></div><hr></div>
+
+
+
+<h2>1.0 Apache UIMA C++ Overview</h2>
+<p>The Apache UIMA&#8482; C++ framework allows the creation of UIMA compliant 
+analysis engines from analytics written in C++ and several scripting languages that
+can utilize C++ libraries. A rich set of standard UIMA interface methods minimizes
+the effort to extract input data from a CAS and then update the CAS with the analytic results.
+The UIMA framework transparently moves the CAS between Java and C++ components and between 
+UIMA components running in different processes.
+</p>
+<p>
+A UIMA C++ component is identified as such in its
+component descriptor:
+  <ul>
+    <code>&lt;frameworkImplementation>org.apache.uima.cpp&lt;/frameworkImplementation></code>
+  </ul>  
+</p>
+<p>UIMA C++ annotators can be utilized from C++ applications, from Java applications,
+and can be aggregated with other UIMA-compliant annotators.
+For C++ applications the UIMA C++ framework has APIs to 
+parse component descriptors, then instantiate and call analysis engines.
+A C++ test driver is available so that a UIMA C++ analytic can be developed and tested with 
+standard native programming tools; no programming in Java is required.
+On the other hand, for a more consistent development environment,
+Eclipse can provide a single IDE for both Java and C++ components
+using the <a href="http://www.eclipse.org/cdt/">CDT</a>.
+</p>
+<p>For Java applications, there are two approaches to integrating UIMA C++ analytics:
+using the Java Native Interface (JNI), and using
+a C++ service wrapper to create a UIMA AS compatible service. Using
+the JNI, a C++ analysis engine can be used anywhere a Java analysis
+engine is used; in this case a Java proxy will instantiate the uimacpp
+framework though the JNI. Note that if more than one C++ component is
+used in the same JVM, they must share the same native
+environment. Using UIMA AS, a C++ component can be started as a separate
+process, and therefore each component can have different native environments, if
+desired. When C++ is launched automatically from Java, logging and JMX monitoring
+of the annotator is done via the JVM.
+</p>
+
+<h3>1.1 UIMA C++ Functionality</h3>
+<p>The UIMA C++ framework implements a subset of that in Java. Major functionality consists of:
+<ul>
+<li>The ability to instantiate primitive or aggregate analysis engines.</li>
+<li>The UIMA context object for each analysis engine.</li>
+<li>Complete set of CAS APIs.</li>
+<li>XMI, XCAS and binary data serialization formats all supported.</li>
+<li>Support for analytics written in Perl, Python and Tcl.</li>
+<li>A driver utility for native development and testing.</li>
+<li>Two approaches to integration with UIMA running on Java:
+<ol>
+<li>A JNI controller which runs the C++ annotator in a JVM process.
+<li>A UIMA AS service wrapper which allows the C++ annotator to run in a native process.</li>
+</ol>
+</ul>
+</p>
+<p>Major UIMA functionality missing in the C++ framework:
+<ul>
+<li>No custom flow controller for aggregates.</li>
+<li>No support for remote delegates in a C++ aggregate.</li>
+<li>No UIMA AS client API</li>
+<li>Import by name not supported when run as a native process
+<ul>
+<b>Note:</b> Import by location supports absolute and relative paths. Relative paths are with respect to the directory of the descriptor doing the import. When run as a native process, relative paths are also searched off directories specified in UIMACPP_DATAPATH.
+</ul>
+</li>
+</ul>
+</p>
+
+<p>UIMA compliant annotators can be written in Perl, Python and Tcl using C++ annotators included in this package. For further details see <a href="../scriptators/perl/Perl.html">Perl</a>, <a href="../scriptators/python/Python.html">Python</a> and <a href="../scriptators/tcl/Tcl.html">Tcl</a>.
+</p>
+<p>The UIMA C++ framework depends on Unicode support from the ICU (see http://www.ibm.com/software/globalization/icu), XML parsing support from xerces (see http://xml.apache.org/xerces-c/) and platform portability from APR (see http://apr.apache.org/).
+</p>
+
+<p>API documentation for the C++ framework is available <a href="html/index.html">here</a>.
+</p>
+
+<h3>1.2 Supported Platforms</h3>
+<p>Linux® Intel® 32 and 64-bit platforms, MacOSX and Windows® 2000/XP.</p>
+
+<h3>1.3 Binary Distribution</h3>
+<p>Binary distributions are in compressed tarfiles for Linux and zipfiles for Windows.
+</p>  
+
+<h3>1.4 Source Distribution</h3>
+The source code distributions are in a compressed tarfile for Unix builds and a zipfile for Windows builds.
+
+<h2>2.0 Installing and Testing UIMA C++</h2>
+The binary distribution can be installed anywhere. However, when
+installed on a system with the Apache UIMA Java distribution, unpacking directly underneath $UIMA_HOME
+provides better interoperability.
+
+<h3>2.1 Setting Environment Variables</h3>
+<p>Set UIMACPP_HOME to the installed location of the UIMA C++ SDK.</p>
+<p>
+Both the UIMA C++ framework and the users' C++ components are implemented as
+shared libraries and must be available to the native library loader.
+On Linux these directories must be in the LD_LIBRARY_PATH, in DYLD_LIBRARY_PATH on MacOSX
+and on Windows in the system PATH. UIMA C++ executables should be added to the system PATH.
+</p>
+<h4>On Linux</h4>
+  <ul>
+    <code>export LD_LIBRARY_PATH=$UIMACPP_HOME/lib:$LD_LIBRARY_PATH</code><br>
+    <code>export PATH=$UIMACPP_HOME/bin:$PATH</code>
+  </ul>  
+<h4>On Windows</h4>
+  <ul>
+    <code>set PATH=%UIMACPP_HOME%\bin;%PATH%</code>
+  </ul>
+
+<h3>2.2 Verifying Your Installation</h3>
+
+<p>To test the installation, set the environment variables as described above
+and follow these directions:
+
+<h4>2.2.1 On Linux</h4>
+  <ul>
+    <code>
+      cd $UIMACPP_HOME/examples<br>
+      make -C src -f DaveDetector.mak
+    </code>
+  </ul>  
+<p>The build should create a shared library, DaveDetector.so, which must be placed
+ in the LD_LIBRARY_PATH.<br>
+</p>
+<ul>
+    <code>
+      LD_LIBRARY_PATH=`pwd`/src:$LD_LIBRARY_PATH<br>
+    </code>
+</ul>
+Run this C++ annotator as follows:
+  <ul>
+    <code>runAECpp descriptors/DaveDetector.xml data/example.txt</code>
+  </ul>  
+<p>
+The runAECpp driver will process the input text file and DaveDetector should find a Dave in it. 
+</p>
+
+<h4>2.2.2 On Windows</h4>
+  <ul>
+    <code>
+    cd %UIMACPP_HOME%\examples<br>
+    devenv src\DaveDetector.vcproj /build release<br>
+    </code>
+  </ul>  
+<p>The build should create a shared library, DaveDetector.dll, which must be
+placed in the PATH.<br>
+</p>
+<ul>
+    <code>
+      PATH=%CD%\src;$PATH
+    </code>
+</ul>
+Run this C++ annotator as follows:
+  <ul>
+    <code>runAECpp descriptors\DaveDetector.xml data\examples.txt </code>
+  </ul>
+<p>
+The runAECpp driver will process the input text file and DaveDetector should find a Dave in it. 
+</p>
+<h4>2.2.3 More Info on UIMA C++ Examples</h4>
+<p>For further details about how to build and run other examples see
+<a href="../examples/readme.html">C++ Examples</a>
+</p>
+
+<h3>2.3 Testing Interoperability with UIMA on Java</h3>
+To test the interoperability with UIMA Java SDK, make sure UIMA_HOME is set to the location of the UIMA SDK, and that its bin directory is in the PATH. Run DaveDetector as follows:
+<h4>2.3.1 On Linux</h4>
+<ul>
+    <code>runAE.sh descriptors/DaveDetector.xml data</code>
+</ul>  
+<h4>2.3.2 On Windows</h4>
+<ul>
+    <code>runAE descriptors\DaveDetector.xml data</code>
+</ul>  
+The runAE driver will process all files in the data directory and DaveDetector should find Dave in some of them.
+
+<h3>2.3 Testing Interoperability with UIMA AS</h3>
+UIMA AS is an add-on to the core UIMA package; it must be separately downloaded and installed. 
+To test interoperability with UIMA AS, make sure UIMA_HOME is set to the location of the combined SDK, 
+and that its bin directory is in the PATH. Build and run the C++ MeetingAnnotator as follows:
+<h4>2.3.1 On Linux</h4>
+<ul>
+    <code>
+      start the ActiveMQ broker following directions in $UIMA_HOME/README<br>
+      cd $UIMACPP_HOME/examples/tutorial<br>
+      make -C src -f MeetingAnnotator.mak<br>
+      runRemoteAsyncAE.sh  tcp://localhost:61616 MeetingAnnotator -d descriptors/Deploy_MeetingAnnotator.xml
+    </code>
+</ul>  
+<h4>2.3.2 On Windows</h4>
+<ul>
+    <code>
+      start the ActiveMQ broker following directions in %UIMA_HOME%\README<br>
+      cd %UIMACPP_HOME%\examples\tutorial<br>
+      devenv src\MeetingAnnotator.vcproj /build release<br>
+      runRemoteAsyncAE  tcp://localhost:61616 MeetingAnnotator -d descriptors\Deploy_MeetingAnnotator.xml
+    </code>
+</ul>
+The runRemoteAsyncAE driver will deploy the MeetingAnnotator as a UIMA AS service and send it an empty CAS to process.
+
+<h2>3.0 Developing a C++ Component</h2>
+
+<h3>3.1 Developing UIMA C++ Components without Java</h3>
+<p>
+It is advantageous to develop C++ components as stand-alone C++ applications.
+The program <CODE>runAECpp</CODE> found in $UIMACPP_HOME/bin is a
+native utility that instantiates the specified C++ annotator, imports
+input files into CAS objects, and for each input calls the annotator's
+<CODE>process</CODE> method.
+<code>runAECpp</code> supports input files in plain text (the default), as well as files in XMI and XCAS format.
+The output CASes are optionally saved.
+</p>
+<ul>
+<code>runAECpp UimaCppDescriptor InputFileOrDirectory [OutputDirectory] [-x | -xmi] [-lenient] [-s ViewName] [-l loglevel] [-n numInstances] [-r numRuns] [-rand] [-rdelay Max]</code>
+</ul>
+<ul>
+<li>UimaCppDescriptor is the C++ component descriptor.</li>
+<li>InputFileOrDirectory is the name of an input file or a directory containing input files.</li>
+<li>OutputDirectory, if specified the contents of the CAS after processing will be written out with the same names as the input files. Be careful not to specify the directory containing the input files.</li>
+<li>-xmi specifies XMI format input files.</li>
+<li>-x specifies XCAS format input files.</li>
+<li>-lenient ignores out-of-typesystem data. Only valid for XMI format.</li>
+<li>-s ViewName specifies which view in a multi-view input CAS to use for a sofa-unaware component.</li>
+<li>-l loglevel for trace messages.</li>
+<li>-n instances of the annotator can be specified. Each runs in a different thread.</li>
+<li>-r iterations over the input files.</li>
+<li>-rand flag specifies a random processing order of the input files.</li>
+<li>-rdelay Max causes a random delay (between 0 and Max milliseconds) to be inserted before calls to process.</li>
+</ul>
+<p>The options -r, -rand and -rdelay are quite useful for detecting threading problems with annotators intended for multi-threaded deployments.</p>
+<p>Sample XMI and XCAS format CAS files are included with the UIMA C++ examples. After building the 
+<CODE>SofaExampleAnnotator</CODE> example as described above for DaveDetector, try:</p>
+<ul>
+<code>
+runAECpp -xmi descriptors/DaveDetector.xml data/tcas.xmi &lt;yourOutputDir&gt;<br>
+runAECpp -xmi descriptors/DaveDetector.xml data/sofa.xmi &lt;yourOutputDir&gt; -s EnglishDocument<br>
+runAECpp -x descriptors/SofaExampleAnnotator.xml data/sofa.xcas &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+<p>For further details about these and other examples see
+<a href="../examples/readme.html">C++ Examples</a>
+</p>
+
+<h3>3.2 Debugging UIMA C++ Components</h3>
+<p>The component driver, runAECpp, simplifies running the C++ component under a native debugger.
+</p>
+<h4>3.2.1 Debugging on Windows</h4>
+<p>The UIMA C++ framework has special provisions for debugging on Windows.
+UIMA C++ components built debug should link to a debug version of the framework, uimaD.dll.
+The debug framework automatically appends "D" to the name of C++ components before trying to load them.
+This applies to annotators and URI scheme handlers. All UIMA C++ example code follow this convention.
+</p>
+<p>Note also that the runAECppD version of the component driver should be used with debug components.
+</p>
+
+<h3>3.3 Running C++ Components under Java</h3>
+<p>Native components running under Java may operate differently than when run from a native application.
+This is because the JVM uses different default process limits than those used for a native application.
+For example, the maximum stack size for a thread running under a JVM may be 100KB versus
+1MB for a native command line application. Use "java -X" to get more information on non-standard JVM options.
+</p>
+<h4>3.3.1 Running Debug Modules under Java on Windows</h4>
+<p>In order to run UIMA C++ components built debug, Java must load the debug version of the framework.
+Define the Java system property DEBUG_UIMACPP to specify use of the debug framework. 
+A convenient way to pass JVM properties to UIMA's Java commandline utilities, such as runAE.sh, is to define 
+them in the environmental variable UIMA_JVM_OPTS. For example to run a debug version of DaveDetector from Java:
+<ul>
+    <code>export UIMA_JVM_OPTS=-DDEBUG_UIMACPP</code><br>
+    <code>runAE.sh descriptors/DaveDetector.xml data</code>
+</ul>
+</p>
+
+
+<h3>3.4 Message Logging from a C++ Component</h3>
+<p>For formal integration with UIMA applications, a logfile interface is available.
+When a C++ annotator is called from Java, logging messages are integrated into the Java log.
+If the C++ annotator is called from a native C++ application, such as runAECpp,
+a local logfile may be created. The name of the logfile is taken from the 
+the environmental parameter, UIMACPP_LOGFILE, and it is opened "append".
+The default is to disable logging.
+</p>
+<p>Three levels of message logging can be used: Message, Warning and Error.
+When called from Java the UIMA log level is used to control output.
+When called from a C++ application an API is available to set the log level; the default level is Error.
+When called from runAECpp the value of these levels are 0, 1, and 2, respectively.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+   <!--
+    ***************************************************************
+    * Licensed to the Apache Software Foundation (ASF) under one
+    * or more contributor license agreements.  See the NOTICE file
+    * distributed with this work for additional information
+    * regarding copyright ownership.  The ASF licenses this file
+    * to you under the Apache License, Version 2.0 (the
+    * "License"); you may not use this file except in compliance
+    * with the License.  You may obtain a copy of the License at
+         *
+    *   http://www.apache.org/licenses/LICENSE-2.0
+    * 
+    * Unless required by applicable law or agreed to in writing,
+    * software distributed under the License is distributed on an
+    * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    * KIND, either express or implied.  See the License for the
+    * specific language governing permissions and limitations
+    * under the License.
+    ***************************************************************
+   -->
+
+<taeDescription
+   xmlns="http://uima.apache.org/resourceSpecifier" >
+   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+<primitive>true</primitive>
+   <annotatorImplementationName>libstw</annotatorImplementationName>
+
+   <analysisEngineMetaData>
+      <name>StopwordList</name>
+      <description>This annotates tokens as stopwords by list lookup.</description>
+      <version>1.0</version>
+      <vendor>IBM Corporation</vendor>
+
+      <configurationParameters>
+         <configurationParameter>
+            <name>MinTokenLength</name>
+            <description>All tokens with less length are considered stopwords</description>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+                     </configurationParameter>
+         <configurationParameter>
+            <name>MinUpperCaseTokenLength</name>
+            <description>All uppercase tokens with less length are considered stopwords</description>
+            <type>Integer</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+                     </configurationParameter>
+         <configurationParameter>
+            <name>UseAlternateTerritories</name>
+            <description>If true, stopword resources for altarenate territories are loaded</description>
+            <type>Boolean</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+                     </configurationParameter>
+         <configurationParameter>
+            <name>FeatureName</name>
+            <description>Fully qualified name of the feature to be set if a token is a stopword. Feature must have int range.</description>
+            <type>String</type>
+            <multiValued>false</multiValued>
+            <mandatory>false</mandatory>
+                     </configurationParameter>
+      </configurationParameters>
+
+      <configurationParameterSettings>
+      </configurationParameterSettings>
+
+      <typeSystemDescription>
+         <imports>
+             <import location="tt_typesystem.xml"/>
+         </imports>
+      </typeSystemDescription>
+
+      <fsIndexes>
+      </fsIndexes>
+
+      <capabilities>
+         <capability>
+            <inputs>
+               <type>uima.tt.TokenAnnotation</type>
+            </inputs>
+
+            <outputs>
+               <feature>uima.tt.TokenAnnotation:stopwordToken</feature>
+            </outputs>
+
+            <languagesSupported>
+               <!--<language>x-unspecified</language> -->
+               <language>ar</language>
+               <language>ca</language>
+               <language>da</language>
+               <language>de</language>
+               <language>de-CH</language>
+               <language>el</language>
+               <language>en-US</language>
+               <language>en-GB</language>
+               <language>es</language>
+               <language>fi</language>
+               <language>fr</language>
+               <language>fr-CA</language>
+               <language>he</language>
+               <language>is</language>
+               <language>it</language>
+               <language>nb</language>
+               <language>nl</language>
+               <language>no</language>
+               <language>pt-BR</language>
+               <language>pt</language>
+               <language>ru</language>
+               <language>sv</language>
+               <language>zh-CN</language>
+               <language>zh-TW</language>
+            </languagesSupported>
+         </capability>
+      </capabilities>
+
+   </analysisEngineMetaData>
+</taeDescription>
+

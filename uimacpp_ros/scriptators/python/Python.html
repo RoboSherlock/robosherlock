@@ -1,0 +1,99 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+
+<html>
+<head>
+	<title>UIMA Python Annotators and the Pythonnator</title>
+</head>
+
+<body>
+<h1>UIMA Python Annotators and the Pythonnator</h1>
+
+<h2>What is a Python Annotator?</h2>
+<p>A Python Annotator is a UIMA annotator component written in Python that can be used within the
+UIMA SDK framework.
+</p>
+
+<h2>What is the Pythonnator?</h2>
+<p>The Pythonnator is the linkage between the UIMA framework and a Python Annotator.
+The Pythonnator is actually a UIMA C++ annotator which can be referenced by primitive annotator or CAS consumer descriptors.
+The descriptor must define one configuration parameter, a second is optional:
+  <ul>
+    <code>SourceFile</code> (mandatory) - a string holding the name of the Python module to run, and<br>
+    <code>DebugLevel</code> (optional) - an integer value that specifies the debug level for tracing. Default value is 0. A value of 101 turns on Pythonnator tracing. Values 1-100 are reserved for annotator developer use.
+  </ul>
+When the Pythonnator is initialized, e.g. at CPE initialization, the C++ code creates a Python interpreter, imports the specified script and calls the script's initialization method. Similarly, when other Pythonnator methods such as process() are called by the UIMA framework, the associated methods in the Python script are called.
+</p>
+<p>The Pythonnator also provides a Python library implementing an interface between Python and the UIMA APIs of the UIMA C++ framework.
+</p>
+
+<h2>Supported Platforms</h2>
+<p>The Pythonnator has been tested with Python versions 2.3 and 2.4 on Linux, and with version 2.4 on Windows (from http://www.python.org/ftp/python/2.4.2/python-2.4.2.msi). There are errors with version 2.5 on Windows.
+</p>
+
+<h2>Prerequisites</h2>
+<p>The Pythonnator uses SWIG (http://www.swig.org/) to implement the Python library interface to UIMA. SWIG version 1.3.29 or later is required.</p>
+<p>The UIMA C++ framework is required.
+</p>
+<p>In addition to the Python interpreter, a Python development package (python-devel on Linux) is required for building the Pythonnator. The above mentioned Windows version includes a development package.</p>
+
+<h2>Pythonnator Distribution</h2>
+<p>Pythonnator code is distributed in source form and must be built on the target platform. A Makefile is supplied for Linux and a vcproj for Windows builds.</p>
+<p>Pythonnator source and sample code is located in the $UIMACPP_HOME/scriptators directory.</p>
+
+<h2>Setting Environment Variables</h2>
+<p>The Pythonnator requires the standard environment for UIMA C++ components. In addition, PYTHONPATH must be set to identify where Python modules will be found.
+</p>
+
+
+<h2>Building and Installing the Pythonnator</h2>
+Recursively copy the scriptators directory from the uimacpp distribution to a writable directory tree. CD to the writable scriptators/python directory.
+
+<h3>On Linux</h3>
+  <ul>
+    <li><code>Check that you have the required Python and Swig packages installed</code></li>
+    <li><code>make</code></li>
+  </ul>
+
+<h3>On Windows</h3>
+  <ul>
+    <li><code>Modify winmake.cmd to set the paths for your Python and Swig installs</code></li>
+    <li><code>winmake</code></li>
+  </ul>  
+<p>Build results are the C++ annotator, _pythonnator.so on Linux or _pythonnator.dll on Windows, and the Python library interface to UIMA APIs, pythonnator.py.
+</p>
+<p>If you have write access to UIMA C++ distribution tree, on Linux copy _pythonnator.so and pythonnator.py to $UIMACPP_HOME/lib and add this directory to PYTHONPATH. On Windows copy _pythonnator.dll and pythonnator.py to $UIMACPP_HOME/bin and add this directory to PYTHONPATH.
+</p>
+<p>If you don't have write access, make sure that pythonnator.so|.dll is in the LD_LIBRARY_PATH or PATH, as appropriate, and copy pythonnator.py to the directory with the user's python modules and be sure to set PYTHONPATH to include that directory.
+</p>
+
+<h2>Testing the Pythonnator</h2>
+</>A simple Python regular expression annotator <code>sample.py</code> with descriptor <code>PythonSample.xml</code> is included in the distribution. Make sure that sample.py is in PYTHONPATH and use the descriptor as with any other UIMA annotator descriptor.</p>
+
+<h2>Known Pythonnator Issues</h2>
+<p>
+  <ul>
+    <li>Not all of the UIMA C++ APIs have been swig'ed. Missing functions can be added by extending the source file uima.i.
+    <li>The Python interpreter itself is not thread-safe. The Pythonnator uses Python's "global interpreter lock" to allow multiple Pythonnators to run in a multithreaded UIMA application such as the UIMA CPM. As a result multiple Pythonnotators running concurrently in different threads are serialized, potentially limiting performance when running on multicore hardware.
+  </ul>
+</p>
+
+</body>
+</html>

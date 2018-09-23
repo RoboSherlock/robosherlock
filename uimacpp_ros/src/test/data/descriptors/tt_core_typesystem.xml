@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+   <!--
+    ***************************************************************
+    * Licensed to the Apache Software Foundation (ASF) under one
+    * or more contributor license agreements.  See the NOTICE file
+    * distributed with this work for additional information
+    * regarding copyright ownership.  The ASF licenses this file
+    * to you under the Apache License, Version 2.0 (the
+    * "License"); you may not use this file except in compliance
+    * with the License.  You may obtain a copy of the License at
+         *
+    *   http://www.apache.org/licenses/LICENSE-2.0
+    * 
+    * Unless required by applicable law or agreed to in writing,
+    * software distributed under the License is distributed on an
+    * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    * KIND, either express or implied.  See the License for the
+    * specific language governing permissions and limitations
+    * under the License.
+    ***************************************************************
+   -->
+
+<typeSystemDescription>
+    <types>
+       <typeDescription>
+            <name>uima.tcas.DocumentAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tcas.Annotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>categories</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.FSList</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>languageCandidates</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.FSList</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>id</name>
+                    <description>Document id, such as a URL</description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+       <typeDescription>
+           <name>uima.tt.TTAnnotation</name>
+           <description></description>
+           <supertypeName>uima.tcas.Annotation</supertypeName>
+       </typeDescription>
+       <typeDescription>
+           <name>uima.tt.DocStructureAnnotation</name>
+           <description></description>
+           <supertypeName>uima.tt.TTAnnotation</supertypeName>
+       </typeDescription>
+        <typeDescription>
+            <name>uima.tt.ParagraphAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.DocStructureAnnotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>paragraphNumber</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.SentenceAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.DocStructureAnnotation</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>sentenceNumber</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.LexicalAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.TTAnnotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.TokenLikeAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.LexicalAnnotation</supertypeName>
+            <features>
+               <featureDescription>
+                   <name>lemma</name>
+                   <description></description>
+                   <rangeTypeName>uima.tt.Lemma</rangeTypeName>
+               </featureDescription>
+                <featureDescription>
+                    <name>lemmaEntries</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.FSList</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>tokenNumber</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>tokenProperties</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>stopwordToken</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>synonymEntries</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.FSList</rangeTypeName>
+                </featureDescription>
+               <featureDescription>
+                   <name>normalizedCoveredText</name>
+                   <description>In cases where the covered text can not be used as-is an annotator may store a normalized representation in this feature</description>
+                   <rangeTypeName>uima.cas.String</rangeTypeName>
+               </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.TokenAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.TokenLikeAnnotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.CompPartAnnotation</name>
+            <description></description>
+            <supertypeName>uima.tt.TokenLikeAnnotation</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.KeyStringEntry</name>
+            <description></description>
+            <supertypeName>uima.cas.TOP</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>key</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.Lemma</name>
+            <description></description>
+            <supertypeName>uima.tt.KeyStringEntry</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>partOfSpeech</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>morphID</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.Synonym</name>
+            <description></description>
+            <supertypeName>uima.tt.KeyStringEntry</supertypeName>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.CategoryConfidencePair</name>
+            <description></description>
+            <supertypeName>uima.cas.TOP</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>categoryString</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>categoryConfidence</name>
+                    <description></description>
+                    <rangeTypeName>uima.cas.Float</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>mostSpecific</name>
+                    <description>flag, if category is the most specific for that document in this taxonomy</description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>taxonomy</name>
+                    <description>name of the taxonomy the category belongs to, therefore a document could
+                               have categories from different taxonomies</description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+        <typeDescription>
+            <name>uima.tt.LanguageConfidencePair</name>
+            <description></description>
+            <supertypeName>uima.cas.TOP</supertypeName>
+            <features>
+                <featureDescription>
+                    <name>languageConfidence</name>
+                    <description>A number between 0 and 1 describing the confidence</description>
+                    <rangeTypeName>uima.cas.Float</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>language</name>
+                    <description>The ISO name of the language</description>
+                    <rangeTypeName>uima.cas.String</rangeTypeName>
+                </featureDescription>
+                <featureDescription>
+                    <name>languageID</name>
+                    <description>The language as TAF number</description>
+                    <rangeTypeName>uima.cas.Integer</rangeTypeName>
+                </featureDescription>
+            </features>
+        </typeDescription>
+    </types>
+</typeSystemDescription>
+

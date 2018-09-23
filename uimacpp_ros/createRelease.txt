@@ -1,0 +1,136 @@
+Instructions for creating a uimacpp release or a new build
+
+
+For a new release
+
+1. create a tag for the new release, e.g.
+	svn copy https://svn.apache.org/repos/asf/uima/uimacpp/trunk https://svn.apache.org/repos/asf/uima/uimacpp/tags/uimacpp-2.4.0-rcN -m"create tag for 2.4.0 release"
+
+2. if changes are needed, update trunk. Create a new tag when ready to release.
+
+
+For a new build on Linux
+
+1. create new directory for release candidate and cd there
+	mkdir uimacpp-2.4.0-build
+	cd uimacpp-2.4.0-build
+
+2. checkout source from the tag
+	svn co https://svn.apache.org/repos/asf/uima/uimacpp/tag/uimacpp-2.4.0
+
+3. Modify configure.ac 
+   Update package version number specified in AC_INIT call.
+   Update the  library number by modifying LT_VERSION_NUMBER following the 
+      libtool version numbering convention. This is summarized on the
+      wiki page https://cwiki.apache.org/UIMA/proposed-changes-to-uima-c-build-and-packaging.html.
+
+4. Run autogen.sh to generate new configure script
+   check into svn the generated output files.
+
+5. build, test and create sdk tree. Follow the instructions in README.4src.
+
+6. create bin tarball
+	tar -czf uimacpp-2.4.0-bin.tgz uimacpp
+
+7. rat scan of bin
+      java -jar apache-rat-0.8.jar  -dir uimacpp -e *.vcproj docs scriptators txt README RELEASE* examples  html > uimacpp-bin-linux
+
+8. sniff test of base sdk
+	cd uimacpp
+	export UIMACPP_HOME=`pwd`
+	PATH=$PATH:`pwd`/bin
+	export LD_LIBRARY_PATH=`pwd`/lib:`pwd`/examples/src
+	cd examples/src
+	make -f all.mak
+	cd ..
+	./runall.sh
+
+9. sniff test of scriptators (following base sniff test)
+	cd ../scriptators/perl
+	make
+	PATH=$PATH:`pwd`
+	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
+	runAECpp PerlSample.xml ../../examples/data/
+
+	cd ../python
+	make
+	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`h
+	export PYTHONPATH=`pwd`
+	runAECpp PythonSample.xml ../../examples/data/
+
+	cd ../tcl
+	make
+	LD_LIBRARY_PATH=$LD_LIBRARY_PATH:`pwd`
+	runAECpp TclSample.xml ../../examples/data/
+
+10. sniff test of uimacpp service wrapper
+	in a "Uima AS window", run:
+	  startBroker.sh
+	back in the UimaCpp test window:
+	  cd ../../examples
+	  runRemoteAsyncAE.sh tcp://localhost:61616 MeetingAnnotator \
+	  -d tutorial/descriptors/Deploy_MeetingAnnotator.xml
+
+
+
+For a new build on Windows
+
+1. checkout source from current release branch
+	svn co https://svn.apache.org/repos/asf/uima/uimacpp/branches/uimacpp-2.4.0
+
+2. build, test and create sdk tree following the instructions in README.4src
+	
+3. create bin zipfile of buildDir\uimacpp as
+	uimacpp-2.4.0-bin.zip
+
+4. rat scan of bin
+     java -jar apache-rat-0.8.jar  -dir uimacpp -e *.vcproj docs scriptators txt README RELEASE* examples  html > uimacpp-bin-windows-report.txt
+
+5. sniff test of base sdk
+	cd uimacpp
+	set UIMACPP_HOME=%cd%
+	path=%path%;%cd%\bin;%cd%\examples\src
+	cd examples\src
+	devenv uimacpp-examples.sln /build release
+	cd ..
+	runall
+
+6. sniff test of scriptators (following base sniff test)
+	cd ..\scriptators\perl
+	winmake
+	runAECpp PerlSample.xml ..\..\examples\data\
+
+	cd ..\python
+	winmake
+	runAECpp PythonSample.xml ..\..\examples\data\
+
+	cd ..\tcl
+	winmake
+	runAECpp TclSample.xml ..\..\examples\data\
+
+7. sniff test of uimacpp service wrapper
+	in a "Uima AS window", run:
+	  startBroker
+	back in the UimaCpp test window:
+	  cd ..\..\examples
+	  runRemoteAsyncAE tcp://localhost:61616 MeetingAnnotator \
+	  -d tutorial\descriptors\Deploy_MeetingAnnotator.xml
+
+
+Create Source Tar ball
+
+The source tar ball is created by zipping up the files from svn extract of UIMA C++ source.
+
+The source tar ball contains all the files needed to build the Windows and/or
+Linux binaries. 
+
+1. checkout source from current release branch
+        svn co https://svn.apache.org/repos/asf/uima/uimacpp/branches/uimacpp-2.4.0
+2. create the tar ball
+   On Windows zip up uimacpp-2.4.0 and create uimacpp-2.4.0-src.zip
+   On Linux tar -zcvf uimacpp-2.4.0-src.tgz uimacpp-2.4.0
+3. rat scan the source directory
+   java -jar c:\apache-rat-0.8\apache-rat-0.8.jar -dir uimacpp-2.4.0 -e org_apache*.h *.vcproj createRelease.txt configure *.txt
+ *.sln  *.html *.sh  README* scriptators test examples config  m4 NOTICE*  uimacpp-2.4.0 > uimacpp-2.4.0-src-report.txt
+
+  

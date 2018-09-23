@@ -1,0 +1,1 @@
+string[] obj_descriptions

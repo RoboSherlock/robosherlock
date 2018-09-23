@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+   <!--
+    ***************************************************************
+    * Licensed to the Apache Software Foundation (ASF) under one
+    * or more contributor license agreements.  See the NOTICE file
+    * distributed with this work for additional information
+    * regarding copyright ownership.  The ASF licenses this file
+    * to you under the Apache License, Version 2.0 (the
+    * "License"); you may not use this file except in compliance
+    * with the License.  You may obtain a copy of the License at
+         *
+    *   http://www.apache.org/licenses/LICENSE-2.0
+    * 
+    * Unless required by applicable law or agreed to in writing,
+    * software distributed under the License is distributed on an
+    * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    * KIND, either express or implied.  See the License for the
+    * specific language governing permissions and limitations
+    * under the License.
+    ***************************************************************
+   -->
+
+<taeDescription
+   xmlns="http://uima.apache.org/resourceSpecifier"
+   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation="http://uima.apache.org/resourceSpecifier http://uima.apache.org/resourceSpecifierSchema.xsd"
+   >
+   <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+<primitive>false</primitive>
+   <delegateAnalysisEngineSpecifiers>
+      <delegateAnalysisEngine key="tok">
+         <import location="tok.xml" />
+      </delegateAnalysisEngine>
+      <delegateAnalysisEngine key="stw">
+         <import location="stopword.xml" />
+      </delegateAnalysisEngine>
+      <delegateAnalysisEngine key="dump">
+         <import location="dump.xml" />
+      </delegateAnalysisEngine>
+   </delegateAnalysisEngineSpecifiers>
+
+   <analysisEngineMetaData>
+      <name>TokTestApp</name>
+      <description></description>
+      <version>1.0</version>
+      <vendor>IBM Corporation</vendor>
+
+      <configurationParameters>
+         <configurationParameter>
+            <name>OutputFile</name>
+            <description>The name of the file that will contain the dumped TCAS</description>
+            <type>String</type>
+            <multiValued>false</multiValued>
+            <mandatory>true</mandatory>
+                     </configurationParameter>
+
+      </configurationParameters>
+
+      <configurationParameterSettings>
+         <nameValuePair>
+            <name>OutputFile</name>
+            <value>
+               <string><envVarRef>TEMP</envVarRef>/stopwordtest.xml</string>
+            </value>
+         </nameValuePair>
+      </configurationParameterSettings>
+
+      <flowConstraints>
+         <fixedFlow>
+            <node>tok</node>
+            <node>stw</node>
+            <node>dump</node>
+         </fixedFlow>
+      </flowConstraints>
+
+      <fsIndexes>
+      </fsIndexes>
+
+      <capabilities>
+         <capability>
+            <inputs/>
+
+            <outputs>
+               <type>uima.tt.TokenAnnotation</type>
+               <feature>uima.tt.TokenAnnotation:stopwordToken</feature>
+            </outputs>
+
+            <languagesSupported>
+               <language>x-unspecified</language>
+            </languagesSupported>
+         </capability>
+      </capabilities>
+
+   </analysisEngineMetaData>
+</taeDescription>
+
+
