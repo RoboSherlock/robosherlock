@@ -133,7 +133,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
     if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
     {
       //    isHDColor = true;
-      if(color.cols == 1280)
+      if(color.cols == 1280 && color.rows !=720)
       {
         color = color(cv::Rect(0, depthOffset, 1280, 960));
         cameraInfo.K[5] -= depthOffset;
