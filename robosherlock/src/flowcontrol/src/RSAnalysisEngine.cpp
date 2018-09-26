@@ -58,7 +58,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   aeConverter.parseYamlFile();
   std::ofstream xmlOutput;
 
-  xmlOutput.open(AEXMLFile);  
+  xmlOutput.open(AEXMLFile);
   aeConverter.getOutput(xmlOutput);
   xmlOutput.close();
   outInfo("Converted to: " << AEXMLFile);
@@ -195,7 +195,6 @@ void RSAnalysisEngine::process()
 {
   std::vector<std::string> desigResponse;
   this->process(desigResponse, query_);
-  setQuery("");
 }
 
 void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
@@ -204,9 +203,9 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
 
-  if(queryString != "") {
+  if(queryString != "" || query_ != "") {
     rs::Query query = rs::create<rs::Query>(*cas_);
-    query.query.set(queryString);
+    queryString !="" ? query.query.set(queryString):query.query.set(query_);
     rs::SceneCas sceneCas(*cas_);
     sceneCas.set("QUERY", query);
   }
@@ -261,8 +260,6 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
   rs::DesignatorWrapper dw(cas_);
   useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
   dw.getObjectDesignators(designatorResponse);
-
-  setQuery("");
   outInfo("processing finished");
 }
 
