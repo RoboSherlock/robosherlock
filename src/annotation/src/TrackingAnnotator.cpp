@@ -25,8 +25,15 @@
 #include <opencv2/tracking.hpp>
 #include <opencv2/core/ocl.hpp>
 
+// RS
+#include <rs/scene_cas.h>
+#include <rs/utils/time.h>
+#include <rs/utils/output.h>
+#include <rs/DrawingAnnotator.h>
+
 using namespace cv;
 using namespace std;
+using namespace uima;
 
 // Convert to string
 #define SSTR( x ) static_cast< std::ostringstream & >( \
@@ -35,7 +42,8 @@ using namespace std;
 class TrackingAnnotator : public DrawingAnnotator
 {
 private:
-    tracker = TrackerKCF::create();
+    Ptr<Tracker> tracker = TrackerKCF::create();
+    cv::Mat color;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -77,9 +85,6 @@ public:
     TyErrorId destroy()
     {
         outInfo("destroy");
-
-        detector.release();
-        extractor.release();
 
         return UIMA_ERR_NONE;
     }
