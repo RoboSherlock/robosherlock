@@ -1,0 +1,165 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!--
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ -->
+
+<html>
+<head>
+	<title></title>
+</head>
+
+<body>  
+<h1>UIMA C++ Examples</h1>
+<p>
+This directory contains example code that illustrate how to use the UIMA C++ Framework. 
+</p>
+<h2>Building the Examples</h2>
+Set environment variables as described in the overview and build the examples as follows:
+<h3>On Linux</h3>
+  <ul>
+    <code>
+      cd $UIMACPP_HOME/examples<br>
+      make -C src -f all.mak
+    </code>
+  </ul>  
+This will create shared libraries and executables in the src directory which must be placed in the LD_LIBRARY_PATH and PATH as follows:
+  <ul>
+     <code>
+       export LD_LIBRARY_PATH=`pwd`/src:$LD_LIBRARY_PATH</br>
+       export PATH=`pwd`/src:$PATH
+     </code>
+  </ul> 
+  
+<h3>On Windows</h3>
+  <ul>
+    <code>
+      cd %UIMACPP_HOME%\examples<br>
+      devenv src\uimacpp-examples.sln /build release<br>
+    </code>
+  </ul>
+This will create DLLs and executables in the src directory which must be placed in the PATH as follows:
+  <ul>
+    <code>
+      export PATH=%CD%\src;$PATH
+    </code>
+  </ul>
+<h2>Running the Sample UIMA Components</h2>
+<p>These components can be run using either in the native C++ environment using the <code>runAECpp</code> program or run from Java using the <code>runAE</code> utility or integrated into a CPE. The UIMA C++ descriptors are located in the descriptors subdirectory.
+<h3>DaveDetector</h3>
+A UIMA annotator that finds Daves in text and annotates them. It has one configuration parameter, <code>DaveString</code>, that specifies the string to match. It illustrates how to use the CAS APIs to create annotations and add them to the index. 
+<p>
+To run this annotator in C++:
+</p>
+<ul>
+<code>
+runAECpp descriptors/DaveDetector.xml data/example.txt &lt;yourOutputDir&gt;<br>
+runAECpp -xmi descriptors/DaveDetector.xml data/tcas.xmi &lt;yourOutputDir&gt;<br>
+runAECpp -xmi descriptors/DaveDetector.xml data/sofa.xmi &lt;yourOutputDir&gt; -s EnglishDocument<br>
+</code>
+</ul>
+<h3>SofaExampleAnnotator</h3>
+A simple multi-Sofa example annotator that expects an English text Sofa as input and creates a German text Sofa as output. This annotator has no configuration parameters, and requires no initialization method. 
+To run this annotator in C++:
+<ul>
+<code>
+runAECpp -xmi descriptors/SofaExampleAnnotator.xml data/sofa.xmi &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+<h3>SofaStreamHandlerFile</h3>
+This component implements the Sofa stream handler interface defined in <code>sofastreamhandler.hpp</code> to provide stream access to data located using the <code>file:</code> URI scheme. It enables a UIMA component to access remote Sofa data referenced with a <code>file:</code> URI. 
+This example may be used as a model for building handlers for custom URI schemes. 
+The shared library <code>SofaStreamHandlerFile</code> must be registered with the framework as follows:
+<ul>
+On Windows
+<ul>
+<code>
+set UIMACPP_STREAMHANDLERS=file:SofaStreamHandlerFile %UIMACPP_STREAMHANDLERS%<br>
+</code>
+</ul>
+On Linux
+<ul>
+<code>
+export UIMACPP_STREAMHANDLERS="file:SofaStreamHandlerFile $UIMACPP_STREAMHANDLERS"<br>
+</code>
+</ul>
+<p>
+Handlers for several URI schemes may be registered separated by a blank.  There can be only one handler per URI scheme.
+</p>
+</ul>
+The <code>SofaDataAnnotator</code> described below illustrates reading Sofa data as a stream. 
+<h3>SofaDataAnnotator</h3>
+An annotator that accesses the data in Sofa "EnglishDocument" as a text stream.
+It tokenizes the data on whitespace and creates an annotation for each token. The annotator may be run with an input Sofa where the Sofa data is local or with a Sofa where the Sofa data is remote and specified as a URI.  To run this annotator in C++ to process a Sofa with local data: 
+<ul>
+<code>
+runAECpp -xmi descriptors/SofaDataAnnotator.xml data/sofa.xmi &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+To run and process Sofa where the Sofa data is specified as a <code>file:</code> URL, register the example <code>sofaStreamFileHandler</code> handler for the <code>file</code> URI scheme as described in the section above. and run:
+<ul>
+<code>
+runAECpp -xmi descriptors/SofaDataAnnotator.xml data/filetcas.xmi &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+<h3>SimpleTextSegmenter</h3>
+A simple example CAS Multiplier which is a type of analysis component that outputs new CASes. This example illustrates one use of the CAS Multiplier which is to break down a large CAS into smaller pieces which are put into new CASs. The <code>SimpleTextSegmenter</code> breaks down the input document into segments based on a delimiter and creates a Sofa for each segment in a new CAS. The delimiter to use can be specified by setting the value of the configuration parameter <code>DelimiterString</code> in the descriptor. 
+To run this annotator in C++:
+<ul>
+<code>
+runAECpp -xmi descriptors/SimpleTextSegmenter.xml data/docforsegmenter.xmi &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+The original input CAS as well as the new CASs containing the segments will be written out as separate files in your &lt;yourOutputDir&gt; in XMI format.
+<h3>XCasWriterCasConsumer</h3>
+A simple example CAS Consumer that generates an XCAS (XML representation of a CAS) and writes it to stdout by default. It can be configured to write the XCAS output to a file in a directory specified by modifying the descriptor and setting a value for the configuration parameter <code>OutputDirectory</code>. The <code>XCasWriterCasConsumer</code> can be inserted at any point in a aggregate or CPE flow to dump the contents of CAS and is useful for debugging.
+To run this annotator in C++:
+<ul>
+<code>
+runAECpp -xmi descriptors/XCasWriterCasConsumer.xml data/tcas.xmi &lt;yourOutputDir&gt;<br>
+runAECpp -xmi descriptors/XCasWriterCasConsumer.xml data/sofa.xmi &lt;yourOutputDir&gt;<br>
+</code>
+</ul>
+To see the results of the earlier examples:
+<ul>
+<code>
+runAECpp -xmi descriptors/XCasWriterCasConsumer.xml &lt;yourOutputDir&gt;/tcas.xmi<br>
+runAECpp -xmi descriptors/XCasWriterCasConsumer.xml &lt;yourOutputDir&gt;/sofa.xmi<br>
+runAECpp -xmi descriptors/XCasWriterCasConsumer.xml &lt;yourOutputDir&gt;/filetcas.xmi<br>
+</code>
+</ul>
+<h2>Running the Sample UIMA Applications</h2>
+These illustrate how to write stand-alone C++ applications that run UIMA C++ components.
+Build the examples and set up environment variables as described above.
+<h3>ExampleApplication</h3>
+This application reads all the .txt files in a directory, creates a CAS for
+each in turn and sends them through an AnalysisEngine.
+The results are printed on stdout as an XCAS. The application takes two arguments, the path to a UIMA C++ descriptor file, and a file or directory containing input data:
+<ul>
+<code>
+ExampleApplication descriptors/DaveDetector.xml data<br>
+</code>
+</ul>
+<h3>SofaExampleApplication</h3>
+A multiple Sofa example that creates a text Sofa called EnglishDocument and sets its Sofa data to some English text and calls the SofaExampleAnnotator which produces a Sofa with German text and writes the annotations to stdout. This application takes one argument, the path to the SofaExampleAnnotator descriptor file:
+<ul>
+<code>
+SofaExampleApplication descriptors/SofaExampleAnnotator.xml<br>
+</code>
+</ul>
+</body>
+</html>

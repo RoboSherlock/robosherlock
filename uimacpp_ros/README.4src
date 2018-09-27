@@ -1,0 +1,339 @@
+
+See the LICENSE file for licensing information.
+
+--------------------------------
+The Apache UIMA C++ SDK
+--------------------------------
+1. General
+2. Building on Unix
+3. Building on Windows
+4. Building, testing and packaging on Mac OSX
+5. Building the dependencies
+6. UIMA C++ Release Compatibility
+
+----------------
+1. General
+----------------
+
+UIMACPP enables analytics written in C++, Python, Perl and Tcl to be
+easily integrated into the UIMA Java framework.
+
+The Apache UIMA C++ SDK contains UIMACPP as well as all prerequisite 
+components. The SDK is intended to enable user's annotator code 
+be packaged for integration into a UIMA pipeline and to make it
+easier to redistribute UIMACPP-based applications.  This also allows 
+different UIMACPP annotators, each using different versions of UIMACPP, 
+to be integrated into a common UIMA pipeline on the same machine. For this 
+reason the SDK contains UIMACPP as well as all prerequisite components.  
+
+To build the SDK, it is recommended that the prerequisites be built from source.
+The SDK build process must be configured with the location of the install directory for each
+of the dependencies. It locates the headers and libraries of the dependencies relative
+to the specified location. 
+
+Alternatively, on Linux, UIMACPP can be built and installed on a machine along
+with all its prerequisites in the standard system directories. In this case the 
+prerequisites can be installed from binary distributions.
+
+UIMACPP runtime prerequisites are: 
+
+Tool        Recommended Version
+-------------------------------
+APR           >= 1.3.8 
+ICU           >= 3.6
+Xerces-C      >= 2.8
+JDK           for building the JNI interface
+ActiveMQ CPP  >= 3.4.1  (optional) to build the UIMA-AS service wrapper
+APR-util      >= 1.3.8  (optional) an ActiveMQ prerequisite
+
+
+On Linux the following GNU build tools are required:
+
+Tool        Recommended Version
+-------------------------------
+autoconf    >= 2.61
+automake    >= 1.10
+libtool     >= 1.5.24
+
+On Windows, UIMACPP is built with Microsoft Visual Studio. The UIMA C++ MSVC projects 
+are Microsoft Visual Studio 8 (2005) projects.  
+
+The SDK build process also builds the documentation and requires doxygen for building 
+the documentation.
+
+The Apache UIMA C++ SDK has been built and tested in 32-bit mode on
+Linux systems with gcc version 3.4.6 and on Windows using MSVC version 8.
+64-bit builds have only been tested on Linux with gcc 4.3.2 and 4.4.6.
+
+For up-to-date build instructions. please see these pages on the Apache UIMA site: 
+https://uima.apache.org/dev-quick.html
+https://uima.apache.org/doc-uimacpp-build.html
+
+-------------------------
+2. Building on Unix/Linux
+-------------------------
+
+To build an SDK it is recommended that all prerequisite components, APR, ICU, Xerces-C,
+ActiveMQ-cpp and APR-util be built from source and installed by running "make
+install". They need not be installed in system directories.
+
+Prerequisite installs from compatible binary distributions can be used to build
+the UIMACPP components.  At runtime, only one version of ICU can be loaded. Some
+binary distributions of Xerces-C are built with ICU and have been reported to have 
+problems. In this case, rebuild Xerces-C from source and specify --without-icu argument
+to the configure script. 
+
+There is also a dependency on JNI headers from a Java JDK.
+
+
+Optional pre-build step
+-----------------------
+If changes are made to configure.ac or Makefile.am, then configure
+needs to be re-generated using:
+
+ ./autogen.sh
+
+autogen.sh requires GNU tools at or above the following versions:
+automake v1.9.6, autoconf v2.59 and libtool v1.5.24.
+
+Build Steps
+-----------
+
+1 Configure and build
+  To build the UIMACPP libraries using prerequisites installed in the
+  system directories, Simply run:
+    ./configure --with-jdk=location_of_jni.h [other options]
+    make
+
+  The ./configure script will generate Makefiles customized to your
+  system, including detecting available prerequisites that have been
+  installed in standard locations.
+
+  By default the install step will put UIMACPP components in
+  /usr/local/uimacpp. To build an SDK, install them elsewhere by adding 
+  the following option to configure:
+  --prefix=install_target_loc e.g. --prefix=~/uimacpp-2.4.0/install
+
+  On Linux jni.h is usually in the JDK's "include" directory. On MacOSX
+  jni.h is in the JDK's "Headers" dirctory. In some cases jni.h will
+  #include files in other directories. For example, if jni.h includes
+  jni_md.h located in a subdirectory named linux, use
+  --with-jdk="loc_of_jdk/include -Iloc_of_jdk/include/linux"
+
+  If the prerequisites are not installed in the system directories as well as   
+  for a full SDK build, additional parameters must be provided to the
+  configure script:
+  For a full SDK build, all of the following are needed:
+      --with-apr=loc_of_apr_install --with-icu=loc_of_icu_install \
+      --with-xerces=loc_of_xerces_install --with-activemq=loc_of_amq_install \
+      --with-apr-util=loc_of_apr-util_install
+
+  For a build of UIMACPP without UIMA-AS support, specify the option
+    --without-activemq and leave out --with-activemq and --with-apr-util.
+
+  For more help on how to customize the build configuration, run:
+    ./configure --help
+
+2 Run the test suite
+    make check
+
+3 Install and Build the SDK tree
+    make install 
+    make sdk TARGETDIR=loc_of_sdk_tree [clean]
+
+  The SDK tree will be created in loc_of_sdk_tree/uimacpp. Package by:
+    cd loc_of_sdk_tree
+    tar czf uimacpp-2.X.Y-bin.tgz uimacpp
+
+4 Optionally, generate source tar ball
+    make dist
+
+For additional information on building on Mac OSX, please see Section 4.
+
+
+----------------------
+3. Building on Windows
+----------------------
+
+To build an SDK all prerequisite components, APR, ICU, Xerces-C,
+ActiveMQ-cpp, APR-util and APR-iconv must first be built, and a
+JDK installed. The location of the dependencies must be set in
+environment variables APR_HOME, ICU_HOME, XERCES_HOME, ACTIVEMQ_HOME
+and JAVA_HOME.
+
+For details on building the dependencies, please see section 5.2 of 
+this document.
+
+In order to be able to build annotators, the SDK must be built as
+described below in step 4, since the annotator projects use the 
+environment variable UIMACPP_HOME to locate the UIMA libraries
+and dependencies.
+
+If using MSVC Express Edition, first run these prebuild steps. 
+  - cd uimacpp-2.X.Y\src
+  - run vcexpress uimacpp.sln and do any conversions as prompted.
+  - replace devenv command with vcexpress in the winmake and test/fvt.sh scripts and in all build instructions. 
+  - continue with the instructions below.
+
+If using a newer version of MSVC, the uimacpp.sln in uimacpp-2.X.Y\src 
+must be converted. 
+
+The following commands assume you are running from a Microsoft Visual
+Studio 2005 Command Prompt.
+
+1 Build the UIMA C++ framework in both release and debug:
+  cd \uimacpp-2.X.Y\src
+  winmake /build release
+  winmake /build debug
+
+2 Build and run the test suite:
+  cd \uimacpp-2.X.Y\src\test
+  devenv test.sln /build release
+  fvt
+
+3 Build the documentation:
+  Note: The documentation build requires Doxygen 1.3.6 or later.
+  cd \uimacpp-2.X.Y\docs
+  builddocs
+
+4 Build the SDK tree:
+  set MSVCRT_HOME to the directory with the required msvc*.dll files.
+  set ACTIVEMQ_HOME if building the ActiveMQ service wrapper, deployCppService.
+
+  cd \uimacpp-2.X.Y
+  buildsdk "target_dir [clean]"
+
+5 Package the SDK zipfile by creating a compressed folder of 
+  target_dir\uimacpp into uimacpp-2.X.Y-bin.zip
+
+6 Package a source zipfile by creating a compressed folder of the
+  the directory containing the source download or SVN extract.
+
+
+----------------------------------------------
+4. Building, testing and packaging on Mac OSX:
+----------------------------------------------
+Except for one problem with APR (see below), building is the same here as outlined
+in Building on Unix (section 2).
+
+These instructions should work on the Max OSX but have not been tested. 
+
+4.1 Patch APR
+-------------
+
+For the Intel-based Mac OSX machines we have tested with, the APR function
+to dynamically load shared libraries does not respect DYLD_LIBRARY_PATH.
+
+A fix is to patch dso/unix/dso.c as follows:
+
+26a27,31
+>#if defined(DSO_USE_DYLD)
+>#define DSO_USE_DLFCN
+>#undef DSO_USE_DYLD
+>#endif
+>
+
+4.2 Packaging UIMA C++ annotators:
+----------------------------------
+On Mac OSX, the install names are embedded in the binaries.  Run the
+following steps manually post build to neutralize the embedded name in
+the UIMA C++ binary and to change the dependency path in the
+annotator:
+ 
+1) changing the install name in libuima, to neutralize it:
+
+install_name_tool -id libuima.dylib $UIMACPP_HOME/install/lib/libuima.dylib
+
+2) changing the dependency path in the annotator:
+
+install_name_tool -change "/install/lib/libuima.dylib"
+"/absolute_path_to_uimacpp_home/install/lib/libuima.dylib" MyAnnotator.dylib
+
+
+----------------------------------------------------------------------------
+5. Building the dependencies: APR et al, ICU, Xerses-c and Activemq-cpp
+----------------------------------------------------------------------------
+
+Download and build information for these libraries are at:
+  APR      - http://apr.apache.org/
+  ICU      - http://www.icu-project.org/
+  XERCES   - http://xml.apache.org/xerces-c/
+  ACTIVEMQ - http://activemq.apache.org/cms/download.html
+
+ACTIVEMQ CPP library version 3.2 or higher is required to support
+the ActiveMQ failover protocol and to support multi-byte payload data.
+ACTIVEMQ CPP 3.2 and higher has a dependency on APR at version 1.3.8
+or higher and APR-util 1.3.8.  (On Windows APR-util requires APR-iconv)
+
+
+5.1 Building Dependencies on Unix/MacOSX
+----------------------------------------
+The directions for these components is straightforward. The UIMACPP
+build expects to find headers in install_loc/include and libraries
+in install_loc/lib.
+
+
+5.2 Building Dependencies on Windows:
+-------------------------------------
+The build of dependent libraries on Windows is less consistent.
+The APR components must be checked out and built in parallel 
+directories (see apr.apache.org) and the libraries are expected 
+to be located relative to %APR_HOME%.
+ActiveMQ libraries are in %ACTIVEMQ_HOME%\vs2008-build\ReleaseDLL
+and the headers are expected in %ACTIVEMQ_HOME%\src\main.
+
+On Windows, buildsdk command tries to copy the msvc*.dll runtime libs from
+C:\Program Files\Microsoft Visual Studio8\VC\redist\x86\Microsoft.VC80.CRT 
+To override the location for MSCV redistributable libraries, use MSVCRT_HOME.
+
+ActiveMQ-CPP - The UIMA C++ MSVC projects are Microsoft Visual Studio
+8 (2005) projects.  The ActiveMQ CPP source distribution comes with
+MSVC 8 (2008) project.  These can be down converted to MSVC 2005 by
+following these step reproduced from
+http://stackoverflow.com/questions/609419/how-do-i-downgrade-a-c-visual-studio-2008-project-to-2005
+
+Put the following sed script in a file called downgrade_vc9_to_vc8.sed :
+s#Version=\"9.00\"#Version=\"8.00\"#g
+s#<ProductVersion>9.0.21022</ProductVersion>#<ProductVersion>8.0.50727</ProductVersion>#g
+s#<TargetFrameworkVersion>v2.0</TargetFrameworkVersion>##g
+s# ToolsVersion=\"3.5\"##g
+s#MSBuildToolsPath#MSBuildBinPath#g
+
+Run 
+sed.exe -f downgrade_sln_vc9_to_vc8.sed vs2008-build/activemq-cpp.vcproj > vs2008-build/activemq-cpp2005.vcproj
+
+The only activemq-cpp target needed by uimacpp is ReleaseDLL,
+ e.g. devenv vs2008-build/activemq-cpp2005.vcproj /build ReleaseDLL
+ 
+The three APR libraries can be built by launching aprutil.dsw and
+building libaprutil or by following the instructions in Makefile.win.
+
+XERCES and ICU
+Binary distributions are available for Xerces and ICU.
+Use only those built with a compatible version of Visual Studio!
+Currently the SDK uses xerces-c_2 so if a higher version is 
+installed the MSVC project files must be edited.
+
+
+----------------------------------
+6. UIMA C++ Release Compatibility
+----------------------------------
+There are two distinct features of UIMA C++ to consider when dealing
+with release compatibility:
+
+- The framework dynamically loads annotators which are user code. The
+   annotators make calls to UIMA C++ APIs and are built with some
+   version of the SDK. A possible scenario is for an application to
+   run annotators that were built with different releases of UIMA C++
+   SDK.
+- The SDK depends on ICU, XERCES, APR and ACTIVEMQ-CPP and a release
+   is built with a particular version of these.  Binary compatibility
+   therefore also depends on the compatibility of these underlying
+   libraries.  In particular, ICU and XERCES encode the major and
+   minor release numbers in the APIs which restricts binary
+   compatibility across releases of these libraries.  An application
+   running UIMA C++ is restricted to running one version of the ICU
+   library in a process and all annotators and underlying libraries
+   must use the same ICU version.
+   
+In general, different UIMACPP releases are not binary compatible.

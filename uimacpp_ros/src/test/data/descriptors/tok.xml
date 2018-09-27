@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+   <!--
+    ***************************************************************
+    * Licensed to the Apache Software Foundation (ASF) under one
+    * or more contributor license agreements.  See the NOTICE file
+    * distributed with this work for additional information
+    * regarding copyright ownership.  The ASF licenses this file
+    * to you under the Apache License, Version 2.0 (the
+    * "License"); you may not use this file except in compliance
+    * with the License.  You may obtain a copy of the License at
+         *
+    *   http://www.apache.org/licenses/LICENSE-2.0
+    * 
+    * Unless required by applicable law or agreed to in writing,
+    * software distributed under the License is distributed on an
+    * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+    * KIND, either express or implied.  See the License for the
+    * specific language governing permissions and limitations
+    * under the License.
+    ***************************************************************
+   -->
+
+<taeDescription
+   xmlns="http://uima.apache.org/resourceSpecifier"
+    xmlns:xi="http://www.w3.org/2001/XInclude"
+>
+    <frameworkImplementation>org.apache.uima.cpp</frameworkImplementation>
+    <primitive>true</primitive>
+    <annotatorImplementationName>libtoknz</annotatorImplementationName>
+
+    <analysisEngineMetaData>
+        <name>UnicodeTokenizer</name>
+        <description>This annotator extracts tokens from text based on their Unicdoe character properties and simple rules.</description>
+        <version>1.0</version>
+        <vendor>IBM Corporation</vendor>
+
+        <configurationParameters defaultGroup="x-unspecified">
+            <configurationGroup names="x-unspecified">
+                <configurationParameter>
+                    <name>TokenNumbersIncludeStopwords</name>
+                    <description>If true token numbers are counted including stopwords</description>
+                    <type>Boolean</type>
+                    <multiValued>false</multiValued>
+                    <mandatory>true</mandatory>
+                </configurationParameter>
+
+                <configurationParameter>
+                    <name>UseRelativeTokenAndSentenceNumbers</name>
+                    <description>If true token and sentence numbers are reset to 1 for each new sentence/paragraph</description>
+                    <type>Boolean</type>
+                    <multiValued>false</multiValued>
+                    <mandatory>true</mandatory>
+                </configurationParameter>
+
+                <configurationParameter>
+                    <name>IgnorePunctuationTokens</name>
+                    <description>If true, punctuation tokens are ignored</description>
+                    <type>Boolean</type>
+                    <multiValued>false</multiValued>
+                    <mandatory>true</mandatory>
+                </configurationParameter>
+
+            </configurationGroup>
+        </configurationParameters>
+
+        <configurationParameterSettings>
+            <settingsForGroup name="x-unspecified">
+                <nameValuePair>
+                    <name>TokenNumbersIncludeStopwords</name>
+                    <value>
+                        <boolean>true</boolean>
+                    </value>
+                </nameValuePair>
+
+                <nameValuePair>
+                    <name>UseRelativeTokenAndSentenceNumbers</name>
+                    <value>
+                        <boolean>false</boolean>
+                    </value>
+                </nameValuePair>
+
+                <nameValuePair>
+                    <name>IgnorePunctuationTokens</name>
+                    <value>
+                        <boolean>false</boolean>
+                    </value>
+                </nameValuePair>
+
+            </settingsForGroup>
+        </configurationParameterSettings>
+
+        <typeSystemDescription>
+            <imports>
+                <import location="tt_typesystem.xml"/>
+            </imports>
+ 		<types>
+                    <typeDescription>
+                        <name>uima.tt.TokenAnnotation</name>
+                        <description></description>
+                        <supertypeName>uima.tt.LexicalAnnotation</supertypeName>
+                        <features>
+                            <featureDescription>
+                                <name>stem</name>
+                                <description></description>
+                                <rangeTypeName>uima.cas.String</rangeTypeName>
+                            </featureDescription>
+                        </features>
+                    </typeDescription>
+                </types>
+        </typeSystemDescription>
+
+        <fsIndexes>
+        </fsIndexes>
+
+        <capabilities>
+            <capability>
+                <inputs>
+                </inputs>
+
+                <outputs>
+                    <type>uima.tt.TokenAnnotation</type>
+                    <type>uima.tt.SentenceAnnotation</type>
+                    <type>uima.tt.ParagraphAnnotation</type>
+                </outputs>
+
+                <languagesSupported>
+                    <language>af</language>
+                    <language>be</language>
+                    <language>bg</language>
+                    <language>ca</language>
+                    <language>cs</language>
+                    <language>da</language>
+                    <language>de</language>
+                    <language>en</language>
+                    <language>el</language>
+                    <language>es</language>
+                    <language>et</language>
+                    <language>fi</language>
+                    <language>fr</language>
+                    <language>hr</language>
+                    <language>hi</language>
+                    <language>hu</language>
+                    <language>is</language>
+                    <language>it</language>
+                    <language>lt</language>
+                    <language>lv</language>
+                    <language>mk</language>
+                    <language>nl</language>
+                    <language>nb</language>
+                    <language>no</language>
+                    <language>pl</language>
+                    <language>pt</language>
+                    <language>ro</language>
+                    <language>ru</language>
+                    <language>sh</language>
+                    <language>sk</language>
+                    <language>sl</language>
+                    <language>sr</language>
+                    <language>sq</language>
+                    <language>sv</language>
+                    <language>tr</language>
+                    <language>uk</language>
+                    <language>vi</language>
+                </languagesSupported>
+            </capability>
+            <capability>
+                <inputs>
+                </inputs>
+                <outputs>
+                    <feature>uima.tt.TokenAnnotation:stem</feature>
+                </outputs>
+                <languagesSupported>
+                    <language>en</language>
+                </languagesSupported>
+            </capability>
+        </capabilities>
+
+    </analysisEngineMetaData>
+</taeDescription>
+
