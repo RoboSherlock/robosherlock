@@ -260,6 +260,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
   rs::DesignatorWrapper dw(cas_);
   useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
   dw.getObjectDesignators(designatorResponse);
+  setQuery("");
   outInfo("processing finished");
 }
 
