@@ -67,9 +67,7 @@ public:
             tracker = TrackerKCF::create();
         }
         #endif
-
-
-
+        
         return UIMA_ERR_NONE;
     }
 

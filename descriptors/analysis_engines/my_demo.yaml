@@ -1,0 +1,14 @@
+ae:
+  name: demo
+fixedflow:
+  - CollectionReader
+  - ImagePreprocessor
+  - PointCloudFilter
+  - NormalEstimator
+  - PlaneAnnotator
+  - ImageSegmentationAnnotator
+  - PointCloudClusterExtractor
+  - ClusterMerger
+  - Cluster3DGeometryAnnotator
+CollectionReader:
+  camera_config_files: ['config_kinect_robot.ini']
