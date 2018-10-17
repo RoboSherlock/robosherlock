@@ -81,8 +81,8 @@ void ROSRealSenseBridge::readConfig(const boost::property_tree::ptree &pt)
 }
 
 void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
-                          const sensor_msgs::Image::ConstPtr depth_img_msg,
-                          const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
+                             const sensor_msgs::Image::ConstPtr depth_img_msg,
+                             const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
 {
   //  static int frame = 0;
   //  outWarn("got image: " << frame++);
@@ -94,16 +94,14 @@ void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   orig_rgb_img = cv_bridge::toCvShare(rgb_img_msg, sensor_msgs::image_encodings::BGR8);
   cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
 
-  if(!lookupTransform(cameraInfo.header.stamp))
-  {
+  if(!lookupTransform(cameraInfo.header.stamp)) {
     lock.lock();
     _newData = false;
     lock.unlock();
     return;
   }
 
-  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
-  {
+  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image)) {
     lock.lock();
     _newData = false;
     lock.unlock();
@@ -113,44 +111,58 @@ void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   cv_bridge::CvImageConstPtr orig_depth_img;
   orig_depth_img = cv_bridge::toCvShare(depth_img_msg, depth_img_msg->encoding);
 
-  if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1)
-  {
+  if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
     depth = orig_depth_img->image.clone();
   }
-  else if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
-  {
+  else if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
     orig_depth_img->image.convertTo(depth, CV_16U, 0.001);
   }
-  else
-  {
+  else {
     outError("Unknown depth image type!");
     return;
   }
 
+  if(depth.cols != 1280) {
+    outError("Depth resolution error: depth image needs to be 720p");
+  }
   color = orig_rgb_img->image.clone();
-  if(scale)
-  {
-    if(color.cols == 1280)
-    {
+  if(scale) {
+    if(color.cols == 1280) {
       cameraInfoHD = cameraInfo;
-      cameraInfo.height /= 2.0;
-      cameraInfo.width /= 2.0;
-      cameraInfo.roi.height /= 2.0;
-      cameraInfo.roi.width /= 2.0;
-      cameraInfo.roi.x_offset /= 2.0;
-      cameraInfo.roi.y_offset /= 2.0;
-      cameraInfo.K[0] /= 2.0;
-      cameraInfo.K[2] /= 2.0;
-      cameraInfo.K[4] /= 2.0;
-      cameraInfo.K[5] /= 2.0;
-      cameraInfo.P[0] /= 2.0;
-      cameraInfo.P[2] /= 2.0;
-      cameraInfo.P[5] /= 2.0;
-      cameraInfo.P[6] /= 2.0;
+      cameraInfoHD.height *= 1.5;
+      cameraInfoHD.width  *= 1.5;
+      cameraInfoHD.roi.height  *= 1.5;
+      cameraInfoHD.roi.width *= 1.5;
+      cameraInfoHD.roi.x_offset  *= 1.5;
+      cameraInfoHD.roi.y_offset  *= 1.5;
+      cameraInfoHD.K[0]  *= 1.5;
+      cameraInfoHD.K[2]  *= 1.5;
+      cameraInfoHD.K[4]  *= 1.5;
+      cameraInfoHD.K[5]  *= 1.5;
+      cameraInfoHD.P[0]  *= 1.5;
+      cameraInfoHD.P[2]  *= 1.5;
+      cameraInfoHD.P[5]  *= 1.5;
+      cameraInfoHD.P[6]  *= 1.5;
     }
-    else
-    {
-      outError("Unknown color image size!");
+    else if(color.cols == 1920) {
+      cameraInfoHD = cameraInfo;
+      cameraInfo.height /= 1.5;
+      cameraInfo.width /= 1.5;
+      cameraInfo.roi.height /= 1.5;
+      cameraInfo.roi.width /= 1.5;
+      cameraInfo.roi.x_offset /= 1.5;
+      cameraInfo.roi.y_offset /= 1.5;
+      cameraInfo.K[0] /= 1.5;
+      cameraInfo.K[2] /= 1.5;
+      cameraInfo.K[4] /= 1.5;
+      cameraInfo.K[5] /= 1.5;
+      cameraInfo.P[0] /= 1.5;
+      cameraInfo.P[2] /= 1.5;
+      cameraInfo.P[5] /= 1.5;
+      cameraInfo.P[6] /= 1.5;
+    }
+    else {
+      outError("Unknown color image size! For realsense Cameras use HD or FullHD color resolution");
       return;
     }
   }
@@ -161,8 +173,7 @@ void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
-  if(scale)
-  {
+  if(scale) {
     this->cameraInfoHD = cameraInfoHD;
   }
   _newData = true;
@@ -172,8 +183,7 @@ void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
 
 bool ROSRealSenseBridge::setData(uima::CAS &tcas, uint64_t ts)
 {
-  if(!newData())
-  {
+  if(!newData()) {
     return false;
   }
   MEASURE_TIME;
@@ -185,17 +195,29 @@ bool ROSRealSenseBridge::setData(uima::CAS &tcas, uint64_t ts)
   color = this->color;
   depth = this->depth;
   cameraInfo = this->cameraInfo;
-  if(scale)
-  {
+  if(scale) {
     cameraInfoHD = this->cameraInfoHD;
   }
   _newData = false;
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
   lock.unlock();
-  cas.set(VIEW_COLOR_IMAGE_HD, color);
-  cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
+  if(color.cols == 1920) {
+    cas.set(VIEW_COLOR_IMAGE_HD, color);
+    cv::resize(color, color, cv::Size(), 0.66, 0.66, cv::INTER_AREA);
+    cas.set(VIEW_COLOR_IMAGE, color);
+  }
+  else if(color.cols == 1280) {
+    cas.set(VIEW_COLOR_IMAGE, color);
+    cv::resize(color, color, cv::Size(), 1.5, 1.5, cv::INTER_AREA);
+    cas.set(VIEW_COLOR_IMAGE_HD, color);
+  }
+
+  cas.set(VIEW_DEPTH_IMAGE, depth);
+  cv::resize(depth, depth, cv::Size(), 1.5, 1.5, cv::INTER_AREA);
   cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+
+  cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
 
   return true;
