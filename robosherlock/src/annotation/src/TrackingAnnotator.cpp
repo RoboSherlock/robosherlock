@@ -43,7 +43,7 @@ class TrackingAnnotator : public DrawingAnnotator
 {
 private:
     Ptr<Tracker> tracker = TrackerKCF::create();
-    cv::Mat color;
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -92,13 +92,23 @@ public:
     {
         MEASURE_TIME;
         outInfo("process begins");
+
+        // create necessary pcl objects
+        cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
+
         rs::SceneCas cas(tcas);
+        cas.get(VIEW_CLOUD, *cloud_ptr);
 
-        cas.get(VIEW_COLOR_IMAGE_HD, color);
-
+        KCFTracker(cloud_ptr);
         // TODO: Call tracking algo(-s) here, using tcas as parameter.
 
         return UIMA_ERR_NONE;
+    }
+
+
+    bool KCFTracker(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr)
+    {
+        
     }
 };
 
