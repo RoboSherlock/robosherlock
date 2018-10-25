@@ -34,6 +34,7 @@
 // RS
 #include <rs/io/TFBroadcasterWrapper.hpp>
 #include <rs/io/ROSKinectBridge.h>
+#include <rs/io/ROSRealSenseBridge.h>
 #include <rs/io/ROSTangoBridge.h>
 #include <rs/io/ROSCameraBridge.h>
 #include <rs/io/ROSThermalCamBridge.h>
@@ -137,6 +138,10 @@ private:
       else if(interface_ == "Kinect")
       {
         cameras_.push_back(new ROSKinectBridge(pt));
+      }
+      else if(interface_ == "RealSense")
+      {
+        cameras_.push_back(new ROSRealSenseBridge(pt));
       }
       else if(interface_ == "Tango")
       {
