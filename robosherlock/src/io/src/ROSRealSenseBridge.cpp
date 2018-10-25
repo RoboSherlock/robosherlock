@@ -22,7 +22,7 @@
 #include <sensor_msgs/image_encodings.h>
 
 // RS
-#include <rs/io/ROSKinectBridge.h>
+#include <rs/io/ROSRealSenseBridge.h>
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 #include <rs/utils/time.h>
@@ -30,13 +30,13 @@
 //OpenCV
 #include <cv_bridge/cv_bridge.h>
 
-ROSKinectBridge::ROSKinectBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt), it(nodeHandle)
+ROSRealSenseBridge::ROSRealSenseBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt), it(nodeHandle)
 {
   readConfig(pt);
   initSpinner();
 }
 
-ROSKinectBridge::~ROSKinectBridge()
+ROSRealSenseBridge::~ROSRealSenseBridge()
 {
   spinner.stop();
   delete sync;
@@ -45,14 +45,14 @@ ROSKinectBridge::~ROSKinectBridge()
   delete cameraInfoSubscriber;
 }
 
-void ROSKinectBridge::initSpinner()
+void ROSRealSenseBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<RGBDSyncPolicy>(RGBDSyncPolicy(5), *rgbImageSubscriber, *depthImageSubscriber, *cameraInfoSubscriber);
-  sync->registerCallback(boost::bind(&ROSKinectBridge::cb_, this, _1, _2, _3));
+  sync->registerCallback(boost::bind(&ROSRealSenseBridge::cb_, this, _1, _2, _3));
   spinner.start();
 }
 
-void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
+void ROSRealSenseBridge::readConfig(const boost::property_tree::ptree &pt)
 {
   std::string depth_topic = pt.get<std::string>("camera_topics.depth");
   std::string color_topic = pt.get<std::string>("camera_topics.color");
@@ -80,9 +80,9 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   outInfo("  Scale Input: " FG_BLUE << (scale ? "ON" : "OFF"));
 }
 
-void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
-                          const sensor_msgs::Image::ConstPtr depth_img_msg,
-                          const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
+void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
+                             const sensor_msgs::Image::ConstPtr depth_img_msg,
+                             const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
 {
   //  static int frame = 0;
   //  outWarn("got image: " << frame++);
@@ -94,16 +94,14 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   orig_rgb_img = cv_bridge::toCvShare(rgb_img_msg, sensor_msgs::image_encodings::BGR8);
   cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
 
-  if(!lookupTransform(cameraInfo.header.stamp))
-  {
+  if(!lookupTransform(cameraInfo.header.stamp)) {
     lock.lock();
     _newData = false;
     lock.unlock();
     return;
   }
 
-  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
-  {
+  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image)) {
     lock.lock();
     _newData = false;
     lock.unlock();
@@ -113,90 +111,58 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   cv_bridge::CvImageConstPtr orig_depth_img;
   orig_depth_img = cv_bridge::toCvShare(depth_img_msg, depth_img_msg->encoding);
 
-  if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1)
-  {
+  if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_16UC1) {
     depth = orig_depth_img->image.clone();
   }
-  else if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1)
-  {
+  else if(depth_img_msg->encoding == sensor_msgs::image_encodings::TYPE_32FC1) {
     orig_depth_img->image.convertTo(depth, CV_16U, 0.001);
   }
-  else
-  {
+  else {
     outError("Unknown depth image type!");
     return;
   }
 
+  if(depth.cols != 1280) {
+    outError("Depth resolution error: depth image needs to be 720p");
+  }
   color = orig_rgb_img->image.clone();
-  if(scale)
-  {
-    if(color.cols == 1280 || color.cols == 1920) // HD or Kinect 2
-    {
-      //    isHDColor = true;
-      if(color.cols == 1280 && color.rows !=720)
-      {
-        color = color(cv::Rect(0, depthOffset, 1280, 960));
-        cameraInfo.K[5] -= depthOffset;
-        cameraInfo.height = 960;
-      }
-
+  if(scale) {
+    if(color.cols == 1280) {
       cameraInfoHD = cameraInfo;
-      cameraInfo.height /= 2.0;
-      cameraInfo.width /= 2.0;
-      cameraInfo.roi.height /= 2.0;
-      cameraInfo.roi.width /= 2.0;
-      cameraInfo.roi.x_offset /= 2.0;
-      cameraInfo.roi.y_offset /= 2.0;
-      cameraInfo.K[0] /= 2.0;
-      cameraInfo.K[2] /= 2.0;
-      cameraInfo.K[4] /= 2.0;
-      cameraInfo.K[5] /= 2.0;
-      cameraInfo.P[0] /= 2.0;
-      cameraInfo.P[2] /= 2.0;
-      cameraInfo.P[5] /= 2.0;
-      cameraInfo.P[6] /= 2.0;
+      cameraInfoHD.height *= 1.5;
+      cameraInfoHD.width  *= 1.5;
+      cameraInfoHD.roi.height  *= 1.5;
+      cameraInfoHD.roi.width *= 1.5;
+      cameraInfoHD.roi.x_offset  *= 1.5;
+      cameraInfoHD.roi.y_offset  *= 1.5;
+      cameraInfoHD.K[0]  *= 1.5;
+      cameraInfoHD.K[2]  *= 1.5;
+      cameraInfoHD.K[4]  *= 1.5;
+      cameraInfoHD.K[5]  *= 1.5;
+      cameraInfoHD.P[0]  *= 1.5;
+      cameraInfoHD.P[2]  *= 1.5;
+      cameraInfoHD.P[5]  *= 1.5;
+      cameraInfoHD.P[6]  *= 1.5;
     }
-    else if(color.cols == 640)
-    {
-      //    isHDColor = false;
+    else if(color.cols == 1920) {
       cameraInfoHD = cameraInfo;
-      cameraInfoHD.height *= 2.0;
-      cameraInfoHD.width *= 2.0;
-      cameraInfoHD.roi.height *= 2.0;
-      cameraInfoHD.roi.width *= 2.0;
-      cameraInfoHD.roi.x_offset *= 2.0;
-      cameraInfoHD.roi.y_offset *= 2.0;
-      cameraInfoHD.K[0] *= 2.0;
-      cameraInfoHD.K[2] *= 2.0;
-      cameraInfoHD.K[4] *= 2.0;
-      cameraInfoHD.K[5] *= 2.0;
-      cameraInfoHD.P[0] *= 2.0;
-      cameraInfoHD.P[2] *= 2.0;
-      cameraInfoHD.P[5] *= 2.0;
-      cameraInfoHD.P[6] *= 2.0;
+      cameraInfo.height /= 1.5;
+      cameraInfo.width /= 1.5;
+      cameraInfo.roi.height /= 1.5;
+      cameraInfo.roi.width /= 1.5;
+      cameraInfo.roi.x_offset /= 1.5;
+      cameraInfo.roi.y_offset /= 1.5;
+      cameraInfo.K[0] /= 1.5;
+      cameraInfo.K[2] /= 1.5;
+      cameraInfo.K[4] /= 1.5;
+      cameraInfo.K[5] /= 1.5;
+      cameraInfo.P[0] /= 1.5;
+      cameraInfo.P[2] /= 1.5;
+      cameraInfo.P[5] /= 1.5;
+      cameraInfo.P[6] /= 1.5;
     }
-    else if(color.cols == 512)//512*424
-    {
-      //    isHDColor = false;
-      cameraInfoHD = cameraInfo;
-      cameraInfoHD.height *= 3.75;
-      cameraInfoHD.width *= 3.75;
-      cameraInfoHD.roi.height *= 3.75;
-      cameraInfoHD.roi.width *= 3.75;
-      cameraInfoHD.roi.x_offset *= 3.75;
-      cameraInfoHD.roi.y_offset *= 3.75;
-      cameraInfoHD.K[0] *= 3.75;
-      cameraInfoHD.K[2] *= 3.75;
-      cameraInfoHD.K[4] *= 3.75;
-      cameraInfoHD.K[5] *= 3.75;
-      cameraInfoHD.P[0] *= 3.75;
-      cameraInfoHD.P[2] *= 3.75;
-      cameraInfoHD.P[5] *= 3.75;
-      cameraInfoHD.P[6] *= 3.75;
-    }
-    else
-    {
-      outError("Unknown color image size!");
+    else {
+      outError("Unknown color image size! For realsense Cameras use HD or FullHD color resolution");
       return;
     }
   }
@@ -207,8 +173,7 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   this->color = color;
   this->depth = depth;
   this->cameraInfo = cameraInfo;
-  if(scale)
-  {
+  if(scale) {
     this->cameraInfoHD = cameraInfoHD;
   }
   _newData = true;
@@ -216,10 +181,9 @@ void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   lock.unlock();
 }
 
-bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
+bool ROSRealSenseBridge::setData(uima::CAS &tcas, uint64_t ts)
 {
-  if(!newData())
-  {
+  if(!newData()) {
     return false;
   }
   MEASURE_TIME;
@@ -231,34 +195,29 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
   color = this->color;
   depth = this->depth;
   cameraInfo = this->cameraInfo;
-  if(scale)
-  {
+  if(scale) {
     cameraInfoHD = this->cameraInfoHD;
   }
   _newData = false;
   rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
   lock.unlock();
-
-  if(scale && color.cols >= 1280)
-  {
+  if(color.cols == 1920) {
     cas.set(VIEW_COLOR_IMAGE_HD, color);
-    cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
-  }
-  else
-  {
+    cv::resize(color, color, cv::Size(), 0.66, 0.66, cv::INTER_AREA);
     cas.set(VIEW_COLOR_IMAGE, color);
   }
-
-  if(scale && depth.cols >= 1280)
-  {
-    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
-  }
-  else
-  {
-    cas.set(VIEW_DEPTH_IMAGE, depth);
+  else if(color.cols == 1280) {
+    cas.set(VIEW_COLOR_IMAGE, color);
+    cv::resize(color, color, cv::Size(), 1.5, 1.5, cv::INTER_AREA);
+    cas.set(VIEW_COLOR_IMAGE_HD, color);
   }
 
+  cas.set(VIEW_DEPTH_IMAGE, depth);
+  cv::resize(depth, depth, cv::Size(), 1.5, 1.5, cv::INTER_AREA);
+  cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+
+  cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
 
   return true;
