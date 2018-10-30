@@ -43,7 +43,9 @@ class TrackingAnnotator : public DrawingAnnotator
 {
 private:
     Ptr<Tracker> tracker = TrackerKCF::create();
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr;
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr; // Input data for 3D tracking
+    cv::Mat frame; // Input data for 2D tracking
+    Rect2d bbox; // Could later be used for the bounding box query parameter.
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -97,18 +99,66 @@ public:
         cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
         rs::SceneCas cas(tcas);
-        cas.get(VIEW_CLOUD, *cloud_ptr);
+        cas.get(VIEW_CLOUD, *cloud_ptr); // Fill input data for 3D tracking
+        cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
 
-        KCFTracker(cloud_ptr);
-        // TODO: Call tracking algo(-s) here, using tcas as parameter.
+        KCFTracker(frame);
 
         return UIMA_ERR_NONE;
     }
 
 
-    bool KCFTracker(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr)
+    // This runs on repeat, tracking the current object.
+    // Depending on if it's a good idea to have a single Annotator run for so long or not,
+    // this could instead be changed to just do a single iteration, but instead be called
+    // repeatedly.
+    bool KCFTracker(cv::Mat frame)
     {
-        
+        // Define bounding box. Could later be overriden by parameter.
+        Rect2d bbox(0, 0, 200, 200);
+
+        // Initializes tracker
+        tracker->init(frame, bbox);
+
+        while(true)
+        {
+            // Start timer
+            double timer = (double)getTickCount();
+
+            // Update the tracking result
+            bool ok = tracker->update(frame, bbox);
+
+            // Calculate Frames per second (FPS)
+            float fps = getTickFrequency() / ((double)getTickCount() - timer);
+
+            if (ok)
+            {
+                // Tracking success : Draw the tracked object
+                rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+            }
+            else
+            {
+                // Tracking failure detected.
+                putText(frame, "Tracking failure detected", Point(100,80), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
+            }
+
+            // Display tracker type on frame
+            putText(frame, "KCF Tracker", Point(100,20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50,170,50),2);
+
+            // Display FPS on frame
+            putText(frame, "FPS : " + SSTR(int(fps)), Point(100,50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50,170,50), 2);
+
+            // Display frame.
+            imshow("Tracking", frame);
+
+            // Exit if ESC pressed.
+            int k = waitKey(1);
+            if(k == 27)
+            {
+                break;
+            }
+
+        }
     }
 };
 
