@@ -317,6 +317,18 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       }
       return true;
     }
+    else if(queryType == QueryInterface::QueryType::TRACK) {
+        // TODO: Implementation
+      if(!newPipelineOrder.empty()) {
+        outInfo("planned new pipeline: ");
+        for(auto s : newPipelineOrder)
+          outInfo(s);
+        inspectionEngine_.setNextPipeline(newPipelineOrder);
+        inspectionEngine_.applyNextPipeline();
+        inspectionEngine_.process();
+      }
+      return true;
+    }
   }
 
   return false;
