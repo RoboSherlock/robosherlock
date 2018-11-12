@@ -37,6 +37,12 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
     return QueryType::SCAN;
   }
 
+  else if(query.HasMember("track"))
+  {
+    handleTrack(res);
+    return QueryType::TRACK;
+  }
+
   return QueryType::NONE;
 }
 
@@ -111,6 +117,12 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
   return true;
 
+}
+
+bool QueryInterface::handleTrack(std::vector<std::string> &res)
+{
+    // TODO: Implementation
+    return true;
 }
 
 bool getConfigForKey(std::string key, std::vector<std::string> &location,

@@ -26,10 +26,11 @@ private:
     bool handleDetect(std::vector<std::string> &newPipelineOrder);
     bool handleInspect(std::vector<std::string> &newPipelineOrder);
     bool handleScan(std::vector<std::string> &newPipelineOrder);
+    bool handleTrack(std::vector<std::string> &newPipelineOrder);
 
 public:
 
-  enum class QueryType {NONE, INSPECT, DETECT, SCAN};
+  enum class QueryType {NONE, INSPECT, DETECT, SCAN, TRACK};
 
   rapidjson::Document query;
 
