@@ -82,7 +82,7 @@ public:
       std::vector<rs::SemanticColor> semanticColors;
       std::vector<rs::Shape> shapes;
       std::vector<rs::TFLocation> locations;
-//      std::vector<rs::MLNAtoms> atoms;
+      std::vector<rs::MLNAtoms> atoms;
       std::vector<rs::Goggles> goggles;
       std::vector<rs::Features> features;
       std::vector<rs::ClusterPart> clusterParts;
@@ -94,7 +94,7 @@ public:
       element.annotations.filter(semanticColors);
       element.annotations.filter(shapes);
       element.annotations.filter(locations);
-  //    element.annotations.filter(atoms);
+      element.annotations.filter(atoms);
       element.annotations.filter(goggles);
       element.annotations.filter(features);
       element.annotations.filter(clusterParts);
@@ -107,7 +107,7 @@ public:
       convertAll(semanticColors, &objectDesignator);
       convertAll(shapes, &objectDesignator);
       convertAll(locations, &objectDesignator);
-    //  convertAll(atoms, &objectDesignator);
+      convertAll(atoms, &objectDesignator);
       convertAll(goggles, &objectDesignator);
       convertAll(features, &objectDesignator);
       convertAll(clusterParts, &objectDesignator);
