@@ -42,7 +42,7 @@ using namespace uima;
 class TrackingAnnotator : public DrawingAnnotator
 {
 private:
-    Ptr<Tracker> tracker = TrackerKCF::create();
+    Ptr<Tracker> tracker;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr; // Input data for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
     Rect2d bbox; // Could later be used for the bounding box query parameter.
@@ -58,6 +58,7 @@ public:
     TyErrorId initialize(AnnotatorContext &ctx) {
         outInfo("initialize");
 
+        /**
         // TODO: Check and extract ctx parameters
 
         #if (CV_MINOR_VERSION < 3)
@@ -69,6 +70,8 @@ public:
             tracker = TrackerKCF::create();
         }
         #endif
+
+         **/
         
         return UIMA_ERR_NONE;
     }
@@ -102,6 +105,9 @@ public:
         cas.get(VIEW_CLOUD, *cloud_ptr); // Fill input data for 3D tracking
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
 
+        // Try to get the tracker from last iteration.
+        cas.get(KCF_TRACKER, Ptr<Tracker>);
+
         KCFTracker(frame);
 
         return UIMA_ERR_NONE;
@@ -114,51 +120,21 @@ public:
     // repeatedly.
     bool KCFTracker(cv::Mat frame)
     {
-        // Define bounding box. Could later be overriden by parameter.
-        Rect2d bbox(0, 0, 200, 200);
+        if(tracker == nullptr) {
+            tracker = TrackerKCF::create()
 
-        // Initializes tracker
-        tracker->init(frame, bbox);
+            // Define bounding box. Could later be overriden by parameter.
+            Rect2d bbox(0, 0, 200, 200);
 
-        while(true)
-        {
-            // Start timer
-            double timer = (double)getTickCount();
-
-            // Update the tracking result
-            bool ok = tracker->update(frame, bbox);
-
-            // Calculate Frames per second (FPS)
-            float fps = getTickFrequency() / ((double)getTickCount() - timer);
-
-            if (ok)
-            {
-                // Tracking success : Draw the tracked object
-                rectangle(frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
-            }
-            else
-            {
-                // Tracking failure detected.
-                putText(frame, "Tracking failure detected", Point(100,80), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(0,0,255),2);
-            }
-
-            // Display tracker type on frame
-            putText(frame, "KCF Tracker", Point(100,20), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50,170,50),2);
-
-            // Display FPS on frame
-            putText(frame, "FPS : " + SSTR(int(fps)), Point(100,50), FONT_HERSHEY_SIMPLEX, 0.75, Scalar(50,170,50), 2);
-
-            // Display frame.
-            imshow("Tracking", frame);
-
-            // Exit if ESC pressed.
-            int k = waitKey(1);
-            if(k == 27)
-            {
-                break;
-            }
-
+            // Initializes tracker
+            tracker->init(frame, bbox);
         }
+
+        // Update the tracking result
+        tracker->update(frame, bbox);
+
+        // Put the tracker back into cas for next iteration
+        cas.set(KCF_TRACKER, tracker);
     }
 };
 

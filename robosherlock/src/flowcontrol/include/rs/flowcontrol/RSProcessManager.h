@@ -78,6 +78,8 @@ public:
 
   ~RSProcessManager();
 
+  QueryInterface::QueryType queryType; // Must be readable from RSProcessManager::stop()
+
   void init(std::string &xmlFile, std::string configFile_, bool pervasive, bool parallel);
 
   void run();
