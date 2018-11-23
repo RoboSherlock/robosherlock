@@ -45,8 +45,7 @@ bool my_predicate(const char c)
   if(((c >= 48) && (c <= 57)) || //number
      ((c >= 65) && (c <= 90)) || //big letter
      ((c >= 97) && (c < 122)) //small letter
-    )
-  {
+    ) {
     return false;
   }
   return true;
@@ -100,11 +99,9 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    if(ctx.isParameterDefined("save_to_file"))
-    {
+    if(ctx.isParameterDefined("save_to_file")) {
       ctx.extractValue("save_to_file", save);
-      if(save)
-      {
+      if(save) {
         outDebug("Turned on saving atoms to file");
         std::time_t t = time(0);
         struct tm *now = localtime(& t);
@@ -113,34 +110,29 @@ public:
     }
 
     //ground atoms as Wridnet synsets
-    if(ctx.isParameterDefined("wordnetGrounded"))
-    {
+    if(ctx.isParameterDefined("wordnetGrounded")) {
       ctx.extractValue("wordnetGrounded", wordnetGrounded);
     }
 
     //path to model file
-    if(ctx.isParameterDefined("mlnFile"))
-    {
+    if(ctx.isParameterDefined("mlnFile")) {
       ctx.extractValue("mlnFile", mlnFile);
     }
 
     //set true if annotator should query a learned model,
     //otherwise it will only generate atoms
-    if(ctx.isParameterDefined("query_mln"))
-    {
+    if(ctx.isParameterDefined("query_mln")) {
       ctx.extractValue("query_mln", queryMLN);
     }
 
-    if(ctx.isParameterDefined("fuzzy"))
-    {
+    if(ctx.isParameterDefined("fuzzy")) {
       ctx.extractValue("fuzzy", fuzzy_);
     }
 
     //init MLN
     outAssert(mln.initialize(), "could not initialize mln");
 
-    if(queryMLN)
-    {
+    if(queryMLN) {
       std::string pathToProject = ros::package::getPath("rs_resources");
       mlnFile.insert(0, pathToProject);
       outInfo(mlnFile);
@@ -175,8 +167,7 @@ public:
     scene.identifiables.filter(clusters);
     outInfo("iterating over clusters");
     std::stringstream mlnDatabase;
-    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
-    {
+    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it) {
 
       std::vector<std::string> atoms;
       rs::MLNAtoms mln_atoms = rs::create<rs::MLNAtoms>(tcas);
@@ -200,36 +191,28 @@ public:
       it->annotations.filter(classifications);
       it->annotations.filter(gt);
 
-      if(shape.size() > 0)
-      {
+      if(shape.size() > 0) {
         outDebug("No. of Shape Annotations :" << shape.size());
-        for(int i = 0; i < shape.size(); ++i)
-        {
+        for(int i = 0; i < shape.size(); ++i) {
           mlnDatabase << generateAtom("shape", index, shape[i].shape(), shape[i].confidence()) << std::endl;
           atoms.push_back(generateAtom("shape", index, shape[i].shape(), shape[i].confidence()));
         }
       }
-      if(semSize.size() > 0)
-      {
+      if(semSize.size() > 0) {
         outDebug("No. of SemanticSize Annotations :" << shape.size());
-        for(int i = 0; i < semSize.size(); ++i)
-        {
+        for(int i = 0; i < semSize.size(); ++i) {
           mlnDatabase << generateAtom("size", index, semSize[i].size(), semSize[i].confidence()) << std::endl;
           atoms.push_back(generateAtom("size", index, semSize[i].size(), semSize[i].confidence()));
         }
       }
-      if(color.size() > 0)
-      {
+      if(color.size() > 0) {
         outDebug("No. of Color Annotations :" << color.size());
-        for(int i = 0; i < color.size(); ++i)
-        {
+        for(int i = 0; i < color.size(); ++i) {
           std::vector<std::string> temp = color[i].color();
           std::vector<float> ratio  = color[i].ratio();
 
-          for(int j = 0; j < temp.size(); ++j)
-          {
-            if(ratio[j] > 0.30)
-            {
+          for(int j = 0; j < temp.size(); ++j) {
+            if(ratio[j] > 0.30) {
               mlnDatabase << generateAtom("color", index, temp[j], ratio[j]) << std::endl;
               atoms.push_back(generateAtom("color", index, temp[j], ratio[j]));
             }
@@ -237,18 +220,14 @@ public:
           }
         }
       }
-      if(goggles.size() > 0)
-      {
+      if(goggles.size() > 0) {
         outDebug("No. of Goggles Annotations :" << goggles.size());
-        for(int i = 0; i < goggles.size(); ++i)
-        {
+        for(int i = 0; i < goggles.size(); ++i) {
           std::stringstream predicate;
-          if(goggles[i].category() != "")
-          {
+          if(goggles[i].category() != "") {
             predicate << "goggles_" << goggles[i].category();
           }
-          else
-          {
+          else {
             predicate << "goggles";
           }
 
@@ -259,44 +238,36 @@ public:
           mlnDatabase << generateAtom(predicate.str(), index, title) << std::endl;
         }
       }
-      if(detections.size() > 0)
-      {
+      if(detections.size() > 0) {
         outDebug("No. of Detection annotations :" << detections.size());
-        for(int i = 0; i < detections.size(); ++i)
-        {
+        for(int i = 0; i < detections.size(); ++i) {
           //          atom << "instance(c" << index << "," << detections[i].name() << ")";
           atoms.push_back(generateAtom("detection", index, detections[i].name() , detections[i].confidence()));
           mlnDatabase << generateAtom("detection", index, detections[i].name() , detections[i].confidence()) << std::endl;
         }
       }
-      if(classifications.size() > 0)
-      {
-        for(auto c : classifications)
-        {
+      if(classifications.size() > 0) {
+        for(auto c : classifications) {
           float confidence = 1.0f;
           for(auto conf : c.confidences())
             if(c.classname() == conf.name())
               confidence = conf.score();
           std::string cType = c.classification_type();
-          if(cType == "SHAPE")
-          {
+          if(cType == "SHAPE") {
             atoms.push_back(generateAtom("shape", index, c.classname(), confidence));
             mlnDatabase << generateAtom("shape", index, c.classname(), confidence)     << std::endl;
           }
-          else if(cType == "CLASS")
-          {
+          else if(cType == "CLASS") {
             atoms.push_back(generateAtom("class", index, c.classname(), confidence));
             mlnDatabase << generateAtom("class", index, c.classname(), confidence)     << std::endl;
           }
-          else if(cType == "INSTANCE")
-          {
+          else if(cType == "INSTANCE") {
             atoms.push_back(generateAtom("instance", index, c.classname(), confidence));
             mlnDatabase << generateAtom("instance", index, c.classname(), confidence)     << std::endl;
           }
         }
       }
-      if(gt.size() > 0)
-      {
+      if(gt.size() > 0) {
         rs::GroundTruth groundTruth = gt[0];
         std::string classNameGT = groundTruth.classificationGT().classname();
         atoms.push_back(generateAtom("object", index, classNameGT, 1.0));
@@ -308,61 +279,50 @@ public:
 #if DEBUG_OUTPUT
       std::vector<std::string> temp = mln_atoms.atoms();
       outInfo("Nr of atoms generated: " << temp.size());
-      for(int i = 0; i < atoms.size(); ++i)
-      {
+      for(int i = 0; i < atoms.size(); ++i) {
         outInfo(temp[i]);
       }
 #endif
       //save atoms to a file
-      if(save)
-      {
+      if(save) {
         //location is only needed for the first cluster
-        if(index == 0)
-        {
+        if(index == 0) {
           std::vector<rs::TFLocation> tf_loc;
           it->annotations.filter(tf_loc);
 
           outInfo("TF_locations found: " << tf_loc.size());
-          if(tf_loc.size() != 0)
-          {
+          if(tf_loc.size() != 0) {
             outInfo("We have location annotation");
             outInfo(tf_loc[0].frame_id());
             save_to_file(mln_atoms, scene, tf_loc[0].frame_id());
           }
-          else
-          {
+          else {
             save_to_file(mln_atoms, scene);
           }
         }
-        else
-        {
+        else {
           save_to_file(mln_atoms, scene);
         }
       }
       drawAtoms(*it, tcas, atoms);
     }
 
-    if(queryMLN)
-    {
+    if(queryMLN) {
       mln.setQuery(query);
       mln.setDB(mlnDatabase.str(), false);
       std::vector<std::string> results;
       std::vector<double> probabilities;
       outInfo("Querying MLN");
-      if(mln.infer(results, probabilities))
-      {
+      if(mln.infer(results, probabilities)) {
         outInfo("Results size: " << results.size());
       }
       int objectsTrained = 0;
-      if(clusters.size() != 0)
-      {
+      if(clusters.size() != 0) {
         objectsTrained  = results.size() / clusters.size();
       }
       outInfo("objects trained on: " << objectsTrained);
-      for(int i = 0; i < results.size(); ++i)
-      {
-        if(probabilities[i] == 1)
-        {
+      for(int i = 0; i < results.size(); ++i) {
+        if(probabilities[i] == 1) {
           //this code here is very biased on the training set atm. needs some tweaking
           std::vector<std::string> splitRes;
           boost::split(splitRes, results[i], boost::is_any_of(","));
@@ -404,16 +364,14 @@ private:
     std::stringstream mln_atoms_str;
     mln_file.open(filenameMLN.str().c_str(), std::ios::app);
 
-    if(loc != "")
-    {
+    if(loc != "") {
       ros::Time time(scene.timestamp()*std::pow(10, -9));
       boost::posix_time::ptime p_time = time.toBoost();
       std::string stime = boost::posix_time::to_iso_extended_string(p_time);
       mln_atoms_str << "---" << std::endl;
       //mln_atoms_str << "scene(" << location_mapping[loc] << ")" << std::endl << std::endl;
     }
-    for(int i = 0; i < atoms.size(); ++i)
-    {
+    for(int i = 0; i < atoms.size(); ++i) {
       mln_atoms_str << atoms[i] << std::endl;
     }
     mln_atoms_str << "---" << std::endl;
@@ -440,11 +398,10 @@ private:
     rs::conversion::from(image_roi.roi_hires(), rect);
     cv::rectangle(dispRgb, rect, CV_RGB(255, 0, 0), 2);
     int offset = 15;
-    for(int32_t i = 0; i < atoms.size(); ++i)
-    {
+    for(int32_t i = 0; i < atoms.size(); ++i) {
       int baseLine;
-      cv::Size textSize = cv::getTextSize(atoms[i], cv::FONT_HERSHEY_PLAIN, 0.8, 1, &baseLine);
-      cv::putText(dispRgb, atoms[i], cv::Point(rect.x + (rect.width - textSize.width) / 2, rect.y - offset - textSize.height - i * 17), cv::FONT_HERSHEY_PLAIN, 0.8, CV_RGB(255, 255, 200), 1.0);
+      cv::Size textSize = cv::getTextSize(atoms[i], cv::FONT_HERSHEY_PLAIN, 1.0, 2, &baseLine);
+      cv::putText(dispRgb, atoms[i], cv::Point(rect.x + (rect.width - textSize.width) / 2, rect.y - offset - textSize.height - i * 17), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0,0,0), 2.0);
     }
   }
 
