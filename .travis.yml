@@ -22,7 +22,7 @@ env:
     - ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
     - ROS_PARALLEL_JOBS='-j5 -l3'
     - CI_SOURCE_PATH=$(pwd)
-    - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
+    - CATKIN_OPTIONS=$CI_SOURCE_PATH/robosherlock/catkin.options
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
