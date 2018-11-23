@@ -21,7 +21,8 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
 {
   if(query.HasMember("detect"))
   {
-    handleDetect(res);
+    const rapidjson::Value &val = query["detect"];
+    handleDetect(res, query["detect"]);
     return QueryType::DETECT;
   }
 
@@ -39,7 +40,13 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
 
   else if(query.HasMember("track"))
   {
-    handleTrack(res);
+    //create json string for detection
+//    const rapidjson::Value &val = query["track"];
+//    std::vector<std::string> detPipeline, trackingPipeline;
+//    handleDetect(detPipeline, val);
+//    handleTrack(trackingPipeline, val);
+//    res.push_back(detPipeline);
+//    res.push_back(trackingPipeline);
     return QueryType::TRACK;
   }
 
@@ -59,7 +66,7 @@ bool QueryInterface::handleInspect(std::vector<std::string> &res)
   return true;
 }
 
-bool QueryInterface::handleDetect(std::vector<std::string> &res)
+bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson::Value &rapidJsponVale)
 {
 
   const rapidjson::Value &val = query["detect"];
@@ -119,9 +126,11 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 }
 
-bool QueryInterface::handleTrack(std::vector<std::string> &res)
+bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsponVale)
 {
     // TODO: Implementation
+    res.push_back("CollectionReader");
+    res.push_back("KalmanTrackingAnnotator");
     return true;
 }
 
