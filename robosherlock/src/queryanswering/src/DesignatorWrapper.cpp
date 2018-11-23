@@ -31,8 +31,7 @@ void DesignatorWrapper::setMode(DesignatorProcessMode m)
 
 bool DesignatorWrapper::getObjectDesignators(std::vector<std::string> &objectDesignators)
 {
-  if(!tcas)
-  {
+  if(!tcas) {
     std::cout << "NULL Pointer in DesignatorWrapper::getDesignatorResponse. tcas is not set! Use DesignatorWrapper::setCAS before calling this method" << std::endl;
     return false;
   }
@@ -41,28 +40,25 @@ bool DesignatorWrapper::getObjectDesignators(std::vector<std::string> &objectDes
   rs::Scene scene = cas.getScene();
   now = scene.timestamp();
 
-  if(mode == CLUSTER)
-  {
+  if(mode == CLUSTER) {
     std::vector<rs::Cluster> clusters;
     scene.identifiables.filter(clusters);
     std::vector<double> lastSeen;
     lastSeen.resize(clusters.size(), 0.0);
     process(clusters, objectDesignators, lastSeen);
   }
-  else
-  {
+  else {
     std::vector<rs::Object> allObjects, objects;
     cas.get(VIEW_OBJECTS, allObjects);
     outWarn("objects found: " << allObjects.size());
     std::vector<double> lastSeen;
-    for(size_t i = 0; i < allObjects.size(); ++i)
-    {
+    for(size_t i = 0; i < allObjects.size(); ++i) {
       rs::Object &object = allObjects[i];
       lastSeen.push_back((now - (uint64_t)object.lastSeen()) / 1000000000.0);
-//      if(lastSeen == 0)
-//      {
-//        objects.push_back(object);
-//      }
+      //      if(lastSeen == 0)
+      //      {
+      //        objects.push_back(object);
+      //      }
     }
     process(allObjects, objectDesignators, lastSeen);
   }
@@ -207,12 +203,10 @@ void DesignatorWrapper::convert(rs::Geometry &input, rapidjson::Document *object
 
 void DesignatorWrapper::convert(rs::Shape &input, rapidjson::Document *object)
 {
-  if(!object->HasMember("shape"))
-  {
+  if(!object->HasMember("shape")) {
     rapidjson::Pointer("/shape/0").Set(*object, input.shape());
   }
-  else
-  {
+  else {
     rapidjson::Value &array = (*object)["shape"];
     std::string size = std::to_string(array.Size());
     rapidjson::Pointer("/shape/" + size).Set(*object, input.shape());
@@ -239,14 +233,11 @@ void DesignatorWrapper::convert(rs::PoseAnnotation &input, rapidjson::Document *
 
   uint64_t diff = now - tf_stamped_pose.stamp_.toNSec();
   outDebug("Time diff in poses: " << diff);
-  if(diff == 0)
-  {
-    if(!object->HasMember("poses"))
-    {
+  if(diff == 0) {
+    if(!object->HasMember("poses")) {
       rapidjson::Pointer("/poses/0").Set(*object, nestedValue);
     }
-    else
-    {
+    else {
       rapidjson::Value &array = (*object)["poses"];
       std::string size = std::to_string(array.Size());
       rapidjson::Pointer("/poses/" + size).Set(*object, nestedValue);
@@ -263,11 +254,9 @@ void DesignatorWrapper::convert(rs::SemanticColor &input, rapidjson::Document *o
   rapidjson::Value nestedValue;
   nestedValue.SetObject();
 
-  for(size_t i = 0; i < colors.size(); ++i)
-  {
+  for(size_t i = 0; i < colors.size(); ++i) {
     const float &ratio = ratios[i];
-    if(ratio > 0.1)
-    {
+    if(ratio > 0.1) {
       rapidjson::Value v(colors[i].c_str(), object->GetAllocator());
       nestedValue.AddMember(v, ratio, object->GetAllocator());
     }
@@ -280,22 +269,13 @@ void DesignatorWrapper::convert(rs::MLNAtoms &input, rapidjson::Document *object
   const std::vector<std::string> &atoms = input.atoms();
 
   rapidjson::Document *nestedValue = new rapidjson::Document();
+  nestedValue->SetArray();
 
-  rapidjson::Value atomArray;
-  atomArray.SetArray();
-
-  for(size_t i = 0; i < atoms.size(); ++i)
-  {
-    std::stringstream id;
+  for(size_t i = 0; i < atoms.size(); ++i) {
     rapidjson::Value atom;
-    atom.SetObject();
-    id << "atom_ " << i;
-    rapidjson::Value v(id.str().c_str(), nestedValue->GetAllocator());
-    rapidjson::Value value(atoms[i], nestedValue->GetAllocator());
-    atom.AddMember(v, value, nestedValue->GetAllocator());
-    atomArray.PushBack(atom, nestedValue->GetAllocator());
+    atom.SetString(atoms[i], nestedValue->GetAllocator());
+    nestedValue->PushBack(atom, nestedValue->GetAllocator());
   }
-  nestedValue->AddMember("atom", atomArray, nestedValue->GetAllocator());
   mergeJson(*object, *nestedValue, "mln-atoms");
 }
 
@@ -327,8 +307,7 @@ void DesignatorWrapper::convert(rs::Goggles &input, rapidjson::Document *object)
 void DesignatorWrapper::convert(rs::Features &input, rapidjson::Document *object)
 {
   std::vector<rs::Response> resps = input.response();
-  if(resps.empty())
-  {
+  if(resps.empty()) {
     return;
   }
   rs::Response &resp = resps[0];
@@ -336,8 +315,7 @@ void DesignatorWrapper::convert(rs::Features &input, rapidjson::Document *object
   std::vector<std::string> classes = resp.classNames();
   cv::Mat respM;
   rs::conversion::from(resp.response.get(), respM);
-  if((size_t)respM.at<float>(0) > classes.size())
-  {
+  if((size_t)respM.at<float>(0) > classes.size()) {
     return;
   }
 
@@ -388,11 +366,9 @@ void DesignatorWrapper::convert(rs::ARMarker &input, rapidjson::Document &arDesi
 template<>
 void DesignatorWrapper::convertAll(std::vector<rs::ClusterPart> &all, rapidjson::Document *object)
 {
-  if(!all.empty())
-  {
+  if(!all.empty()) {
     rapidjson::Document *objParts = new rapidjson::Document();
-    for(rs::ClusterPart input : all)
-    {
+    for(rs::ClusterPart input : all) {
       convert(input, objParts);
     }
 
