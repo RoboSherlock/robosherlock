@@ -30,7 +30,7 @@
 #include <rs/utils/time.h>
 #include <rs/types/all_types.h>
 
-#include <rs/segmentation/OverSegmenter.h>
+#include <rs/symmetrysegmentation/OverSegmenter.h>
 
 //graph
 #include <rs/graph/Graph.h>

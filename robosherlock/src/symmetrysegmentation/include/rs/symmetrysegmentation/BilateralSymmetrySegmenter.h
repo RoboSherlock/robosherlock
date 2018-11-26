@@ -33,10 +33,10 @@
 #include <rs/types/all_types.h>
 
 #include <rs/utils/array_utils.hpp>
-#include <rs/segmentation/BoundarySegmentation.hpp>
-#include <rs/segmentation/BilateralSymmetry.hpp>
-#include <rs/segmentation/BilateralSymmetryScoring.hpp>
-#include <rs/segmentation/SymmetrySegmentation.hpp>
+#include <rs/symmetrysegmentation/BoundarySegmentation.hpp>
+#include <rs/symmetrysegmentation/BilateralSymmetry.hpp>
+#include <rs/symmetrysegmentation/BilateralSymmetryScoring.hpp>
+#include <rs/symmetrysegmentation/SymmetrySegmentation.hpp>
 
 #include <rs/mapping/DistanceMap.hpp>
 #include <rs/mapping/DownsampleMap.hpp>

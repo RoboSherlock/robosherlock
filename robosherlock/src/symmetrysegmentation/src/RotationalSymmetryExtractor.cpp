@@ -18,7 +18,7 @@
  */
 
 
-#include <rs/segmentation/RotationalSymmetryExtractor.h>
+#include <rs/symmetrysegmentation/RotationalSymmetryExtractor.h>
 
 RotationalSymmetryExtractor::RotationalSymmetryExtractor()
 {
@@ -350,7 +350,7 @@ bool RotationalSymmetryExtractor::getBestSymmetryID(int segmentId)
     outError("Invalid segmentID: " << segmentId << " out of range!");
     return false;
   }
-  
+
   float bestScore = std::numeric_limits<float>::max(); // a.k.a min occlusionScores (consistent cloud)
   int bestSymId = -1;
   int symSize = filteredSymmetries[segmentId].size();

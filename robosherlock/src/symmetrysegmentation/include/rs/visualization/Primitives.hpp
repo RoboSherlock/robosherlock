@@ -24,10 +24,10 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/common/actor_map.h>
 
-#include <rs/segmentation/BilateralSymmetry.hpp>
-#include <rs/segmentation/RotationalSymmetry.hpp>
+#include <rs/symmetrysegmentation/BilateralSymmetry.hpp>
+#include <rs/symmetrysegmentation/RotationalSymmetry.hpp>
 
-#include <rs/segmentation/Geometry.hpp>
+#include <rs/symmetrysegmentation/Geometry.hpp>
 
 /** \brief Add 3D bilateral symmetry plane to pcl::visualizer (color yellow)
  *  \param[in]  visualizer       pcl visualizer

@@ -146,6 +146,7 @@ set(RS_LIBS
   rs_flowcontrol
   rs_io
   rs_segmentation
+  rs_symmetrysegmentation
   rs_recognition
   rs_queryanswering
   rs_utils
@@ -191,6 +192,7 @@ add_subdirectory(src/filter)
 add_subdirectory(src/io)
 add_subdirectory(src/recognition)
 add_subdirectory(src/segmentation)
+add_subdirectory(src/symmetrysegmentation)
 add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)

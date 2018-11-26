@@ -32,9 +32,9 @@
 #include <rs/types/all_types.h>
 
 #include <rs/utils/array_utils.hpp>
-#include <rs/segmentation/RotationalSymmetry.hpp>
-#include <rs/segmentation/RotationalSymmetryScoring.hpp>
-#include <rs/segmentation/BoundarySegmentation.hpp>
+#include <rs/symmetrysegmentation/RotationalSymmetry.hpp>
+#include <rs/symmetrysegmentation/RotationalSymmetryScoring.hpp>
+#include <rs/symmetrysegmentation/BoundarySegmentation.hpp>
 #include <rs/mapping/DistanceMap.hpp>
 #include <rs/NonLinearOptimization/Functor.hpp>
 #include <rs/graph/Graph.h>

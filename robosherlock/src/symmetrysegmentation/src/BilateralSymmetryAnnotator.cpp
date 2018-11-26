@@ -26,7 +26,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/segmentation/BilateralSymmetryExtractor.h>
+#include <rs/symmetrysegmentation/BilateralSymmetryExtractor.h>
 
 #include <rs/visualization/Primitives.hpp>
 

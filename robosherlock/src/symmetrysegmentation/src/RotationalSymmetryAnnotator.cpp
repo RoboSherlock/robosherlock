@@ -34,7 +34,7 @@
 
 #include <rs/visualization/Primitives.hpp>
 
-#include <rs/segmentation/RotationalSymmetryExtractor.h>
+#include <rs/symmetrysegmentation/RotationalSymmetryExtractor.h>
 
 
 using namespace uima;

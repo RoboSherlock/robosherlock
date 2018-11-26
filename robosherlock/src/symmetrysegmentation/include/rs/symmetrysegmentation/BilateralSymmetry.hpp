@@ -26,7 +26,7 @@
 #include <pcl/point_types.h>
 #include <pcl/common/io.h>
 
-#include <rs/segmentation/Geometry.hpp>
+#include <rs/symmetrysegmentation/Geometry.hpp>
 #include <rs/utils/output.h>
 
 /** \brief Class representing a bilateral symmetry in 3D space. A symmetry

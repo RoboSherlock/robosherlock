@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/segmentation/RotationalSymmetrySegmenter.h>
+#include <rs/symmetrysegmentation/RotationalSymmetrySegmenter.h>
 
 RotationalSymmetrySegmenter::RotationalSymmetrySegmenter()
 {

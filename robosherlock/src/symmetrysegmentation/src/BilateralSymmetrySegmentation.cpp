@@ -27,7 +27,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/types/all_types.h>
 
-#include <rs/segmentation/BilateralSymmetrySegmenter.h>
+#include <rs/symmetrysegmentation/BilateralSymmetrySegmenter.h>
 
 #include <rs/visualization/Primitives.hpp>
 

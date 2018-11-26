@@ -22,8 +22,8 @@
 
 #include <unsupported/Eigen/NonLinearOptimization>
 
-#include <rs/segmentation/RotationalSymmetry.hpp>
-#include <rs/segmentation/BilateralSymmetry.hpp>
+#include <rs/symmetrysegmentation/RotationalSymmetry.hpp>
+#include <rs/symmetrysegmentation/BilateralSymmetry.hpp>
 #include <rs/mapping/DistanceMap.hpp>
 
 #include <pcl/registration/correspondence_rejection_one_to_one.h>

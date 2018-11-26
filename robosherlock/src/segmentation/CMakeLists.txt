@@ -2,11 +2,6 @@ project(rs_segmentation)
 
 add_library(rs_segmentation SHARED
   src/ImageSegmentation.cpp
-  src/OverSegmenter.cpp
-  src/RotationalSymmetryExtractor.cpp
-  src/RotationalSymmetrySegmenter.cpp
-  src/BilateralSymmetryExtractor.cpp
-  src/BilateralSymmetrySegmenter.cpp
 )
 target_link_libraries(rs_segmentation rs_core)
 
@@ -18,24 +13,6 @@ target_link_libraries(rs_PointCloudClusterExtractor rs_core)
 
 rs_add_library(rs_PointCloudColorSegmentation src/PointCloudColorSegmentation.cpp)
 target_link_libraries(rs_PointCloudColorSegmentation rs_core)
-
-rs_add_library(rs_overSegmentationAnnotator src/OverSegmentationAnnotator.cpp)
-target_link_libraries(rs_overSegmentationAnnotator rs_core rs_segmentation)
-
-rs_add_library(rs_rotationalSymmetryAnnotator src/RotationalSymmetryAnnotator.cpp)
-target_link_libraries(rs_rotationalSymmetryAnnotator rs_core rs_segmentation)
-
-rs_add_library(rs_rotationalSymmetrySegmentation src/RotationalSymmetrySegmentation.cpp)
-target_link_libraries(rs_rotationalSymmetrySegmentation rs_core rs_segmentation)
-
-rs_add_library(rs_bilateralSymmetryAnnotator src/BilateralSymmetryAnnotator.cpp)
-target_link_libraries(rs_bilateralSymmetryAnnotator rs_core rs_segmentation)
-
-rs_add_library(rs_bilateralSymmetrySegmentation src/BilateralSymmetrySegmentation.cpp)
-target_link_libraries(rs_bilateralSymmetrySegmentation rs_core rs_segmentation)
-
-rs_add_library(rs_segmentationResultDisplayer src/SegmentationResultDisplayer.cpp)
-target_link_libraries(rs_segmentationResultDisplayer rs_core)
 
 rs_add_library(rs_transparentSegmentationAnnotator src/TransparentSegmentationAnnotator.cpp)
 target_link_libraries(rs_transparentSegmentationAnnotator rs_core rs_segmentation)

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
- #include <rs/segmentation/OverSegmenter.h>
+ #include <rs/symmetrysegmentation/OverSegmenter.h>
 
  OverSegmenter::OverSegmenter()
  {

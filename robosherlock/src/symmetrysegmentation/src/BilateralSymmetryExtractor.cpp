@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/segmentation/BilateralSymmetryExtractor.h>
+#include <rs/symmetrysegmentation/BilateralSymmetryExtractor.h>
 
 BilateralSymmetryExtractor::BilateralSymmetryExtractor()
 {
@@ -446,7 +446,7 @@ bool BilateralSymmetryExtractor::filterSymmetries(int segmentId)
     outError("Invalid segmentID: " << segmentId << " out of range!");
     return false;
   }
-  
+
   if(segmentRefinedSymmetries[segmentId].empty())
   {
     outError("Refined symmetries at segmentID: " << segmentId << " is empty!");

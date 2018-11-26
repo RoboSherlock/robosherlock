@@ -29,7 +29,7 @@
 #include <rs/mapping/PointCloudMap.hpp>
 #include <rs/mapping/DownsampleMap.hpp>
 
-#include <rs/segmentation/Geometry.hpp>
+#include <rs/symmetrysegmentation/Geometry.hpp>
 #include <rs/utils/array_utils.hpp>
 
 #include <boost/graph/adjacency_list.hpp>

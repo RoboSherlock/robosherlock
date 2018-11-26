@@ -21,7 +21,7 @@
 #define __DISTANCE_MAP_HPP__
 
 #include <rs/utils/array_utils.hpp>
-#include <rs/segmentation/Geometry.hpp>
+#include <rs/symmetrysegmentation/Geometry.hpp>
 #include <rs/utils/output.h>
 
 #include <pcl/point_cloud.h>
