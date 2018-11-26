@@ -5,3 +5,5 @@ robosherlock/scripts/.*.modified
 robosherlock/scripts/*.pyc
 robosherlock/src/core/include/rs/types/*.h
 robosherlock/descriptors/typesystem/all_types.xml
+robosherlock/samples/clouds
+robosherlock/samples/images/test50.png
