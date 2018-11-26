@@ -170,7 +170,11 @@ public:
     cas.get(VIEW_ROTATIONAL_SEGMENTATION_IDS, rotational_segments);
     cas.get(VIEW_BILATERAL_SEGMENTATION_IDS, bilateral_segments);
 
-    segmenter.removeSegments(rotational_segments, bilateral_segments);
+    std::vector<pcl::PointIndices> segments;
+    segments.insert(segments.end(), rotational_segments.begin(), rotational_segments.end());
+    segments.insert(segments.end(), bilateral_segments.begin(), bilateral_segments.end());
+
+    segmenter.removeSegments(segments);
 
     segmenter.segment();
 

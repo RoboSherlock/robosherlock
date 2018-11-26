@@ -87,9 +87,11 @@ public:
 
   bool removePlanes(std::vector<rs::Plane> &planes);
 
-  //always call this because it will populate segmentIds
-  void removeSegments(std::vector<pcl::PointIndices> &rotational_segments,
-                      std::vector<pcl::PointIndices> &bilateral_segments);
+  void removeSegments(std::vector<pcl::PointIndices> &segments);
+
+  void removeSegments(std::vector< std::vector<int> > &segments);
+
+  void resetCloudIds();
 
   bool segment();
 

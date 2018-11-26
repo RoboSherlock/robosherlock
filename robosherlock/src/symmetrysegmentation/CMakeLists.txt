@@ -6,6 +6,7 @@ add_library(rs_symmetrysegmentation SHARED
   src/RotationalSymmetrySegmenter.cpp
   src/BilateralSymmetryExtractor.cpp
   src/BilateralSymmetrySegmenter.cpp
+  src/SymmetrySegmentationAnnotator.cpp
 )
 target_link_libraries(rs_symmetrysegmentation rs_core)
 
@@ -23,6 +24,9 @@ target_link_libraries(rs_bilateralSymmetryAnnotator rs_core rs_symmetrysegmentat
 
 rs_add_library(rs_bilateralSymmetrySegmentation src/BilateralSymmetrySegmentation.cpp)
 target_link_libraries(rs_bilateralSymmetrySegmentation rs_core rs_symmetrysegmentation)
+
+rs_add_library(rs_symmetrySegmentationAnnotator src/SymmetrySegmentationAnnotator.cpp)
+target_link_libraries(rs_symmetrySegmentationAnnotator rs_core rs_symmetrysegmentation)
 
 rs_add_library(rs_segmentationResultDisplayer src/SegmentationResultDisplayer.cpp)
 target_link_libraries(rs_segmentationResultDisplayer rs_core)

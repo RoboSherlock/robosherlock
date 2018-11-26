@@ -59,6 +59,8 @@ void OverSegmenter::setInputClouds(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud
 {
   this->cloud = cloud;
   this->normals = normals;
+
+  resetCloudIds();
 }
 
 bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
@@ -72,6 +74,7 @@ bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
   if(planes.empty())
   {
     outInfo("There are no plane! This will not remove anything!");
+    return false;
   }
 
   //get plane indices if it has
@@ -103,9 +106,14 @@ bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
   return true;
 }
 
-void OverSegmenter::removeSegments(std::vector<pcl::PointIndices> &rotational_segments,
-                                   std::vector<pcl::PointIndices> &bilateral_segments)
+void OverSegmenter::removeSegments(std::vector<pcl::PointIndices> &segments)
 {
+  if(segments.empty())
+  {
+    outWarn("Provided segments is empty!");
+    return;
+  }
+
   std::vector<int> cloudObjectIds(this->cloud->size());
   std::vector<int> segmentIds;
   for(size_t pointId = 0; pointId < this->cloud->size(); pointId++)
@@ -113,24 +121,49 @@ void OverSegmenter::removeSegments(std::vector<pcl::PointIndices> &rotational_se
     cloudObjectIds[pointId] = pointId;
   }
 
-  for(size_t segmentId = 0; segmentId < rotational_segments.size(); segmentId++)
+  for(size_t segmentId = 0; segmentId < segments.size(); segmentId++)
   {
-    segmentIds.insert(segmentIds.end(), rotational_segments[segmentId].indices.begin(), rotational_segments[segmentId].indices.end());
+    segmentIds.insert(segmentIds.end(), segments[segmentId].indices.begin(), segments[segmentId].indices.end());
   }
 
-  for(size_t segmentId = 0; segmentId < bilateral_segments.size(); segmentId++)
+  cloudIds = Difference(cloudObjectIds, segmentIds);
+}
+
+void OverSegmenter::removeSegments(std::vector< std::vector<int> > &segments)
+{
+  if(segments.empty())
   {
-    segmentIds.insert(segmentIds.end(), bilateral_segments[segmentId].indices.begin(), bilateral_segments[segmentId].indices.end());
+    outWarn("Provided segments is empty!");
+    return;
   }
 
-  if(!segmentIds.empty())
+  std::vector<int> cloudObjectIds(this->cloud->size());
+  std::vector<int> segmentIds;
+  for(size_t pointId = 0; pointId < this->cloud->size(); pointId++)
   {
-    cloudIds = Difference(cloudObjectIds, segmentIds);
+    cloudObjectIds[pointId] = pointId;
   }
-  else
+
+  for(size_t segmentId = 0; segmentId < segments.size(); segmentId++)
   {
-    outInfo("There are no previous segments! Using whole ids of object clouds");
-    cloudIds = cloudObjectIds;
+    segmentIds.insert(segmentIds.end(), segments[segmentId].begin(), segments[segmentId].end());
+  }
+
+  cloudIds = Difference(cloudObjectIds, segmentIds);
+}
+
+void OverSegmenter::resetCloudIds()
+{
+  if(this->cloud->empty() || this->normals->empty())
+  {
+    outWarn("Cloud or Normal cloud is empty! CloudIds will be empty!");
+    return;
+  }
+
+  cloudIds.resize(this->cloud->size());
+  for(size_t pointId = 0; pointId < this->cloud->size(); pointId++)
+  {
+    cloudIds[pointId] = pointId;
   }
 }
 
