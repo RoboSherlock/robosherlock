@@ -106,7 +106,7 @@ public:
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
 
         // Try to get the tracker from last iteration.
-        cas.get(KCF_TRACKER, Ptr<Tracker>);
+//        cas.get(KCF_TRACKER, Ptr<Tracker>);
 
         KCFTracker(frame);
 
@@ -121,7 +121,7 @@ public:
     bool KCFTracker(cv::Mat frame)
     {
         if(tracker == nullptr) {
-            tracker = TrackerKCF::create()
+            tracker = TrackerKCF::create();
 
             // Define bounding box. Could later be overriden by parameter.
             Rect2d bbox(0, 0, 200, 200);
@@ -132,9 +132,6 @@ public:
 
         // Update the tracking result
         tracker->update(frame, bbox);
-
-        // Put the tracker back into cas for next iteration
-        cas.set(KCF_TRACKER, tracker);
     }
 };
 

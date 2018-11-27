@@ -32,6 +32,9 @@ if(Caffe_FOUND)
   target_link_libraries(rs_CaffeAnnotator rs_core rs_caffeProxy)
 endif()
 
+rs_add_library(rs_KalmanTrackingAnnotator src/KalmanTrackingAnnotator.cpp)
+target_link_libraries(rs_KalmanTrackingAnnotator ${catkin_LIBRARIES})
+
 #build the web annotations (Goggles only atm)
 if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   find_package(PythonLibs)

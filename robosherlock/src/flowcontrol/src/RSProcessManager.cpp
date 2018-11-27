@@ -119,7 +119,7 @@ void RSProcessManager::stop()
 {
   visualizer_.stop();
   // Don't change behavior of other calls by keeping the reset for other QueryTypes apart from TRACK
-  if(queryType != QueryType::TRACK) {
+  if(queryType != QueryInterface::QueryType::TRACK) {
       engine_.resetCas();
   }
   engine_.stop();
@@ -258,7 +258,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   queryInterface->parseQuery(request); // TODO: Make this able to parse into two pipelines
   std::vector<std::vector<std::string>> newPipelineOrder;
   queryType = queryInterface->processQuery(newPipelineOrder[0]);
-
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
     if(queryType == QueryInterface::QueryType::DETECT) {
