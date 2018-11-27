@@ -103,6 +103,8 @@ bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
   outInfo("Object cloud size: " << this->cloud->size());
   outInfo("Object normal size: " << this->normals->size());
 
+  resetCloudIds();
+
   return true;
 }
 

@@ -6,8 +6,8 @@ capabilities:
   inputs: []
   outputs: []
 parameters:
-  adjacency_sigma_concave: 0.15
-  adjacency_sigma_convex: 2.0
+  bilSymSeg_adjacency_sigma_concave: 0.15
+  bilSymSeg_adjacency_sigma_convex: 2.0
   bilSymSeg_adjacency_radius: 0.01
   bilSymSeg_adjacency_weight_factor: 5.0
   bilSymSeg_bg_weight_factor: 2.0
@@ -23,10 +23,10 @@ parameters:
   bilSymSeg_min_occlusion_dist: 0.01
   bilSymSeg_min_perpendicular_angle: 0.785
   bilSymSeg_num_adjacency_neighbors: 9
-  correspondence_max_sym_reflected_dist: 0.01
-  dist_map_resolution: 0.005
-  downsample_voxel_size: 0.005
-  min_segment_size: 300
+  bilSymSeg_correspondence_max_sym_reflected_dist: 0.01
+  bilSymSeg_dist_map_resolution: 0.005
+  bilSymSeg_downsample_voxel_size: 0.005
+  bilSymSeg_min_segment_size: 300
   min_sym_sypport_overlap: 0.1
-  overlap_threshold: 0.3
+  bilSymSeg_overlap_threshold: 0.3
   symmetric_weight_factor: 1.0

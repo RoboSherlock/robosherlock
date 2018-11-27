@@ -12,11 +12,11 @@ parameters:
   bilSymAnn_max_occlusion_score: 0.05
   bilSymAnn_min_occlusion_dist: 0.01
   correspondence_max_normal_fit_error: 0.174
-  correspondence_max_sym_reflected_dist: 0.01
+  bilSymAnn_correspondence_max_sym_reflected_dist: 0.01
   correspondence_min_sym_dist: 0.02
   correspondence_search_radius: 0.01
-  dist_map_resolution: 0.005
-  downsample_voxel_size: 0.005
+  bilSymAnn_dist_map_resolution: 0.005
+  bilSymAnn_downsample_voxel_size: 0.005
   min_corres_inlier_score: 0.7
   min_segment_inlier_score: 0.2
   naive_detection: true

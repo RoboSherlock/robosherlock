@@ -60,7 +60,7 @@ private:
   float rotSymAnn_max_perpendicular_score;
   float rotSymAnn_min_coverage_score;
 
-  float dist_map_resolution;
+  float rotSymAnn_dist_map_resolution;
 
   float boundaryRadiusSearch;
   float boundaryAngleThreshold;
@@ -90,7 +90,7 @@ public:
     ctx.extractValue("rotSymAnn_max_perpendicular_score", rotSymAnn_max_perpendicular_score);
     ctx.extractValue("rotSymAnn_min_coverage_score", rotSymAnn_min_coverage_score);
 
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("rotSymAnn_dist_map_resolution", rotSymAnn_dist_map_resolution);
 
     ctx.extractValue("boundaryRadiusSearch", boundaryRadiusSearch);
     ctx.extractValue("boundaryAngleThreshold", boundaryAngleThreshold);
@@ -106,7 +106,7 @@ public:
                          rotSymAnn_max_occlusion_score,
                          rotSymAnn_max_perpendicular_score,
                          rotSymAnn_min_coverage_score,
-                         dist_map_resolution,
+                         rotSymAnn_dist_map_resolution,
                          boundaryRadiusSearch,
                          boundaryAngleThreshold,
                          max_angle_diff,

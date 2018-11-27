@@ -48,13 +48,13 @@ private:
   bool rotSymSeg_isDownsampled;
   float downsample_leaf_size;
 
-  float dist_map_resolution;
+  float rotSymSeg_dist_map_resolution;
 
   float rotSymSeg_adjacency_radius;
   int rotSymSeg_num_adjacency_neighbors;
 
-  float adjacency_sigma_convex;
-  float adjacency_sigma_concave;
+  float rotSymSeg_adjacency_sigma_convex;
+  float rotSymSeg_adjacency_sigma_concave;
   float rotSymSeg_adjacency_weight_factor;
 
   float rotSymSeg_min_fit_angle;
@@ -69,9 +69,9 @@ private:
   float rotSymSeg_max_sym_score;
   float rotSymSeg_max_occlusion_score;
   float rotSymSeg_max_cut_score;
-  int min_segment_size;
+  int rotSymSeg_min_segment_size;
 
-  float overlap_threshold;
+  float rotSymSeg_overlap_threshold;
 
   double pointSize;
   int segVisIt;
@@ -95,11 +95,11 @@ public:
 
     ctx.extractValue("rotSymSeg_isDownsampled", rotSymSeg_isDownsampled);
     ctx.extractValue("downsample_leaf_size", downsample_leaf_size);
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("rotSymSeg_dist_map_resolution", rotSymSeg_dist_map_resolution);
     ctx.extractValue("rotSymSeg_adjacency_radius", rotSymSeg_adjacency_radius);
     ctx.extractValue("rotSymSeg_num_adjacency_neighbors", rotSymSeg_num_adjacency_neighbors);
-    ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
-    ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
+    ctx.extractValue("rotSymSeg_adjacency_sigma_convex", rotSymSeg_adjacency_sigma_convex);
+    ctx.extractValue("rotSymSeg_adjacency_sigma_concave", rotSymSeg_adjacency_sigma_concave);
     ctx.extractValue("rotSymSeg_adjacency_weight_factor", rotSymSeg_adjacency_weight_factor);
     ctx.extractValue("rotSymSeg_min_fit_angle", rotSymSeg_min_fit_angle);
     ctx.extractValue("rotSymSeg_max_fit_angle", rotSymSeg_max_fit_angle);
@@ -111,17 +111,17 @@ public:
     ctx.extractValue("rotSymSeg_max_sym_score", rotSymSeg_max_sym_score);
     ctx.extractValue("rotSymSeg_max_occlusion_score", rotSymSeg_max_occlusion_score);
     ctx.extractValue("rotSymSeg_max_cut_score", rotSymSeg_max_cut_score);
-    ctx.extractValue("min_segment_size", min_segment_size);
+    ctx.extractValue("rotSymSeg_min_segment_size", rotSymSeg_min_segment_size);
 
-    ctx.extractValue("overlap_threshold", overlap_threshold);
+    ctx.extractValue("rotSymSeg_overlap_threshold", rotSymSeg_overlap_threshold);
 
     segmenter.initialize(rotSymSeg_isDownsampled,
                          downsample_leaf_size,
-                         dist_map_resolution,
+                         rotSymSeg_dist_map_resolution,
                          rotSymSeg_adjacency_radius,
                          rotSymSeg_num_adjacency_neighbors,
-                         adjacency_sigma_convex,
-                         adjacency_sigma_concave,
+                         rotSymSeg_adjacency_sigma_convex,
+                         rotSymSeg_adjacency_sigma_concave,
                          rotSymSeg_adjacency_weight_factor,
                          rotSymSeg_min_fit_angle,
                          rotSymSeg_max_fit_angle,
@@ -133,8 +133,8 @@ public:
                          rotSymSeg_max_sym_score,
                          rotSymSeg_max_occlusion_score,
                          rotSymSeg_max_cut_score,
-                         min_segment_size,
-                         overlap_threshold);
+                         rotSymSeg_min_segment_size,
+                         rotSymSeg_overlap_threshold);
 
     return UIMA_ERR_NONE;
   }

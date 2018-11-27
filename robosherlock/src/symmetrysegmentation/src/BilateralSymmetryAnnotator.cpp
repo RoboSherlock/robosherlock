@@ -47,16 +47,16 @@ private:
   bool bilSymAnn_isDownsampled;
   bool naive_detection;
 
-  float downsample_voxel_size;
+  float bilSymAnn_downsample_voxel_size;
 
   int angle_division;
 
-  float dist_map_resolution;
+  float bilSymAnn_dist_map_resolution;
 
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
   float correspondence_min_sym_dist;
-  float correspondence_max_sym_reflected_dist;
+  float bilSymAnn_correspondence_max_sym_reflected_dist;
 
   int refine_max_iteration;
   float refine_min_inlier_sym_score;
@@ -88,16 +88,16 @@ public:
 
     ctx.extractValue("bilSymAnn_isDownsampled", bilSymAnn_isDownsampled);
     ctx.extractValue("naive_detection", naive_detection);
-    ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
+    ctx.extractValue("bilSymAnn_downsample_voxel_size", bilSymAnn_downsample_voxel_size);
 
     ctx.extractValue("angle_division", angle_division);
 
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("bilSymAnn_dist_map_resolution", bilSymAnn_dist_map_resolution);
 
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
     ctx.extractValue("correspondence_min_sym_dist", correspondence_min_sym_dist);
-    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+    ctx.extractValue("bilSymAnn_correspondence_max_sym_reflected_dist", bilSymAnn_correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("refine_max_iteration", refine_max_iteration);
     ctx.extractValue("refine_min_inlier_sym_score", refine_min_inlier_sym_score);
@@ -115,13 +115,13 @@ public:
 
     extractor.initialize(bilSymAnn_isDownsampled,
                          naive_detection,
-                         downsample_voxel_size,
+                         bilSymAnn_downsample_voxel_size,
                          angle_division,
-                         dist_map_resolution,
+                         bilSymAnn_dist_map_resolution,
                          correspondence_search_radius,
                          correspondence_max_normal_fit_error,
                          correspondence_min_sym_dist,
-                         correspondence_max_sym_reflected_dist,
+                         bilSymAnn_correspondence_max_sym_reflected_dist,
                          refine_max_iteration,
                          refine_min_inlier_sym_score,
                          refine_max_inlier_sym_score,

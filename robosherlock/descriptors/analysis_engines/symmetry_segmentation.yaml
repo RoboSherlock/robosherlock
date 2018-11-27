@@ -1,18 +1,12 @@
-ae: 
-  name: object_segmentation
+ae:
+  name: symmetry_segmentation_decoupled
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
   - PointCloudFilter
   - NormalEstimator
   - PlaneAnnotator
-  - OverSegmentationAnnotator
-  - RotationalSymmetryAnnotator
-  - RotationalSymmetrySegmentation
-  - OverSegmentationAnnotator
-  - BilateralSymmetryAnnotator
-  - BilateralSymmetrySegmentation
-  - SegmentationResultDisplayer
+  - SymmetrySegmentationAnnotator
 CollectionReader:
   camera_config_files: ['config_data_loader.ini']
 PointCloudFilter:
@@ -24,13 +18,13 @@ NormalEstimator:
   radiusSearch: 0.005
 PlaneAnnotator:
   use_non_nan_cloud: true
-OverSegmentationAnnotator:
+SymmetrySegmentationAnnotator:
   minNormalThreshold: 0.09
   maxNormalThreshold: 0.13
   curvatureThreshold: 0.8
   numSegmentation: 2
   neighborNubmer: 10
-RotationalSymmetryAnnotator:
+
   rotSymAnn_min_fit_angle: 0.1
   rotSymAnn_max_fit_angle: 1.1
   rotSymAnn_min_occlusion_dist: 0.01
@@ -39,7 +33,7 @@ RotationalSymmetryAnnotator:
   rotSymAnn_max_occlusion_score: 0.3
   rotSymAnn_max_perpendicular_score: 0.4
   rotSymAnn_min_coverage_score: 0.5
-RotationalSymmetrySegmentation:
+
   rotSymSeg_isDownsampled: true
   rotSymSeg_adjacency_radius: 0.01
   rotSymSeg_num_adjacency_neighbors: 12
@@ -54,7 +48,7 @@ RotationalSymmetrySegmentation:
   rotSymSeg_max_sym_score: 0.4
   rotSymSeg_max_occlusion_score: 0.5
   rotSymSeg_max_cut_score: 0.4
-BilateralSymmetryAnnotator:
+
   bilSymAnn_isDownsampled: true
   naive_detection: true
   angle_division: 2
@@ -67,7 +61,7 @@ BilateralSymmetryAnnotator:
   bilSymAnn_max_occlusion_score: 0.05
   min_segment_inlier_score: 0.2
   min_corres_inlier_score: 0.7
-BilateralSymmetrySegmentation:
+
   bilSymSeg_isDownsampled: true
   bilSymSeg_adjacency_radius: 0.01
   bilSymSeg_num_adjacency_neighbors: 13
@@ -85,4 +79,4 @@ BilateralSymmetrySegmentation:
   bilSymSeg_max_occlusion_score: 1.0
   bilSymSeg_max_cut_score: 1.0
   min_sym_sypport_overlap: 0.0
-  min_segment_size: 100
+  bilSymSeg_min_segment_size: 100

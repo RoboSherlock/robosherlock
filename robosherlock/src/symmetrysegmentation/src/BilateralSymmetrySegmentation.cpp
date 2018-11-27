@@ -55,14 +55,14 @@ private:
   //parameters
   int numSymmetries;
   bool bilSymSeg_isDownsampled;
-  float downsample_voxel_size;
+  float bilSymSeg_downsample_voxel_size;
 
-  float dist_map_resolution;
+  float bilSymSeg_dist_map_resolution;
 
   float bilSymSeg_adjacency_radius;
   int bilSymSeg_num_adjacency_neighbors;
-  float adjacency_sigma_convex;
-  float adjacency_sigma_concave;
+  float bilSymSeg_adjacency_sigma_convex;
+  float bilSymSeg_adjacency_sigma_concave;
   float bilSymSeg_adjacency_weight_factor;
 
   float bilSymSeg_min_fit_angle;
@@ -71,7 +71,7 @@ private:
   float bilSymSeg_max_occlusion_dist;
   float bilSymSeg_min_perpendicular_angle;
   float bilSymSeg_max_perpendicular_angle;
-  float correspondence_max_sym_reflected_dist;
+  float bilSymSeg_correspondence_max_sym_reflected_dist;
 
   float symmetric_weight_factor;
   float bilSymSeg_fg_weight_factor;
@@ -81,9 +81,9 @@ private:
   float bilSymSeg_max_occlusion_score;
   float bilSymSeg_max_cut_score;
   float min_sym_sypport_overlap;
-  int min_segment_size;
+  int bilSymSeg_min_segment_size;
 
-  float overlap_threshold;
+  float bilSymSeg_overlap_threshold;
 
   double pointSize;
   int segVisIt;
@@ -108,13 +108,13 @@ public:
     outInfo("initialize");
 
     ctx.extractValue("bilSymSeg_isDownsampled", bilSymSeg_isDownsampled);
-    ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("bilSymSeg_downsample_voxel_size", bilSymSeg_downsample_voxel_size);
+    ctx.extractValue("bilSymSeg_dist_map_resolution", bilSymSeg_dist_map_resolution);
 
     ctx.extractValue("bilSymSeg_adjacency_radius", bilSymSeg_adjacency_radius);
     ctx.extractValue("bilSymSeg_num_adjacency_neighbors", bilSymSeg_num_adjacency_neighbors);
-    ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
-    ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
+    ctx.extractValue("bilSymSeg_adjacency_sigma_convex", bilSymSeg_adjacency_sigma_convex);
+    ctx.extractValue("bilSymSeg_adjacency_sigma_concave", bilSymSeg_adjacency_sigma_concave);
     ctx.extractValue("bilSymSeg_adjacency_weight_factor", bilSymSeg_adjacency_weight_factor);
 
     ctx.extractValue("bilSymSeg_min_fit_angle", bilSymSeg_min_fit_angle);
@@ -123,7 +123,7 @@ public:
     ctx.extractValue("bilSymSeg_max_occlusion_dist", bilSymSeg_max_occlusion_dist);
     ctx.extractValue("bilSymSeg_min_perpendicular_angle", bilSymSeg_min_perpendicular_angle);
     ctx.extractValue("bilSymSeg_max_perpendicular_angle", bilSymSeg_max_perpendicular_angle);
-    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+    ctx.extractValue("bilSymSeg_correspondence_max_sym_reflected_dist", bilSymSeg_correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("symmetric_weight_factor", symmetric_weight_factor);
     ctx.extractValue("bilSymSeg_fg_weight_factor", bilSymSeg_fg_weight_factor);
@@ -133,17 +133,17 @@ public:
     ctx.extractValue("bilSymSeg_max_occlusion_score", bilSymSeg_max_occlusion_score);
     ctx.extractValue("bilSymSeg_max_cut_score", bilSymSeg_max_cut_score);
     ctx.extractValue("min_sym_sypport_overlap", min_sym_sypport_overlap);
-    ctx.extractValue("min_segment_size", min_segment_size);
+    ctx.extractValue("bilSymSeg_min_segment_size", bilSymSeg_min_segment_size);
 
-    ctx.extractValue("overlap_threshold", overlap_threshold);
+    ctx.extractValue("bilSymSeg_overlap_threshold", bilSymSeg_overlap_threshold);
 
     segmenter.initialize(bilSymSeg_isDownsampled,
-                         downsample_voxel_size,
-                         dist_map_resolution,
+                         bilSymSeg_downsample_voxel_size,
+                         bilSymSeg_dist_map_resolution,
                          bilSymSeg_adjacency_radius,
                          bilSymSeg_num_adjacency_neighbors,
-                         adjacency_sigma_convex,
-                         adjacency_sigma_concave,
+                         bilSymSeg_adjacency_sigma_convex,
+                         bilSymSeg_adjacency_sigma_concave,
                          bilSymSeg_adjacency_weight_factor,
                          bilSymSeg_min_fit_angle,
                          bilSymSeg_max_fit_angle,
@@ -151,7 +151,7 @@ public:
                          bilSymSeg_max_occlusion_dist,
                          bilSymSeg_min_perpendicular_angle,
                          bilSymSeg_max_perpendicular_angle,
-                         correspondence_max_sym_reflected_dist,
+                         bilSymSeg_correspondence_max_sym_reflected_dist,
                          symmetric_weight_factor,
                          bilSymSeg_fg_weight_factor,
                          bilSymSeg_bg_weight_factor,
@@ -159,8 +159,8 @@ public:
                          bilSymSeg_max_occlusion_score,
                          bilSymSeg_max_cut_score,
                          min_sym_sypport_overlap,
-                         min_segment_size,
-                         overlap_threshold);
+                         bilSymSeg_min_segment_size,
+                         bilSymSeg_overlap_threshold);
 
     return UIMA_ERR_NONE;
   }

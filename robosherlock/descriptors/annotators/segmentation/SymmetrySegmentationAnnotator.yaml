@@ -6,17 +6,61 @@ capabilities:
   inputs: []
   outputs: []
 parameters:
+  curvatureThreshold: 0.5
+  maxClusterSize: 1000000
+  maxNormalThreshold: 0.15
+  minClusterSize: 120
+  minNormalThreshold: 0.13
+  neighborNumber: 5
+  numSegmentation: 2
+  overlapThreshold: 0.8
+
+  boundaryAngleThreshold: 2.356
+  boundaryRadiusSearch: 0.01
+  rotSymAnn_dist_map_resolution: 0.005
+  max_angle_diff: 0.174
+  max_dist_diff: 0.01
+  rotSymAnn_max_fit_angle: 1.047
+  rotSymAnn_max_occlusion_dist: 0.03
+  rotSymAnn_max_occlusion_score: 0.012
+  rotSymAnn_max_perpendicular_score: 0.6
+  rotSymAnn_max_sym_score: 0.02
+  rotSymAnn_min_coverage_score: 0.3
+  rotSymAnn_min_fit_angle: 0.175
+  rotSymAnn_min_occlusion_dist: 0.01
+
+  rotSymSeg_adjacency_sigma_concave: 0.15
+  rotSymSeg_adjacency_sigma_convex: 2.0
+  rotSymSeg_dist_map_resolution: 0.005
+  downsample_leaf_size: 0.005
+  rotSymSeg_min_segment_size: 400
+  rotSymSeg_overlap_threshold: 0.3
+  rotSymSeg_adjacency_radius: 0.01
+  rotSymSeg_adjacency_weight_factor: 3.0
+  rotSymSeg_bg_weight_factor: 1.0
+  rotSymSeg_fg_weight_factor: 2.0
+  rotSymSeg_isDownsampled: true
+  rotSymSeg_max_cut_score: 0.3
+  rotSymSeg_max_fit_angle: 1.155
+  rotSymSeg_max_occlusion_dist: 0.155
+  rotSymSeg_max_occlusion_score: 0.03
+  rotSymSeg_max_perpendicular_angle: 1.255
+  rotSymSeg_max_sym_score: 0.4
+  rotSymSeg_min_fit_angle: 0.0
+  rotSymSeg_min_occlusion_dist: 0.005
+  rotSymSeg_num_adjacency_neighbors: 9
+
   angle_division: 2
   bilSymAnn_isDownsampled: true
   bilSymAnn_max_occlusion_dist: 0.03
   bilSymAnn_max_occlusion_score: 0.05
   bilSymAnn_min_occlusion_dist: 0.01
   correspondence_max_normal_fit_error: 0.174
-  correspondence_max_sym_reflected_dist: 0.01
+  bilSymAnn_correspondence_max_sym_reflected_dist: 0.01
   correspondence_min_sym_dist: 0.02
   correspondence_search_radius: 0.01
-  dist_map_resolution: 0.005
-  downsample_voxel_size: 0.005
+  bilSymAnn_dist_map_resolution: 0.005
+  bilSymAnn_downsample_voxel_size: 0.005
   min_corres_inlier_score: 0.7
   min_segment_inlier_score: 0.2
   naive_detection: true
@@ -25,3 +69,28 @@ parameters:
   refine_min_inlier_sym_score: 0.174
   sym_angle_diff: 0.2
   sym_dist_diff: 0.05
+
+  bilSymSeg_adjacency_sigma_concave: 0.15
+  bilSymSeg_adjacency_sigma_convex: 2.0
+  bilSymSeg_adjacency_radius: 0.01
+  bilSymSeg_adjacency_weight_factor: 5.0
+  bilSymSeg_bg_weight_factor: 2.0
+  bilSymSeg_fg_weight_factor: 1.0
+  bilSymSeg_isDownsampled: true
+  bilSymSeg_max_cut_score: 0.55
+  bilSymSeg_max_fit_angle: 0.785
+  bilSymSeg_max_occlusion_dist: 0.03
+  bilSymSeg_max_occlusion_score: 0.1
+  bilSymSeg_max_perpendicular_angle: 1.396
+  bilSymSeg_max_sym_score: 0.5
+  bilSymSeg_min_fit_angle: 0.174
+  bilSymSeg_min_occlusion_dist: 0.01
+  bilSymSeg_min_perpendicular_angle: 0.785
+  bilSymSeg_num_adjacency_neighbors: 9
+  bilSymSeg_correspondence_max_sym_reflected_dist: 0.01
+  bilSymSeg_dist_map_resolution: 0.005
+  bilSymSeg_downsample_voxel_size: 0.005
+  bilSymSeg_min_segment_size: 300
+  min_sym_sypport_overlap: 0.1
+  bilSymSeg_overlap_threshold: 0.3
+  symmetric_weight_factor: 1.0

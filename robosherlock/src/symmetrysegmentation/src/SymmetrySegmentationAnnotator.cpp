@@ -89,7 +89,7 @@ private:
   float rotSymAnn_max_occlusion_score;
   float rotSymAnn_max_perpendicular_score;
   float rotSymAnn_min_coverage_score;
-  float dist_map_resolution;
+  float rotSymAnn_dist_map_resolution;
   float boundaryRadiusSearch;
   float boundaryAngleThreshold;
   float max_angle_diff;
@@ -101,11 +101,11 @@ private:
   int numSymmetries;
   bool rotSymSeg_isDownsampled;
   float downsample_leaf_size;
-  float dist_map_resolution;
+  float rotSymSeg_dist_map_resolution;
   float rotSymSeg_adjacency_radius;
   int rotSymSeg_num_adjacency_neighbors;
-  float adjacency_sigma_convex;
-  float adjacency_sigma_concave;
+  float rotSymSeg_adjacency_sigma_convex;
+  float rotSymSeg_adjacency_sigma_concave;
   float rotSymSeg_adjacency_weight_factor;
   float rotSymSeg_min_fit_angle;
   float rotSymSeg_max_fit_angle;
@@ -117,21 +117,21 @@ private:
   float rotSymSeg_max_sym_score;
   float rotSymSeg_max_occlusion_score;
   float rotSymSeg_max_cut_score;
-  int min_segment_size;
-  float overlap_threshold;
+  int rotSymSeg_min_segment_size;
+  float rotSymSeg_overlap_threshold;
 
   RotationalSymmetrySegmenter rot_segmenter;
 
   //BilateralSymmetryExtractor params
   bool bilSymAnn_isDownsampled;
   bool naive_detection;
-  float downsample_voxel_size;
+  float bilSymAnn_downsample_voxel_size;
   int angle_division;
-  float dist_map_resolution;
+  float bilSymAnn_dist_map_resolution;
   float correspondence_search_radius;
   float correspondence_max_normal_fit_error;
   float correspondence_min_sym_dist;
-  float correspondence_max_sym_reflected_dist;
+  float bilSymAnn_correspondence_max_sym_reflected_dist;
   int refine_max_iteration;
   float refine_min_inlier_sym_score;
   float refine_max_inlier_sym_score;
@@ -147,12 +147,12 @@ private:
 
   //BilateralSymmetrySegmenter params
   bool bilSymSeg_isDownsampled;
-  float downsample_voxel_size;
-  float dist_map_resolution;
+  float bilSymSeg_downsample_voxel_size;
+  float bilSymSeg_dist_map_resolution;
   float bilSymSeg_adjacency_radius;
   int bilSymSeg_num_adjacency_neighbors;
-  float adjacency_sigma_convex;
-  float adjacency_sigma_concave;
+  float bilSymSeg_adjacency_sigma_convex;
+  float bilSymSeg_adjacency_sigma_concave;
   float bilSymSeg_adjacency_weight_factor;
   float bilSymSeg_min_fit_angle;
   float bilSymSeg_max_fit_angle;
@@ -160,7 +160,7 @@ private:
   float bilSymSeg_max_occlusion_dist;
   float bilSymSeg_min_perpendicular_angle;
   float bilSymSeg_max_perpendicular_angle;
-  float correspondence_max_sym_reflected_dist;
+  float bilSymSeg_correspondence_max_sym_reflected_dist;
   float symmetric_weight_factor;
   float bilSymSeg_fg_weight_factor;
   float bilSymSeg_bg_weight_factor;
@@ -168,8 +168,8 @@ private:
   float bilSymSeg_max_occlusion_score;
   float bilSymSeg_max_cut_score;
   float min_sym_sypport_overlap;
-  int min_segment_size;
-  float overlap_threshold;
+  int bilSymSeg_min_segment_size;
+  float bilSymSeg_overlap_threshold;
 
   BilateralSymmetrySegmenter bil_segmenter;
 
@@ -214,7 +214,7 @@ public:
     ctx.extractValue("rotSymAnn_max_occlusion_score", rotSymAnn_max_occlusion_score);
     ctx.extractValue("rotSymAnn_max_perpendicular_score", rotSymAnn_max_perpendicular_score);
     ctx.extractValue("rotSymAnn_min_coverage_score", rotSymAnn_min_coverage_score);
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("rotSymAnn_dist_map_resolution", rotSymAnn_dist_map_resolution);
     ctx.extractValue("boundaryRadiusSearch", boundaryRadiusSearch);
     ctx.extractValue("boundaryAngleThreshold", boundaryAngleThreshold);
     ctx.extractValue("max_angle_diff", max_angle_diff);
@@ -228,7 +228,7 @@ public:
                              rotSymAnn_max_occlusion_score,
                              rotSymAnn_max_perpendicular_score,
                              rotSymAnn_min_coverage_score,
-                             dist_map_resolution,
+                             rotSymAnn_dist_map_resolution,
                              boundaryRadiusSearch,
                              boundaryAngleThreshold,
                              max_angle_diff,
@@ -237,11 +237,11 @@ public:
     //set params for RotationalSymmetrySegmenter
     ctx.extractValue("rotSymSeg_isDownsampled", rotSymSeg_isDownsampled);
     ctx.extractValue("downsample_leaf_size", downsample_leaf_size);
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("rotSymSeg_dist_map_resolution", rotSymSeg_dist_map_resolution);
     ctx.extractValue("rotSymSeg_adjacency_radius", rotSymSeg_adjacency_radius);
     ctx.extractValue("rotSymSeg_num_adjacency_neighbors", rotSymSeg_num_adjacency_neighbors);
-    ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
-    ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
+    ctx.extractValue("rotSymSeg_adjacency_sigma_convex", rotSymSeg_adjacency_sigma_convex);
+    ctx.extractValue("rotSymSeg_adjacency_sigma_concave", rotSymSeg_adjacency_sigma_concave);
     ctx.extractValue("rotSymSeg_adjacency_weight_factor", rotSymSeg_adjacency_weight_factor);
     ctx.extractValue("rotSymSeg_min_fit_angle", rotSymSeg_min_fit_angle);
     ctx.extractValue("rotSymSeg_max_fit_angle", rotSymSeg_max_fit_angle);
@@ -253,16 +253,16 @@ public:
     ctx.extractValue("rotSymSeg_max_sym_score", rotSymSeg_max_sym_score);
     ctx.extractValue("rotSymSeg_max_occlusion_score", rotSymSeg_max_occlusion_score);
     ctx.extractValue("rotSymSeg_max_cut_score", rotSymSeg_max_cut_score);
-    ctx.extractValue("min_segment_size", min_segment_size);
-    ctx.extractValue("overlap_threshold", overlap_threshold);
+    ctx.extractValue("rotSymSeg_min_segment_size", rotSymSeg_min_segment_size);
+    ctx.extractValue("rotSymSeg_overlap_threshold", rotSymSeg_overlap_threshold);
 
     rot_segmenter.initialize(rotSymSeg_isDownsampled,
                              downsample_leaf_size,
-                             dist_map_resolution,
+                             rotSymSeg_dist_map_resolution,
                              rotSymSeg_adjacency_radius,
                              rotSymSeg_num_adjacency_neighbors,
-                             adjacency_sigma_convex,
-                             adjacency_sigma_concave,
+                             rotSymSeg_adjacency_sigma_convex,
+                             rotSymSeg_adjacency_sigma_concave,
                              rotSymSeg_adjacency_weight_factor,
                              rotSymSeg_min_fit_angle,
                              rotSymSeg_max_fit_angle,
@@ -274,22 +274,22 @@ public:
                              rotSymSeg_max_sym_score,
                              rotSymSeg_max_occlusion_score,
                              rotSymSeg_max_cut_score,
-                             min_segment_size,
-                             overlap_threshold);
+                             rotSymSeg_min_segment_size,
+                             rotSymSeg_overlap_threshold);
 
     //set params for BilateralSymmetryExtractor
     ctx.extractValue("bilSymAnn_isDownsampled", bilSymAnn_isDownsampled);
     ctx.extractValue("naive_detection", naive_detection);
-    ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
+    ctx.extractValue("bilSymAnn_downsample_voxel_size", bilSymAnn_downsample_voxel_size);
 
     ctx.extractValue("angle_division", angle_division);
 
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("bilSymAnn_dist_map_resolution", bilSymAnn_dist_map_resolution);
 
     ctx.extractValue("correspondence_search_radius", correspondence_search_radius);
     ctx.extractValue("correspondence_max_normal_fit_error", correspondence_max_normal_fit_error);
     ctx.extractValue("correspondence_min_sym_dist", correspondence_min_sym_dist);
-    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+    ctx.extractValue("bilSymAnn_correspondence_max_sym_reflected_dist", bilSymAnn_correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("refine_max_iteration", refine_max_iteration);
     ctx.extractValue("refine_min_inlier_sym_score", refine_min_inlier_sym_score);
@@ -307,13 +307,13 @@ public:
 
     bil_extractor.initialize(bilSymAnn_isDownsampled,
                              naive_detection,
-                             downsample_voxel_size,
+                             bilSymAnn_downsample_voxel_size,
                              angle_division,
-                             dist_map_resolution,
+                             bilSymAnn_dist_map_resolution,
                              correspondence_search_radius,
                              correspondence_max_normal_fit_error,
                              correspondence_min_sym_dist,
-                             correspondence_max_sym_reflected_dist,
+                             bilSymAnn_correspondence_max_sym_reflected_dist,
                              refine_max_iteration,
                              refine_min_inlier_sym_score,
                              refine_max_inlier_sym_score,
@@ -329,13 +329,13 @@ public:
 
     //set params for BilateralSymmetrySegmenter
     ctx.extractValue("bilSymSeg_isDownsampled", bilSymSeg_isDownsampled);
-    ctx.extractValue("downsample_voxel_size", downsample_voxel_size);
-    ctx.extractValue("dist_map_resolution", dist_map_resolution);
+    ctx.extractValue("bilSymSeg_downsample_voxel_size", bilSymSeg_downsample_voxel_size);
+    ctx.extractValue("bilSymSeg_dist_map_resolution", bilSymSeg_dist_map_resolution);
 
     ctx.extractValue("bilSymSeg_adjacency_radius", bilSymSeg_adjacency_radius);
     ctx.extractValue("bilSymSeg_num_adjacency_neighbors", bilSymSeg_num_adjacency_neighbors);
-    ctx.extractValue("adjacency_sigma_convex", adjacency_sigma_convex);
-    ctx.extractValue("adjacency_sigma_concave", adjacency_sigma_concave);
+    ctx.extractValue("bilSymSeg_adjacency_sigma_convex", bilSymSeg_adjacency_sigma_convex);
+    ctx.extractValue("bilSymSeg_adjacency_sigma_concave", bilSymSeg_adjacency_sigma_concave);
     ctx.extractValue("bilSymSeg_adjacency_weight_factor", bilSymSeg_adjacency_weight_factor);
 
     ctx.extractValue("bilSymSeg_min_fit_angle", bilSymSeg_min_fit_angle);
@@ -344,7 +344,7 @@ public:
     ctx.extractValue("bilSymSeg_max_occlusion_dist", bilSymSeg_max_occlusion_dist);
     ctx.extractValue("bilSymSeg_min_perpendicular_angle", bilSymSeg_min_perpendicular_angle);
     ctx.extractValue("bilSymSeg_max_perpendicular_angle", bilSymSeg_max_perpendicular_angle);
-    ctx.extractValue("correspondence_max_sym_reflected_dist", correspondence_max_sym_reflected_dist);
+    ctx.extractValue("bilSymSeg_correspondence_max_sym_reflected_dist", bilSymSeg_correspondence_max_sym_reflected_dist);
 
     ctx.extractValue("symmetric_weight_factor", symmetric_weight_factor);
     ctx.extractValue("bilSymSeg_fg_weight_factor", bilSymSeg_fg_weight_factor);
@@ -354,17 +354,17 @@ public:
     ctx.extractValue("bilSymSeg_max_occlusion_score", bilSymSeg_max_occlusion_score);
     ctx.extractValue("bilSymSeg_max_cut_score", bilSymSeg_max_cut_score);
     ctx.extractValue("min_sym_sypport_overlap", min_sym_sypport_overlap);
-    ctx.extractValue("min_segment_size", min_segment_size);
+    ctx.extractValue("bilSymSeg_min_segment_size", bilSymSeg_min_segment_size);
 
-    ctx.extractValue("overlap_threshold", overlap_threshold);
+    ctx.extractValue("bilSymSeg_overlap_threshold", bilSymSeg_overlap_threshold);
 
     bil_segmenter.initialize(bilSymSeg_isDownsampled,
-                             downsample_voxel_size,
-                             dist_map_resolution,
+                             bilSymSeg_downsample_voxel_size,
+                             bilSymSeg_dist_map_resolution,
                              bilSymSeg_adjacency_radius,
                              bilSymSeg_num_adjacency_neighbors,
-                             adjacency_sigma_convex,
-                             adjacency_sigma_concave,
+                             bilSymSeg_adjacency_sigma_convex,
+                             bilSymSeg_adjacency_sigma_concave,
                              bilSymSeg_adjacency_weight_factor,
                              bilSymSeg_min_fit_angle,
                              bilSymSeg_max_fit_angle,
@@ -372,7 +372,7 @@ public:
                              bilSymSeg_max_occlusion_dist,
                              bilSymSeg_min_perpendicular_angle,
                              bilSymSeg_max_perpendicular_angle,
-                             correspondence_max_sym_reflected_dist,
+                             bilSymSeg_correspondence_max_sym_reflected_dist,
                              symmetric_weight_factor,
                              bilSymSeg_fg_weight_factor,
                              bilSymSeg_bg_weight_factor,
@@ -380,8 +380,8 @@ public:
                              bilSymSeg_max_occlusion_score,
                              bilSymSeg_max_cut_score,
                              min_sym_sypport_overlap,
-                             min_segment_size,
-                             overlap_threshold);
+                             bilSymSeg_min_segment_size,
+                             bilSymSeg_overlap_threshold);
 
     srand (time(NULL));
 
@@ -412,6 +412,12 @@ public:
     rs::conversion::from(rcp.normals(), *normals_ptr);
     rs::conversion::from(rcp.indices.get(), mapping_to_original);
 
+    std::vector<int> nonNaNCloudIds(cloud_ptr->size());
+    for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
+    {
+      nonNaNCloudIds[pointId] = pointId;
+    }
+
     outInfo("Cloud size: " << cloud_ptr->size());
     outInfo("Normals size: " << normals_ptr->size());
 
@@ -441,13 +447,10 @@ public:
     rot_extractor.setInputPlanes(planes);
 
     //main execution
-    if(!extractor.extract())
-    {
-      outError("Extractor has exceptions! Aborting!");
-    }
+    rot_extractor.extract();
 
     std::vector<RotationalSymmetry> rot_symmetries;
-    extractor.getSymmetries(rot_symmetries);
+    rot_extractor.getSymmetries(rot_symmetries);
 
     /*
      * RotationalSymmetrySegmenter process
@@ -480,12 +483,12 @@ public:
     bil_extractor.setInputSegmentIds(over_segments);
 
     //main execution
-    extractor.extract();
+    bil_extractor.extract();
 
     std::vector< BilateralSymmetry > bil_symmetries;
     std::vector< int > bil_supportSizeIds;
-    extractor.getSymmetries(bil_symmetries);
-    extractor.getSupportIds(bil_supportSizeIds);
+    bil_extractor.getSymmetries(bil_symmetries);
+    bil_extractor.getSupportIds(bil_supportSizeIds);
 
     std::vector< std::vector<int> > bil_symSupports;
     for(size_t symId = 0; symId < bil_symmetries.size(); symId++)
@@ -515,10 +518,20 @@ public:
     segmentIds.insert(segmentIds.end(), rot_segmentIds.begin(), rot_segmentIds.end());
     segmentIds.insert(segmentIds.end(), bil_segmentIds.begin(), bil_segmentIds.end());
 
-    object_indices.resize(this->cloud_ptr->size());
-    for(size_t pointId = 0; pointId < this->cloud_ptr->size(); pointId++)
+    std::vector<int> plane_indices;
+    for(size_t planeId = 0; planeId < planes.size(); planeId++)
     {
-      object_indices[pointId] = pointId;
+      std::vector<int> currIds = planes[planeId].inliers();
+      plane_indices.insert(plane_indices.end(), currIds.begin(), currIds.end());
+    }
+
+    if(plane_indices.size() != 0)
+    {
+      object_indices = Difference(nonNaNCloudIds, plane_indices);
+    }
+    else
+    {
+      object_indices = nonNaNCloudIds;
     }
 
     //set all point in cloud to gray

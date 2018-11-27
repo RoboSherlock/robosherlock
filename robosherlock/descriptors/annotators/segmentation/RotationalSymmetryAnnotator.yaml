@@ -8,7 +8,7 @@ capabilities:
 parameters:
   boundaryAngleThreshold: 2.356
   boundaryRadiusSearch: 0.01
-  dist_map_resolution: 0.005
+  rotSymAnn_dist_map_resolution: 0.005
   max_angle_diff: 0.174
   max_dist_diff: 0.01
   rotSymAnn_max_fit_angle: 1.047

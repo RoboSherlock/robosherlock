@@ -6,12 +6,12 @@ capabilities:
   inputs: []
   outputs: []
 parameters:
-  adjacency_sigma_concave: 0.15
-  adjacency_sigma_convex: 2.0
-  dist_map_resolution: 0.005
+  rotSymSeg_adjacency_sigma_concave: 0.15
+  rotSymSeg_adjacency_sigma_convex: 2.0
+  rotSymSeg_dist_map_resolution: 0.005
   downsample_leaf_size: 0.005
-  min_segment_size: 400
-  overlap_threshold: 0.3
+  rotSymSeg_min_segment_size: 400
+  rotSymSeg_overlap_threshold: 0.3
   rotSymSeg_adjacency_radius: 0.01
   rotSymSeg_adjacency_weight_factor: 3.0
   rotSymSeg_bg_weight_factor: 1.0
