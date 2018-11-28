@@ -85,8 +85,6 @@ public:
   void setInputClouds(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
                       pcl::PointCloud<pcl::Normal>::Ptr normals);
 
-  bool removePlanes(std::vector<rs::Plane> &planes);
-
   void removeSegments(std::vector<pcl::PointIndices> &segments);
 
   void removeSegments(std::vector< std::vector<int> > &segments);

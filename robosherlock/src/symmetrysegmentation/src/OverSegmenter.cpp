@@ -63,51 +63,6 @@ void OverSegmenter::setInputClouds(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud
   resetCloudIds();
 }
 
-bool OverSegmenter::removePlanes(std::vector<rs::Plane> &planes)
-{
-  if(this->cloud->empty() || this->normals->empty())
-  {
-    outError("Cloud or Normal cloud is empty!");
-    return false;
-  }
-
-  if(planes.empty())
-  {
-    outInfo("There are no plane! This will not remove anything!");
-    return false;
-  }
-
-  //get plane indices if it has
-  pcl::PointIndices::Ptr inliers(new pcl::PointIndices());
-  for(size_t planeId = 0; planeId < planes.size(); planeId++)
-  {
-    std::vector<int> currIds = planes[planeId].inliers();
-    inliers->indices.insert(inliers->indices.end(), currIds.begin(), currIds.end());
-  }
-
-  pcl::ExtractIndices<pcl::PointXYZRGBA> extractCloud;
-  pcl::ExtractIndices<pcl::Normal> extractNormal;
-
-  extractCloud.setInputCloud(this->cloud);
-  extractNormal.setInputCloud(this->normals);
-
-  extractCloud.setIndices(inliers);
-  extractNormal.setIndices(inliers);
-
-  extractCloud.setNegative(true);
-  extractNormal.setNegative(true);
-
-  extractCloud.filter(*this->cloud);
-  extractNormal.filter(*this->normals);
-
-  outInfo("Object cloud size: " << this->cloud->size());
-  outInfo("Object normal size: " << this->normals->size());
-
-  resetCloudIds();
-
-  return true;
-}
-
 void OverSegmenter::removeSegments(std::vector<pcl::PointIndices> &segments)
 {
   if(segments.empty())

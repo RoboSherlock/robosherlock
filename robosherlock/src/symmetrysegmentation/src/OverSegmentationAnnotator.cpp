@@ -155,15 +155,39 @@ public:
     outInfo("Cloud size: " << cloud_ptr->size());
     outInfo("Normals size: " << normals_ptr->size());
 
-    segmenter.setInputClouds(cloud_ptr, normals_ptr);
-
     if(!useObjectCloud)
     {
       std::vector<rs::Plane> planes;
       scene.annotations.filter(planes);
 
-      segmenter.removePlanes(planes);
+      //filter plane indices out
+      pcl::PointIndices::Ptr plane_indices(new pcl::PointIndices());
+      for(size_t planeId = 0; planeId < planes.size(); planeId++)
+      {
+        std::vector<int> currIds = planes[planeId].inliers();
+        plane_indices->indices.insert(plane_indices->indices.end(), currIds.begin(), currIds.end());
+      }
+
+      pcl::ExtractIndices<pcl::PointXYZRGBA> extractCloud;
+      pcl::ExtractIndices<pcl::Normal> extractNormal;
+
+      extractCloud.setInputCloud(cloud_ptr);
+      extractNormal.setInputCloud(normals_ptr);
+
+      extractCloud.setIndices(plane_indices);
+      extractNormal.setIndices(plane_indices);
+
+      extractCloud.setNegative(true);
+      extractNormal.setNegative(true);
+
+      extractCloud.filter(*cloud_ptr);
+      extractNormal.filter(*normals_ptr);
+
+      outInfo("Object cloud size: " << cloud_ptr->size());
+      outInfo("Object normal size: " << normals_ptr->size());
     }
+
+    segmenter.setInputClouds(cloud_ptr, normals_ptr);
 
     std::vector<pcl::PointIndices> rotational_segments;
     std::vector<pcl::PointIndices> bilateral_segments;

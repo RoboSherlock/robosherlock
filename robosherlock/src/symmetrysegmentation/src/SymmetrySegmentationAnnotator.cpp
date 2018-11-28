@@ -412,6 +412,9 @@ public:
     rs::conversion::from(rcp.normals(), *normals_ptr);
     rs::conversion::from(rcp.indices.get(), mapping_to_original);
 
+    std::vector<rs::Plane> planes;
+    scene.annotations.filter(planes);
+
     std::vector<int> nonNaNCloudIds(cloud_ptr->size());
     for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
     {
@@ -421,17 +424,38 @@ public:
     outInfo("Cloud size: " << cloud_ptr->size());
     outInfo("Normals size: " << normals_ptr->size());
 
+    //filter plane indices out
+    pcl::PointIndices::Ptr plane_indices(new pcl::PointIndices());
+    for(size_t planeId = 0; planeId < planes.size(); planeId++)
+    {
+      std::vector<int> currIds = planes[planeId].inliers();
+      plane_indices->indices.insert(plane_indices->indices.end(), currIds.begin(), currIds.end());
+    }
+
+    pcl::ExtractIndices<pcl::PointXYZRGBA> extractCloud;
+    pcl::ExtractIndices<pcl::Normal> extractNormal;
+
+    extractCloud.setInputCloud(cloud_ptr);
+    extractNormal.setInputCloud(normals_ptr);
+
+    extractCloud.setIndices(plane_indices);
+    extractNormal.setIndices(plane_indices);
+
+    extractCloud.setNegative(true);
+    extractNormal.setNegative(true);
+
+    extractCloud.filter(*cloud_ptr);
+    extractNormal.filter(*normals_ptr);
+
+    outInfo("Object cloud size: " << cloud_ptr->size());
+    outInfo("Object normal size: " << normals_ptr->size());
+
     cas.get(VIEW_COLOR_IMAGE, rgb_);
 
     /*
      * First OverSegmenter process
      */
     segmenter.setInputClouds(cloud_ptr, normals_ptr);
-
-    //remove plane if there are any planes
-    std::vector<rs::Plane> planes;
-    scene.annotations.filter(planes);
-    segmenter.removePlanes(planes);
 
     //main execution
     segmenter.segment();
@@ -518,16 +542,9 @@ public:
     segmentIds.insert(segmentIds.end(), rot_segmentIds.begin(), rot_segmentIds.end());
     segmentIds.insert(segmentIds.end(), bil_segmentIds.begin(), bil_segmentIds.end());
 
-    std::vector<int> plane_indices;
-    for(size_t planeId = 0; planeId < planes.size(); planeId++)
+    if(plane_indices->indices.size() != 0)
     {
-      std::vector<int> currIds = planes[planeId].inliers();
-      plane_indices.insert(plane_indices.end(), currIds.begin(), currIds.end());
-    }
-
-    if(plane_indices.size() != 0)
-    {
-      object_indices = Difference(nonNaNCloudIds, plane_indices);
+      object_indices = Difference(nonNaNCloudIds, plane_indices->indices);
     }
     else
     {
