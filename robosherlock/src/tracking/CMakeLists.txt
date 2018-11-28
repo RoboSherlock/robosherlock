@@ -5,3 +5,6 @@ target_link_libraries(rs_ObjectIdentityResolution rs_core)
 
 rs_add_library(rs_ClusterTracker src/ClusterTracker.cpp)
 target_link_libraries(rs_ClusterTracker rs_core )
+
+rs_add_library(rs_KalmanTrackingAnnotator src/KalmanTrackingAnnotator.cpp)
+target_link_libraries(rs_KalmanTrackingAnnotator ${catkin_LIBRARIES})
