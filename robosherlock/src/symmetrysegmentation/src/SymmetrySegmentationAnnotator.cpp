@@ -59,8 +59,22 @@ private:
     cv::Mat mask, maskHires;
   };
 
+  enum
+  {
+    OVERSEG,
+    SYMSEG
+  } dispMode;
+
+  bool viewRotSym;
+  bool viewBilSym;
+
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr;
   pcl::PointCloud<pcl::Normal>::Ptr normals_ptr;
+
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr overseg_cloud;
+
+  std::vector<RotationalSymmetry> rot_symmetries;
+  std::vector<BilateralSymmetry> bil_symmetries;
 
   cv::Mat rgb_;
 
@@ -178,6 +192,13 @@ public:
   {
     cloud_ptr.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
     normals_ptr.reset(new pcl::PointCloud<pcl::Normal>());
+
+    overseg_cloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
+
+    viewRotSym = false;
+    viewBilSym = false;
+
+    dispMode = SYMSEG;
   }
 
   TyErrorId initialize(AnnotatorContext &ctx)
@@ -469,6 +490,10 @@ public:
     std::vector<pcl::PointIndices> over_segments;
     segmenter.getSegments(over_segments);
 
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr temp_cloud;
+    segmenter.getColoredCloud(temp_cloud, 0);
+    pcl::copyPointCloud(*temp_cloud, *overseg_cloud);
+
     /*
      * RotationalSymmetryExtractor process
      */
@@ -479,7 +504,6 @@ public:
     //main execution
     rot_extractor.extract();
 
-    std::vector<RotationalSymmetry> rot_symmetries;
     rot_extractor.getSymmetries(rot_symmetries);
 
     /*
@@ -515,7 +539,6 @@ public:
     //main execution
     bil_extractor.extract();
 
-    std::vector< BilateralSymmetry > bil_symmetries;
     std::vector< int > bil_supportSizeIds;
     bil_extractor.getSymmetries(bil_symmetries);
     bil_extractor.getSupportIds(bil_supportSizeIds);
@@ -609,7 +632,22 @@ public:
 
   bool callbackKey(const int key, const Source source)
   {
-
+    switch(key)
+    {
+    case '1':
+      dispMode = OVERSEG;
+      break;
+    case '2':
+      dispMode = SYMSEG;
+      break;
+    case 'r':
+      viewRotSym = !viewRotSym;
+      break;
+    case 'b':
+      viewBilSym = !viewBilSym;
+      break;
+    }
+    return true;
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
@@ -617,18 +655,46 @@ public:
     const std::string cloudname = this->name + "_cloud";
     const std::string text = "segment_results";
 
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud;
+
+    switch(dispMode)
+    {
+    case OVERSEG:
+      cloud = overseg_cloud;
+      break;
+    case SYMSEG:
+      cloud = cloud_ptr;
+      break;
+    }
+
     if(firstRun)
     {
-      visualizer.addPointCloud(cloud_ptr, cloudname);
+      visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0, text);
+      if(viewRotSym)
+      {
+        addSymmetryLines(visualizer, rot_symmetries, 0.4f, 0.8f);
+      }
+      if(viewBilSym)
+      {
+        addSymmetryPlanes(visualizer, bil_symmetries, 0.05f, 0.05f);
+      }
     }
     else
     {
-      visualizer.updatePointCloud(cloud_ptr, cloudname);
+      visualizer.updatePointCloud(cloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-      visualizer.removeShape(text);
+      visualizer.removeAllShapes();
       visualizer.addText("Total Segment " + std::to_string(numSegments), 15, 125, 24, 1.0, 1.0, 1.0, text);
+      if(viewRotSym)
+      {
+        addSymmetryLines(visualizer, rot_symmetries, 0.4f, 0.8f);
+      }
+      if(viewBilSym)
+      {
+        addSymmetryPlanes(visualizer, bil_symmetries, 0.05f, 0.05f);
+      }
     }
   }
 
