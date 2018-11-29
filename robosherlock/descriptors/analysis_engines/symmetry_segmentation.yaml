@@ -17,7 +17,7 @@ PointCloudFilter:
 NormalEstimator:
   radiusSearch: 0.005
 PlaneAnnotator:
-  use_non_nan_cloud: true
+  use_non_nan_cloud: false
 SymmetrySegmentationAnnotator:
   minNormalThreshold: 0.09
   maxNormalThreshold: 0.13

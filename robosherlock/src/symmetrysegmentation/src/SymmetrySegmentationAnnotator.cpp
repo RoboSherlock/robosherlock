@@ -23,6 +23,9 @@
 #include <time.h>
 #include <math.h>
 
+#include <pcl/filters/filter.h>
+#include <pcl/filters/voxel_grid.h>
+
 //RS
 #include <rs/DrawingAnnotator.h>
 #include <rs/scene_cas.h>
@@ -60,9 +63,6 @@ private:
   pcl::PointCloud<pcl::Normal>::Ptr normals_ptr;
 
   cv::Mat rgb_;
-
-  pcl::PointIndices mapping_to_original;
-  std::vector<int> object_indices;
 
   int numSegments;
   double pointSize;
@@ -406,19 +406,17 @@ public:
     /*
      * Input routines. Requirements: non-NaN cloud and normals, ids to transform back to original cloud
      */
-    rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
-    cas.getFS(VIEW_CLOUD_NON_NAN, rcp);
-    rs::conversion::from(rcp.cloud(), *cloud_ptr);
-    rs::conversion::from(rcp.normals(), *normals_ptr);
-    rs::conversion::from(rcp.indices.get(), mapping_to_original);
+
+    cas.get(VIEW_CLOUD, *cloud_ptr);
+    cas.get(VIEW_NORMALS, *normals_ptr);
 
     std::vector<rs::Plane> planes;
     scene.annotations.filter(planes);
 
-    std::vector<int> nonNaNCloudIds(cloud_ptr->size());
+    std::vector<int> cloudIds(cloud_ptr->size());
     for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
     {
-      nonNaNCloudIds[pointId] = pointId;
+      cloudIds[pointId] = pointId;
     }
 
     outInfo("Cloud size: " << cloud_ptr->size());
@@ -431,6 +429,8 @@ public:
       std::vector<int> currIds = planes[planeId].inliers();
       plane_indices->indices.insert(plane_indices->indices.end(), currIds.begin(), currIds.end());
     }
+
+    std::vector<int> reverse_plane_mapping = Difference(cloudIds, plane_indices->indices);
 
     pcl::ExtractIndices<pcl::PointXYZRGBA> extractCloud;
     pcl::ExtractIndices<pcl::Normal> extractNormal;
@@ -449,6 +449,12 @@ public:
 
     outInfo("Object cloud size: " << cloud_ptr->size());
     outInfo("Object normal size: " << normals_ptr->size());
+
+    std::vector<int> reverse_non_nan_mapping;
+
+    pcl::removeNaNNormalsFromPointCloud(*normals_ptr, *normals_ptr, reverse_non_nan_mapping);
+    outInfo("Object cloud size after filter: " << normals_ptr->size());
+    pcl::copyPointCloud(*cloud_ptr, reverse_non_nan_mapping, *cloud_ptr);
 
     cas.get(VIEW_COLOR_IMAGE, rgb_);
 
@@ -542,14 +548,6 @@ public:
     segmentIds.insert(segmentIds.end(), rot_segmentIds.begin(), rot_segmentIds.end());
     segmentIds.insert(segmentIds.end(), bil_segmentIds.begin(), bil_segmentIds.end());
 
-    if(plane_indices->indices.size() != 0)
-    {
-      object_indices = Difference(nonNaNCloudIds, plane_indices->indices);
-    }
-    else
-    {
-      object_indices = nonNaNCloudIds;
-    }
 
     //set all point in cloud to gray
     for(size_t pointId = 0; pointId < cloud_ptr->size(); pointId++)
@@ -574,7 +572,7 @@ public:
         cloud_ptr->points[pointId].g = g;
         cloud_ptr->points[pointId].b = b;
 
-        int original_index = mapping_to_original.indices[object_indices[pointId]];
+        int original_index = reverse_plane_mapping[reverse_non_nan_mapping[pointId]];
         original_indices.indices.push_back(original_index);
         cv::Point current = indexToCoordinates(original_index, rgb_);
 
