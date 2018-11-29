@@ -428,6 +428,7 @@ namespace uima {
 	} else {
 		std::string err = "ResourceManager::requestAnnotatorFile() failed to find ";
         err += crclFilename;
+        std::cerr<<"\033[31m"<<err<<std::endl;
         ResourceManager::getInstance().getLogger().logError(err);
         UIMA_EXC_THROW_NEW(Uima_runtime_error,
                               errInfo.getErrorId(),
