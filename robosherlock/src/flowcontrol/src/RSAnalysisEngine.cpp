@@ -76,7 +76,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     if(genXmlPath != "")
       delegateMapping[a]  = genXmlPath;
     else {
-      outError("Could not generate and XML for: " << a);
+      outError("Could not generate XML for: " << a);
       exit(1);
     }
   }
