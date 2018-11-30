@@ -28,15 +28,11 @@ protected:
                                          "PointCloudFilter",
                                          "NormalEstimator",
                                          "PlaneAnnotator",
-                                         "OverSegmentationAnnotator",
-                                         "RotationalSymmetryAnnotator",
-                                         "RotationalSymmetrySegmentation",
-                                         "BilateralSymmetryAnnotator",
-                                         "BilateralSymmetrySegmentation"};
+                                         "SymmetrySegmentationAnnotator"};
 
   virtual void SetUp()
   {
-    rs::common::getAEPaths("object_segmentation", engineFile);
+    rs::common::getAEPaths("symmetry_segmentation", engineFile);
     engine.init(engineFile, false); // do not run parallel for now
   }
 
@@ -47,24 +43,22 @@ protected:
   }
 
   //there is no ground truth for this test, so for simply we just test if there are segments
-  inline float test()
+  inline int test()
   {
     engine.setPipelineOrdering(engineList);
 
     uima::CAS* tcas = engine.getCas();
     rs::SceneCas cas(*tcas);
+    rs::Scene scene = cas.getScene();
 
     //main pipeline execution
     engine.process();
 
     //get segments data
-    std::vector<pcl::PointIndices> rotational_segments;
-    std::vector<pcl::PointIndices> bilateral_segments;
-    std::vector< std::vector<int> > total_segments;
-    cas.get(VIEW_ROTATIONAL_SEGMENTATION_IDS, rotational_segments);
-    cas.get(VIEW_BILATERAL_SEGMENTATION_IDS, bilateral_segments);
+    std::vector<rs::Cluster> segments;
+    scene.identifiables.filter(segments);
 
-    return rotational_segments.size() + bilateral_segments.size();
+    return segments.size();
   }
 };
 
