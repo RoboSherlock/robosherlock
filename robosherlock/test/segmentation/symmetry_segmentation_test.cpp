@@ -47,12 +47,12 @@ protected:
   {
     engine.setPipelineOrdering(engineList);
 
+    //main pipeline execution
+    engine.process();
+
     uima::CAS* tcas = engine.getCas();
     rs::SceneCas cas(*tcas);
     rs::Scene scene = cas.getScene();
-
-    //main pipeline execution
-    engine.process();
 
     //get segments data
     std::vector<rs::Cluster> segments;
@@ -67,5 +67,5 @@ TEST_F(SegmentationTest, SymmetrySegmentationTest1)
 {
 
   int numSegments = test();
-  ASSERT_TRUE(numSegments > 0);
+  EXPECT_TRUE(numSegments > 0);
 }
