@@ -21,8 +21,6 @@
 
 #include <rs/utils/common.h>
 #include <rs/scene_cas.h>
-
-#include <rs/queryanswering/JsonPrologInterface.h>
 #include <rs/graph/DirectedGraph.h>
 #include <rs/graph/GraphAlgorithms.hpp>
 #include <rs/graph/GraphPrimitives.h>
@@ -30,6 +28,7 @@
 #include <vector>
 #include <map>
 #include <utility>
+#include <unordered_set>
 
 #include <omp.h>
 
