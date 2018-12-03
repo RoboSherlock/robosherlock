@@ -24,10 +24,7 @@
 #include <rs/utils/exception.h>
 #include <rs/flowcontrol/RSXMLParser.h>
 
-#ifdef WITH_JSON_PROLOG
 #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
-#include <rs/queryanswering/JsonPrologInterface.h>
-#endif
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
