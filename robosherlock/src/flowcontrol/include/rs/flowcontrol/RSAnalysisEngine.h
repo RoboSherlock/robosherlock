@@ -92,7 +92,7 @@ public:
 
   uima::TyErrorId parallelProcess(uima::CAS &cas)
   {
-    return engine_->paralleledProcess(cas);
+    return engine_->parallelProcess(cas);
   }
 
   inline bool isInDelegateList(std::string d)

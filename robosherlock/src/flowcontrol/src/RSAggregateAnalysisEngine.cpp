@@ -99,7 +99,7 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
 }
 
 
-uima::TyErrorId RSAggregateAnalysisEngine::paralleledProcess(uima::CAS &cas,
+uima::TyErrorId RSAggregateAnalysisEngine::parallelProcess(uima::CAS &cas,
     uima::ResultSpecification const &resSpec)
 {
   uima::TyErrorId err = UIMA_ERR_NONE;
@@ -140,13 +140,12 @@ uima::TyErrorId RSAggregateAnalysisEngine::paralleledProcess(uima::CAS &cas,
   return err;
 }
 
-uima::TyErrorId RSAggregateAnalysisEngine::paralleledProcess(uima::CAS &cas)
+uima::TyErrorId RSAggregateAnalysisEngine::parallelProcess(uima::CAS &cas)
 {
   //generate ResultSpecification from TaeSpecifier
-  return this->paralleledProcess(cas, this->getCompleteResultSpecification());
+  return this->parallelProcess(cas, this->getCompleteResultSpecification());
 }
 
-#ifdef WITH_JSON_PROLOG
 bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
   std::vector<std::string> &annotators,
   RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
@@ -158,16 +157,13 @@ bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
     return false;
   }
 
-  JsonPrologInterface::AnnotatorDependencies dependencies;
-  success = queryInterface->retrieveAnnotatorsInputOutput(annotators, dependencies);
-
-  if(dependencies.empty() || !success) {
-    outWarn("Querying annotators dependency data is empty! Parallel orderings will not be planned!");
+  if(annotatorCapabilities_.empty() || !success) {
+    outWarn("Querying annotators capabilities data was not set! Parallel orderings will not be planned!");
     return false;
   }
 
   parallelPlanner.setAnnotatorList(annotators);
-  parallelPlanner.planPipelineStructure(dependencies);
+  parallelPlanner.planPipelineStructure(annotatorCapabilities_);
 
   parallelPlanner.getPlannedPipeline(orderings);
   parallelPlanner.getPlannedPipelineIndices(orderingIndices);
@@ -180,11 +176,9 @@ bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
 bool RSAggregateAnalysisEngine::initParallelPipelineManager()
 {
   try {
-    queryInterface.reset(new JsonPrologInterface());
-
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);
-    querySuccess = this->planParallelPipelineOrderings(currentFlow, this->currentOrderings, this->currentOrderingIndices);
+    querySuccess = this->planParallelPipelineOrderings(currentFlow,this->currentOrderings, this->currentOrderingIndices);
 
     original_annotator_orderings = this->currentOrderings;
     original_annotator_ordering_indices = this->currentOrderingIndices;
@@ -200,7 +194,6 @@ bool RSAggregateAnalysisEngine::initParallelPipelineManager()
 
   return querySuccess;
 }
-#endif
 
 
 std::vector<icu::UnicodeString> &RSAggregateAnalysisEngine::getFlowConstraintNodes()
@@ -213,16 +206,24 @@ std::vector<icu::UnicodeString> &RSAggregateAnalysisEngine::getFlowConstraintNod
   return flow_constraint_nodes;
 }
 
+void RSAggregateAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string> &annotators)
+{
+  annotators.clear();
+  for(int i = 0; i < this->iv_annotatorMgr.iv_vecEntries.size(); i++) {
+    uima::AnalysisEngine *pEngine = this->iv_annotatorMgr.iv_vecEntries[i].iv_pEngine;
+    std::string tempNode;
+    pEngine->getAnalysisEngineMetaData().getName().toUTF8String(tempNode);
+    annotators.push_back(tempNode);
+  }
+}
+
 void RSAggregateAnalysisEngine::resetPipelineOrdering()
 {
   this->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
-
-#ifdef WITH_JSON_PROLOG
   if(parallel_) {
     this->currentOrderings = original_annotator_orderings;
     this->currentOrderingIndices = original_annotator_ordering_indices;
   }
-#endif
 
   // Set default pipeline annotators, if set
   if(use_default_pipeline_) {
@@ -247,18 +248,6 @@ int RSAggregateAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
     return -1;
   }
   return std::distance(nodes.begin(), it);
-}
-
-void RSAggregateAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string> &annotators)
-{
-  annotators.clear();
-
-  for(int i = 0; i < this->iv_annotatorMgr.iv_vecEntries.size(); i++) {
-    uima::AnalysisEngine *pEngine = this->iv_annotatorMgr.iv_vecEntries[i].iv_pEngine;
-    std::string tempNode;
-    pEngine->getAnalysisEngineMetaData().getName().toUTF8String(tempNode);
-    annotators.push_back(tempNode);
-  }
 }
 
 void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> annotators)
@@ -291,7 +280,6 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
   this->iv_annotatorMgr.iv_vecEntries = new_annotators;
 
   //update parallel orderings
-#ifdef WITH_JSON_PROLOG
   if(parallel_) {
     std::vector<std::string> currentFlow;
     this->getCurrentAnnotatorFlow(currentFlow);
@@ -300,7 +288,6 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
     outInfo("Parallel pipeline after set new pipeline orderings: ");
     this->parallelPlanner.print();
   }
-#endif
 }
 
 namespace rs

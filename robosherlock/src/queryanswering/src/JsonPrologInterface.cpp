@@ -140,43 +140,6 @@ std::vector< std::string > JsonPrologInterface::createPipelineFromPrologResult(s
   return new_pipeline;
 }
 
-bool JsonPrologInterface::retrieveAnnotatorsInputOutput(std::vector<std::string> &annotators,
-    AnnotatorDependencies &dependencies)
-{
-  json_prolog::Prolog pl;
-  std::string query;
-
-  if(annotators.empty()) {
-    outWarn("Annotator list is empty!");
-    return false;
-  }
-
-  for(int it  = 0; it < annotators.size(); it++) {
-    dependencies[annotators[it]] = std::make_pair(std::unordered_set<std::string>(), std::unordered_set<std::string>());
-    std::string token;
-
-    query = QUERY_ANNOTATOR_INPUTS(annotators[it]);
-    for(auto bdg : pl.query(query)) {
-      token = bdg[QUERY_ANNOTATOR_INPUTS_VAR].toString();
-      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
-      token.pop_back(); // erase last character
-
-      dependencies[annotators[it]].first.insert(token);
-    }
-
-    query = QUERY_ANNOTATOR_OUTPUTS(annotators[it]);
-    for(auto bdg : pl.query(query)) {
-      token = bdg[QUERY_ANNOTATOR_OUTPUTS_VAR].toString();
-      token.erase(0, std::string(ROBOSHERLOCK_QUERY_PREFIX).length() + 1);
-      token.pop_back(); // erase last character
-
-      dependencies[annotators[it]].second.insert(token);
-    }
-  }
-
-  return true;
-}
-
 bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
 {
 
@@ -240,43 +203,43 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string, rs::Ann
   std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
 
   if(!inputRestrictions.empty()) {
-      for(auto iR : inputRestrictions) {
-        if(!iR.second.empty()) {
-          std::vector<std::string> inputTypeConstraintInKnowRob;
-          for(auto d : iR.second) {
-            d[0] = std::toupper(d[0]);
-            if(!addNamespace(d)) {
-              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
-              continue;
-            }
-            outInfo(d);
-            inputTypeConstraintInKnowRob.push_back(d);
+    for(auto iR : inputRestrictions) {
+      if(!iR.second.empty()) {
+        std::vector<std::string> inputTypeConstraintInKnowRob;
+        for(auto d : iR.second) {
+          d[0] = std::toupper(d[0]);
+          if(!addNamespace(d)) {
+            outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+            continue;
           }
-
-          std::string typeName = iR.first, typeClass;
-          std::vector<std::string> typeSplit;
-          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
-          for(auto &t : typeSplit) {
-            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
-            t[0] = std::toupper(t[0]);
-            typeClass.append(t);
-          }
-          outInfo(typeName << ":" << typeClass);
-
-          std::stringstream query;
-          query << "set_annotator_input_type_constraint(" << individualOfAnnotator << ",[";
-          std::string separator = ",";
-          for(auto it = inputTypeConstraintInKnowRob.begin(); it != inputTypeConstraintInKnowRob.end(); ++it) {
-            if(std::next(it) == inputTypeConstraintInKnowRob.end()) separator = "";
-            query << *it << separator;
-          }
-          query << "], rs_components:'"<< typeClass<< "').";
-
-          outInfo("Query: " << query.str());
-          json_prolog::Prolog pl;
-          json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
+          outInfo(d);
+          inputTypeConstraintInKnowRob.push_back(d);
         }
+
+        std::string typeName = iR.first, typeClass;
+        std::vector<std::string> typeSplit;
+        boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+        for(auto &t : typeSplit) {
+          std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+          t[0] = std::toupper(t[0]);
+          typeClass.append(t);
+        }
+        outInfo(typeName << ":" << typeClass);
+
+        std::stringstream query;
+        query << "set_annotator_input_type_constraint(" << individualOfAnnotator << ",[";
+        std::string separator = ",";
+        for(auto it = inputTypeConstraintInKnowRob.begin(); it != inputTypeConstraintInKnowRob.end(); ++it) {
+          if(std::next(it) == inputTypeConstraintInKnowRob.end()) separator = "";
+          query << *it << separator;
+        }
+        query << "], rs_components:'" << typeClass << "').";
+
+        outInfo("Query: " << query.str());
+        json_prolog::Prolog pl;
+        json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
       }
+    }
   }
 
   if(!outputDomains.empty()) {
@@ -310,7 +273,7 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string, rs::Ann
           if(std::next(it) == resultDomainInKnowRob.end()) separator = "";
           query << *it << separator;
         }
-        query << "], rs_components:'"<< typeClass<< "').";
+        query << "], rs_components:'" << typeClass << "').";
 
         outInfo("Query: " << query.str());
         json_prolog::Prolog pl;

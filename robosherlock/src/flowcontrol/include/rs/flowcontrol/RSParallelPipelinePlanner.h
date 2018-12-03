@@ -16,8 +16,6 @@
  * limitations under the License.
  */
 
-#ifdef WITH_JSON_PROLOG
-
 #ifndef __RSPARALLEL_PIPELINE_PLANNER_H__
 #define __RSPARALLEL_PIPELINE_PLANNER_H__
 
@@ -61,18 +59,18 @@ public:
 
   bool getPlannedPipelineIndices(AnnotatorOrderingIndices &list) const;
 
-  bool planPipelineStructure(JsonPrologInterface::AnnotatorDependencies &dependencies);
+  bool planPipelineStructure(std::map<std::string, rs::AnnotatorCapabilities> &dependencies);
 
   //for debug purpose
   void print();
 
 protected:
 
-  bool refinePlannedPipeline(JsonPrologInterface::AnnotatorDependencies &dependencies);
+  bool refinePlannedPipeline(std::map<std::string, rs::AnnotatorCapabilities> &dependencies);
 
   bool labelAnnotatorOrder();
 
-  bool buildDependenciesGraph(JsonPrologInterface::AnnotatorDependencies &dependencies);
+  bool buildDependenciesGraph(std::map<std::string, rs::AnnotatorCapabilities> &dependencies);
 
 private:
   std::vector<std::string> annotatorList;
@@ -82,4 +80,3 @@ private:
 };
 
 #endif // __RSPARALLEL_PIPELINE_PLANNER_H__
-#endif // WITH_JSON_PROLOG
