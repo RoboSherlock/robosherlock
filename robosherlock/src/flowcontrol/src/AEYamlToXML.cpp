@@ -147,8 +147,6 @@ bool AEYamlToXMLConverter::genAEInfo(const YAML::Node &node)
 
 bool AEYamlToXMLConverter::genConfigParamInfo(const YAML::Node &node, const string analysisEngineName)
 {
-
-
   if(node.Type() == YAML::NodeType::Map) {
     for(YAML::const_iterator mit = node.begin(); mit != node.end(); ++mit) {
       string configName = mit->first.as<string>();
@@ -300,6 +298,7 @@ bool AEYamlToXMLConverter::genFlowConstraints(const YAML::Node &node)
   }
   flowConstraints.append("      </fixedFlow>\n");
   flowConstraints.append("    </flowConstraints>\n");
+  return true;
 }
 
 bool AEYamlToXMLConverter::genFsIndexCollection(const YAML::Node &node)
@@ -313,6 +312,7 @@ bool AEYamlToXMLConverter::genFsIndexCollection(const YAML::Node &node)
   fsIndexCollection.append("        </fsIndexDescription>\n");
   fsIndexCollection.append("      </fsIndexes>\n");
   fsIndexCollection.append("    </fsIndexCollection>\n");
+  return true;
 }
 
 bool AEYamlToXMLConverter::genCapabInfo(const YAML::Node &node)
@@ -372,6 +372,7 @@ bool AEYamlToXMLConverter::genCapabInfo(const YAML::Node &node)
   capabilities.append("        </languagesSupported>\n");
   capabilities.append("      </capability>\n");
   capabilities.append("    </capabilities>\n");
+  return true;
 }
 
 string AEYamlToXMLConverter::getTypeFilePath()

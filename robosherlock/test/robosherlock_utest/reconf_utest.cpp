@@ -46,31 +46,10 @@ void processReconfig()
   UnicodeString ustrInputText;
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   
-  //const uima::AnalysisEngineMetaData &aeMetaData = engine.getAnalysisEngineMetaData();
-  //std::string aeDescription;
-  //aeMetaData.getDescription().toUTF8String(aeDescription);
   std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
   engine.setPipelineOrdering(engineList);
 
 
- /* uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
-
-  engine.process(); 
-  std::cerr<<"========================================"<<std::endl;
-  for(auto d:delegates)
-  {
-      std::string out;
-      d.first.toUTF8String(out);
-      
-      std::cerr<<( out )<<std::endl;
-      
-  }
-  std::cerr<<"========================================"<<std::endl;
-    
-*/
-  
-
-  //Overwrite a float
   engine.overwriteParam("NormalEstimator","radiusSearch",3.5);
   //Overwrite a vector
   std::vector<std::string > overWriteVector;
@@ -85,17 +64,12 @@ void processReconfig()
   {
     cr_context->extractValue("radiusSearch", testFloat);
   } 
-  else outError("It doesn't");
   ucs_delegate = "CollectionReader";
   cr_context = annotContext.getDelegate(ucs_delegate);
   if(cr_context->isParameterDefined("camera_config_files"))
   {
     cr_context->extractValue("camera_config_files", testVec);
   } 
-  else outError("It doesn't");
-  
-  
-  
 }
 
 TEST(ReconfTest,CheckFloat)

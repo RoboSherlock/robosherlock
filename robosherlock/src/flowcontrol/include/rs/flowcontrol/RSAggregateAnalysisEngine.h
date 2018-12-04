@@ -24,10 +24,7 @@
 #include <rs/utils/exception.h>
 #include <rs/flowcontrol/RSXMLParser.h>
 
-#ifdef WITH_JSON_PROLOG
 #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
-#include <rs/queryanswering/JsonPrologInterface.h>
-#endif
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -42,93 +39,184 @@
 #include <assert.h>
 #include <unordered_map>
 
+/**
+ * @brief The RSAggregateAnalysisEngine class
+ * extends the default AAE from uima adding parallel pipeline execution capability and exchange of the internal fixed flow
+ * this overrides default uima behaviour since fixed flow originally was not meant to be changed during runtime;
+ * In essence this class implements a flow controller interface fro an Aggregate analysis engine;
+ */
 class RSAggregateAnalysisEngine : public uima::internal::AggregateEngine
 {
 public:
-  typedef std::vector< std::vector<std::string> > AnnotatorOrderings;
-  typedef std::vector< std::vector<int> >         AnnotatorOrderingIndices;
 
+  /**
+   * @brief AnnotatorOrderings struct for holding the parallel orderings
+   */
+  typedef std::vector< std::vector<std::string> > AnnotatorOrderings;
+
+  /**
+   * @brief AnnotatorOrderingIndices indidces of annotators for parallel ordering
+   */
+  typedef std::vector< std::vector<int> >AnnotatorOrderingIndices;
+
+
+  /**
+  * @brief RSAggregateAnalysisEngine constructor; mostly taken from the uima::internal::AggregateEngine;
+  * calls parent class' constructor and additionally resets mutex
+  */
   RSAggregateAnalysisEngine(uima::AnnotatorContext &rANC,
-                             bool bOwnsANC,
-                             bool bOwnsTAESpecififer,
-                             uima::internal::CASDefinition &casDefs,
-                             bool ownsCasDefs);
+                            bool bOwnsANC,
+                            bool bOwnsTAESpecififer,
+                            uima::internal::CASDefinition &casDefs,
+                            bool ownsCasDefs);
 
   ~RSAggregateAnalysisEngine();
 
+
+  /**
+   * @brief annotatorProcess process a single annotator
+   * @param annotatorName  name of primitive annotator
+   * @param cas reference to the CAS
+   * @param annResultSpec results specifications
+   * @return returns UIMA_ERR_NONE on success
+   */
   uima::TyErrorId annotatorProcess(std::string annotatorName,
                                    uima::CAS &cas,
                                    uima::ResultSpecification &annResultSpec);
 
+  /**
+   * @brief annotatorProcess same as above but this time with the index of the annotator in the flow
+   * @param index index of annotation in the current flow
+   * @param cas the CAS
+   * @param annResultSpec the result specification
+   * @return returns UIMA_ERR_NONE on success
+   */
   uima::TyErrorId annotatorProcess(int index, // the index of current annotator flow
                                    uima::CAS &cas,
                                    uima::ResultSpecification &annResultSpec);
 
-  uima::TyErrorId paralleledProcess(uima::CAS &cas,
-                                    uima::ResultSpecification const &resSpec);
+  /**
+   * @brief parallelProcess run a parallel processing (runs the entire flow)
+   * @param[in] cas reference to the CAS
+   * @param[in] resSpec result spec
+   * @return returns UIMA_ERR_NONE on success
+   */
+  uima::TyErrorId parallelProcess(uima::CAS &cas,
+                                  uima::ResultSpecification const &resSpec);
 
-  uima::TyErrorId paralleledProcess(uima::CAS &cas);
+  /**
+   * @brief parallelProcess call from the outside like this; Result specifications are not used in RoboSherlock
+   * @param[in] cas reference to the CAS
+   * @return UIMA_ERR_NON on succes, other error code otherwise
+   */
+  uima::TyErrorId parallelProcess(uima::CAS &cas);
 
-
+  /**
+   * @brief getFlowConstraintNodes
+   * @return currently set flowconstraints; the list of AEs that are int set as a flow
+   */
   std::vector<icu::UnicodeString> &getFlowConstraintNodes();
 
-
-  inline void setParallel(bool f){
-      parallel_ = f;
-  }
-
-  void resetPipelineOrdering();
-
-
-  void setContinuousPipelineOrder(std::vector<std::string> annotators);
-
-
-  int getIndexOfAnnotator(std::string annotator_name);
-
-
+  /**
+   * @brief getCurrentAnnotatorFlow not sure how this is different from the above method;
+   * accessing is done in a different way and return type is diff; TODO:check this and merge the two methods if possible
+   * @param[out] annotatorslist of annotators in current flow
+   */
   void getCurrentAnnotatorFlow(std::vector<std::string> &annotators);
 
 
+  /**
+   * @brief setDelegateAnnotatorCapabilities set the capabilities of the AEs
+   * @param[in] caps mapping from AE name to capabilities;
+   */
+  void setDelegateAnnotatorCapabilities(std::map < std::string, rs::AnnotatorCapabilities> caps)
+  {
+    annotatorCapabilities_ = caps;
+  }
+
+  /**
+   * @brief setParallel
+   * @param[in] f flag for parallel execution or not
+   */
+  inline void setParallel(bool f)
+  {
+    parallel_ = f;
+  }
+
+  /**
+   * @brief resetPipelineOrdering resets the internal flow to the one originally defined in the config file
+   */
+  void resetPipelineOrdering();
+
+  /**
+   * @brief setContinuousPipelineOrder
+   * @param annotators list of (ordered) annotators constituting the continuous pipeline
+   */
+  void setContinuousPipelineOrder(std::vector<std::string> annotators);
+
+
+  /**
+   * @brief getIndexOfAnnotator get the index of an annotator from the flow;
+   * @param annotator_name annotator name
+   * @return  index of annotator in original flow
+   */
+  int getIndexOfAnnotator(std::string annotator_name);
+
+  /**
+   * @brief setPipelineOrdering set a new flow of annotators
+   * @param annotators (ordered) list of annotators to set
+   */
   void setPipelineOrdering(std::vector<std::string> annotators);
 
 
-#ifdef WITH_JSON_PROLOG
+  /**
+   * @brief planParallelPipelineOrderings plan a new parallel pipeline
+   * @param[in] annotators  input sequence of annotators
+   * @param[out] orderings output ordering of annotators
+   * @param[out] orderingIndices output oredering of annotator indices
+   * @return true if planning was successfull
+   */
   bool planParallelPipelineOrderings(std::vector<std::string> &annotators,
-      RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
-      RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
+                                     RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                     RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices);
 
+  /**
+   * @brief initParallelPipelineManager initialize the parallel pipeline manager; build dependency graph amongst other things
+   * @return true for success
+   */
   bool initParallelPipelineManager();
-#endif
 
+  /**
+   * @brief set_original_annotators set the original list of annotators
+   */
   void set_original_annotators()
   {
     original_annotators = this->iv_annotatorMgr.iv_vecEntries;
   }
 
 public:
-  bool querySuccess; // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
+
+  // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
+  bool querySuccess;
   bool use_default_pipeline_;
 
   AnnotatorOrderings currentOrderings;
   AnnotatorOrderingIndices currentOrderingIndices;
-
-#ifdef WITH_JSON_PROLOG
   RSParallelPipelinePlanner parallelPlanner;
-#endif
+
+  std::map<std::string, rs::AnnotatorCapabilities> annotatorCapabilities_;
+
 
 private:
 
   std::vector<std::string> default_pipeline_annotators;
   uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
 
-  bool parallel_;
 
-#ifdef WITH_JSON_PROLOG
-  std::shared_ptr<JsonPrologInterface> queryInterface;
+  bool parallel_;
 
   RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
   RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
-#endif
 
 protected:
   std::shared_ptr<std::mutex> process_mutex;

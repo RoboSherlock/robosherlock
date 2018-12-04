@@ -38,10 +38,10 @@ RSAnalysisEngine::~RSAnalysisEngine()
   }
 }
 
-void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasive, std::vector<std::string> contPipeline)
+void RSAnalysisEngine::init(const std::string &aeFile, bool parallel, bool pervasive, std::vector<std::string> contPipeline)
 {
-  size_t pos = file.rfind('/');
-  outInfo("Creating analysis engine: " FG_BLUE << (pos == file.npos ? file : file.substr(pos)));
+  size_t pos = aeFile.rfind('/');
+  outInfo("Creating analysis engine: " FG_BLUE << (pos == aeFile.npos ? aeFile : aeFile.substr(pos)));
   uima::ErrorInfo errorInfo;
 
   //Get the processed XML file
@@ -51,10 +51,11 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   if(!boost::filesystem::exists(AEXMLDir))
     boost::filesystem::create_directory(AEXMLDir);
   //Extract the AE name without the extension
-  boost::filesystem::path AEYamlPath(file);
+
+  boost::filesystem::path AEYamlPath(aeFile);
   std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() + ".xml");
   //Generate the xml from the yaml config and then process the XML
-  AEYamlToXMLConverter aeConverter(file);
+  AEYamlToXMLConverter aeConverter(aeFile);
   aeConverter.parseYamlFile();
   std::ofstream xmlOutput;
 
@@ -76,7 +77,7 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
     if(genXmlPath != "")
       delegateMapping[a]  = genXmlPath;
     else {
-      outError("Could not generate and XML for: " << a);
+      outError("Could not generate XML for: " << a);
       exit(1);
     }
   }
@@ -93,13 +94,13 @@ void RSAnalysisEngine::init(const std::string &file, bool parallel, bool pervasi
   }
 
   engine_->setParallel(parallel);
+  engine_->setDelegateAnnotatorCapabilities(delegateCapabilities_);
+
   parallel_ = parallel;
-#ifdef WITH_JSON_PROLOG
   if(parallel) {
     engine_->initParallelPipelineManager();
     engine_->parallelPlanner.print();
   }
-#endif
 
   const uima::AnalysisEngineMetaData &data = engine_->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name_);
@@ -150,6 +151,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       converter.parseYamlFile();
       delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
     }
+
     catch(YAML::ParserException e) {
       outError("Exception happened when parsing the yaml file: " << yamlPath);
       outError(e.what());
@@ -217,10 +219,9 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
     rs::StopWatch clock;
     outInfo("processing CAS");
     try {
-#ifdef WITH_JSON_PROLOG
       if(parallel_) {
         if(engine_->querySuccess) {
-          engine_->paralleledProcess(*cas_);
+          engine_->parallelProcess(*cas_);
         }
         else {
           outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
@@ -230,9 +231,6 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
       else {
         engine_->process(*cas_);
       }
-#else
-      engine_->process(*cas_);
-#endif
     }
     catch(const rs::FrameFilterException &) {
       //we could handle image logging here
