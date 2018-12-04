@@ -2,8 +2,10 @@ fixedflow:
   - CollectionReader
   - ImagePreprocessor
   - PlaneAnnotator
+  - PointCloudFilter
   - PointCloudClusterExtractor
   - ImageSegmentationAnnotator
+  - ClusterMerger
   - PointCloudFilter
   - Cluster3DGeometryAnnotator
   - ClusterColorHistogramCalculator

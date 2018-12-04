@@ -2,14 +2,11 @@
 #define __RSPROCESS_MANAGER_H__
 
 #include <rs/flowcontrol/RSAnalysisEngine.h>
-#include <rs/queryanswering/KRDefinitions.h>
-
 #ifdef WITH_JSON_PROLOG
 #include <rs/queryanswering/QueryInterface.h>
 #endif
 
 #include <rs/io/visualizer.h>
-#include <rs/queryanswering/DesignatorWrapper.h>
 
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
@@ -38,7 +35,6 @@ public:
 #endif
 
   mongo::client::GlobalInstance instance;
-
 
   ros::NodeHandle nh_;
   ros::ServiceServer setContextService_, queryService_, visService_, setFlowService_;

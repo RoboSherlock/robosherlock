@@ -9,8 +9,7 @@
 
 void SacModelAnnotator()
 {
-
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","SacModelAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor","SacModelAnnotator"};
   engine.setPipelineOrdering(engineList);
   engine.resetCas();
   engine.process();
