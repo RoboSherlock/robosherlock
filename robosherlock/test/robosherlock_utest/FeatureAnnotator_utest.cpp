@@ -35,7 +35,7 @@ void processFeatureCluster(uima::CAS *cas)
 void featureAnnotator()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor","FeatureAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","ClusterMerger","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor","FeatureAnnotator"};
   engine.setPipelineOrdering(engineList);
   engine.resetCas();
   engine.process();

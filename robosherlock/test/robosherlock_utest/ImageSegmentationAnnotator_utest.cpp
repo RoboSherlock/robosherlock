@@ -10,7 +10,7 @@
 void imageSegmentationAnnotatorTest()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","ImageSegmentationAnnotator"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","ImageSegmentationAnnotator"};
   engine.setPipelineOrdering(engineList);
   engine.resetCas();
   engine.process();

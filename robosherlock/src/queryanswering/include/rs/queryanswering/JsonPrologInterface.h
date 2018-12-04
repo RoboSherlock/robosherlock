@@ -47,10 +47,6 @@ class JsonPrologInterface
 
 public:
 
-  typedef std::map< std::string,
-                    std::pair< std::unordered_set<std::string>,
-                               std::unordered_set<std::string> > > AnnotatorDependencies;
-
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
@@ -63,9 +59,6 @@ public:
    */
   bool planPipelineQuery(const std::vector<std::string> &keys,
                          std::vector<std::string> &pipeline);
-
-  bool retrieveAnnotatorsInputOutput(std::vector<std::string> &annotators,
-                                     AnnotatorDependencies &dependencies);
 
   /*brief
    * ask prolog if child is of type parent
