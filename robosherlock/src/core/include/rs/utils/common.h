@@ -43,9 +43,18 @@ namespace rs
 #define ANNOT_SEARCHPATH "/descriptors/annotators/"
 
 struct AnnotatorCapabilities {
+  /**
+   * @brief annotatorName name of the AE
+   */
+  std::string annotatorName;
+  /**
+   * @brief oTypeValueDomains mapping between output type and it's possible values (if output values don't have a domain the vector is emtpty)
+   */
   std::map<std::string, std::vector<std::string>> oTypeValueDomains;
+  /**
+   * @brief iTypeValueRestrictions mapping between input type and possible values (if no restrictions on values vector is empty)
+   */
   std::map<std::string, std::vector<std::string>> iTypeValueRestrictions;
-  std::vector<std::string> domain;
 };
 
 

@@ -30,7 +30,7 @@ void processCluster(uima::CAS *cas)
 void pointCloudExtractorTest()
 {
 
-  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PlaneAnnotator","PointCloudClusterExtractor"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor"};
   engine.setPipelineOrdering(engineList);
   engine.resetCas();
   engine.overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
