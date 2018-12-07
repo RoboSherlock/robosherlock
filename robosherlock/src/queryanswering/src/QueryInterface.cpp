@@ -13,7 +13,38 @@
 
 bool QueryInterface::parseQuery(std::string query)
 {
-  this->query.Parse(query);
+    // Makes detect query from track query.
+    // TODO: Make sure this doesn't happen for the actual tracking part (the second query)
+
+    // Replace key
+    rapidjson::Document d;
+    d.Parse<0> (query);
+    // The following won't work yet because I have to replace
+    rapidjson::Value::Member* hello = d.FindMember ("track");
+    if (hello) hello->name.SetString ("detect", d.GetAllocator());
+
+    // Set query to the new json
+    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
+    StringBuffer buf (&d.GetAllocator());
+    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
+    d.Accept (writer);
+    query = buf.GetString();
+
+    /**
+    rapidjson::Document d;
+    d.Parse(query);
+    if(d.HasMember("track")){
+        rapidjson::Value o(rapidjson::kObjectType);
+        {
+            rapidjson::Value contacts(rapidjson::kArrayType);
+            // adding elements to contacts array.
+            o.AddMember("contacts", contacts, d.GetAllocator());  // deep clone contacts (may be with lots of allocations)
+            // destruct contacts.
+        }
+    }
+     **/
+
+    this->query.Parse(query);
   return true;
 }
 

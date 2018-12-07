@@ -119,9 +119,6 @@ void RSProcessManager::stop()
 {
   visualizer_.stop();
   // Don't change behavior of other calls by keeping the reset for other QueryTypes apart from TRACK
-  if(queryType != QueryInterface::QueryType::TRACK) {
-      engine_.resetCas();
-  }
   engine_.stop();
 }
 

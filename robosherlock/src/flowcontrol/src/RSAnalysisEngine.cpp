@@ -201,6 +201,13 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
                                std::string queryString)
 {
   outInfo("executing analisys engine: " << name_);
+  /*
+   * TODO: This doesn't work here. How else could I make sure cas is not resetted when in a Track Query?
+  if(queryType != QueryInterface::QueryType::TRACK) {
+    //engine_.resetCas();
+    cas_->reset();
+  }
+   **/
   cas_->reset();
 
   if(queryString != "" || query_ != "") {
