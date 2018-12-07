@@ -10,6 +10,7 @@
 
 //RapidJson
 #include "rapidjson/pointer.h"
+#include "rapidjson/writer.h"
 
 bool QueryInterface::parseQuery(std::string query)
 {
@@ -17,18 +18,18 @@ bool QueryInterface::parseQuery(std::string query)
     // TODO: Make sure this doesn't happen for the actual tracking part (the second query)
 
     // Replace key
-    rapidjson::Document d;
-    d.Parse<0> (query);
-    // The following won't work yet because I have to replace
-    rapidjson::Value::Member* hello = d.FindMember ("track");
-    if (hello) hello->name.SetString ("detect", d.GetAllocator());
+//    rapidjson::Document d;
+//    d.Parse<0> (query);
+//    // The following won't work yet because I have to replace
+//    rapidjson::Value::Member* hello = d.FindMember ("track");
+//    if (hello) hello->name.SetString ("detect", d.GetAllocator());
 
-    // Set query to the new json
-    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
-    StringBuffer buf (&d.GetAllocator());
-    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
-    d.Accept (writer);
-    query = buf.GetString();
+//    // Set query to the new json
+//    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
+//    StringBuffer buf (&d.GetAllocator());
+//    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
+//    d.Accept (writer);
+//    query = buf.GetString();
 
     /**
     rapidjson::Document d;
@@ -48,12 +49,20 @@ bool QueryInterface::parseQuery(std::string query)
   return true;
 }
 
-QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
+
+/**
+ * @brief QueryInterface::processQuery
+ * @param[out] res vector of planed pipelines;
+ * @return
+ */
+QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<std::string>> &res)
 {
   if(query.HasMember("detect"))
   {
     const rapidjson::Value &val = query["detect"];
-    handleDetect(res, query["detect"]);
+    std::vector<std::string> detPipeline;
+    handleDetect(detPipeline, val);
+    res.push_back(detPipeline);
     return QueryType::DETECT;
   }
 
@@ -72,12 +81,13 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
   else if(query.HasMember("track"))
   {
     //create json string for detection
-//    const rapidjson::Value &val = query["track"];
-//    std::vector<std::string> detPipeline, trackingPipeline;
-//    handleDetect(detPipeline, val);
-//    handleTrack(trackingPipeline, val);
-//    res.push_back(detPipeline);
-//    res.push_back(trackingPipeline);
+    const rapidjson::Value &val = query["track"];
+
+    std::vector<std::string> detPipeline, trackingPipeline;
+    handleDetect(detPipeline, val);
+    handleTrack(trackingPipeline, val);
+    res.push_back(detPipeline);
+    res.push_back(trackingPipeline);
     return QueryType::TRACK;
   }
 
@@ -85,22 +95,22 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
 }
 
 
-bool QueryInterface::handleScan(std::vector<std::string> &res)
+bool QueryInterface::handleScan(std::vector<std::vector<std::string>> &res)
 {
   //TODO implement logic here
   return true;
 }
 
-bool QueryInterface::handleInspect(std::vector<std::string> &res)
+bool QueryInterface::handleInspect(std::vector<std::vector<std::string>> &res)
 {
   outInfo("Inspecting an object: [needs implementation]");
   return true;
 }
 
-bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson::Value &rapidJsponVale)
+bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
 
-  const rapidjson::Value &val = query["detect"];
+  const rapidjson::Value &val = rapidJsonValue;
   rapidjson::StringBuffer strBuff;
   rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(strBuff);
   val.Accept(writer);
@@ -162,6 +172,10 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
     // TODO: Implementation
     res.push_back("CollectionReader");
     res.push_back("KalmanTrackingAnnotator");
+    outInfo("Planned tracking pipeline: ");
+    for(auto const &r:res){
+        outInfo(r);
+    }
     return true;
 }
 
