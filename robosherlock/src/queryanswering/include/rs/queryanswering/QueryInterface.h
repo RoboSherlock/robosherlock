@@ -24,8 +24,8 @@ private:
     JsonPrologInterface* jsonPrologInterface;
 
     bool handleDetect(std::vector<std::string> &newPipelineOrder,const rapidjson::Value &rapidJsonVale);
-    bool handleInspect(std::vector<std::string> &newPipelineOrder);
-    bool handleScan(std::vector<std::string> &newPipelineOrder);
+    bool handleInspect(std::vector<std::vector<std::string>> &newPipelineOrder);
+    bool handleScan(std::vector<std::vector<std::string>> &newPipelineOrder);
     bool handleTrack(std::vector<std::string> &newPipelineOrder,const rapidjson::Value &rapidJsonVale);
 
 public:
@@ -45,7 +45,7 @@ public:
 
   bool parseQuery(std::string query);
 
-  QueryType processQuery(std::vector<std::string> &newPipelineOrder);
+  QueryType processQuery(std::vector<std::vector<std::string>> &newPipelineOrder);
 
   void filterResults(std::vector<std::string> &resultDesignators,
                      std::vector<std::string> &filteredResponse,
