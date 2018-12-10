@@ -146,7 +146,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
   // If the path is yaml file, we need to convert it to xml
   if(boost::algorithm::ends_with(yamlPath, "yaml")) {
 
-    YamlToXMLConverter converter(yamlPath);
+    YamlToXMLConverter converter(yamlPath, YamlToXMLConverter::YAMLType::Annotator);
     try {
       converter.parseYamlFile();
       delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
@@ -168,8 +168,9 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
-      converter.getXml(of);
+      of<<converter;
       of.close();
+
       return xmlPath;
     }
     catch(std::runtime_error &e) {

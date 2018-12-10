@@ -17,7 +17,7 @@ static const string ANNOTATOR_NODE_NAME = "annotator";
 static const string CONFIG_PARAM_NODE_NAME = "parameters";
 static const string CAPAB_NODE_NAME = "capabilities";
 
-YamlToXMLConverter::YamlToXMLConverter(string path)
+YamlToXMLConverter::YamlToXMLConverter(string path, YamlToXMLConverter::YAMLType type)
   : yamlPath(path),
     header("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
     taeDesp("http://uima.apache.org/resourceSpecifier"),
@@ -26,6 +26,7 @@ YamlToXMLConverter::YamlToXMLConverter(string path)
 {
   try {
     config = YAML::LoadFile(path);
+    type_ = type;
   }
   catch(YAML::ParserException e) {
     outError("Error occurs when parsing" << path);
@@ -315,12 +316,12 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node)
   return true;
 }
 
-string YamlToXMLConverter::getTypeFilePath()
+string YamlToXMLConverter::getTypeFilePath() const
 {
   size_t pos;
   string typeFilePath;
-  if((pos = yamlPath.find("descriptors/")) != std::string::npos) {
-    typeFilePath = yamlPath.substr(0, pos + 12);
+  if((pos = this->yamlPath.find("descriptors/")) != std::string::npos) {
+    typeFilePath = this->yamlPath.substr(0, pos + 12);
     typeFilePath += "typesystem/all_types.xml";
   }
   else {
@@ -328,36 +329,6 @@ string YamlToXMLConverter::getTypeFilePath()
     throw(std::runtime_error(msg));
   }
   return typeFilePath;
-}
-
-void YamlToXMLConverter::getXml(ofstream &out)
-{
-  out << header << endl;
-  out << "<taeDescription xmlns=\"" << taeDesp << "\">" << endl;
-  out << "<frameworkImplementation>" << frameImpl << "</frameworkImplementation>" << endl;
-  out << "<primitive>true</primitive>" << endl;
-  out << "<annotatorImplementationName>" << AEImpl << "</annotatorImplementationName>" << endl;
-  out << "<analysisEngineMetaData>" << endl;
-  out << "<name>" << AEName << "</name>" << endl;
-  out << "<description>" << AEDescription << "</description>" << endl;
-  out << "<version>1.0</version>\n<vendor/>" << endl;
-  out << endl;
-  out << configParams << endl;
-  out << configParamSettings << endl;
-  out << capabilities << endl;
-
-  string typePath;
-  try {
-    typePath = getTypeFilePath();
-  }
-  catch(std::runtime_error &e) {
-    throw e;
-  }
-
-  out << "<typeSystemDescription>\n<imports>\n<import location=" << "\"" << typePath << "\"/>\n</imports>\n</typeSystemDescription>\n" << endl;
-  out << "<operationalProperties>\n<modifiesCas>true</modifiesCas>\n<multipleDeploymentAllowed>true</multipleDeploymentAllowed>\n<outputsNewCASes>false</outputsNewCASes>\n</operationalProperties>\n" << endl;
-  out << "</analysisEngineMetaData>" << endl;
-  out << "</taeDescription>" << endl;
 }
 
 rs::AnnotatorCapabilities YamlToXMLConverter::getAnnotatorCapabilities()

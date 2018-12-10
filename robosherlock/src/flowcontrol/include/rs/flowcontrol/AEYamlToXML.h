@@ -11,50 +11,51 @@
 
 using namespace std;
 
-class AEYamlToXMLConverter {
+class AEYamlToXMLConverter
+{
 
 public:
 
-    AEYamlToXMLConverter(std::string path);
-    AEYamlToXMLConverter(const AEYamlToXMLConverter&) = delete;
-    AEYamlToXMLConverter& operator=(const AEYamlToXMLConverter&) = delete;
+  AEYamlToXMLConverter(std::string path);
+  AEYamlToXMLConverter(const AEYamlToXMLConverter &) = delete;
+  AEYamlToXMLConverter &operator=(const AEYamlToXMLConverter &) = delete;
 
-    bool isInAEList(const string value);
-    void parseYamlFile();
-    void setAEName(string name);
-    void setFrameImpl(string name);
-    void setHeader(string name);
+  bool isInAEList(const string value);
+  void parseYamlFile();
+  void setAEName(string name);
+  void setFrameImpl(string name);
+  void setHeader(string name);
 
-    void getOutput(ofstream& out);
-    void getDelegates(vector<string> &delegates_);
+  void getOutput(ofstream &out);
+  void getDelegates(vector<string> &delegates_);
 
-    string yamlPath;
+  string yamlPath;
 
 private:
 
-    YAML::Node config;
+  YAML::Node config;
 
-    string header;
-    string AEName;
-    string AEDescription;
-    string AEImpl;
-    string taeDesp;
-    string frameImpl;
+  string header;
+  string AEName;
+  string AEDescription;
+  string AEImpl;
+  string taeDesp;
+  string frameImpl;
 
-    string configParams;
-    string configParamSettings;
-    string flowConstraints;
-    string fsIndexCollection;
-    string capabilities;
+  string configParams;
+  string configParamSettings;
+  string flowConstraints;
+  string fsIndexCollection;
+  string capabilities;
 
-    string getType(const YAML::Node& node);
-    string getTypeFilePath();
+  string getType(const YAML::Node &node);
+  string getTypeFilePath();
 
-    bool genAEInfo(const YAML::Node& node);
-    bool genConfigParamInfo(const YAML::Node& node, const string analysisEngineName);
-    bool genFlowConstraints(const YAML::Node& node);
-    bool genFsIndexCollection(const YAML::Node& node);
-    bool genCapabInfo(const YAML::Node& node);
-    vector<string> delegates_;
+  bool genAEInfo(const YAML::Node &node);
+  bool genConfigParamInfo(const YAML::Node &node, const string analysisEngineName);
+  bool genFlowConstraints(const YAML::Node &node);
+  bool genFsIndexCollection(const YAML::Node &node);
+  bool genCapabInfo(const YAML::Node &node);
+  vector<string> delegates_;
 };
 #endif
