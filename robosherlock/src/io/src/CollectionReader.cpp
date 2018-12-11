@@ -38,6 +38,7 @@
 #include <rs/io/ROSTangoBridge.h>
 #include <rs/io/ROSCameraBridge.h>
 #include <rs/io/ROSThermalCamBridge.h>
+#include <rs/io/ROSRcVisardBridge.h>
 #include <rs/io/MongoDBBridge.h>
 #include <rs/io/UnrealVisionBridge.h>
 #include <rs/io/UnrealROSIntegrationVisionBridge.h>
@@ -138,6 +139,10 @@ private:
       else if(interface_ == "Kinect")
       {
         cameras_.push_back(new ROSKinectBridge(pt));
+      }
+      else if (interface_ == "RcVisard")
+      {
+        cameras_.push_back(new ROSRcVisardBridge(pt));
       }
       else if(interface_ == "RealSense")
       {

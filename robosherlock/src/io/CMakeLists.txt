@@ -6,6 +6,7 @@ add_library(rs_io SHARED
   src/ROSRealSenseBridge.cpp
   src/ROSTangoBridge.cpp
   src/ROSThermalCamBridge.cpp
+  src/ROSRcVisardBridge.cpp
   src/ROSCameraBridge.cpp
   src/UnrealVisionBridge.cpp
   src/UnrealROSIntegrationVisionBridge.cpp
