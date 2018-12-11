@@ -55,12 +55,13 @@ void RSAnalysisEngine::init(const std::string &aeFile, bool parallel, bool perva
   boost::filesystem::path AEYamlPath(aeFile);
   std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() + ".xml");
   //Generate the xml from the yaml config and then process the XML
-  AEYamlToXMLConverter aeConverter(aeFile);
-  aeConverter.parseYamlFile();
-  std::ofstream xmlOutput;
 
+  YamlToXMLConverter aeConverter(aeFile, YamlToXMLConverter::YAMLType::AAE);
+  aeConverter.parseYamlFile();
+
+  std::ofstream xmlOutput;
   xmlOutput.open(AEXMLFile);
-  aeConverter.getOutput(xmlOutput);
+  xmlOutput<<aeConverter;
   xmlOutput.close();
   outInfo("Converted to: " << AEXMLFile);
 
