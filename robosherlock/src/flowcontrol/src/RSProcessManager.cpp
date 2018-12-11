@@ -245,7 +245,7 @@ bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Requ
 bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string> &result)
 {
   outInfo("JSON Reuqest: " << request);
-  queryInterface->parseQuery(request); // TODO: Make this able to parse into two pipelines
+  queryInterface->parseQuery(request);
   std::vector<std::vector<std::string>> newPipelineOrders;
   queryType = queryInterface->processQuery(newPipelineOrders);
   if (!newPipelineOrders.empty())

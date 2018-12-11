@@ -14,23 +14,6 @@
 
 bool QueryInterface::parseQuery(std::string query)
 {
-    // Makes detect query from track query.
-    // TODO: Make sure this doesn't happen for the actual tracking part (the second query)
-
-    // Replace key
-//    rapidjson::Document d;
-//    d.Parse<0> (query);
-//    // The following won't work yet because I have to replace
-//    rapidjson::Value::Member* hello = d.FindMember ("track");
-//    if (hello) hello->name.SetString ("detect", d.GetAllocator());
-
-//    // Set query to the new json
-//    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
-//    StringBuffer buf (&d.GetAllocator());
-//    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
-//    d.Accept (writer);
-//    query = buf.GetString();
-
     /**
     rapidjson::Document d;
     d.Parse(query);
@@ -45,6 +28,7 @@ bool QueryInterface::parseQuery(std::string query)
     }
      **/
 
+    queryString = query;
     this->query.Parse(query);
   return true;
 }
@@ -81,6 +65,26 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
   else if(query.HasMember("track"))
   {
     //create json string for detection
+
+      // Makes detect query from track query.
+
+      // Replace key
+    rapidjson::Document d;
+    d.Parse(queryString);
+    // TODO: Check for "stop" here and stop tracking if it exists.
+    if(d.HasMember("track"))
+    {
+        rapidjson::Value::MemberIterator trackIterator = d.FindMember ("track");
+        trackIterator->value.SetString("detect", d.GetAllocator());
+    }
+
+//    // Set query to the new json
+//    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
+//    StringBuffer buf (&d.GetAllocator());
+//    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
+//    d.Accept (writer);
+//    query = buf.GetString();
+
     const rapidjson::Value &val = query["track"];
 
     std::vector<std::string> detPipeline, trackingPipeline;
@@ -126,7 +130,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
   }
   catch(std::exception e)
   {
-    outError("calling json_prolog was not successfull. Is the node running?");
+    outError("calling json_prolog was not successful. Is the node running?");
     return false;
   }
 
@@ -167,7 +171,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
 
 }
 
-bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsponVale)
+bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
     // TODO: Implementation
     res.push_back("CollectionReader");
