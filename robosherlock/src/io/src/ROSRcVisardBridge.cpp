@@ -494,7 +494,11 @@ bool ROSRcVisardBridge::setData(uima::CAS &tcas, uint64_t ts)
   if (depth_cv) {
     cv::Mat depth = depth_cv->image.clone();
     depth.setTo(0, depth != depth);
-    cas.set(VIEW_DEPTH_IMAGE, depth);
+
+    // robosherlock expects depth image as uint16
+    cv::Mat depth_uint16;
+    depth.convertTo(depth_uint16, CV_16UC1, 1000, 0);
+    cas.set(VIEW_DEPTH_IMAGE, depth_uint16);
   }
   if (disparity_error_cv) { cas.set(VIEW_DISPARITY_ERROR, disparity_error_cv->image); }
   if (confidence_cv) { cas.set(VIEW_CONFIDENCE, confidence_cv->image); }
