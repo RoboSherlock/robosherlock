@@ -12,4 +12,5 @@ capabilities:
   inputs: ['rs.scene.MergedCluster']
   outputs: 
     - rs.annotation.Geometry: [small, medium, big]
+    - rs.annotation.Pose
   domain: [small, medium, big]
