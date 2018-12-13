@@ -1,12 +1,11 @@
 annotator:
-  name: KalmanTrackingAnnotator
-  implementation: rs_KalmanTrackingAnnotator
+  name: PCLTrackingAnnotator
+  implementation: rs_PCLTrackingAnnotator
 parameters:
   test_param: 0.01
 capabilities:
   inputs:
-  - rs.cv.Mat
-  - rs.scene.MergedCluster
+  - rs.pcl.PointCloud
   outputs:
 capabilities:
   inputs: {}
