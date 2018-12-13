@@ -32,7 +32,30 @@
 #include <rs/DrawingAnnotator.h>
 
 // PCL
+#include <pcl/point_cloud.h>
+#include <pcl/point_types.h>
+#include <pcl/io/openni_grabber.h>
+#include <pcl/console/parse.h>
+#include <pcl/common/time.h>
+#include <pcl/common/centroid.h>
+
+#include <pcl/visualization/cloud_viewer.h>
+#include <pcl/visualization/pcl_visualizer.h>
+
+#include <pcl/filters/passthrough.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/filters/approximate_voxel_grid.h>
+
+#include <pcl/sample_consensus/method_types.h>
+#include <pcl/sample_consensus/model_types.h>
+
+#include <pcl/search/pcl_search.h>
+#include <pcl/common/transforms.h>
+
+#include <boost/format.hpp>
+
 #include <pcl/io/pcd_io.h>
+
 #include <pcl/tracking/tracking.h>
 #include <pcl/tracking/particle_filter.h>
 #include <pcl/tracking/kld_adaptive_particle_filter_omp.h>
@@ -47,6 +70,14 @@
 using namespace cv;
 using namespace std;
 using namespace uima;
+using namespace pcl::tracking;
+
+typedef pcl::PointXYZRGBA RefPointType;
+typedef ParticleXYZRPY ParticleT;
+typedef pcl::PointCloud<pcl::PointXYZRGBA> Cloud;
+typedef Cloud::Ptr CloudPtr;
+typedef Cloud::ConstPtr CloudConstPtr;
+typedef ParticleFilterTracker<RefPointType, ParticleT> ParticleFilter;
 
 // Convert to string
 #define SSTR( x ) static_cast< std::ostringstream & >( \
@@ -55,16 +86,21 @@ using namespace uima;
 class TrackingAnnotator : public DrawingAnnotator
 {
 private:
-    Ptr<Tracker> tracker = TrackerKCF::create();
-    bool kcfStarted;
     bool pclStarted;
-    bool hasDepth;
     cv::Mat depthImage;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud; // Input data for 3D tracking
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
+    boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
+    CloudPtr cloud_pass_;
+    CloudPtr cloud_pass_downsampled_;
+    Cloud::Ptr target_cloud;
+    Cloud::Ptr cloud; // Input data for 3D tracking
+    Cloud::Ptr objectCloud; // Loaded PCD file for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
     cv::Rect roi; // Region of interest
     Rect2d bbox; // Could later be used for the bounding box query parameter.
+    boost::mutex mtx_;
+    bool new_cloud_;
+    double downsampling_grid_size_;
+    int counter;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -125,11 +161,50 @@ public:
         return UIMA_ERR_NONE;
     }
 
+    //Filter along a specified dimension
+    void filterPassThrough (const CloudConstPtr &cloud, Cloud &result)
+    {
+        pcl::PassThrough<pcl::PointXYZRGBA> pass;
+        pass.setFilterFieldName ("z");
+        pass.setFilterLimits (0.0, 10.0);
+        pass.setKeepOrganized (false);
+        pass.setInputCloud (cloud);
+        pass.filter (result);
+    }
+
+    void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
+    {
+        pcl::ApproximateVoxelGrid<pcl::PointXYZRGBA> grid;
+        grid.setLeafSize (static_cast<float> (leaf_size), static_cast<float> (leaf_size), static_cast<float> (leaf_size));
+        grid.setInputCloud (cloud);
+        grid.filter (result);
+    }
+
+    //OpenNI Grabber's cloud Callback function
+    void
+    cloud_cb (const CloudConstPtr &cloud)
+    {
+        boost::mutex::scoped_lock lock (mtx_);
+        cloud_pass_.reset (new Cloud);
+        cloud_pass_downsampled_.reset (new Cloud);
+        filterPassThrough (cloud, *cloud_pass_);
+        gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, downsampling_grid_size_);
+
+        if(counter < 10){
+            counter++;
+        }else{
+            //Track the object
+            tracker_->setInputCloud (cloud_pass_downsampled_);
+            tracker_->compute ();
+            new_cloud_ = true;
+        }
+    }
+
     // TODO: Where to get the .pcd file from?
     bool PCLTracker()
     {
         if(!pclStarted) {
-            objectCloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
+            objectCloud.reset(new Cloud());
             if(pcl::io::loadPCDFile ("path/to/pcd/file", *objectCloud) == -1){
                 std::cout << "pcd file not found" << std::endl;
                 return false;
@@ -197,8 +272,8 @@ public:
             //prepare the model of tracker's target
             Eigen::Vector4f c;
             Eigen::Affine3f trans = Eigen::Affine3f::Identity ();
-            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transed_ref (new pcl::PointCloud<pcl::PointXYZRGBA>);
-            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transed_ref_downsampled (new pcl::PointCloud<pcl::PointXYZRGBA>);
+            Cloud::Ptr transed_ref (new Cloud);
+            Cloud::Ptr transed_ref_downsampled (new Cloud);
 
             pcl::compute3DCentroid<pcl::PointXYZRGBA> (*target_cloud, c);
             trans.translation ().matrix () = Eigen::Vector3f (c[0], c[1], c[2]);
@@ -211,12 +286,10 @@ public:
 
             //Setup OpenNIGrabber and viewer
             pcl::visualization::CloudViewer* viewer_ = new pcl::visualization::CloudViewer("PCL OpenNI Tracking Viewer");
-            pcl::Grabber* interface = new pcl::OpenNIGrabber (device_id);
+            pcl::Grabber* interface = new pcl::OpenNIGrabber ("#1");
             boost::function<void (const CloudConstPtr&)> f =
                     boost::bind (&cloud_cb, _1);
             interface->registerCallback (f);
-
-            viewer_->runOnVisualizationThread (boost::bind(&viz_cb, _1), "viz_cb");
 
             //Start viewer and object tracking
             interface->start();

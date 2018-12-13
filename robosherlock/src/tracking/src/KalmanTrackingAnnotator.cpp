@@ -57,14 +57,14 @@ class TrackingAnnotator : public DrawingAnnotator
 private:
     Ptr<Tracker> tracker = TrackerKCF::create();
     bool kcfStarted;
-    bool pclStarted;
-    bool hasDepth;
     cv::Mat depthImage;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud; // Input data for 3D tracking
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
     cv::Rect roi; // Region of interest
     Rect2d bbox; // Could later be used for the bounding box query parameter.
+    std::vector<rs::Cluster> clusters;
+    std::vector<cv::Rect> clusterRois;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -118,9 +118,22 @@ public:
         outInfo("process begins");
 
         rs::SceneCas cas(tcas);
+        rs::Scene scene = cas.getScene();
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
 
-        KCFTracker();
+        // Get regions of interest. TODO: Which one do we need now?
+        scene.identifiables.filter(clusters);
+        clusterRois.resize(clusters.size());
+        for(size_t idx = 0; idx < clusters.size(); ++idx) {
+            rs::ImageROI image_rois = clusters[idx].rois.get();
+
+            cv::Rect roi;
+            rs::conversion::from(image_rois.roi_hires(), roi);
+
+            clusterRois[idx] = roi;
+        }
+
+        KCFTracker(clusterRois[0]); // Use the first object for now.
 
 
         /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen
@@ -139,125 +152,19 @@ public:
         return UIMA_ERR_NONE;
     }
 
-    bool KCFTracker()
-    {
-        if(!kcfStarted) {
+    bool KCFTracker(cv::Rect roi) {
+        if (!kcfStarted) {
             // Define bounding box. Could later be overriden by parameter.
             Rect2d bbox(0, 0, 200, 200);
 
             // Initializes tracker
-            tracker->init(frame, bbox);
+            tracker->init(frame, roi);
 
             kcfStarted = true;
         }
 
         // Update the tracking result
         tracker->update(frame, bbox);
-    }
-
-    // TODO: Where to get the .pcd file from?
-    bool PCLTracker()
-    {
-        if(!pclStarted) {
-            objectCloud.reset(new pcl::PointCloud<pcl::PointXYZRGBA>());
-            if(pcl::io::loadPCDFile ("path/to/pcd/file", *objectCloud) == -1){
-                std::cout << "pcd file not found" << std::endl;
-                return false;
-            }
-
-
-            int counter = 0;
-
-            //Set parameters
-            bool new_cloud_  = false;
-            float downsampling_grid_size_ =  0.002;
-
-            std::vector<double> default_step_covariance = std::vector<double> (6, 0.015 * 0.015);
-            default_step_covariance[3] *= 40.0;
-            default_step_covariance[4] *= 40.0;
-            default_step_covariance[5] *= 40.0;
-
-            std::vector<double> initial_noise_covariance = std::vector<double> (6, 0.00001);
-            std::vector<double> default_initial_mean = std::vector<double> (6, 0.0);
-
-            boost::shared_ptr<KLDAdaptiveParticleFilterOMPTracker<pcl::PointXYZRGBA, ParticleXYZRPY> > tracker
-                    (new KLDAdaptiveParticleFilterOMPTracker<pcl::PointXYZRGBA, ParticleXYZRPY> (8));
-
-            ParticleXYZRPY bin_size;
-            bin_size.x = 0.1f;
-            bin_size.y = 0.1f;
-            bin_size.z = 0.1f;
-            bin_size.roll = 0.1f;
-            bin_size.pitch = 0.1f;
-            bin_size.yaw = 0.1f;
-
-
-            //Set all parameters for  KLDAdaptiveParticleFilterOMPTracker
-            tracker->setMaximumParticleNum (1000);
-            tracker->setDelta (0.99);
-            tracker->setEpsilon (0.2);
-            tracker->setBinSize (bin_size);
-
-            //Set all parameters for  ParticleFilter
-            tracker_ = tracker;
-            tracker_->setTrans (Eigen::Affine3f::Identity ());
-            tracker_->setStepNoiseCovariance (default_step_covariance);
-            tracker_->setInitialNoiseCovariance (initial_noise_covariance);
-            tracker_->setInitialNoiseMean (default_initial_mean);
-            tracker_->setIterationNum (1);
-            tracker_->setParticleNum (600);
-            tracker_->setResampleLikelihoodThr(0.00);
-            tracker_->setUseNormal (false);
-
-
-            //Setup coherence object for tracking
-            ApproxNearestPairPointCloudCoherence<pcl::PointXYZRGBA>::Ptr coherence = ApproxNearestPairPointCloudCoherence<pcl::PointXYZRGBA>::Ptr
-                    (new ApproxNearestPairPointCloudCoherence<pcl::PointXYZRGBA> ());
-
-            boost::shared_ptr<DistanceCoherence<pcl::PointXYZRGBA> > distance_coherence
-                    = boost::shared_ptr<DistanceCoherence<pcl::PointXYZRGBA> > (new DistanceCoherence<pcl::PointXYZRGBA> ());
-            coherence->addPointCoherence (distance_coherence);
-
-            boost::shared_ptr<pcl::search::Octree<pcl::PointXYZRGBA> > search (new pcl::search::Octree<pcl::PointXYZRGBA> (0.01));
-            coherence->setSearchMethod (search);
-            coherence->setMaximumDistance (0.01);
-
-            tracker_->setCloudCoherence (coherence);
-
-            //prepare the model of tracker's target
-            Eigen::Vector4f c;
-            Eigen::Affine3f trans = Eigen::Affine3f::Identity ();
-            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transed_ref (new pcl::PointCloud<pcl::PointXYZRGBA>);
-            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transed_ref_downsampled (new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-            pcl::compute3DCentroid<pcl::PointXYZRGBA> (*target_cloud, c);
-            trans.translation ().matrix () = Eigen::Vector3f (c[0], c[1], c[2]);
-            pcl::transformPointCloud<pcl::PointXYZRGBA> (*target_cloud, *transed_ref, trans.inverse());
-            gridSampleApprox (transed_ref, *transed_ref_downsampled, downsampling_grid_size_);
-
-            //set reference model and trans
-            tracker_->setReferenceCloud (transed_ref_downsampled);
-            tracker_->setTrans (trans);
-
-            //Setup OpenNIGrabber and viewer
-            pcl::visualization::CloudViewer* viewer_ = new pcl::visualization::CloudViewer("PCL OpenNI Tracking Viewer");
-            pcl::Grabber* interface = new pcl::OpenNIGrabber (device_id);
-            boost::function<void (const CloudConstPtr&)> f =
-                    boost::bind (&cloud_cb, _1);
-            interface->registerCallback (f);
-
-            viewer_->runOnVisualizationThread (boost::bind(&viz_cb, _1), "viz_cb");
-
-            //Start viewer and object tracking
-            interface->start();
-            while (!viewer_->wasStopped ())
-                boost::this_thread::sleep(boost::posix_time::seconds(1));
-            interface->stop();
-
-
-
-            pclStarted = true;
-        }
     }
 };
 
