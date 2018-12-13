@@ -288,14 +288,12 @@ public:
             pcl::visualization::CloudViewer* viewer_ = new pcl::visualization::CloudViewer("PCL OpenNI Tracking Viewer");
             pcl::Grabber* interface = new pcl::OpenNIGrabber ("#1");
             boost::function<void (const CloudConstPtr&)> f =
-                    boost::bind (&cloud_cb, _1);
+                    boost::bind (&cloud_cb, _1); // TODO: taking an address & isn't allowed inside of a parenthesis
             interface->registerCallback (f);
 
             //Start viewer and object tracking
             interface->start();
-            while (!viewer_->wasStopped ())
-                boost::this_thread::sleep(boost::posix_time::seconds(1));
-            interface->stop();
+            //interface->stop();
 
 
 

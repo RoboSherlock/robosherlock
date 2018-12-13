@@ -9,5 +9,5 @@ target_link_libraries(rs_ClusterTracker rs_core )
 rs_add_library(rs_KalmanTrackingAnnotator src/KalmanTrackingAnnotator.cpp)
 target_link_libraries(rs_KalmanTrackingAnnotator ${catkin_LIBRARIES})
 
-rs_add_library(rs_PCLTrackingAnnotator src/PCLTrackingAnnotator.cpp)
-target_link_libraries(rs_PCLTrackingAnnotator ${catkin_LIBRARIES})
+#rs_add_library(rs_PCLTrackingAnnotator src/PCLTrackingAnnotator.cpp)
+#target_link_libraries(rs_PCLTrackingAnnotator ${catkin_LIBRARIES})
