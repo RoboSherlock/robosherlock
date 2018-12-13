@@ -36,7 +36,7 @@ using namespace rs;
 
 typedef struct WorldPose_
 {
-  //rs::Cluster cluster;
+  //rs::ObjectHypothesis cluster;
   long trackingID;
   tf::Vector3 worldPose;
 
@@ -45,7 +45,7 @@ typedef struct WorldPose_
 
   }
 
-  //  WorldPose_(rs::Cluster cluster, btVector3 worldPose):cluster(cluster),worldPose(worldPose)
+  //  WorldPose_(rs::ObjectHypothesis cluster, btVector3 worldPose):cluster(cluster),worldPose(worldPose)
   WorldPose_(int trackingID, tf::Vector3 worldPose) :
     trackingID(trackingID), worldPose(worldPose)
   {
@@ -153,14 +153,14 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  std::vector<WorldPose> compute_world_poses(std::vector<rs::Cluster> thisClusters, tf::StampedTransform vp,
+  std::vector<WorldPose> compute_world_poses(std::vector<rs::ObjectHypothesis> thisClusters, tf::StampedTransform vp,
       CAS &tcas)
   {
     std::vector<WorldPose> thisClustersPose;
     for(int i = 0; i < thisClusters.size(); i++)
     {
       rs::SceneCas cas(tcas);
-      rs::Cluster cluster = thisClusters.at(i);
+      rs::ObjectHypothesis cluster = thisClusters.at(i);
 
       tf::Vector3 btCentroid;
       if(cluster.points.has() && cluster.points().type() == rs::type<ReferenceClusterPoints>(tcas))
@@ -212,7 +212,7 @@ public:
     return thisClustersPose;
   }
 
-  void track(std::vector<rs::Cluster> &thisClusters, std::vector<WorldPose> &thisClustersPose, CAS &tcas)
+  void track(std::vector<rs::ObjectHypothesis> &thisClusters, std::vector<WorldPose> &thisClustersPose, CAS &tcas)
   {
     outDebug("Tracking");
     if(lastClustersPose.empty())
@@ -328,7 +328,7 @@ public:
 
       if(!scene.identifiables.empty())
       {
-        std::vector<rs::Cluster> thisClusters;
+        std::vector<rs::ObjectHypothesis> thisClusters;
         scene.identifiables.filter(thisClusters);
 
         outDebug("Processing " << thisClusters.size() << " clusters");

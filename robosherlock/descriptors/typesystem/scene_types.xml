@@ -12,7 +12,7 @@
   </imports>
   <types>
     <typeDescription>
-      <name>rs.scene.Cluster</name>
+      <name>rs.scene.ObjectHypothesis</name>
       <description/>
       <supertypeName>rs.core.Identifiable</supertypeName>
       <features>
@@ -50,13 +50,13 @@
     <typeDescription>
       <name>rs.scene.MergedCluster</name>
       <description/>
-      <supertypeName>rs.scene.Cluster</supertypeName>
+      <supertypeName>rs.scene.ObjectHypothesis</supertypeName>
     </typeDescription>
 
     <typeDescription>
       <name>rs.scene.Object</name>
       <description/>
-      <supertypeName>rs.scene.Cluster</supertypeName>
+      <supertypeName>rs.scene.ObjectHypothesis</supertypeName>
       <features>
         <featureDescription>
           <name>uid</name>

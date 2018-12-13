@@ -10,7 +10,7 @@ void processPCL(uima::CAS *cas)
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
   scene.identifiables.filter(clusters);
   EXPECT_TRUE(clusters.size()>0);
   //Cluster3DGeometry

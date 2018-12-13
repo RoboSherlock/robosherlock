@@ -101,23 +101,7 @@
         </featureDescription>
       </features>
     </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.TransparentSegment</name>
-      <description>Segment supposed to be transparent</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>segment</name>
-          <description></description>
-          <rangeTypeName>rs.annotation.Segment</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>source</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Board</name>
       <description>Annotation for chess and circle boards</description>
@@ -135,6 +119,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Plane</name>
       <description>Annotation for the main plane</description>
@@ -162,6 +147,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.SemanticColor</name>
       <description/>
@@ -179,6 +165,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Shape</name>
       <description/>
@@ -196,11 +183,7 @@
         </featureDescription>
       </features>
     </typeDescription>
-    <typeDescription>
-      <name>rs.annotation.CylindricalShape</name>
-      <description/>
-      <supertypeName>rs.annotation.Shape</supertypeName>
-    </typeDescription>
+    
     <typeDescription>
       <name>rs.annotation.TFLocation</name>
       <description>This is a Location in a TF frame. Also stores the TF to fixed link.</description>
@@ -223,6 +206,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+    
     <typeDescription>
       <name>rs.annotation.ColorHistogram</name>
       <description/>
@@ -235,6 +219,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.NamedLink</name>
       <description/>
@@ -252,6 +237,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Goggles</name>
       <description/>
@@ -287,6 +273,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.ClassConfidence</name>
       <description/>
@@ -385,6 +372,7 @@
         </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
         <name>rs.annotation.SemanticSize</name>
         <description>Relative size of an object</description>
@@ -402,6 +390,7 @@
         </featureDescription>
         </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.Geometry</name>
       <description>Varius geomoetric information about clusters, e.g. Size(semantic), Bounding Box, Pose</description>
@@ -434,6 +423,7 @@
          </featureDescription>
       </features>
     </typeDescription>
+
     <typeDescription>
       <name>rs.annotation.MLNAtoms</name>
       <description>Annotation containing the generated MLN Atoms from the results of the othre annotations</description>
@@ -474,80 +464,9 @@
           <rangeTypeName>rs.cv.Mat</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>response</name>
-          <description>Responses of classifier(legacy)</description>
-          <rangeTypeName>uima.cas.FSList</rangeTypeName>
-          <elementType>rs.annotation.Response</elementType>
-        </featureDescription>
-        <featureDescription>
           <name>descriptorType</name>
           <description>Type of the descriptor, e.g. binary, numerical</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.Response</name>
-      <description/>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>classifier</name>
-          <description>Name of the classifier</description>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>response</name>
-          <description>Respones for each descriptor</description>
-          <rangeTypeName>rs.cv.Mat</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>distances</name>
-          <description>Distances to the k nearest neighbors</description>
-          <rangeTypeName>rs.cv.Mat</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>classNames</name>
-          <description>Names of the classes for the response</description>
-          <rangeTypeName>uima.cas.StringArray</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.GraspAnnotation</name>
-      <description>Poses for Grasping</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>grasp_pose</name>
-          <description/>
-          <rangeTypeName>uima.cas.FSArray</rangeTypeName>
-          <elementType>rs.tf.StampedPose</elementType>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.HandleAnnotation</name>
-      <description>Handles</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>pose</name>
-          <description/>
-          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>name</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>indices</name>
-          <description/>
-          <rangeTypeName>rs.pcl.PointIndices</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>

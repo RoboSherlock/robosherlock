@@ -19,13 +19,13 @@ void cluster3DGeometryTest()
   rs::SceneCas sceneCas(*cas);
   
   rs::Scene scene = sceneCas.getScene();
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
   scene.identifiables.filter(clusters);
   EXPECT_TRUE(clusters.size()>0);
   
   for (int i = 0; i<clusters.size();i++)
   {
-    rs::Cluster &cluster = clusters[i];
+    rs::ObjectHypothesis &cluster = clusters[i];
     
     std::vector<rs::Geometry> geometry;
    

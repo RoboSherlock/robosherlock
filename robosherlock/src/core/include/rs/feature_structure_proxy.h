@@ -412,14 +412,14 @@ public:
 
   /*
    *    Example code:
-   *    std::vector<rs::Cluster> class_clust;
+   *    std::vector<rs::ObjectHypothesis> class_clust;
    *    std::vector<std::vector<rs::Classification>> class_anno;
    *
    *    scene.identifiables.filter(class_clust, class_anno);
    *
    *    Explanation:
    *
-   *    1.  std::vectorrs::Cluster class_clust;
+   *    1.  std::vectorrs::ObjectHypothesis class_clust;
    *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
    *
    *    2.  std::vector<std::vector<rs::Classification>> class_anno;
@@ -717,14 +717,14 @@ public:
 
   /*
    *    Example code:
-   *    std::vector<rs::Cluster> class_clust;
+   *    std::vector<rs::ObjectHypothesis> class_clust;
    *    std::vector<std::vector<rs::Classification>> class_anno;
    *
    *    scene.identifiables.filter(class_clust, class_anno);
    *
    *    Explanation:
    *
-   *    1.  std::vectorrs::Cluster class_clust;
+   *    1.  std::vectorrs::ObjectHypothesis class_clust;
    *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
    *
    *    2.  std::vector<std::vector<rs::Classification>> class_anno;

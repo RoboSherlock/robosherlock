@@ -47,7 +47,7 @@ public:
 
   virtual ~DesignatorWrapper();
 
-  void filterClusters(const std::vector<rs::Cluster> input, const rapidjson::Document *out) const;
+  void filterClusters(const std::vector<rs::ObjectHypothesis> input, const rapidjson::Document *out) const;
   void updateDesignator();
 
   bool getObjectDesignators(std::vector<std::string> &);
@@ -84,7 +84,6 @@ public:
       std::vector<rs::TFLocation> locations;
       std::vector<rs::MLNAtoms> atoms;
       std::vector<rs::Goggles> goggles;
-      std::vector<rs::Features> features;
       std::vector<rs::ClusterPart> clusterParts;
       std::vector<rs::Classification> classification;
 
@@ -96,7 +95,6 @@ public:
       element.annotations.filter(locations);
       element.annotations.filter(atoms);
       element.annotations.filter(goggles);
-      element.annotations.filter(features);
       element.annotations.filter(clusterParts);
       element.annotations.filter(classification);
 
@@ -109,7 +107,6 @@ public:
       convertAll(locations, &objectDesignator);
       convertAll(atoms, &objectDesignator);
       convertAll(goggles, &objectDesignator);
-      convertAll(features, &objectDesignator);
       convertAll(clusterParts, &objectDesignator);
       convertAll(classification, &objectDesignator);
 
@@ -130,7 +127,7 @@ public:
   }
 
   // Converter methods to take scene annotations and map them to Designator Keywords
-  void convert(rs::Cluster &input, const size_t id, rapidjson::Document *object);
+  void convert(rs::ObjectHypothesis &input, const size_t id, rapidjson::Document *object);
   void convert(rs::Object &input, const size_t id, rapidjson::Document *object);
 
   // TODO How can i define this in the cpp file?
@@ -156,11 +153,9 @@ public:
   void convert(rs::MLNAtoms &input, rapidjson::Document *object);
   void convert(rs::NamedLink &input, rapidjson::Document *object);
   void convert(rs::Goggles &input, rapidjson::Document *object);
-  void convert(rs::Features &input, rapidjson::Document *object);
   void convert(rs::ClusterPart &input, rapidjson::Document *object);
   void convert(geometry_msgs::PoseStamped &pose, rapidjson::Document *object, rapidjson::MemoryPoolAllocator<>& alloc);
   void convert(rs::ARMarker &input, rapidjson::Document &res);
-  void convert(rs::HandleAnnotation &input, rapidjson::Document &res);
 
 
 
