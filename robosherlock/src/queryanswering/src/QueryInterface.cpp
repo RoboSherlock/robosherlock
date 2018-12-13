@@ -62,37 +62,41 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
     return QueryType::SCAN;
   }
 
-  else if(query.HasMember("track"))
-  {
-    //create json string for detection
+  else if(query.HasMember("track")) {
+      //create json string for detection
 
       // Makes detect query from track query.
 
       // Replace key
-    rapidjson::Document d;
-    d.Parse(queryString);
-    // TODO: Check for "stop" here and stop tracking if it exists.
-    if(d.HasMember("track"))
-    {
-        rapidjson::Value::MemberIterator trackIterator = d.FindMember ("track");
-        trackIterator->value.SetString("detect", d.GetAllocator());
-    }
+      rapidjson::Document d; // TODO: Document "query" already exists, use that instead.
+      d.Parse(queryString);
+      if (d.HasMember("stop"))
+      {
+        // TODO: Stop tracking
+      } else {
+          // is it really needed to literally replace the "detect" with a "track"?
+          // Where in the code is the first member (detect/track/...) relevant again after the else if above?
+          if (d.HasMember("track")) {
+              rapidjson::Value::MemberIterator trackIterator = d.FindMember("track");
+              trackIterator->value.SetString("detect", d.GetAllocator());
+          }
 
-//    // Set query to the new json
-//    typedef rapidjson::GenericStringBuffer<rapidjson::UTF8<>, rapidjson::MemoryPoolAllocator<>> StringBuffer;
-//    StringBuffer buf (&d.GetAllocator());
-//    rapidjson::Writer<StringBuffer> writer (buf, &d.GetAllocator());
-//    d.Accept (writer);
-//    query = buf.GetString();
+          rapidjson::StringBuffer sb;
+          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
+          d.Accept(writer);
+          std::string queryDetect(sb.GetString(), sb.GetSize());
 
-    const rapidjson::Value &val = query["track"];
+          // What was this for again? Why does this pass just the uppermost rapidjon::Value to the handle-functions?
+          const rapidjson::Value &valDetect = query["detect"];
+          const rapidjson::Value &valTrack = query["track"];
 
-    std::vector<std::string> detPipeline, trackingPipeline;
-    handleDetect(detPipeline, val);
-    handleTrack(trackingPipeline, val);
-    res.push_back(detPipeline);
-    res.push_back(trackingPipeline);
-    return QueryType::TRACK;
+          std::vector<std::string> detPipeline, trackingPipeline;
+          handleDetect(detPipeline, valDetect);
+          handleTrack(trackingPipeline, valTrack);
+          res.push_back(detPipeline);
+          res.push_back(trackingPipeline);
+          return QueryType::TRACK;
+      }
   }
 
   return QueryType::NONE;

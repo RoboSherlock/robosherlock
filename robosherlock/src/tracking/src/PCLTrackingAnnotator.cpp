@@ -118,41 +118,11 @@ public:
         outInfo("process begins");
 
         rs::SceneCas cas(tcas);
-        cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
+        cas.get(VIEW_CLOUD, *cloud); // Fill input data for 3D tracking
 
-        KCFTracker();
-
-
-        /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen
-         * somewhere else, most likely in Prolog (?)
-        if(!kcfStarted && !pclStarted) {
-            hasDepth = cas.get(VIEW_DEPTH_IMAGE, depthImage);
-            if (hasDepth) {
-                PCLTracker();
-            }
-            else {
-                KCFTracker();
-            }
-        }
-         **/
+        PCLTracker();
 
         return UIMA_ERR_NONE;
-    }
-
-    bool KCFTracker()
-    {
-        if(!kcfStarted) {
-            // Define bounding box. Could later be overriden by parameter.
-            Rect2d bbox(0, 0, 200, 200);
-
-            // Initializes tracker
-            tracker->init(frame, bbox);
-
-            kcfStarted = true;
-        }
-
-        // Update the tracking result
-        tracker->update(frame, bbox);
     }
 
     // TODO: Where to get the .pcd file from?
