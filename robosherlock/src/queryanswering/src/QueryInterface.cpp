@@ -28,7 +28,6 @@ bool QueryInterface::parseQuery(std::string query)
     }
      **/
 
-    queryString = query;
     this->query.Parse(query);
   return true;
 }
@@ -66,29 +65,28 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
       //create json string for detection
 
       // Makes detect query from track query.
-
-      // Replace key
-      rapidjson::Document d; // TODO: Document "query" already exists, use that instead.
-      d.Parse(queryString);
-      if (d.HasMember("stop"))
+      if (query.HasMember("stop"))
       {
-        // TODO: Stop tracking
+        // TODO: Do whatever is necessary to stop tracking
       } else {
+
+          const rapidjson::Value &valTrack = query["track"];
+
           // is it really needed to literally replace the "detect" with a "track"?
           // Where in the code is the first member (detect/track/...) relevant again after the else if above?
-          if (d.HasMember("track")) {
-              rapidjson::Value::MemberIterator trackIterator = d.FindMember("track");
-              trackIterator->value.SetString("detect", d.GetAllocator());
+          if (query.HasMember("track")) {
+              rapidjson::Value::MemberIterator trackIterator = query.FindMember("track");
+              trackIterator->value.SetString("detect", query.GetAllocator());
           }
 
           rapidjson::StringBuffer sb;
           rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(sb);
-          d.Accept(writer);
+          query.Accept(writer);
           std::string queryDetect(sb.GetString(), sb.GetSize());
 
           // What was this for again? Why does this pass just the uppermost rapidjon::Value to the handle-functions?
+          // Now that query has been modified, use it as a detect query.
           const rapidjson::Value &valDetect = query["detect"];
-          const rapidjson::Value &valTrack = query["track"];
 
           std::vector<std::string> detPipeline, trackingPipeline;
           handleDetect(detPipeline, valDetect);

@@ -23,8 +23,6 @@ private:
 
     JsonPrologInterface* jsonPrologInterface;
 
-    std::string queryString;
-
     bool handleDetect(std::vector<std::string> &newPipelineOrder,const rapidjson::Value &rapidJsonVale);
     bool handleInspect(std::vector<std::vector<std::string>> &newPipelineOrder);
     bool handleScan(std::vector<std::vector<std::string>> &newPipelineOrder);
