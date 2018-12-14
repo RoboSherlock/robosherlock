@@ -75,7 +75,7 @@ public:
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_COLOR_IMAGE, color);
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<rs::Identifiable> mergedClusters;
     scene.identifiables.filter(clusters);
     std::vector<bool> duplicates(clusters.size(), false);
@@ -91,7 +91,7 @@ public:
     outInfo("Scene has " << clusters.size() << " clusters");
    for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster1 = clusters[i];
+      rs::ObjectHypothesis &cluster1 = clusters[i];
       rs::ImageROI cluster1ImageRoi = cluster1.rois();
       cv::Rect roi1;
       rs::conversion::from(cluster1ImageRoi.roi_hires(), roi1);
@@ -101,7 +101,7 @@ public:
       {
         for(size_t j = i + 1; j < clusters.size(); ++j)
         {
-          rs::Cluster &cluster2 = clusters[j];
+          rs::ObjectHypothesis &cluster2 = clusters[j];
           outDebug("Source: "<<cluster2.source());
           pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
           rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
@@ -154,7 +154,7 @@ public:
       {
         if(duplicateWith[i] != -1)
         {
-          rs::Cluster &other = clusters[duplicateWith[i]];
+          rs::ObjectHypothesis &other = clusters[duplicateWith[i]];
 
           std::vector<rs::Annotation> annotations;
           other.annotations.filter(annotations);

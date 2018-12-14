@@ -50,7 +50,7 @@ class ObjectIdentityResolution : public DrawingAnnotator
 {
 
 private:
-  typedef double(*matchFunction)(rs::Cluster &cluster, rs::Object &object, double &factor);
+  typedef double(*matchFunction)(rs::ObjectHypothesis &cluster, rs::Object &object, double &factor);
   typedef std::tuple<matchFunction, double> matchEntry;
   std::vector<matchEntry> vecMatch;
 
@@ -73,7 +73,7 @@ private:
   ros::Publisher marker_pub_;
 
   template<class T>
-  static double matchAnnotation(rs::Cluster &cluster, rs::Object &object, double &factor)
+  static double matchAnnotation(rs::ObjectHypothesis &cluster, rs::Object &object, double &factor)
   {
     std::vector<T> annotationsC;
     std::vector<T> annotationsO;
@@ -216,7 +216,7 @@ private:
     std::vector<rs::Object> objects;
     cas.get(VIEW_OBJECTS, objects);
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
 
     objectRois.clear();
@@ -225,7 +225,7 @@ private:
 
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       if(cluster.rois.has())
       {
         rs::ImageROI image_rois = cluster.rois.get();
@@ -263,7 +263,7 @@ private:
       for(size_t i = 0; i < clustersToObject.size(); ++i)
       {
         outDebug("check cluster " << i);
-        rs::Cluster &cluster = clusters[i];
+        rs::ObjectHypothesis &cluster = clusters[i];
         if(clustersToObject[i] >= 0)
         {
           outDebug("merging cluster " << i << " with object " << clustersToObject[i]);
@@ -396,7 +396,7 @@ private:
   }
 
 
-  void matchFast(std::vector<rs::Object> &objects, std::vector<rs::Cluster> &clusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
+  void matchFast(std::vector<rs::Object> &objects, std::vector<rs::ObjectHypothesis> &clusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
   {
     std::vector<double> bestDists(clusters.size(), 0);
 
@@ -427,7 +427,7 @@ private:
 
       for(size_t j = 0; j < clusters.size(); ++j)
       {
-        rs::Cluster &cluster = clusters[j];
+        rs::ObjectHypothesis &cluster = clusters[j];
 
         double dist = distanceClusterToObjects(cluster, object);
 
@@ -456,10 +456,10 @@ private:
     }
   }
 
-  void resolveRemaining(std::vector<rs::Object> &allObjects, std::vector<rs::Cluster> &allClusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
+  void resolveRemaining(std::vector<rs::Object> &allObjects, std::vector<rs::ObjectHypothesis> &allClusters, std::vector<int> &clustersToObject, std::vector<int> &objectsToCluster)
   {
     std::vector<rs::Object> objects;
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<size_t> toAllObject;
     std::vector<size_t> toAllCluster;
     cv::Mat similarity;
@@ -512,7 +512,7 @@ private:
 
       for(size_t j = 0; j < clusters.size(); ++j, ++it)
       {
-        rs::Cluster &cluster = clusters[j];
+        rs::ObjectHypothesis &cluster = clusters[j];
 
         double sim = similarityClusterToObjects(cluster, object);
         double dist = distanceClusterToObjects(cluster, object);
@@ -549,7 +549,7 @@ private:
     }
   }
 
-  rs::Object newObject(rs::Cluster &cluster, CAS &tcas)
+  rs::Object newObject(rs::ObjectHypothesis &cluster, CAS &tcas)
   {
     rs::Object object = rs::create<rs::Object>(tcas);
     outDebug("Object: " << object.id() << " Cluster: " << cluster.id());
@@ -577,7 +577,7 @@ private:
     return object;
   }
 
-  double similarityClusterToObjects(rs::Cluster &cluster, rs::Object &object) const
+  double similarityClusterToObjects(rs::ObjectHypothesis &cluster, rs::Object &object) const
   {
     double sum = 0.0;
     double count = 0.0;
@@ -598,7 +598,7 @@ private:
     return 1.0 - (sum / count);
   }
 
-  double distanceClusterToObjects(rs::Cluster &cluster, rs::Object &object) const
+  double distanceClusterToObjects(rs::ObjectHypothesis &cluster, rs::Object &object) const
   {
     double factor = 1.0;
     return 1.0 - matchAnnotation<rs::PoseAnnotation>(cluster, object, factor);
@@ -686,7 +686,7 @@ private:
     }
   }
 
-  void mergeClusterWithObjects(rs::Cluster &cluster, rs::Object &object)
+  void mergeClusterWithObjects(rs::ObjectHypothesis &cluster, rs::Object &object)
   {
     std::set<std::string> newAnnotations;
     std::vector<rs::Annotation> annotationsC = cluster.annotations();

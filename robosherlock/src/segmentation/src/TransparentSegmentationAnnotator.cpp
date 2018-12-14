@@ -196,7 +196,7 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
       pIndices = rs::conversion::to(tcas, indices);
       points.indices(pIndices);
 
-      rs::Cluster cluster = rs::create<rs::Cluster>(tcas);
+      rs::ObjectHypothesis cluster = rs::create<rs::ObjectHypothesis>(tcas);
       cluster.rois(roi);
       cluster.points(points);
       cluster.source.set("TransparentSegmentation");

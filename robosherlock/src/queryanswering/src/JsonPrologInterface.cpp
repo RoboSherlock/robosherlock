@@ -42,12 +42,12 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
         json_prolog::Prolog pl;
         std::string d = iter->value.GetString();
         d[0] = std::toupper(d[0]);
-        if(!addNamespace(d)) {
+        if(d != "" && !addNamespace(d)) {
           outWarn("No OWL definitions for " << d << " under any of the known namespaces");
           continue;
         }
         std::stringstream assertionQuery;
-        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," << d << "))";
+        assertionQuery << "assert(requestedValueForKey(" << iter->name.GetString() << "," << (d == "" ? "\'\'" : d) << "))";
         outInfo("Calilng query: " << assertionQuery.str());
         json_prolog::PrologQueryProxy bdgs = pl.query(assertionQuery.str());
         if(bdgs.begin() != bdgs.end()) {

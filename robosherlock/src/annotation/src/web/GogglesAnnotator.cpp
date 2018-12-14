@@ -101,12 +101,12 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     cv::Mat color;
     cas.get(VIEW_COLOR_IMAGE_HD, color);
     disp = color.clone();
     scene.identifiables.filter(clusters);
-    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+    for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it)
     {
       rs::ImageROI image_rois = it->rois.get();
 

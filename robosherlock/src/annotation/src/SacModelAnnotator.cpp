@@ -73,10 +73,10 @@ public:
     cas.get(VIEW_NORMALS, *normals_ptr);
 
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     outInfo("Processing " << clusters.size() << " point clusters");
-    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+    for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it)
     {
       pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
       rs::conversion::from(((rs::ReferenceClusterPoints)it->points.get()).indices(), *clusterIndices);
@@ -121,11 +121,8 @@ public:
       if((float)cylinderInliers->indices.size() / clusterCloud->width > 0.5)
       {
         rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
-        rs::CylindricalShape cylinderAnnotation = rs::create<rs::CylindricalShape>(tcas);
         shapeAnnotation.shape.set("cylinder");
-        cylinderAnnotation.shape.set("cylinder");
         it->annotations.append(shapeAnnotation);
-        it->annotations.append(cylinderAnnotation);
       }
 
 #if DEBUG_OUTPUT

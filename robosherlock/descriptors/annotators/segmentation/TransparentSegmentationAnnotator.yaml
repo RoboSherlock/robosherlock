@@ -7,7 +7,7 @@ capabilities:
   - rs.annotation.Plane
   - rs.pcl.FilteredPointCloud
   outputs:
-  - rs.scene.Cluster
+  - rs.scene.ObjectHypothesis
 parameters:
   close_iterations: 12
   convex_hull_segments: true

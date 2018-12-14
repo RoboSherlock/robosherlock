@@ -10,7 +10,7 @@ void processFeatureCluster(uima::CAS *cas)
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
   try{
   scene.identifiables.filter(clusters);
   }
@@ -22,7 +22,7 @@ void processFeatureCluster(uima::CAS *cas)
   EXPECT_TRUE(clusters.size()>0);
   for (int i = 0; i<clusters.size();i++)
   {
-    rs::Cluster &cluster = clusters[i];
+    rs::ObjectHypothesis &cluster = clusters[i];
     std::vector<rs::Features> features;
    
     cluster.annotations.filter(features);

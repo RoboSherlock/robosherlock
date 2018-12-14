@@ -142,7 +142,7 @@ private:
     outInfo("process start");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
 
     cas.get(VIEW_COLOR_IMAGE_HD, color);
     rs::Query qs = rs::create<rs::Query>(tcas);

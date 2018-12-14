@@ -18,12 +18,12 @@ void SacModelAnnotator()
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
   scene.identifiables.filter(clusters);
   EXPECT_TRUE(clusters.size()>0);
   
 
-  for ( std::vector<rs::Cluster>::iterator it = clusters.begin(); it!=clusters.end();++it)
+  for ( std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it!=clusters.end();++it)
   {
       std::vector<rs::Shape> shape_annotation;
       it->annotations.filter(shape_annotation);
