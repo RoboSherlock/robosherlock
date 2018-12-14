@@ -11,4 +11,4 @@ parameters:
   mode: OEC_prism
 capabilities:
   inputs: ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
-  outputs: ['rs.scene.Cluster']
+  outputs: ['rs.scene.ObjectHypothesis']

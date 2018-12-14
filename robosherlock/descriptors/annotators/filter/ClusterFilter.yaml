@@ -5,7 +5,7 @@ annotator:
   name: ClusterFilter
 capabilities:
   inputs:
-  - rs.scene.Cluster
+  - rs.scene.ObjectHypothesis
   outputs:
   - rs.scene.MergedCluster
 parameters:
