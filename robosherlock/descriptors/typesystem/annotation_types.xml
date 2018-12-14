@@ -543,47 +543,5 @@
         </featureDescription>
       </features>
     </typeDescription>
-
-    <typeDescription>
-      <name>rs.annotation.RotationalSymmetry</name>
-      <description>Type for holding Rotational Symmetry</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>origin</name>
-          <description/>
-          <rangeTypeName>rs.cv.Point3f</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>orientation</name>
-          <description/>
-          <rangeTypeName>rs.cv.Point3f</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
-
-    <typeDescription>
-      <name>rs.annotation.BilateralSymmetry</name>
-      <description>Type for holding Bilateral Symmetry</description>
-      <supertypeName>rs.core.Annotation</supertypeName>
-      <features>
-        <featureDescription>
-          <name>origin</name>
-          <description/>
-          <rangeTypeName>rs.cv.Point3f</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>normal</name>
-          <description/>
-          <rangeTypeName>rs.cv.Point3f</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>support</name>
-          <description/>
-          <rangeTypeName>uima.cas.IntegerArray</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
   </types>
 </typeSystemDescription>
