@@ -448,12 +448,12 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
   _view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
 }
 
-std::vector<rs::Cluster> Storage::getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids)
+std::vector<rs::ObjectHypothesis> Storage::getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids)
 {
   const std::string dbCollection = dbBase + collection;
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, mongo::Query());
 
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
 
   while(cursor->more())
   {
@@ -468,7 +468,7 @@ std::vector<rs::Cluster> Storage::getClusters(uima::CAS &cas, const std::string 
 
       if(std::any_of(ids.begin(), ids.end(), std::bind2nd(std::equal_to<std::string>(), elem.OID().toString())))
       {
-        clusters.push_back(rs::Cluster(rs::conversion::toFeatureStructure(cas, identifiable)));
+        clusters.push_back(rs::ObjectHypothesis(rs::conversion::toFeatureStructure(cas, identifiable)));
       }
     }
   }

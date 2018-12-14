@@ -55,12 +55,13 @@ void RSAnalysisEngine::init(const std::string &aeFile, bool parallel, bool perva
   boost::filesystem::path AEYamlPath(aeFile);
   std::string AEXMLFile(AEXMLDir + "/" + AEYamlPath.stem().string() + ".xml");
   //Generate the xml from the yaml config and then process the XML
-  AEYamlToXMLConverter aeConverter(aeFile);
-  aeConverter.parseYamlFile();
-  std::ofstream xmlOutput;
 
+  YamlToXMLConverter aeConverter(aeFile, YamlToXMLConverter::YAMLType::AAE);
+  aeConverter.parseYamlFile();
+
+  std::ofstream xmlOutput;
   xmlOutput.open(AEXMLFile);
-  aeConverter.getOutput(xmlOutput);
+  xmlOutput<<aeConverter;
   xmlOutput.close();
   outInfo("Converted to: " << AEXMLFile);
 
@@ -146,7 +147,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
   // If the path is yaml file, we need to convert it to xml
   if(boost::algorithm::ends_with(yamlPath, "yaml")) {
 
-    YamlToXMLConverter converter(yamlPath);
+    YamlToXMLConverter converter(yamlPath, YamlToXMLConverter::YAMLType::Annotator);
     try {
       converter.parseYamlFile();
       delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
@@ -168,8 +169,9 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
-      converter.getXml(of);
+      of<<converter;
       of.close();
+
       return xmlPath;
     }
     catch(std::runtime_error &e) {
@@ -283,7 +285,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
 
   std::vector<T> clusters;
-  if(std::is_same<T, rs::Cluster>::value) {
+  if(std::is_same<T, rs::ObjectHypothesis>::value) {
     scene.identifiables.filter(clusters);
   }
   else {
@@ -322,7 +324,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
   request.Parse(requestJson.c_str());
   if(request.HasMember("obj-part")) {
     for(int i = 0; i < clusters.size(); ++i) {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       std::vector<rs::ClusterPart> parts;
       cluster.annotations.filter(parts);
       for(int pIdx = 0; pIdx < parts.size(); ++pIdx) {
@@ -369,7 +371,7 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
   sceneCas.get(VIEW_CLOUD, *dispCloud);
 
   std::vector<T> clusters;
-  std::is_same<T, rs::Cluster>::value ? scene.identifiables.filter(clusters) : sceneCas.get(VIEW_OBJECTS, clusters);
+  std::is_same<T, rs::ObjectHypothesis>::value ? scene.identifiables.filter(clusters) : sceneCas.get(VIEW_OBJECTS, clusters);
 
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
@@ -430,7 +432,7 @@ template bool RSAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson, cv::Mat &resImage);
 
-template bool RSAnalysisEngine::drawResulstOnImage<rs::Cluster>(const std::vector<bool> &filter,
+template bool RSAnalysisEngine::drawResulstOnImage<rs::ObjectHypothesis>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson, cv::Mat &resImage);
 
@@ -438,6 +440,6 @@ template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::v
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
-template bool RSAnalysisEngine::highlightResultsInCloud<rs::Cluster>(const std::vector<bool> &filter,
+template bool RSAnalysisEngine::highlightResultsInCloud<rs::ObjectHypothesis>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);

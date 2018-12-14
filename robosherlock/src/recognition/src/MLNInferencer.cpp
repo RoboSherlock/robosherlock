@@ -163,11 +163,11 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     cas.get(VIEW_COLOR_IMAGE_HD, dispRgb);
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     outInfo("iterating over clusters");
     std::stringstream mlnDatabase;
-    for(std::vector<rs::Cluster>::iterator it = clusters.begin(); it != clusters.end(); ++it) {
+    for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it) {
 
       std::vector<std::string> atoms;
       rs::MLNAtoms mln_atoms = rs::create<rs::MLNAtoms>(tcas);
@@ -382,7 +382,7 @@ private:
   }
 
 
-  void drawCluster(rs::Cluster cluster, CAS &tcas, std::string name)
+  void drawCluster(rs::ObjectHypothesis cluster, CAS &tcas, std::string name)
   {
     rs::ImageROI image_roi = cluster.rois();
     cv::Rect cluster_roi;
@@ -391,7 +391,7 @@ private:
     cv::putText(dispRgb, name, cv::Point(cluster_roi.x, cluster_roi.y - 3), cv::FONT_HERSHEY_PLAIN, 1.5, CV_RGB(0, 0, 255), 2.0);
   }
 
-  void drawAtoms(rs::Cluster cluster, CAS &tcas, std::vector< std::string> atoms)
+  void drawAtoms(rs::ObjectHypothesis cluster, CAS &tcas, std::vector< std::string> atoms)
   {
     rs::ImageROI image_roi = cluster.rois();
     cv::Rect rect;

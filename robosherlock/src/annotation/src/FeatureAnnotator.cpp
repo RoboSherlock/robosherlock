@@ -381,7 +381,7 @@ private:
   {
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     cv::Mat objMask, descriptors;
     cv::Rect roi;

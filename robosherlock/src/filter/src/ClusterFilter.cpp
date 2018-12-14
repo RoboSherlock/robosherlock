@@ -73,7 +73,7 @@ public:
     cas.get(VIEW_COLOR_IMAGE, color);
     cas.get(VIEW_MASK, mask);
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<rs::Identifiable> filteredClusters;
     scene.identifiables.filter(clusters);
 
@@ -83,7 +83,7 @@ public:
     // Filter clusters that are touching the borders of the depth camera
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
 
       if(!cluster.points.has())
       {

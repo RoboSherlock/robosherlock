@@ -3,7 +3,7 @@ annotator:
   name: ClusterTracker
 capabilities:
   inputs:
-  - rs.scene.Cluster
+  - rs.scene.ObjectHypothesis
   outputs:
   - rs.annotation.Tracking
 parameters:

@@ -129,7 +129,7 @@ private:
     cas.get(VIEW_COLOR_IMAGE, color);
     cas.get(VIEW_DEPTH_IMAGE, depth);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     std::vector<Result> res_vector;
     if(color.size() != depth.size())
