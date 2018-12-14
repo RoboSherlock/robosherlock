@@ -5,7 +5,7 @@ annotator:
   name: ClusterTFLocationAnnotator
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   outputs:
   - rs.annotation.TFLocation
 parameters: {}

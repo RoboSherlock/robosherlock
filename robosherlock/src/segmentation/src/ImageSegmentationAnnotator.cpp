@@ -439,7 +439,7 @@ private:
       }
       points.indices(rs::conversion::to(tcas, indices));
 
-      rs::Cluster cluster = rs::create<rs::Cluster>(tcas);
+      rs::ObjectHypothesis cluster = rs::create<rs::ObjectHypothesis>(tcas);
       cluster.rois(roi);
       cluster.points(points);
       cluster.source.set("ImageSegmentation");

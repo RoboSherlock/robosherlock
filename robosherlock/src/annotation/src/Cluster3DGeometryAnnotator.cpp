@@ -111,7 +111,7 @@ public:
 
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<rs::Plane> planes;
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
@@ -149,7 +149,7 @@ public:
     #pragma omp parallel for
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       if(!cluster.points.has())
       {
         continue;
@@ -189,7 +189,7 @@ public:
 
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       OrientedBoundingBox &box = orientedBoundingBoxes[i];
 
       rs::BoundingBox3D box3d = rs::create<rs::BoundingBox3D>(tcas);

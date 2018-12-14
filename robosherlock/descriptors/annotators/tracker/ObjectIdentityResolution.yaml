@@ -4,7 +4,7 @@ annotator:
   name: ObjectIdentityResolution
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   - rs.annotation.Shape
   - rs.annotation.SemanticColor
   - rs.annotation.Geometry

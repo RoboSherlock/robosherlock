@@ -91,7 +91,7 @@ public:
 
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<rs::Plane> planes;
     std::vector<float> plane_model;
 

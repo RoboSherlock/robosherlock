@@ -3,7 +3,7 @@ annotator:
   name: GogglesAnnotator
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   outputs:
   - rs.annotation.Goggles
 parameters: {}

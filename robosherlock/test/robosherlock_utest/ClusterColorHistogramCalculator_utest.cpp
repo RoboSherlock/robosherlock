@@ -19,7 +19,7 @@ void clusterColorHistogramCalculator()
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
-  std::vector<rs::Cluster> clusters;
+  std::vector<rs::ObjectHypothesis> clusters;
   scene.identifiables.filter(clusters);
   EXPECT_TRUE(clusters.size()>0);
   
@@ -27,7 +27,7 @@ void clusterColorHistogramCalculator()
   
   for (int i = 0; i<clusters.size();i++)
   {
-    rs::Cluster &cluster = clusters[i];
+    rs::ObjectHypothesis &cluster = clusters[i];
     std::vector<rs::ColorHistogram> color_histogram;
    
     cluster.annotations.filter(color_histogram);

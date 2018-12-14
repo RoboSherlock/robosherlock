@@ -3,7 +3,7 @@ annotator:
   name: SacModelAnnotator
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   - rs.pcl.NormalsCloud
   outputs:
   - rs.annotation.Shape: [cylinder]

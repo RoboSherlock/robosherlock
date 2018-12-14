@@ -41,7 +41,7 @@ bool DesignatorWrapper::getObjectDesignators(std::vector<std::string> &objectDes
   now = scene.timestamp();
 
   if(mode == CLUSTER) {
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     std::vector<double> lastSeen;
     lastSeen.resize(clusters.size(), 0.0);
@@ -65,7 +65,7 @@ bool DesignatorWrapper::getObjectDesignators(std::vector<std::string> &objectDes
   return true;
 }
 
-void DesignatorWrapper::convert(rs::Cluster &input, const size_t id, rapidjson::Document *object)
+void DesignatorWrapper::convert(rs::ObjectHypothesis &input, const size_t id, rapidjson::Document *object)
 {
   object->AddMember("id", std::to_string(id), object->GetAllocator());
 }
@@ -302,24 +302,6 @@ void DesignatorWrapper::convert(rs::Goggles &input, rapidjson::Document *object)
 
   mergeJson(nestedValue, *links, "namedlinks");
   mergeJson(*object, nestedValue, "goggles");
-}
-
-void DesignatorWrapper::convert(rs::Features &input, rapidjson::Document *object)
-{
-  std::vector<rs::Response> resps = input.response();
-  if(resps.empty()) {
-    return;
-  }
-  rs::Response &resp = resps[0];
-
-  std::vector<std::string> classes = resp.classNames();
-  cv::Mat respM;
-  rs::conversion::from(resp.response.get(), respM);
-  if((size_t)respM.at<float>(0) > classes.size()) {
-    return;
-  }
-
-  object->AddMember("response", classes[(size_t)respM.at<float>(0)], object->GetAllocator());
 }
 
 void DesignatorWrapper::convert(rs::ClusterPart &input, rapidjson::Document *object)
