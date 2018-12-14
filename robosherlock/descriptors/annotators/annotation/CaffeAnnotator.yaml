@@ -9,5 +9,5 @@ parameters:
   caffe_annotator_label_file: '/caffe/data/synset_words.txt'
   caffe_annotator_noramlize: true
 capabilities:
-  inputs: ['rs.scene.MergedCluster']
+  inputs: ['rs.scene.MergedHypothesis']
   outputs: ['rs.annotation.Features']

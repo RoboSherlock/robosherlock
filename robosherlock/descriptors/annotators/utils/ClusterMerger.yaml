@@ -6,5 +6,5 @@ capabilities:
   inputs:
   - rs.scene.ObjectHypothesis
   outputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
 parameters: {}

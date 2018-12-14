@@ -4,7 +4,7 @@ annotator:
   name: LinemodAnnotator
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   outputs:
   - rs.annotation.Detection
 parameters:

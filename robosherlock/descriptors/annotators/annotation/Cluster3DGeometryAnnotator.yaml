@@ -9,7 +9,7 @@ parameters:
                     # this can be useful when data is very noisy 
   overwriteExistingPoseEstimate: false 
 capabilities:
-  inputs: ['rs.scene.MergedCluster']
+  inputs: ['rs.scene.MergedHypothesis']
   outputs: 
     - rs.annotation.Geometry: [small, medium, big]
     - rs.annotation.Pose

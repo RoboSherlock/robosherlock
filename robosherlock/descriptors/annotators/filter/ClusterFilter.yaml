@@ -7,6 +7,6 @@ capabilities:
   inputs:
   - rs.scene.ObjectHypothesis
   outputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
 parameters:
   max_allowed_overlap: 0.055

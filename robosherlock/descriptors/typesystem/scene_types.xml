@@ -48,7 +48,7 @@
     </typeDescription>
 
     <typeDescription>
-      <name>rs.scene.MergedCluster</name>
+      <name>rs.scene.MergedHypothesis</name>
       <description/>
       <supertypeName>rs.scene.ObjectHypothesis</supertypeName>
     </typeDescription>
