@@ -29,31 +29,12 @@
       <supertypeName>uima.cas.TOP</supertypeName>
       <features>
         <featureDescription>
-          <name>timestamp</name>
-          <description/>
-          <rangeTypeName>uima.cas.Long</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
           <name>query</name>
           <description>json string format of query</description>
           <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
-
-    <typeDescription>
-      <name>rs.core.CWAssumption</name>
-      <description/>
-      <supertypeName>uima.cas.TOP</supertypeName>
-      <features>
-        <featureDescription>
-          <name>cwObjects</name>
-          <description/>
-          <rangeTypeName>uima.cas.StringArray</rangeTypeName>
-        </featureDescription>
-      </features>
-    </typeDescription>
-
 
     <typeDescription>
       <name>rs.core.Scene</name>

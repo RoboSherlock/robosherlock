@@ -102,7 +102,7 @@ public:
     cas.get(VIEW_CAMERA_INFO, cam_info_);
 
 
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
 
     if(!scene.identifiables.empty())
     {
@@ -112,7 +112,7 @@ public:
         outInfo("Processing " << clusters.size() << " clusters");
         std::vector<tf::StampedTransform> stamped_transforms;
 
-        for(std::vector<rs::Cluster>::iterator clust_it = clusters.begin(); clust_it != clusters.end();
+        for(std::vector<rs::ObjectHypothesis>::iterator clust_it = clusters.begin(); clust_it != clusters.end();
             ++clust_it)
         {
 

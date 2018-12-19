@@ -274,6 +274,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
     if(!getConfigForKey(key, location, check, thresh, keepLower)) continue;
     const std::string queryValue = queryIt->value.GetString();
 
+    if (queryValue == "") continue;
 
     outInfo("No. of resulting Object Designators: " << resultDesignators.size());
     for(size_t i = 0; i < resultDesignators.size(); ++i)
@@ -325,7 +326,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
           {
             bool found = false;
             for(auto &v : value->GetArray())
-              if(v == queryValue)
+              if(v == queryValue || queryValue == "")
                 found = true;
             if(!found)
               matchingDescription[j] = false;

@@ -1,5 +1,6 @@
 <launch>
   <!-- Analysis engines to execute, comma separated list: eninge1,engine2,... -->
+  
   <arg name="ae"               default="demo"/> <!-- Short version for analysis_engines -->
   <arg name="analysis_engines" default="$(arg ae)"/>
   <!-- Enable / disable visualization -->
@@ -10,8 +11,8 @@
   <arg name="withIDRes"        default="false"/>
   <arg name="wait"             default="false"/>
 
-  <arg name="parallel"              default="true"/>
-
+  <arg name="parallel"         default="false"/>
+  <arg name="pervasive"        default="false"/>
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
   <!-- Whether the machine for localhost should be defined our not. Disable this if the launch file is included somewhere where machines are already defined. -->
@@ -32,5 +33,7 @@
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
     <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
     <param name="wait"             type="bool" value="$(arg wait)"/>
+    <param name="pervasive"        type="bool" value="$(arg pervasive)"/>
+
   </node>
 </launch>

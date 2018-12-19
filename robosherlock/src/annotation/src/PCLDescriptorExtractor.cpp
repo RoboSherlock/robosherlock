@@ -164,7 +164,7 @@ public:
     outInfo("process start");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
 
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_NORMALS, *normals);
@@ -246,7 +246,7 @@ public:
   * @param inputCloud-a single point cloud
   * @return extractedClusters-vector of clusters extracted
   */
-  void extractClustersAndNormals(std::vector<rs::Cluster> &clusters)
+  void extractClustersAndNormals(std::vector<rs::ObjectHypothesis> &clusters)
   {
     //first, empty the vector of clusters and the vector of normals
     extractedClusters.clear();
@@ -256,7 +256,7 @@ public:
     //next, iterate over clusters
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       if(!cluster.points.has())
       {
         outWarn("skipping cluster without points.");
@@ -395,11 +395,11 @@ public:
   }
 
   template<typename DescriptorSignature>
-  void storeDescriptors(const std::vector<DescriptorSignature> &descriptors, std::vector<rs::Cluster> &clusters, CAS &tcas)
+  void storeDescriptors(const std::vector<DescriptorSignature> &descriptors, std::vector<rs::ObjectHypothesis> &clusters, CAS &tcas)
   {
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster &cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       const DescriptorSignature &descriptor = descriptors[i];
       const size_t size = sizeof(descriptor.histogram) / sizeof(descriptor.histogram[0]);
       const std::vector<float> histogram(descriptor.histogram, descriptor.histogram + size);

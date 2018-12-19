@@ -62,7 +62,7 @@ public:
     rs::Scene scene = cas.getScene();
 
     // get clusters
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
 
     // get segmentation masks
@@ -71,7 +71,7 @@ public:
 
     for(unsigned int i = 0; i < clusters.size(); ++i)
     {
-      rs::Cluster cluster(clusters[i]);
+      rs::ObjectHypothesis cluster(clusters[i]);
 
       int idx = -1;
       std::string name, relation;
@@ -109,7 +109,7 @@ private:
     }
   }
 
-  int checkOnTopOf(rs::Cluster &cluster, std::vector<rs::SemanticMapObject> &objects, std::string &name, std::string &relation)
+  int checkOnTopOf(rs::ObjectHypothesis &cluster, std::vector<rs::SemanticMapObject> &objects, std::string &name, std::string &relation)
   {
     std::vector<rs::PoseAnnotation> poses;
     cluster.annotations.filter(poses);
@@ -145,7 +145,7 @@ private:
     return -1;
   }
 
-  int checkInsideOf(rs::Cluster &cluster, std::vector<rs::SemanticMapObject> &objects, std::string &name, std::string &relation)
+  int checkInsideOf(rs::ObjectHypothesis &cluster, std::vector<rs::SemanticMapObject> &objects, std::string &name, std::string &relation)
   {
     std::vector<rs::PoseAnnotation> poses;
     cluster.annotations.filter(poses);

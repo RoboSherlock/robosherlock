@@ -280,8 +280,8 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
         engine_.highlightResultsInCloud<rs::Object>(desigsToKeep, resultDesignators, request, dispCloud);
       }
       else {
-        engine_.drawResulstOnImage<rs::Cluster>(desigsToKeep, resultDesignators, request, resImage);
-        engine_.highlightResultsInCloud<rs::Cluster>(desigsToKeep, resultDesignators, request, dispCloud);
+        engine_.drawResulstOnImage<rs::ObjectHypothesis>(desigsToKeep, resultDesignators, request, resImage);
+        engine_.highlightResultsInCloud<rs::ObjectHypothesis>(desigsToKeep, resultDesignators, request, dispCloud);
       }
 
       cv_bridge::CvImage outImgMsgs;

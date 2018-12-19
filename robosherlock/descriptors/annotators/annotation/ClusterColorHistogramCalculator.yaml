@@ -4,7 +4,7 @@ annotator:
   name: ClusterColorHistogramCalculator
 capabilities:
   inputs:
-  - rs.scene.MergedCluster
+  - rs.scene.MergedHypothesis
   outputs:
   - rs.annotation.ColorHistogram
   - rs.annotation.SemanticColor: [yellow, blue, black, white, red, green, cyan, magenta]

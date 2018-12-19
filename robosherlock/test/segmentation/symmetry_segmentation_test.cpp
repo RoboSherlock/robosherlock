@@ -55,7 +55,7 @@ protected:
     rs::Scene scene = cas.getScene();
 
     //get segments data
-    std::vector<rs::Cluster> segments;
+    std::vector<rs::ObjectHypothesis> segments;
     scene.identifiables.filter(segments);
 
     return segments.size();

@@ -98,7 +98,7 @@ public:
   void storeCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
   void loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
 
-  std::vector<Cluster> getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids);
+  std::vector<ObjectHypothesis> getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids);
 };
 
 } // namespace rs

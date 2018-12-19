@@ -237,7 +237,7 @@ private:
       Cluster &cluster = clusters[i];
       const pcl::PointIndices &indices = cluster_indices[i];
 
-      rs::Cluster uimaCluster = rs::create<rs::Cluster>(tcas);
+      rs::ObjectHypothesis uimaCluster = rs::create<rs::ObjectHypothesis>(tcas);
       rs::ReferenceClusterPoints rcp = rs::create<rs::ReferenceClusterPoints>(tcas);
       rs::PointIndices uimaIndices = rs::conversion::to(tcas, indices);
 
