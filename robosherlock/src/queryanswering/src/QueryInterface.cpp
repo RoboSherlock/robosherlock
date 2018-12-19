@@ -175,14 +175,18 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
-    // TODO: Implementation
-    res.push_back("CollectionReader");
-    res.push_back("KalmanTrackingAnnotator");
-    outInfo("Planned tracking pipeline: ");
-    for(auto const &r:res){
-        outInfo(r);
-    }
-    return true;
+  res.push_back("CollectionReader");
+  res.push_back("ImagePreprocessor");
+  //res.push_back("PointCloudClusterExtractor"); // 3D tracking
+  //res.push_back("PointCloudFilter"); // 3D tracking
+  res.push_back("KalmanTrackingAnnotator");
+  //res.push_back("PCLTrackingAnnotator"); // 3D tracking
+  res.push_back("StorageWriter");
+  outInfo("Planned tracking pipeline: ");
+  for(auto const &r:res){
+    outInfo(r);
+  }
+  return true;
 }
 
 bool getConfigForKey(std::string key, std::vector<std::string> &location,
