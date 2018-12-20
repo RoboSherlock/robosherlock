@@ -321,7 +321,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       rs::SceneCas sceneCas(*tcas);
       rs::Scene scene = sceneCas.getScene();
 
-      std::vector<rs::Cluster> objHyps;
+      std::vector<rs::ObjectHypothesis> objHyps;
       scene.identifiables.filter(objHyps);
       outError("Found " <<objHyps.size()<<"objects");
 

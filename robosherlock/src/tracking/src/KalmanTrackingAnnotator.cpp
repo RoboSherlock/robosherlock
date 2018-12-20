@@ -63,7 +63,7 @@ private:
     cv::Mat frame; // Input data for 2D tracking
     cv::Rect roi; // Region of interest
     Rect2d bbox; // Could later be used for the bounding box query parameter.
-    std::vector<rs::Cluster> clusters;
+    std::vector<rs::ObjectHypothesis> clusters;
     std::vector<cv::Rect> clusterRois;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
