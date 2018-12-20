@@ -56,12 +56,10 @@ class TrackingAnnotator : public DrawingAnnotator
 {
 private:
     Ptr<Tracker> tracker = TrackerKCF::create();
-    bool kcfStarted;
     cv::Mat depthImage;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud; // Input data for 3D tracking
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
-    cv::Rect roi; // Region of interest
     Rect2d bbox; // Could later be used for the bounding box query parameter.
     std::vector<rs::ObjectHypothesis> clusters;
     std::vector<cv::Rect> clusterRois;
@@ -77,20 +75,13 @@ public:
     TyErrorId initialize(AnnotatorContext &ctx) {
         outInfo("initialize");
 
-        /**
         // TODO: Check and extract ctx parameters
 
-        #if (CV_MINOR_VERSION < 3)
-        {
-            tracker = Tracker::create(KCF);
-        }
-        #else
-        {
-            tracker = TrackerKCF::create();
-        }
-        #endif
+        // Default bounding box. Could be overridden by parameter. Is later overridden using region of interest.
+        Rect2d bbox(0, 0, 200, 200);
 
-         **/
+        // Initializes tracker
+        tracker->init(frame, bbox);
         
         return UIMA_ERR_NONE;
     }
@@ -127,17 +118,18 @@ public:
         for(size_t idx = 0; idx < clusters.size(); ++idx) {
             rs::ImageROI image_rois = clusters[idx].rois.get();
 
-            cv::Rect roi;
-            rs::conversion::from(image_rois.roi_hires(), roi);
+            cv::Rect roiIterating;
+            rs::conversion::from(image_rois.roi_hires(), roiIterating);
 
-            clusterRois[idx] = roi;
+            clusterRois[idx] = roiIterating;
         }
 
-        KCFTracker(clusterRois[0]); // Use the first object for now.
+        bbox = clusterRois[0]; // cv::Rect2d constructor supports cv::Rect
+        tracker->update(frame, bbox);
 
 
         /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen
-         * somewhere else, most likely in Prolog (?)
+         *  TODO: somewhere else, most likely in Prolog (?)
         if(!kcfStarted && !pclStarted) {
             hasDepth = cas.get(VIEW_DEPTH_IMAGE, depthImage);
             if (hasDepth) {
@@ -150,21 +142,6 @@ public:
          **/
 
         return UIMA_ERR_NONE;
-    }
-
-    bool KCFTracker(cv::Rect roi) {
-        if (!kcfStarted) {
-            // Define bounding box. Could later be overriden by parameter.
-            Rect2d bbox(0, 0, 200, 200);
-
-            // Initializes tracker
-            tracker->init(frame, roi);
-
-            kcfStarted = true;
-        }
-
-        // Update the tracking result
-        tracker->update(frame, bbox);
     }
 };
 

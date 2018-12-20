@@ -86,7 +86,6 @@ typedef ParticleFilterTracker<RefPointType, ParticleT> ParticleFilter;
 class TrackingAnnotator : public DrawingAnnotator
 {
 private:
-    bool pclStarted;
     cv::Mat depthImage;
     boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
     CloudPtr cloud_pass_;
@@ -113,81 +112,12 @@ public:
     TyErrorId initialize(AnnotatorContext &ctx) {
         outInfo("initialize");
 
-        /**
         // TODO: Check and extract ctx parameters
 
-        #if (CV_MINOR_VERSION < 3)
-        {
-            tracker = Tracker::create(KCF);
-        }
-        #else
-        {
-            tracker = TrackerKCF::create();
-        }
-        #endif
-
-         **/
-        
-        return UIMA_ERR_NONE;
-    }
-
-    TyErrorId reconfigure()
-    {
-        outInfo("Reconfiguring");
-        AnnotatorContext &ctx = getAnnotatorContext();
-        initialize(ctx);
-        return UIMA_ERR_NONE;
-    }
-
-    // Destroys annotator
-    TyErrorId destroy()
-    {
-        outInfo("destroy");
-
-        return UIMA_ERR_NONE;
-    }
-
-    // Processes a frame
-    TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
-    {
-        MEASURE_TIME;
-        outInfo("process begins");
-
-        rs::SceneCas cas(tcas);
-        cas.get(VIEW_CLOUD, *cloud); // Fill input data for 3D tracking
-
-        PCLTracker();
-
-        return UIMA_ERR_NONE;
-    }
-
-    //Filter along a specified dimension
-    void filterPassThrough (const CloudConstPtr &cloud, Cloud &result)
-    {
-        pcl::PassThrough<pcl::PointXYZRGBA> pass;
-        pass.setFilterFieldName ("z");
-        pass.setFilterLimits (0.0, 10.0);
-        pass.setKeepOrganized (false);
-        pass.setInputCloud (cloud);
-        pass.filter (result);
-    }
-
-    void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
-    {
-        pcl::ApproximateVoxelGrid<pcl::PointXYZRGBA> grid;
-        grid.setLeafSize (static_cast<float> (leaf_size), static_cast<float> (leaf_size), static_cast<float> (leaf_size));
-        grid.setInputCloud (cloud);
-        grid.filter (result);
-    }
-
-    // TODO: Where to get the .pcd file from?
-    bool PCLTracker()
-    {
-        if(!pclStarted) {
             objectCloud.reset(new Cloud());
-            if(pcl::io::loadPCDFile ("path/to/pcd/file", *objectCloud) == -1){
-                std::cout << "pcd file not found" << std::endl;
-                return false;
+            if(pcl::io::loadPCDFile ("path/to/pcd/file", *objectCloud) == -1) {
+              std::cout << "pcd file not found" << std::endl;
+              return false;
             }
 
 
@@ -264,15 +194,73 @@ public:
             tracker_->setReferenceCloud (transed_ref_downsampled);
             tracker_->setTrans (trans);
 
-            //Start viewer and object tracking
             //interface->start();
             //interface->stop();
             // TODO: Visualize according to how other annotators visualize results
 
+        return UIMA_ERR_NONE;
+    }
 
+    TyErrorId reconfigure()
+    {
+        outInfo("Reconfiguring");
+        AnnotatorContext &ctx = getAnnotatorContext();
+        initialize(ctx);
+        return UIMA_ERR_NONE;
+    }
 
-            pclStarted = true;
+    // Destroys annotator
+    TyErrorId destroy()
+    {
+        outInfo("destroy");
+
+        return UIMA_ERR_NONE;
+    }
+
+    // Processes a frame
+    TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
+    {
+        MEASURE_TIME;
+        outInfo("process begins");
+
+        rs::SceneCas cas(tcas);
+        cas.get(VIEW_CLOUD, *cloud); // Fill input data for 3D tracking
+
+        boost::mutex::scoped_lock lock (mtx_);
+        cloud_pass_.reset (new Cloud);
+        cloud_pass_downsampled_.reset (new Cloud);
+        filterPassThrough (cloud, *cloud_pass_);
+        gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, downsampling_grid_size_);
+
+        if(counter < 10){
+            counter++;
+        }else{
+            //Track the object
+            tracker_->setInputCloud (cloud_pass_downsampled_);
+            tracker_->compute ();
+            new_cloud_ = true;
         }
+
+        return UIMA_ERR_NONE;
+    }
+
+    //Filter along a specified dimension
+    void filterPassThrough (const CloudConstPtr &cloud, Cloud &result)
+    {
+        pcl::PassThrough<pcl::PointXYZRGBA> pass;
+        pass.setFilterFieldName ("z");
+        pass.setFilterLimits (0.0, 10.0);
+        pass.setKeepOrganized (false);
+        pass.setInputCloud (cloud);
+        pass.filter (result);
+    }
+
+    void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
+    {
+        pcl::ApproximateVoxelGrid<pcl::PointXYZRGBA> grid;
+        grid.setLeafSize (static_cast<float> (leaf_size), static_cast<float> (leaf_size), static_cast<float> (leaf_size));
+        grid.setInputCloud (cloud);
+        grid.filter (result);
     }
 };
 
