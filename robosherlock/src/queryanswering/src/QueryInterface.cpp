@@ -65,9 +65,13 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
       //create json string for detection
 
       // Makes detect query from track query.
-      if (query.HasMember("stop"))
+      if (query.HasMember("command"))
       {
-        // TODO: Do whatever is necessary to stop tracking
+          rapidjson::Value::MemberIterator commandIterator = query.FindMember("command");
+          if(commandIterator->value.GetString() == "stop"){
+              // TODO: Do whatever is necessary to stop tracking
+          }
+
       } else {
 
           const rapidjson::Value &valTrack = query["track"];
