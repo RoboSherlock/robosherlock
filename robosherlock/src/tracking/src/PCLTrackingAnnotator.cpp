@@ -180,26 +180,6 @@ public:
         grid.filter (result);
     }
 
-    //OpenNI Grabber's cloud Callback function
-    void
-    cloud_cb (const CloudConstPtr &cloud)
-    {
-        boost::mutex::scoped_lock lock (mtx_);
-        cloud_pass_.reset (new Cloud);
-        cloud_pass_downsampled_.reset (new Cloud);
-        filterPassThrough (cloud, *cloud_pass_);
-        gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, downsampling_grid_size_);
-
-        if(counter < 10){
-            counter++;
-        }else{
-            //Track the object
-            tracker_->setInputCloud (cloud_pass_downsampled_);
-            tracker_->compute ();
-            new_cloud_ = true;
-        }
-    }
-
     // TODO: Where to get the .pcd file from?
     bool PCLTracker()
     {
@@ -284,16 +264,10 @@ public:
             tracker_->setReferenceCloud (transed_ref_downsampled);
             tracker_->setTrans (trans);
 
-            //Setup OpenNIGrabber and viewer
-            pcl::visualization::CloudViewer* viewer_ = new pcl::visualization::CloudViewer("PCL OpenNI Tracking Viewer");
-            pcl::Grabber* interface = new pcl::OpenNIGrabber ("#1");
-            boost::function<void (const CloudConstPtr&)> f =
-                    boost::bind (&cloud_cb, _1); // TODO: taking an address & isn't allowed inside of a parenthesis
-            interface->registerCallback (f);
-
             //Start viewer and object tracking
-            interface->start();
+            //interface->start();
             //interface->stop();
+            // TODO: Visualize according to how other annotators visualize results
 
 
 
