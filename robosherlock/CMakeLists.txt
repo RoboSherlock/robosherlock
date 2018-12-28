@@ -228,3 +228,6 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_core
     rs_io
     rs_utils)
+
+rs_add_library(rs_ResultAdveritser src/ResultAdveritser.cpp)
+target_link_libraries(rs_ResultAdveritser ${catkin_LIBRARIES})
