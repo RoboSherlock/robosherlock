@@ -5,6 +5,9 @@ add_library(rs_core SHARED
   src/scene_cas.cpp
   src/conversion/bson.cpp
   src/conversion/bson_conversion.cpp
+  src/conversion/json.cpp
+  src/conversion/json_conversion.cpp
+
   src/conversion/conversion.cpp
   src/conversion/cv_conversion.cpp
   src/conversion/pcl_conversion.cpp
