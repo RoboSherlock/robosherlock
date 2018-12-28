@@ -50,6 +50,7 @@ namespace conversion
 
 typedef void (*FromBasicTypeFunction)(const uima::FeatureStructure &fs, const uima::Feature &feature, const std::string &name, mongo::BSONObjBuilder &builder);
 typedef void (*ToBasicTypeFunction)(uima::CAS &cas, uima::FeatureStructure &fs, const uima::Feature &feature, const mongo::BSONElement &elem);
+
 typedef std::map<uima::Type, FromBasicTypeFunction> FromBasicTypes;
 typedef std::map<uima::Type, ToBasicTypeFunction> ToBasicTypes;
 
@@ -58,6 +59,7 @@ static ToBasicTypes toBasicTypes;
 
 typedef void (*FromArrayTypeFunction)(const uima::FeatureStructure &fs, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent);
 typedef uima::FeatureStructure(*ToArrayTypeFunction)(uima::CAS &cas, const mongo::BSONElement &elem);
+
 typedef std::map<uima::Type, FromArrayTypeFunction> FromArrayTypes;
 typedef std::map<uima::Type, ToArrayTypeFunction> ToArrayTypes;
 
@@ -269,7 +271,7 @@ void fromArrayFS##_NAME_##Native(const uima::_NAME_##ArrayFS &arrayFS, const siz
     arrayFS.copyToArray(0, size, rawData, 0);\
     for(size_t i = 0; i < size; ++i)\
     {\
-      data[i] = (_CAST_)rawData[i];\
+      data[i] = static_cast<_CAST_>(rawData[i]);\
     }\
     delete[] rawData;\
   }\
@@ -291,7 +293,7 @@ uima::FeatureStructure toArrayFS##_NAME_##Native(uima::CAS &cas, const mongo::BS
     _TYPE_ *rawData = new _TYPE_[data.size()];\
     for(size_t i = 0; i < data.size(); ++i)\
     {\
-      rawData[i] = (_TYPE_)data[i];\
+      rawData[i] = static_cast<_TYPE_>(data[i]);\
     }\
     arrayFS.copyFromArray(rawData, 0, data.size(), 0);\
     delete[] rawData;\
