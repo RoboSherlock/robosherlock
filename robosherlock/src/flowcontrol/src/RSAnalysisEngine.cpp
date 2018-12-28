@@ -240,28 +240,28 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
       outError("Got Interrputed with Frame Filter, not time here");
     }
 
+    rs::DesignatorWrapper dw(cas_);
+    useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
+    dw.getObjectDesignators(designatorResponse);
+    setQuery("");
     outInfo("processing finished");
     outInfo(clock.getTime() << " ms." << std::endl << std::endl << FG_YELLOW
             << "********************************************************************************" << std::endl);
+
+
   }
   catch(const rs::Exception &e) {
-    outError("Exception: " << std::endl << e.what());
+    outError("RoboSherlock Exception: " << std::endl << e.what());
   }
   catch(const uima::Exception &e) {
-    outError("Exception: " << std::endl << e);
+    outError("UIMA Exception: " << std::endl << e);
   }
   catch(const std::exception &e) {
-    outError("Exception: " << std::endl << e.what());
+    outError("Standard Exception: " << std::endl << e.what());
   }
   catch(...) {
     outError("Unknown exception!");
   }
-
-  rs::DesignatorWrapper dw(cas_);
-  useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
-  dw.getObjectDesignators(designatorResponse);
-  setQuery("");
-  outInfo("processing finished");
 }
 
 
