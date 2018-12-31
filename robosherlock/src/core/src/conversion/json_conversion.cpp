@@ -41,10 +41,10 @@ void from(const uima::FeatureStructure &fs, rapidjson::Document &output)
 {
   fromFeatureStructure(fs, output);
 
-  rapidjson::StringBuffer buffer;
-  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-  output.Accept(writer);
-  std::cerr<<__FILE__<<"::"<<__LINE__<<":"<<buffer.GetString()<<std::endl;
+//  rapidjson::StringBuffer buffer;
+//  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+//  output.Accept(writer);
+//  std::cerr<<__FILE__<<"::"<<__LINE__<<":"<<buffer.GetString()<<std::endl;
 }
 
 template<>

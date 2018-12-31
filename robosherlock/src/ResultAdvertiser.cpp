@@ -86,19 +86,47 @@ public:
       //      ss << (i == 0 ? "{\"object_hypotheses:\": [" : "");
       //      ss << "{\"cluster\" : " << i << "," << std::endl << "\"annotations\" : [";
       rs::ObjectHypothesis &cluster = c;
+      rapidjson::Document jsonDoc;
+      jsonDoc.SetObject();
+      {
+        MEASURE_TIME;
+        rs::conversion::from(c, jsonDoc);
+      }
+      rapidjson::StringBuffer buffer;
+      rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      jsonDoc.Accept(writer);
+//        std::cerr << buffer.GetString() << std::endl;
+      outInfo(buffer.GetString());
+
       int annotidx = 0;
-      std::vector<rs::SemanticSize> shapeAnnotations;
-      cluster.annotations.filter(shapeAnnotations);
-      for(auto annotation : shapeAnnotations) {
+//      std::vector<rs::Annotation> annotations;
+//      std::vector<rs::Geometry> shapeAnnotations;
+//      cluster.annotations.filter(shapeAnnotations);
+//      cluster.annotations.filter(annotations);
+
+      //      for(auto annotation : sizeAnnotations) {
+      //        rapidjson::Document jsonDoc;
+      //        jsonDoc.SetObject();
+      //        rs::conversion::from(annotation, jsonDoc);
+      //        rapidjson::StringBuffer buffer;
+      //        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+      //        jsonDoc.Accept(writer);
+      //        std::cerr<<buffer.GetString()<<std::endl;
+      //      }
+      for(auto annotation : cluster.annotations()) {
         rapidjson::Document jsonDoc;
         jsonDoc.SetObject();
-        rs::conversion::from(annotation, jsonDoc);
+        {
+          MEASURE_TIME;
+          rs::conversion::from(annotation, jsonDoc);
+        }
         rapidjson::StringBuffer buffer;
         rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
         jsonDoc.Accept(writer);
-        std::cerr<<buffer.GetString()<<std::endl;
+//        std::cerr << buffer.GetString() << std::endl;
+//        outInfo(buffer.GetString());
       }
-break;
+      break;
     }
     return UIMA_ERR_NONE;
   }
