@@ -36,7 +36,8 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 
-#include <rs/conversion/bson.h>
+//#include <rs/conversion/bson.h>
+#include <rs/conversion/json.h>
 
 //#undef OUT_LEVEL
 //#define OUT_LEVEL OUT_LEVEL_DEBUG
@@ -48,6 +49,7 @@ class ResultAdvertiser : public Annotator
 {
 
 public:
+
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
@@ -71,44 +73,33 @@ public:
     scene.identifiables.filter(clusters);
 
     std::stringstream ss;
-    ss<<"{\"results\" : [";
-    int idx=0;
-    for (auto annotation: scene.annotations())
-    {
-      ss<<(idx==0?"{\"scene_properties\" : [":"");
-      mongo::BSONObj bson;
-      rs::conversion::from(annotation, bson);
-      //fields that just polute the resulting json. if reaally needed comment them out
-      //TODO: recursive function to delete _od and _parent ->fields come from mongo and are not needed here
-      bson = bson.removeField(mongo::StringData("inliers"));
-      bson = bson.removeField(mongo::StringData("mask"));
-      bson = bson.removeField(mongo::StringData("indices"));
-      bson = bson.removeField(mongo::StringData("_id"));
-      bson = bson.removeField(mongo::StringData("_parent"));
-      ss << bson.jsonString(mongo::JsonStringFormat::Strict,1) << (idx++ < scene.annotations.size() - 1 ? "," : "");
-    }
-    ss<<(idx!=0 ? "]},":"");
-
     int i = 0;
-    for(auto c : clusters)
-    {
-      ss << (i==0?"{\"object_hypotheses:\": [":"");
-      ss << "{\"cluster\" : " << i << "," << std::endl << "\"annotations\" : [";
+
+    rs::Identifiable ident  = rs::create<rs::Identifiable>(tcas);
+    uima::Type identType = ident.type();
+    std::vector<uima::Type> semanticTypes;
+    identType.getDirectSubTypes(semanticTypes);
+    for(auto t : semanticTypes)
+      outInfo(t.getName().asUTF8());
+
+    for(auto c : clusters) {
+      //      ss << (i == 0 ? "{\"object_hypotheses:\": [" : "");
+      //      ss << "{\"cluster\" : " << i << "," << std::endl << "\"annotations\" : [";
       rs::ObjectHypothesis &cluster = c;
       int annotidx = 0;
-      for(auto annotation : cluster.annotations())
-      {
-        mongo::BSONObj bson;
-        rs::conversion::from(annotation, bson);
-        bson = bson.removeField(mongo::StringData("_id"));
-        bson = bson.removeField(mongo::StringData("_parent"));
-        ss << bson.jsonString(mongo::JsonStringFormat::Strict,1) << (annotidx++ < cluster.annotations.size() - 1 ? "," : "");
+      std::vector<rs::SemanticSize> shapeAnnotations;
+      cluster.annotations.filter(shapeAnnotations);
+      for(auto annotation : shapeAnnotations) {
+        rapidjson::Document jsonDoc;
+        jsonDoc.SetObject();
+        rs::conversion::from(annotation, jsonDoc);
+        rapidjson::StringBuffer buffer;
+        rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+        jsonDoc.Accept(writer);
+        std::cerr<<buffer.GetString()<<std::endl;
       }
-      ss << "]}" << (i++ < clusters.size() - 1 ? "," : ""); //end of annotations
+break;
     }
-    ss<<(i!=0? "]}":"");
-    ss<<"]}";
-
     return UIMA_ERR_NONE;
   }
 };

@@ -33,8 +33,7 @@ namespace rs
 {
 namespace conversion
 {
-
-rapidjson::Document fromFeatureStructure(const uima::FeatureStructure &fs, const rapidjson::Document &parent);
+void fromFeatureStructure(const uima::FeatureStructure &fs, rapidjson::Document &parent);
 uima::FeatureStructure toFeatureStructure(uima::CAS &cas, const rapidjson::Document &object);
 
 }

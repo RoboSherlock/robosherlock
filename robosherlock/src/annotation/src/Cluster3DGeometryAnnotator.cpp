@@ -209,6 +209,7 @@ public:
       cluster.annotations.append(geometry);
 
       rs::SemanticSize semSize = rs::create<rs::SemanticSize>(tcas);;
+      semSize.source.set("Cluster3DGeometryAnnotator");
 
       float lowerThreshold = 0.0012,
             middleThreshold = 0.004,

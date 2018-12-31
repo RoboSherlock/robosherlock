@@ -1,5 +1,5 @@
 annotator:
-  implementation: rs_ResultAdveritser
+  implementation: rs_ResultAdvertiser
 parameters:
   test_param: 0.01
 capabilities:

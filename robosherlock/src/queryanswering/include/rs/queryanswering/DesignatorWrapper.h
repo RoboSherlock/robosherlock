@@ -120,7 +120,7 @@ public:
         rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
         writer.SetFormatOptions(rapidjson::PrettyFormatOptions::kFormatSingleLineArray);
         objectDesignator.Accept(writer);
-        outDebug(buffer.GetString());
+//        outDebug(buffer.GetString());
         objectDesignators.push_back(jsonToString(objectDesignator));
       }
     }

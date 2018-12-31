@@ -39,7 +39,12 @@ namespace conversion
 template<>
 void from(const uima::FeatureStructure &fs, rapidjson::Document &output)
 {
-  output = fromFeatureStructure(fs, rapidjson::Document());
+  fromFeatureStructure(fs, output);
+
+  rapidjson::StringBuffer buffer;
+  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  output.Accept(writer);
+  std::cerr<<__FILE__<<"::"<<__LINE__<<":"<<buffer.GetString()<<std::endl;
 }
 
 template<>
