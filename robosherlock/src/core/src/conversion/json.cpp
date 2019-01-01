@@ -43,6 +43,7 @@ namespace conversion
 #define FIELD_DATA   "_data"
 //#define FIELD_PARENT "_parent"
 
+static int ARRAY_SIZE_LIMIT = {20};
 //#define ARRAY_NATIVE_LIMIT 20 // Store array with a size smaller than ARRAY_NATIVE_LIMIT as native BSON arrays else as binary
 
 ///******************************************************************************
@@ -122,10 +123,10 @@ void fromFeatureString(const uima::FeatureStructure &fs, const uima::Feature &fe
   val.SetString(buffer2, len2, allocator);
   document.AddMember(key.Move(), val.Move(), allocator);
 
-//  rapidjson::StringBuffer rBuffer;
-//  rapidjson::Writer<rapidjson::StringBuffer> writer(rBuffer);
-//  document.Accept(writer);
-//  std::cerr << __FILE__ << "::" << __LINE__ << rBuffer.GetString() << std::endl;
+  //  rapidjson::StringBuffer rBuffer;
+  //  rapidjson::Writer<rapidjson::StringBuffer> writer(rBuffer);
+  //  document.Accept(writer);
+  //  std::cerr << __FILE__ << "::" << __LINE__ << rBuffer.GetString() << std::endl;
 
 }
 
@@ -138,7 +139,6 @@ void fromFeatureString(const uima::FeatureStructure &fs, const uima::Feature &fe
 ///******************************************************************************
 // * Conversion:: FS Feature
 // *****************************************************************************/
-
 void fromFeatureFeatureStructure(const uima::FeatureStructure &fs, const uima::Feature &feature, const std::string &name, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)
 {
   rapidjson::Value fieldNameV(name, allocator);
@@ -229,25 +229,16 @@ void fromBasicFeatureStructure(const uima::FeatureStructure &fs, const uima::Typ
   }
   catch(const uima::InvalidFSTypeObjectException) {
   }
-
-  //  if(!id.empty()) {
-  //    builder.append(FIELD_ID, mongo::OID(id));
-  //  }
-  //  else {
-  //    builder.genOID();
-  //  }
-  //  builder.append(FIELD_PARENT, parent);
-  //  builder.append(FIELD_TYPE, type);
   for(size_t i = 0; i < features.size(); ++i) {
     const uima::Feature &feature = features[i];
     if(feature != idFeature) {
       fromFeature(fs, feature, parent, allocator);
     }
   }
-//  rapidjson::StringBuffer buffer;
-//  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-//  parent.Accept(writer);
-//  outInfo(buffer.GetString());
+  //  rapidjson::StringBuffer buffer;
+  //  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  //  parent.Accept(writer);
+  //  outInfo(buffer.GetString());
 }
 
 //uima::FeatureStructure toBasicFeatureStructure(uima::CAS &cas, const uima::Type &fsType, const mongo::BSONObj &object)
@@ -278,147 +269,6 @@ void fromBasicFeatureStructure(const uima::FeatureStructure &fs, const uima::Typ
 //  return newFS;
 //}
 
-///******************************************************************************
-// * Conversion:: Basic Array Feature Structure with casting
-// *****************************************************************************/
-
-//#define DATA_ARRAY_CAST_IMPL(_TYPE_, _NAME_, _CAST_)\
-//void fromArrayFS##_NAME_##Native(const uima::_NAME_##ArrayFS &arrayFS, const size_t &size, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)\
-//{\
-//  std::vector<_CAST_> data(size);\
-//  if(size)\
-//  {\
-//    _TYPE_ *rawData = new _TYPE_[size];\
-//    arrayFS.copyToArray(0, size, rawData, 0);\
-//    for(size_t i = 0; i < size; ++i)\
-//    {\
-//      data[i] = static_cast<_CAST_>(rawData[i]);\
-//    }\
-//    delete[] rawData;\
-//  }\
-//  builder.append(fieldName, data);\
-//}\
-//uima::FeatureStructure toArrayFS##_NAME_##Native(uima::CAS &cas, const mongo::BSONElement &elem)\
-//{\
-//  std::vector<_CAST_> data;\
-//  mongo::BSONObjIterator i(elem.Obj());\
-//  while( i.more() )\
-//  {\
-//    _CAST_ t;\
-//    i.next().Val(t);\
-//    data.push_back(t);\
-//  }\
-//  uima::_NAME_##ArrayFS arrayFS = cas.create##_NAME_##ArrayFS(data.size());\
-//  if(!data.empty())\
-//  {\
-//    _TYPE_ *rawData = new _TYPE_[data.size()];\
-//    for(size_t i = 0; i < data.size(); ++i)\
-//    {\
-//      rawData[i] = static_cast<_TYPE_>(data[i]);\
-//    }\
-//    arrayFS.copyFromArray(rawData, 0, data.size(), 0);\
-//    delete[] rawData;\
-//  }\
-//  return arrayFS;\
-//}
-
-//DATA_ARRAY_CAST_IMPL(bool, Boolean, bool)
-//DATA_ARRAY_CAST_IMPL(char, Byte, int)
-//DATA_ARRAY_CAST_IMPL(short, Short, int)
-//DATA_ARRAY_CAST_IMPL(float, Float, double)
-
-///******************************************************************************
-// * Conversion:: Basic Array Feature Structure as native types
-// *****************************************************************************/
-
-
-
-//#define DATA_ARRAY_NATIVE_IMPL(_TYPE_, _NAME_, _CAST_)\
-//void fromArrayFS##_NAME_##Native(const uima::_NAME_##ArrayFS &arrayFS, const size_t &size, const std::string &fieldName, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)\
-//{\
-//  std::vector<_CAST_> data(size);\
-//  if(size)\
-//  {\
-//    arrayFS.copyToArray(0, size, (_TYPE_*)data.data(), 0);\
-//  }\
-//  document.AddMember(key, arrayVal, allocator);\
-//}\
-
-//uima::FeatureStructure toArrayFS##_NAME_##Native(uima::CAS &cas, const mongo::BSONElement &elem)\
-//{\
-//  std::vector<_CAST_> data;\
-//  mongo::BSONObjIterator i(elem.Obj());\
-//  while( i.more() )\
-//  {\
-//    _CAST_ t;\
-//    i.next().Val(t);\
-//    data.push_back(t);\
-//  }\
-//  uima::_NAME_##ArrayFS arrayFS = cas.create##_NAME_##ArrayFS(data.size());\
-//  if(!data.empty())\
-//  {\
-//    arrayFS.copyFromArray((_TYPE_*)data.data(), 0, data.size(), 0);\
-//  }\
-//  return arrayFS;\
-//}
-
-//DATA_ARRAY_NATIVE_IMPL(int, Int, int)
-//DATA_ARRAY_NATIVE_IMPL(INT64, Long, long long int)
-//DATA_ARRAY_NATIVE_IMPL(double, Double, double)
-
-///******************************************************************************
-// * Conversion:: Basic Array Feature Structure as binary
-// *****************************************************************************/
-
-//#define DATA_ARRAY_BIN_IMPL(_TYPE_, _NAME_)\
-//void fromArrayFS##_NAME_##Binary(const uima::_NAME_##ArrayFS &arrayFS, const size_t &size, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)\
-//{\
-//  _TYPE_ *rawData = NULL;\
-//  if(size)\
-//  {\
-//    rawData = new _TYPE_[size];\
-//    arrayFS.copyToArray(0, size, rawData, 0);\
-//  }\
-//  builder.appendBinData(fieldName, size * sizeof(_TYPE_), mongo::BinDataGeneral, rawData);\
-//  if(rawData)\
-//  {\
-//    delete[] rawData;\
-//  }\
-//}\
-//uima::FeatureStructure toArrayFS##_NAME_##Binary(uima::CAS &cas, const mongo::BSONElement &elem)\
-//{\
-//  int len = 0;\
-//  const _TYPE_ *rawData = (const _TYPE_*)elem.binData(len);\
-//  size_t size = len / sizeof(_TYPE_);\
-//  uima::_NAME_##ArrayFS arrayFS = cas.create##_NAME_##ArrayFS(size);\
-//  if(size)\
-//  {\
-//    arrayFS.copyFromArray(rawData, 0, size, 0);\
-//  }\
-//  return arrayFS;\
-//}
-
-//DATA_ARRAY_BIN_IMPL(bool, Boolean)
-//DATA_ARRAY_BIN_IMPL(char, Byte)
-//DATA_ARRAY_BIN_IMPL(short, Short)
-//DATA_ARRAY_BIN_IMPL(int, Int)
-//DATA_ARRAY_BIN_IMPL(INT64, Long)
-//DATA_ARRAY_BIN_IMPL(float, Float)
-//DATA_ARRAY_BIN_IMPL(double, Double)
-
-///******************************************************************************
-// * Conversion:: Basic Array Feature Structure implementation selection
-// *****************************************************************************/
-
-
-////nestedValue->SetArray();
-
-////for(size_t i = 0; i < atoms.size(); ++i) {
-////  rapidjson::Value atom;
-////  atom.SetString(atoms[i], nestedValue->GetAllocator());
-////  nestedValue->PushBack(atom, nestedValue->GetAllocator());
-//// }
-
 
 #define DATA_ARRAY_IMPL(_TYPE_, _NAME_, _RJSON_)\
 void fromArrayFS##_NAME_(const uima::FeatureStructure &fs, const std::string &fieldName, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)\
@@ -431,7 +281,7 @@ void fromArrayFS##_NAME_(const uima::FeatureStructure &fs, const std::string &fi
     size = arrayFS.size();\
   }\
   rapidjson::Document arrayVal(rapidjson::kArrayType);\
-  if(size)\
+  if(size < ARRAY_SIZE_LIMIT)\
   {\
     for(size_t i = 0; i < size; ++i)\
     {\
@@ -584,66 +434,29 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
 //DATA_LIST_CAST_IMPL(float, Float, double)
 
 ///******************************************************************************
-// * Conversion:: Basic List Feature Structure as binary
-// *****************************************************************************/
-
-//#define DATA_LIST_BIN_IMPL(_TYPE_, _NAME_)\
-//void fromListFS##_NAME_##Binary(uima::_NAME_##ListFS &listFS, const size_t &size, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)\
-//{\
-//  _TYPE_ *rawData = NULL;\
-//  if(size)\
-//  {\
-//    rawData = new _TYPE_[size];\
-//    for(size_t i = 0; i < size; ++i)\
-//    {\
-//      rawData[i] = listFS.getHead();\
-//      listFS.moveToNext();\
-//    }\
-//  }\
-//  builder.appendBinData(fieldName, size * sizeof(_TYPE_), mongo::BinDataGeneral, rawData);\
-//  if(rawData)\
-//  {\
-//    delete[] rawData;\
-//  }\
-//}\
-//uima::FeatureStructure toListFS##_NAME_##Binary(uima::CAS &cas, const mongo::BSONElement &elem)\
-//{\
-//  int len = 0;\
-//  const _TYPE_ *rawData = (const _TYPE_*)elem.binData(len);\
-//  size_t size = len / sizeof(_TYPE_);\
-//  uima::_NAME_##ListFS listFS = cas.create##_NAME_##ListFS();\
-//  for(int i = size - 1; i >= 0; --i)\
-//  {\
-//    listFS.addFirst(rawData[i]);\
-//  }\
-//  return listFS;\
-//}
-
-//DATA_LIST_BIN_IMPL(int, Int)
-//DATA_LIST_BIN_IMPL(float, Float)
-
-///******************************************************************************
 // * Conversion:: Basic List Feature Structure implementation selection
 // *****************************************************************************/
 
-//#define DATA_LIST_IMPL(_NAME_)\
-//void fromListFS##_NAME_(const uima::FeatureStructure &fs, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)\
-//{\
-//  uima::_NAME_##ListFS listFS(fs);\
-//  size_t size = 0;\
-//  if(listFS.isValid())\
-//  {\
-//    size = listFS.getLength();\
-//  }\
-//  if((int64_t)size < ARRAY_NATIVE_LIMIT)\
-//  {\
-//    fromListFS##_NAME_##Native(listFS, size, fieldName, builder, parent);\
-//  }\
-//  else\
-//  {\
-//    fromListFS##_NAME_##Binary(listFS, size, fieldName, builder, parent);\
-//  }\
-//}\
+#define DATA_LIST_IMPL(_NAME_, _TYPE_)\
+void fromListFS##_NAME_(const uima::FeatureStructure &fs, const std::string &fieldName, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)\
+{\
+  uima::_NAME_##ListFS listFS(fs);\
+  size_t size = 0;\
+  if(listFS.isValid())\
+  {\
+    size = listFS.getLength();\
+  }\
+  rapidjson::Value key (fieldName,allocator);\
+  rapidjson::Document arrayVal(rapidjson::kArrayType);\
+  for(size_t i = 0; i < size; ++i)\
+  {\
+    _TYPE_ head = (_TYPE_)listFS.getHead();\
+    rapidjson::Value item(head);\
+    arrayVal.PushBack(item, allocator);\
+    listFS.moveToNext();\
+  }\
+  document.AddMember(key, arrayVal,allocator);\
+}\
 //uima::FeatureStructure toListFS##_NAME_(uima::CAS &cas, const mongo::BSONElement &elem)\
 //{\
 //  switch(elem.type())\
@@ -658,28 +471,33 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
 //  }\
 //}
 
-//DATA_LIST_IMPL(Int)
-//DATA_LIST_IMPL(Float)
+DATA_LIST_IMPL(Int, int)
+DATA_LIST_IMPL(Float, float)
 
 ///******************************************************************************
 // * Conversion:: String List Feature Structure
 // *****************************************************************************/
 
-//void fromListFSString(const uima::FeatureStructure &fs, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)
-//{
-//  uima::StringListFS listFS(fs);
-//  size_t size = 0;
-//  if(listFS.isValid()) {
-//    size = listFS.getLength();
-//  }
-//  std::vector<std::string> data(size);
-//  for(size_t i = 0; i < size; ++i) {
-//    uima::UnicodeStringRef ref = listFS.getHead();
-//    data[i] = ref.asUTF8();
-//    listFS.moveToNext();
-//  }
-//  builder.append(fieldName, data);
-//}
+void fromListFSString(const uima::FeatureStructure &fs, const std::string &fieldName,  rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)
+{
+  uima::StringListFS listFS(fs);
+  size_t size = 0;
+  if(listFS.isValid()) {
+    size = listFS.getLength();
+  }
+
+  rapidjson::Document arrayVal(rapidjson::kArrayType);
+  for(size_t i = 0; i < size; ++i) {
+    uima::UnicodeStringRef ref = listFS.getHead();
+    rapidjson::Value value;
+    value.SetString(ref.asUTF8(),allocator);
+    arrayVal.PushBack(value, allocator);
+    listFS.moveToNext();
+  }
+
+  rapidjson::Value key (fieldName,allocator);
+  document.AddMember(key, arrayVal, allocator);
+}
 
 //uima::FeatureStructure toListFSString(uima::CAS &cas, const mongo::BSONElement &elem)
 //{
@@ -703,20 +521,26 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
 // * Conversion:: FS List Feature Structure
 // *****************************************************************************/
 
-//void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::string &fieldName, mongo::BSONObjBuilder &builder, const mongo::OID &parent)
-//{
-//  uima::ListFS listFS(fs);
-//  size_t size = 0;
-//  if(listFS.isValid()) {
-//    size = listFS.getLength();
-//  }
-//  std::vector<mongo::BSONObj> data(size);
-//  for(size_t i = 0; i < size; ++i) {
-//    data[i] = fromFeatureStructureAux(listFS.getHead(), parent);
-//    listFS.moveToNext();
-//  }
-//  builder.append(fieldName, data);
-//}
+void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::string &fieldName, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)
+{
+  uima::ListFS listFS(fs);
+  size_t size = 0;
+  if(listFS.isValid()) {
+    size = listFS.getLength();
+  }
+
+  rapidjson::Value key(fieldName, allocator);
+  rapidjson::Document arrayVal(rapidjson::kObjectType);
+  for(size_t i = 0; i < size; ++i) {
+    rapidjson::Document doc(rapidjson::kObjectType);
+    uima::FeatureStructure elem = listFS.getHead();
+    rapidjson::Value elemKey (elem.getType().getName().asUTF8(),allocator);
+    fromFeatureStructureAux(listFS.getHead(), doc, allocator);
+    arrayVal.AddMember(elemKey, doc.Move(),allocator);
+    listFS.moveToNext();
+  }
+  document.AddMember(key, arrayVal, allocator);
+}
 
 //uima::FeatureStructure toListFSFeatureStructure(uima::CAS &cas, const mongo::BSONElement &elem)
 //{
@@ -770,10 +594,10 @@ void fromFeatureStructureAux(const uima::FeatureStructure &fs, rapidjson::Docume
   rapidjson::Value typeName(type, allocator);
   parent.AddMember(typeName, doc.Move(), allocator);
 
-//  rapidjson::StringBuffer buffer;
-//  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-//  parent.Accept(writer);
-//  std::cerr << __FILE__ << "::" << __LINE__ << ":" << buffer.GetString() << std::endl;
+  //  rapidjson::StringBuffer buffer;
+  //  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  //  parent.Accept(writer);
+  //  std::cerr << __FILE__ << "::" << __LINE__ << ":" << buffer.GetString() << std::endl;
 
 }
 
@@ -809,10 +633,10 @@ void fromFeatureStructure(const uima::FeatureStructure &fs, rapidjson::Document 
   initFunctionMaps(fs.getCAS());
   fromFeatureStructureAux(fs, parent, parent.GetAllocator());
 
-//  rapidjson::StringBuffer buffer;
-//  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
-//  parent.Accept(writer);
-//  std::cerr << __FILE__ << "::" << __LINE__ << ":" << buffer.GetString() << std::endl;
+  //  rapidjson::StringBuffer buffer;
+  //  rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
+  //  parent.Accept(writer);
+  //  std::cerr << __FILE__ << "::" << __LINE__ << ":" << buffer.GetString() << std::endl;
 }
 
 uima::FeatureStructure toFeatureStructure(uima::CAS &cas, const rapidjson::Document &object)
@@ -833,10 +657,10 @@ uima::FeatureStructure toFeatureStructure(uima::CAS &cas, const rapidjson::Docum
   fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_##_UPPER_##_ARRAY)] = &fromArrayFS##_NAME_;\
 //  toArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_##_UPPER_##_ARRAY)] = &toArrayFS##_NAME_;
 
-//#define ADD_LIST_TYPE(_TS_, _NAME_, _UPPER_)\
-//  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
-//  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_EMPTY_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
-//  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_NON_EMPTY_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
+#define ADD_LIST_TYPE(_TS_, _NAME_, _UPPER_)\
+  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
+  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_EMPTY_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
+  fromArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_NON_EMPTY_##_UPPER_##_LIST)] = &fromListFS##_NAME_;\
 //  toArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_##_UPPER_##_LIST)] = &toListFS##_NAME_;\
 //  toArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_EMPTY_##_UPPER_##_LIST)] = &toListFS##_NAME_;\
 //  toArrayTypes[_TS_.getType(uima::CAS::TYPE_NAME_NON_EMPTY_##_UPPER_##_LIST)] = &toListFS##_NAME_;
@@ -870,10 +694,10 @@ void initFunctionMaps(const uima::CAS &cas)
   ADD_ARRAY_TYPE(ts, String, STRING);
   ADD_ARRAY_TYPE(ts, FeatureStructure, FS);
 
-  //  ADD_LIST_TYPE(ts, Int, INTEGER);
-  //  ADD_LIST_TYPE(ts, Float, FLOAT);
-  //  ADD_LIST_TYPE(ts, String, STRING);
-  //  ADD_LIST_TYPE(ts, FeatureStructure, FS);
+//  ADD_LIST_TYPE(ts, Int, INTEGER);
+//  ADD_LIST_TYPE(ts, Float, FLOAT);
+  ADD_LIST_TYPE(ts, String, STRING);
+  ADD_LIST_TYPE(ts, FeatureStructure, FS);
 
   isInitialized = true;
 }
