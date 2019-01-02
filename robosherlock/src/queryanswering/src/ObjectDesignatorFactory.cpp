@@ -85,8 +85,19 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
 
     outDebug("time: " << std::setprecision(20) << time);
     objectDesignator.AddMember("timestamp", time, objectDesignator.GetAllocator());
+    for (auto annotation:element.annotations){
+        rapidjson::Document a(rapidjson::kObjectType);
+        rs::conversion::from(annotation,a);
+        for (rapidjson::Value::MemberIterator it = a.MemberBegin(); it != a.MemberEnd();++it)
+        {
+            outInfo(it->name.GetString());
+            rapidjson::Value key(it->name.GetString(),objectDesignator.GetAllocator());
+            rapidjson::Document val(rapidjson::kObjectType);
+            val.CopyFrom(it->value, objectDesignator.GetAllocator());
+            objectDesignator.AddMember(key, val.Move(),objectDesignator.GetAllocator());
+        }
+    }
 
-    rs::conversion::from(element, objectDesignator);
 
     if(objectDesignator.MemberCount() > 0) {
       outDebug("Object as json:");
