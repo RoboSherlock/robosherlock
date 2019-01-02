@@ -28,7 +28,7 @@
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
-#include <rs/queryanswering/DesignatorWrapper.h>
+#include <rs/queryanswering/ObjectDesignatorFactory.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>

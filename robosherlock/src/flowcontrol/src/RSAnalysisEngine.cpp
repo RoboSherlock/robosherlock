@@ -84,7 +84,9 @@ void RSAnalysisEngine::init(const std::string &aeFile, bool parallel, bool perva
   }
   outInfo("generated XML for annotators");
 
+
   engine_ = (RSAggregateAnalysisEngine *) rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
+
   if(engine_ == nullptr) {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
@@ -240,8 +242,8 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
       outError("Got Interrputed with Frame Filter, not time here");
     }
 
-    rs::DesignatorWrapper dw(cas_);
-    useIdentityResolution_ ? dw.setMode(rs::DesignatorWrapper::OBJECT) : dw.setMode(rs::DesignatorWrapper::CLUSTER);
+    rs::ObjectDesignatorFactory dw(cas_);
+    useIdentityResolution_ ? dw.setMode(rs::ObjectDesignatorFactory::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::CLUSTER);
     dw.getObjectDesignators(designatorResponse);
     setQuery("");
     outInfo("processing finished");

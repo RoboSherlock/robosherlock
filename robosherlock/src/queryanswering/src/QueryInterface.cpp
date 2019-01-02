@@ -2,7 +2,7 @@
 #include<rs/queryanswering/QueryInterface.h>
 
 #ifdef WITH_JSON_PROLOG
-#include<rs/queryanswering/DesignatorWrapper.h>
+#include<rs/queryanswering/ObjectDesignatorFactory.h>
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
