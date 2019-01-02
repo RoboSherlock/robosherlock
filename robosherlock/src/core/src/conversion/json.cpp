@@ -530,13 +530,13 @@ void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::str
   }
 
   rapidjson::Value key(fieldName, allocator);
-  rapidjson::Document arrayVal(rapidjson::kObjectType);
+  rapidjson::Document arrayVal(rapidjson::kArrayType);
   for(size_t i = 0; i < size; ++i) {
     rapidjson::Document doc(rapidjson::kObjectType);
     uima::FeatureStructure elem = listFS.getHead();
     rapidjson::Value elemKey (elem.getType().getName().asUTF8(),allocator);
     fromFeatureStructureAux(listFS.getHead(), doc, allocator);
-    arrayVal.AddMember(elemKey, doc.Move(),allocator);
+    arrayVal.PushBack(doc.Move(),allocator);
     listFS.moveToNext();
   }
   document.AddMember(key, arrayVal, allocator);
@@ -694,8 +694,8 @@ void initFunctionMaps(const uima::CAS &cas)
   ADD_ARRAY_TYPE(ts, String, STRING);
   ADD_ARRAY_TYPE(ts, FeatureStructure, FS);
 
-//  ADD_LIST_TYPE(ts, Int, INTEGER);
-//  ADD_LIST_TYPE(ts, Float, FLOAT);
+  ADD_LIST_TYPE(ts, Int, INTEGER);
+  ADD_LIST_TYPE(ts, Float, FLOAT);
   ADD_LIST_TYPE(ts, String, STRING);
   ADD_LIST_TYPE(ts, FeatureStructure, FS);
 
