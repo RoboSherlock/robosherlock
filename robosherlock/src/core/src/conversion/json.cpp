@@ -327,7 +327,7 @@ void fromArrayFSString(const uima::FeatureStructure &fs, const std::string &fiel
     size = arrayFS.size();
   }
   rapidjson::Document arrayVal(rapidjson::kArrayType);
-  for(size_t i = 0; i < size; ++i) {
+  for(size_t i = 0; i < size && size < ARRAY_SIZE_LIMIT; ++i) {
     uima::UnicodeStringRef ref = arrayFS.get(i);
     rapidjson::Value atom;
     atom.SetString(ref.asUTF8(), allocator);
@@ -370,7 +370,7 @@ void fromArrayFSFeatureStructure(const uima::FeatureStructure &fs, const std::st
   std::vector<mongo::BSONObj> data(size);
   rapidjson::Document arrayVal(rapidjson::kArrayType);
 
-  for(size_t i = 0; i < size; ++i) {
+  for(size_t i = 0; i < size && size< ARRAY_SIZE_LIMIT; ++i) {
     rapidjson::Document doc(rapidjson::kObjectType);
     fromFeatureStructureAux(arrayFS.get(i), doc, allocator);
     arrayVal.PushBack(doc.Move(), allocator);
@@ -448,7 +448,7 @@ void fromListFS##_NAME_(const uima::FeatureStructure &fs, const std::string &fie
   }\
   rapidjson::Value key (fieldName,allocator);\
   rapidjson::Document arrayVal(rapidjson::kArrayType);\
-  for(size_t i = 0; i < size; ++i)\
+  for(size_t i = 0; i < size && size < ARRAY_SIZE_LIMIT; ++i)\
   {\
     _TYPE_ head = (_TYPE_)listFS.getHead();\
     rapidjson::Value item(head);\
@@ -487,7 +487,7 @@ void fromListFSString(const uima::FeatureStructure &fs, const std::string &field
   }
 
   rapidjson::Document arrayVal(rapidjson::kArrayType);
-  for(size_t i = 0; i < size; ++i) {
+  for(size_t i = 0; i < size && size < ARRAY_SIZE_LIMIT; ++i) {
     uima::UnicodeStringRef ref = listFS.getHead();
     rapidjson::Value value;
     value.SetString(ref.asUTF8(),allocator);
@@ -531,7 +531,7 @@ void fromListFSFeatureStructure(const uima::FeatureStructure &fs, const std::str
 
   rapidjson::Value key(fieldName, allocator);
   rapidjson::Document arrayVal(rapidjson::kArrayType);
-  for(size_t i = 0; i < size; ++i) {
+  for(size_t i = 0; i < size && size < ARRAY_SIZE_LIMIT; ++i) {
     rapidjson::Document doc(rapidjson::kObjectType);
     uima::FeatureStructure elem = listFS.getHead();
     rapidjson::Value elemKey (elem.getType().getName().asUTF8(),allocator);
