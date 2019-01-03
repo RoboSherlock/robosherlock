@@ -199,10 +199,7 @@ public:
       box3d.height(box.height);
 
       rs::Geometry geometry = rs::create<rs::Geometry>(tcas);
-      geometry.camera.set(rs::conversion::to(tcas, box.poseCam));
-      geometry.world.set(rs::conversion::to(tcas, box.poseWorld));
       geometry.boundingBox(box3d);
-      geometry.size(box.semanticSize);
 
       double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(box.poseCam.getOrigin().x(), box.poseCam.getOrigin().y(), box.poseCam.getOrigin().z()), plane_model[0], plane_model[1], plane_model[2], plane_model[3]));
       geometry.distanceToPlane.set(dist);

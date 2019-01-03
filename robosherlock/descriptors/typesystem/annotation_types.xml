@@ -397,28 +397,13 @@
       <supertypeName>rs.core.Annotation</supertypeName>
       <features>
         <featureDescription>
-          <name>camera</name>
-          <description/>
-          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
-          <name>world</name>
-          <description/>
-          <rangeTypeName>rs.tf.StampedPose</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
           <name>boundingBox</name>
           <description/>
           <rangeTypeName>rs.pcl.BoundingBox3D</rangeTypeName>
         </featureDescription>
         <featureDescription>
-          <name>size</name>
-          <description/>
-          <rangeTypeName>uima.cas.String</rangeTypeName>
-        </featureDescription>
-        <featureDescription>
             <name>distanceToPlane</name>
-            <description/>
+	    <description>Distance to supporting plane</description>
             <rangeTypeName>uima.cas.Double</rangeTypeName>
          </featureDescription>
       </features>
