@@ -69,10 +69,10 @@ uima::FeatureStructure to(uima::CAS &cas, const tf::Pose &input)
   const tf::Quaternion quat = input.getRotation();
   const tf::Vector3 &trans = input.getOrigin();
 
-  quatVec.push_back(quat.x());
-  quatVec.push_back(quat.y());
-  quatVec.push_back(quat.z());
-  quatVec.push_back(quat.w());
+  quatVec[0] = quat.x();
+  quatVec[1] = quat.y();
+  quatVec[2] = quat.z();
+  quatVec[3] = quat.w();
 
   transVec[0] = trans[0];
   transVec[1] = trans[1];
