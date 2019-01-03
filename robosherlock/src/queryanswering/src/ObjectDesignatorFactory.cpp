@@ -85,23 +85,30 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
 
     outDebug("time: " << std::setprecision(20) << time);
     objectDesignator.AddMember("timestamp", time, objectDesignator.GetAllocator());
-    for (auto annotation:element.annotations){
-        rapidjson::Document a(rapidjson::kObjectType);
-        rs::conversion::from(annotation,a);
-        for (rapidjson::Value::MemberIterator it = a.MemberBegin(); it != a.MemberEnd();++it)
-        {
-            outInfo(it->name.GetString());
-            rapidjson::Value key(it->name.GetString(),objectDesignator.GetAllocator());
-            rapidjson::Document val(rapidjson::kObjectType);
-            val.CopyFrom(it->value, objectDesignator.GetAllocator());
-            objectDesignator.AddMember(key, val.Move(),objectDesignator.GetAllocator());
-        }
-    }
+    for(auto annotation : element.annotations) {
+      rapidjson::Document annotAsJson(rapidjson::kObjectType);
+      rs::conversion::from(annotation, annotAsJson);
 
+      for(rapidjson::Value::MemberIterator it = annotAsJson.MemberBegin(); it != annotAsJson.MemberEnd(); ++it) {
+        outInfo(it->name.GetString());
+        rapidjson::Value key(it->name.GetString(), objectDesignator.GetAllocator());
+        rapidjson::Document val(rapidjson::kObjectType);
+        val.CopyFrom(it->value, objectDesignator.GetAllocator());
+        if(!objectDesignator.HasMember(it->name.GetString())) {
+          rapidjson::Document array(rapidjson::kArrayType);
+          array.PushBack(val, objectDesignator.GetAllocator());
+          objectDesignator.AddMember(key, array.Move(), objectDesignator.GetAllocator());
+        }
+        else {
+            objectDesignator[it->name.GetString()].PushBack(val, objectDesignator.GetAllocator());
+        }
+
+      }
+    }
 
     if(objectDesignator.MemberCount() > 0) {
       outDebug("Object as json:");
-      outDebug(jsonToString(objectDesignator,true));
+      outDebug(jsonToString(objectDesignator, true));
       objectDesignators.push_back(jsonToString(objectDesignator));
     }
   }
@@ -112,8 +119,6 @@ void ObjectDesignatorFactory::mergeJson(rapidjson::Document &destination, rapidj
   rapidjson::Value fieldNameV(fieldName, destination.GetAllocator());
   destination.AddMember(fieldNameV, source, destination.GetAllocator());
 }
-
-
 
 template<class T> std::string ObjectDesignatorFactory::jsonToString(T &res, bool pretty)
 {
