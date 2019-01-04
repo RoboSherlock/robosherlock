@@ -122,8 +122,8 @@ bool getConfigForKey(std::string key, std::vector<std::string> &location,
     thresh = pt.get<double> (key + ".threshold", 0.f);
     keepLower = pt.get<bool> (key + ".keepLower", true);
 
-    boost::split(location, l, boost::is_any_of(","), boost::token_compress_on);
-    boost::split(check, c, boost::is_any_of(","), boost::token_compress_on);
+    boost::split(location, l, boost::is_any_of("|&"), boost::token_compress_on);
+    boost::split(check, c, boost::is_any_of(",|&"), boost::token_compress_on);
 
     return true;
   }
@@ -231,7 +231,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             matchingDescription[j] = false;
           }
         }
-        else if(check[j] == "CONTAINSEQUAL") {
+        else if(check[j] == "ARRAY-VAL-EQUAL") {
           std::string delimiter = "*";
           int delLoc = location[j].find(delimiter);
           std::string prefix = location[j].substr(0, delLoc - 1);
