@@ -23,17 +23,21 @@
 namespace rs
 {
 
+
+/**
+ * @brief The ObjectDesignatorFactory class for generating json description of objects or object hypotheses.
+ */
 class ObjectDesignatorFactory
 {
 public:
 
-  enum DesignatorProcessMode
+  enum class Mode
   {
     CLUSTER = 0,
     OBJECT
   };
 
-  DesignatorProcessMode mode;
+  ObjectDesignatorFactory::Mode mode;
 
   uint64_t now;
   uima::CAS *tcas;
@@ -43,7 +47,7 @@ public:
   ObjectDesignatorFactory(uima::CAS *cas);
 
   void setCAS(uima::CAS *cas);
-  void setMode(DesignatorProcessMode m);
+  void setMode(ObjectDesignatorFactory::Mode m);
 
   virtual ~ObjectDesignatorFactory();
 

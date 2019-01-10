@@ -15,7 +15,7 @@ ObjectDesignatorFactory::~ObjectDesignatorFactory()
 
 ObjectDesignatorFactory::ObjectDesignatorFactory(uima::CAS *cas) : tcas(cas)
 {
-  mode = CLUSTER;
+  mode = ObjectDesignatorFactory::Mode::CLUSTER;
 }
 
 
@@ -24,7 +24,7 @@ void ObjectDesignatorFactory::setCAS(uima::CAS *cas)
   tcas = cas;
 }
 
-void ObjectDesignatorFactory::setMode(DesignatorProcessMode m)
+void ObjectDesignatorFactory::setMode(ObjectDesignatorFactory::Mode m)
 {
   mode = m;
 }
@@ -40,7 +40,7 @@ bool ObjectDesignatorFactory::getObjectDesignators(std::vector<std::string> &obj
   rs::Scene scene = cas.getScene();
   now = scene.timestamp();
 
-  if(mode == CLUSTER) {
+  if(mode == ObjectDesignatorFactory::Mode::CLUSTER) {
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     std::vector<double> lastSeen;

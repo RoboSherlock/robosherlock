@@ -122,8 +122,8 @@ bool getConfigForKey(std::string key, std::vector<std::string> &location,
     thresh = pt.get<double> (key + ".threshold", 0.f);
     keepLower = pt.get<bool> (key + ".keepLower", true);
 
-    boost::split(location, l, boost::is_any_of("|&"), boost::token_compress_on);
-    boost::split(check, c, boost::is_any_of(",|&"), boost::token_compress_on);
+    boost::split(location, l, boost::is_any_of("|& "), boost::token_compress_on);
+    boost::split(check, c, boost::is_any_of(",|& "), boost::token_compress_on);
 
     return true;
   }
@@ -190,19 +190,19 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
       std::vector<bool> matchingDescription(location.size(), true);
       for(size_t j = 0; j < location.size(); ++j) {
         //check if this query key exists in the result
-        if(rapidjson::Value *value = rapidjson::Pointer(location[j]).Get(resultJson)) {
+        rapidjson::Pointer p(location[j]);
+
+        if(!p.IsValid())
+            outError("Location: ["<<location[j]<<"] is not a valid rapidjson location. Check the documentation of rapidjson;");
+        rapidjson::Value *value = rapidjson::GetValueByPointer(resultJson,p);
+        if(value!=nullptr) {
           if(check[j] == "EQUAL") {
             if(value->GetType() == rapidjson::Type::kStringType) {
               std::string resultValue = value->GetString();;
-              if(resultValue != queryValue && queryValue != "")
+              if((resultValue != queryValue && queryValue != "") ||!checkSubClass(resultValue, queryValue))
                 matchingDescription[j] = false;
             }
             else
-              matchingDescription[j] = false;
-          }
-          else if(check[j] == "CLASS") {
-            const std::string resultValue = value->GetString();
-            if(!checkSubClass(resultValue, queryValue))
               matchingDescription[j] = false;
           }
           else if(check[j] == "GEQ") {
@@ -231,7 +231,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             matchingDescription[j] = false;
           }
         }
-        else if(check[j] == "ARRAY-VAL-EQUAL") {
+        else if(check[j] == "ARRAY-VAL-CHECK") {
           std::string delimiter = "*";
           int delLoc = location[j].find(delimiter);
           std::string prefix = location[j].substr(0, delLoc - 1);
@@ -242,7 +242,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
               std::string newLocation = prefix + "/" + std::to_string(i) + suffix;
               if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson)) {
                 std::string resultValue = value->GetString();;
-                if(resultValue == queryValue)
+                if(resultValue == queryValue || checkSubClass(resultValue, queryValue))
                   matched = true;
               }
             }

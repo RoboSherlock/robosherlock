@@ -243,7 +243,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
     }
 
     rs::ObjectDesignatorFactory dw(cas_);
-    useIdentityResolution_ ? dw.setMode(rs::ObjectDesignatorFactory::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::CLUSTER);
+    useIdentityResolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
     dw.getObjectDesignators(designatorResponse);
     setQuery("");
     outInfo("processing finished");
