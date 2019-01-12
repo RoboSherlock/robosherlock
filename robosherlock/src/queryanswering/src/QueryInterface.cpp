@@ -193,13 +193,13 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
         rapidjson::Pointer p(location[j]);
 
         if(!p.IsValid())
-            outError("Location: ["<<location[j]<<"] is not a valid rapidjson location. Check the documentation of rapidjson;");
-        rapidjson::Value *value = rapidjson::GetValueByPointer(resultJson,p);
-        if(value!=nullptr) {
+          outError("Location: [" << location[j] << "] is not a valid rapidjson location. Check the documentation of rapidjson;");
+        rapidjson::Value *value = rapidjson::GetValueByPointer(resultJson, p);
+        if(value != nullptr) {
           if(check[j] == "EQUAL") {
             if(value->GetType() == rapidjson::Type::kStringType) {
               std::string resultValue = value->GetString();;
-              if((resultValue != queryValue && queryValue != "") ||!checkSubClass(resultValue, queryValue))
+              if((resultValue != queryValue && queryValue != "") || !checkSubClass(resultValue, queryValue))
                 matchingDescription[j] = false;
             }
             else
@@ -236,8 +236,8 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
           int delLoc = location[j].find(delimiter);
           std::string prefix = location[j].substr(0, delLoc - 1);
           std::string suffix = location[j].substr(delLoc + 1, location[j].size());
+          bool matched = false;
           if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson)) {
-            bool matched = false;
             for(int i = 0; i < suffixVal->Size(); i ++) {
               std::string newLocation = prefix + "/" + std::to_string(i) + suffix;
               if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson)) {
@@ -246,8 +246,8 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
                   matched = true;
               }
             }
-            matchingDescription[j] = matched;
           }
+          matchingDescription[j] = matched;
         }
         else
           matchingDescription[j] = false;
