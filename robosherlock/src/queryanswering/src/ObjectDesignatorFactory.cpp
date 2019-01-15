@@ -69,7 +69,6 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
 {
   for(size_t i = 0; i < elements.size(); ++i) {
     outDebug("reading object: " << i);
-
     if(lastSeen[i] != 0.0) {
       objectDesignators.push_back("");
       continue;
@@ -84,13 +83,18 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
     double time = seconds + nsec;
 
     outDebug("time: " << std::setprecision(20) << time);
+    if(std::is_same<T, rs::ObjectHypothesis>::value) {
+      objectDesignator.AddMember("id", std::to_string(i), objectDesignator.GetAllocator());
+    }
+    else {
+      objectDesignator.AddMember("id", element.id(), objectDesignator.GetAllocator());
+    }
     objectDesignator.AddMember("timestamp", time, objectDesignator.GetAllocator());
     for(auto annotation : element.annotations) {
       rapidjson::Document annotAsJson(rapidjson::kObjectType);
       rs::conversion::from(annotation, annotAsJson);
 
       for(rapidjson::Value::MemberIterator it = annotAsJson.MemberBegin(); it != annotAsJson.MemberEnd(); ++it) {
-        outInfo(it->name.GetString());
         rapidjson::Value key(it->name.GetString(), objectDesignator.GetAllocator());
         rapidjson::Document val(rapidjson::kObjectType);
         val.CopyFrom(it->value, objectDesignator.GetAllocator());
@@ -100,7 +104,7 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
           objectDesignator.AddMember(key, array.Move(), objectDesignator.GetAllocator());
         }
         else {
-            objectDesignator[it->name.GetString()].PushBack(val, objectDesignator.GetAllocator());
+          objectDesignator[it->name.GetString()].PushBack(val, objectDesignator.GetAllocator());
         }
 
       }

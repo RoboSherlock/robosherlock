@@ -37,8 +37,7 @@ using namespace uima;
 class ClusterColorHistogramCalculator : public DrawingAnnotator
 {
 private:
-  enum COLORS
-  {
+  enum COLORS {
     RED = 0,
     YELLOW,
     GREEN,
@@ -73,8 +72,7 @@ public:
   ClusterColorHistogramCalculator() : DrawingAnnotator(__func__), minValueColor(60), minSaturationColor(60), maxValueBlack(60), minValueWhite(120), histogramCols(16), histogramRows(16), colorRange(256.0 / 6.0)
   {
     colorPositions.resize(6);
-    for(size_t i = 0; i < 6; ++i)
-    {
+    for(size_t i = 0; i < 6; ++i) {
       colorPositions[i] = (int)(i * colorRange + colorRange / 2.0 + 0.5);
     }
 
@@ -103,28 +101,22 @@ public:
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
-    if(ctx.isParameterDefined("minValueColor"))
-    {
+    if(ctx.isParameterDefined("minValueColor")) {
       ctx.extractValue("minValueColor", minValueColor);
     }
-    if(ctx.isParameterDefined("minSaturationColor"))
-    {
+    if(ctx.isParameterDefined("minSaturationColor")) {
       ctx.extractValue("minSaturationColor", minSaturationColor);
     }
-    if(ctx.isParameterDefined("maxValueBlack"))
-    {
+    if(ctx.isParameterDefined("maxValueBlack")) {
       ctx.extractValue("maxValueBlack", maxValueBlack);
     }
-    if(ctx.isParameterDefined("minValueWhite"))
-    {
+    if(ctx.isParameterDefined("minValueWhite")) {
       ctx.extractValue("minValueWhite", minValueWhite);
     }
-    if(ctx.isParameterDefined("histogramCols"))
-    {
+    if(ctx.isParameterDefined("histogramCols")) {
       ctx.extractValue("histogramCols", histogramCols);
     }
-    if(ctx.isParameterDefined("histogramRows"))
-    {
+    if(ctx.isParameterDefined("histogramRows")) {
       ctx.extractValue("histogramRows", histogramRows);
     }
     return UIMA_ERR_NONE;
@@ -149,23 +141,21 @@ private:
     rapidjson::Document jsonDoc;
     std::string jsonQuery;
     bool found = false;
-    if(cas.getFS("QUERY", qs) && qs.query()!="")
-    {
+    if(cas.getFS("QUERY", qs) && qs.query() != "") {
       jsonQuery = qs.query();
       jsonDoc.Parse(jsonQuery);
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes
       rapidjson::Value &detectQuery = jsonDoc["detect"];
       outWarn("json query: " << qs.query());
-      if(detectQuery.IsObject()){
-          //TODO How do we know what keywords can be found at what level in the json?
-          rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");
-          rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
+      if(detectQuery.IsObject()) {
+        //TODO How do we know what keywords can be found at what level in the json?
+        rapidjson::Value::ConstMemberIterator colorMember = detectQuery.FindMember("color");
+        rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
 
-          if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd())
-          {
-            found = true;
-          }
+        if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd()) {
+          found = true;
+        }
       }
     }
 
@@ -175,8 +165,7 @@ private:
     colorIds.resize(clusters.size(), std::vector<int>(COUNT));
     colorRatios.resize(clusters.size(), std::vector<float>(COUNT));
 
-    for(size_t idx = 0; idx < clusters.size(); ++idx)
-    {
+    for(size_t idx = 0; idx < clusters.size(); ++idx) {
       rs::ImageROI image_rois = clusters[idx].rois.get();
 
       //======================= Calculate HSV image ==========================
@@ -196,36 +185,25 @@ private:
       countColors(hsv, mask, colorCount, sum);
 
       //======================= Calculate Semantic Color ==========================
-      if(found)
-      {
-        rs::SemanticColor color_annotation = rs::create<rs::SemanticColor>(tcas);
+      if(found) {
         std::vector<std::tuple<int, int>> colorsVec(COUNT);
-        for(int i = 0; i < COUNT; ++i)
-        {
+        for(int i = 0; i < COUNT; ++i) {
           colorsVec[i] = std::tuple<int, int>(i, colorCount[i]);
         }
-        std::sort(colorsVec.begin(), colorsVec.end(), [](const std::tuple<int, int> &a, const std::tuple<int, int> &b)
-        {
-          return std::get<1>(a) > std::get<1>(b);
-        });
 
-        std::vector<int> &ids = colorIds[idx];
-        std::vector<float> &ratios = colorRatios[idx];
-        std::vector<std::string> colors(COUNT);
+        for(size_t i = 0; i < COUNT; ++i) {
+          int id, pixelCount;
+          std::tie(id, pixelCount) = colorsVec[i];
 
-        for(size_t i = 0; i < COUNT; ++i)
-        {
-          int id, ratio;
-          std::tie(id, ratio) = colorsVec[i];
-          ids[i] = id;
-          colors[i] = colorNames[id];
-          ratios[i] = (float)(ratio / (double)sum);
+          std::string color = colorNames[id];
+          float ratio = (float)(pixelCount / (double)sum);
+          if(ratio > 0.2) {
+            rs::SemanticColor colorAnnotation = rs::create<rs::SemanticColor>(tcas);
+            colorAnnotation.color.set(color);
+            colorAnnotation.ratio.set(ratio);
+            clusters[idx].annotations.append(colorAnnotation);
+          }
         }
-
-        color_annotation.color(colors);
-        color_annotation.ratio(ratios);
-
-        clusters[idx].annotations.append(color_annotation);
       }
       //======================= Calculate Color Histogram ==========================
       //Create the histogram
@@ -239,11 +217,9 @@ private:
       cv::calcHist(&hsv, 1, channels, mask, hist, 2, histSize, ranges, true, false);
 
       //Normalize histogram
-      for(int r = 0; r < hist.rows; ++r)
-      {
+      for(int r = 0; r < hist.rows; ++r) {
         float *it = hist.ptr<float>(r);
-        for(int c = 0; c < hist.cols; ++c, ++it)
-        {
+        for(int c = 0; c < hist.cols; ++c, ++it) {
           *it /= sum;
         }
       }
@@ -264,15 +240,12 @@ private:
     sum = 0;
     colorCount = std::vector<int>(COUNT, 0.0);
 
-    for(int r = 0; r < hsv.rows; ++r)
-    {
+    for(int r = 0; r < hsv.rows; ++r) {
       const cv::Vec3b *itHSV = hsv.ptr<cv::Vec3b>(r);
       const uint8_t *itM = mask.ptr<uint8_t>(r);
 
-      for(int c = 0; c < hsv.cols; ++c, ++itHSV, ++itM)
-      {
-        if(!*itM)
-        {
+      for(int c = 0; c < hsv.cols; ++c, ++itHSV, ++itM) {
+        if(!*itM) {
           continue;
         }
 
@@ -281,47 +254,36 @@ private:
         const uint8_t sat = itHSV->val[1];
         const uint8_t val = itHSV->val[2];
 
-        if(sat > minSaturationColor && val > minValueColor)
-        {
-          if(hue < colorPositions[RED])
-          {
+        if(sat > minSaturationColor && val > minValueColor) {
+          if(hue < colorPositions[RED]) {
             ++colorCount[RED];
           }
-          else if(hue < colorPositions[YELLOW])
-          {
+          else if(hue < colorPositions[YELLOW]) {
             ++colorCount[YELLOW];
           }
-          else if(hue < colorPositions[GREEN])
-          {
+          else if(hue < colorPositions[GREEN]) {
             ++colorCount[GREEN];
           }
-          else if(hue < colorPositions[CYAN])
-          {
+          else if(hue < colorPositions[CYAN]) {
             ++colorCount[CYAN];
           }
-          else if(hue < colorPositions[BLUE])
-          {
+          else if(hue < colorPositions[BLUE]) {
             ++colorCount[BLUE];
           }
-          else if(hue < colorPositions[MAGENTA])
-          {
+          else if(hue < colorPositions[MAGENTA]) {
             ++colorCount[MAGENTA];
           }
-          else
-          {
+          else {
             ++colorCount[RED];
           }
         }
-        else if(val <= maxValueBlack)
-        {
+        else if(val <= maxValueBlack) {
           ++colorCount[BLACK];
         }
-        else if(val > minValueWhite)
-        {
+        else if(val > minValueWhite) {
           ++colorCount[WHITE];
         }
-        else
-        {
+        else {
           ++colorCount[GREY];
         }
       }
@@ -331,8 +293,7 @@ private:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = color.clone();
-    for(size_t i = 0; i < clusterRois.size(); ++i)
-    {
+    for(size_t i = 0; i < clusterRois.size(); ++i) {
       const cv::Rect &roi = clusterRois[i];
       const cv::Size histSize(roi.width, 10);
       const cv::Rect roiHist(roi.x, roi.y + roi.height + 1, histSize.width, histSize.height);
@@ -344,8 +305,7 @@ private:
       cv::Mat hist = disp(roiHist);
 
       float start = 0;
-      for(int r = 0; r < ratios.size(); ++r)
-      {
+      for(int r = 0; r < ratios.size(); ++r) {
         float width = (histSize.width * ratios[r]);
         const cv::Rect rect(start + 0.5, 0, width + 0.5, histSize.height);
         start += width;

@@ -309,16 +309,15 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
 
     if(desig.HasMember("id")) {
       std::string cID(desig["id"].GetString());
-      int clusterId = std::atoi(cID.c_str());
 
       //Draw cluster on image
-      rs::ImageROI roi = clusters[clusterId].rois();
+      rs::ImageROI roi = clusters[i].rois();
       cv::Rect cvRoi;
       rs::conversion::from(roi.roi(), cvRoi);
-      cv::rectangle(rgb, cvRoi, rs::common::cvScalarColors[clusterId % rs::common::numberOfColors], 1.5);
+      cv::rectangle(rgb, cvRoi, rs::common::cvScalarColors[i % rs::common::numberOfColors], 1.5);
       std::stringstream clusterName;
-      clusterName << "cID_" << clusterId;
-      cv::putText(rgb, clusterName.str(), cv::Point(cvRoi.x + 10, cvRoi.y - 10), cv::FONT_HERSHEY_COMPLEX, 0.7, rs::common::cvScalarColors[clusterId % rs::common::numberOfColors]);
+      clusterName << cID;
+      cv::putText(rgb, clusterName.str(), cv::Point(cvRoi.x + 10, cvRoi.y - 10), cv::FONT_HERSHEY_COMPLEX, 0.7, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
       colorIdx++;
     }
   }
@@ -391,12 +390,9 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
     if(desig.HasMember("id")) {
-      std::string cID(desig["id"].GetString());
-      int clusterId = std::atoi(cID.c_str());
-
       pcl::PointIndicesPtr inliers(new pcl::PointIndices());
-      if(clusters[clusterId].points.has()) {
-        rs::conversion::from(((rs::ReferenceClusterPoints)clusters[clusterId].points()).indices(), *inliers);
+      if(clusters[i].points.has()) {
+        rs::conversion::from(((rs::ReferenceClusterPoints)clusters[i].points()).indices(), *inliers);
         for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx) {
           dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
           dispCloud->points[inliers->indices[idx]].a = 255;

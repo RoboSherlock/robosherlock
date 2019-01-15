@@ -380,7 +380,7 @@ private:
       {
         rs::SemanticColor &c = colors[0];
 
-        auto iterator = rs::common::colorMap.find(c.color()[0]);
+        auto iterator = rs::common::colorMap.find(c.color());
         if(iterator != rs::common::colorMap.end())
         {
           cv::Scalar color = iterator->second;

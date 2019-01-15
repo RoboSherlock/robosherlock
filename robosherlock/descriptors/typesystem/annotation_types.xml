@@ -156,12 +156,12 @@
         <featureDescription>
           <name>color</name>
           <description/>
-          <rangeTypeName>uima.cas.StringList</rangeTypeName>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
         </featureDescription>
         <featureDescription>
           <name>ratio</name>
           <description/>
-          <rangeTypeName>uima.cas.FloatList</rangeTypeName>
+          <rangeTypeName>uima.cas.Float</rangeTypeName>
         </featureDescription>
       </features>
     </typeDescription>
