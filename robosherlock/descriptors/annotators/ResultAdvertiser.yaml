@@ -1,7 +1,0 @@
-annotator:
-  implementation: rs_ResultAdvertiser
-parameters:
-  test_param: 0.01
-capabilities:
-  inputs: {}
-  outputs: {}
