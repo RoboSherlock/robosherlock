@@ -85,7 +85,8 @@ void fromFeatureStructureAux(const uima::FeatureStructure &fs, rapidjson::Docume
 void fromFeature##_NAME_(const uima::FeatureStructure &fs, const uima::Feature &feature, const std::string &name, rapidjson::Document &document, rapidjson::MemoryPoolAllocator<> &allocator)\
 {\
   rapidjson::Value val, key(name, allocator);\
-  val.Set##_CAST_((fs.get##_NAME_##Value(feature)));\
+  _TYPE_ tVal = fs.get##_NAME_##Value(feature);\
+  std::isnan(tVal) ? val.Set##_CAST_(0) : val.Set##_CAST_(tVal);\
   document.AddMember(key, val, allocator);\
 }
 

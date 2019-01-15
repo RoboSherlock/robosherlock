@@ -61,7 +61,7 @@ void RSAnalysisEngine::init(const std::string &aeFile, bool parallel, bool perva
 
   std::ofstream xmlOutput;
   xmlOutput.open(AEXMLFile);
-  xmlOutput<<aeConverter;
+  xmlOutput << aeConverter;
   xmlOutput.close();
   outInfo("Converted to: " << AEXMLFile);
 
@@ -171,7 +171,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
-      of<<converter;
+      of << converter;
       of.close();
 
       return xmlPath;
@@ -211,7 +211,7 @@ void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse,
 
   if(queryString != "" || query_ != "") {
     rs::Query query = rs::create<rs::Query>(*cas_);
-    queryString !="" ? query.query.set(queryString):query.query.set(query_);
+    queryString != "" ? query.query.set(queryString) : query.query.set(query_);
     rs::SceneCas sceneCas(*cas_);
     sceneCas.set("QUERY", query);
   }
@@ -306,6 +306,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
+
     if(desig.HasMember("id")) {
       std::string cID(desig["id"].GetString());
       int clusterId = std::atoi(cID.c_str());
