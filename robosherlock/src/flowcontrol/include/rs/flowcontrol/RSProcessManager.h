@@ -79,8 +79,6 @@ public:
     */
   ~RSProcessManager();
 
-  QueryInterface::QueryType queryType; // Must be readable from RSProcessManager::stop()
-
 
   /**
    * @brief RSProcessManager::init initialize the RSProcessManager; The engine and all of it's components need initialization; This method does that;

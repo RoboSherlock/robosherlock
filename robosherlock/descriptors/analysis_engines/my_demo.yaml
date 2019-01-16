@@ -9,6 +9,8 @@ fixedflow:
   - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
+  - Cluster3DGeometryAnnotator
+  - KalmanTrackingAnnotator
   - DrawResultImage
   - StorageWriter
 CollectionReader:

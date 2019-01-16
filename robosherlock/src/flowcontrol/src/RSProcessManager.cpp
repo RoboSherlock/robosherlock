@@ -247,7 +247,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   outInfo("JSON Reuqest: " << request);
   queryInterface->parseQuery(request);
   std::vector<std::vector<std::string>> newPipelineOrders;
-  queryType = queryInterface->processQuery(newPipelineOrders);
+  QueryInterface::QueryType queryType = queryInterface->processQuery(newPipelineOrders);
   if (!newPipelineOrders.empty())
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);

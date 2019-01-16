@@ -8,6 +8,3 @@ capabilities:
   - rs.cv.Mat
   - rs.scene.MergedCluster
   outputs:
-capabilities:
-  inputs: {}
-  outputs: {}

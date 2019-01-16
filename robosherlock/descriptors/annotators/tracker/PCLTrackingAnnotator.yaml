@@ -7,6 +7,3 @@ capabilities:
   inputs:
   - rs.pcl.PointCloud
   outputs:
-capabilities:
-  inputs: {}
-  outputs: {}
