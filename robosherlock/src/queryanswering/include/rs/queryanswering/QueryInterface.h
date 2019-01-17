@@ -21,11 +21,20 @@ class QueryInterface
 {
 private:
 
-    JsonPrologInterface* jsonPrologInterface;
+  JsonPrologInterface *jsonPrologInterface;
 
-    bool handleDetect(std::vector<std::string> &newPipelineOrder);
-    bool handleInspect(std::vector<std::string> &newPipelineOrder);
-    bool handleScan(std::vector<std::string> &newPipelineOrder);
+  bool handleDetect(std::vector<std::string> &newPipelineOrder);
+  bool handleInspect(std::vector<std::string> &newPipelineOrder);
+  bool handleScan(std::vector<std::string> &newPipelineOrder);
+
+  struct QueryTermProperties {
+    std::string key;
+    std::vector<std::string> location;
+    std::vector<std::string> check;
+  };
+
+  typedef std::map <std::string, QueryTermProperties> QueryTermDefinitions;
+  QueryTermDefinitions queryTermDefs_;
 
 public:
 
@@ -33,14 +42,18 @@ public:
 
   rapidjson::Document query;
 
-  QueryInterface(){
-      query = rapidjson::Document(rapidjson::kObjectType);
-      jsonPrologInterface = new JsonPrologInterface();
+  QueryInterface()
+  {
+    query = rapidjson::Document(rapidjson::kObjectType);
+    jsonPrologInterface = new JsonPrologInterface();
+    getQueryConfig();
   }
+
   ~QueryInterface()
   {
-   delete jsonPrologInterface;
+    delete jsonPrologInterface;
   }
+  bool getQueryConfig();
 
   bool parseQuery(std::string query);
 

@@ -1,4 +1,3 @@
-
 #include<rs/queryanswering/QueryInterface.h>
 
 #ifdef WITH_JSON_PROLOG
@@ -103,34 +102,74 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 }
 
-bool getConfigForKey(std::string key, std::vector<std::string> &location,
-                     std::vector<std::string> &check,
-                     double &thresh,
-                     bool &keepLower)
+bool QueryInterface::getQueryConfig()
 {
-  const std::string &configFile = ros::package::getPath("robosherlock") + "/config/filter_config.ini";
 
-  outInfo("Path to config file: " FG_BLUE << configFile);
-  boost::property_tree::ptree pt;
-  try {
-    boost::property_tree::ini_parser::read_ini(configFile, pt);
-    if(pt.find(key) == pt.not_found())
+  std::vector<std::string> searchPaths;
+
+  searchPaths.push_back(ros::package::getPath("robosherlock") + "/config");
+  std::vector<std::string> child_packages;
+  ros::package::command("depends-on robosherlock", child_packages);
+  for(size_t i = 0; i < child_packages.size(); ++i) {
+    searchPaths.push_back(ros::package::getPath(child_packages[i]) + "/config");
+  }
+
+  std::vector<std::string> configPaths;
+  for(auto p : searchPaths) {
+    boost::filesystem::path filePath(p + "/query_specifications.ini");
+    if(boost::filesystem::exists(filePath)) {
+      configPaths.push_back(filePath.string());
+    }
+  }
+
+  jsonPrologInterface->retractQueryLanguage();
+
+  std::map <std::string, std::vector<std::string>> queryLangSpecs;
+  for(auto p : configPaths) {
+    outInfo("Path to config file: " FG_BLUE << p);
+    boost::property_tree::ptree pt;
+    try {
+      boost::property_tree::ini_parser::read_ini(p, pt);
+
+      for(auto property : pt) {
+        if(property.first == "keys") {
+          for(auto entry : property.second) {
+            std::vector<std::string> types;
+            std::string typesEntry = pt.get<std::string>(property.first + "." + entry.first);
+            boost::algorithm::split(types, typesEntry, boost::is_any_of(" ,"), boost::token_compress_on);
+            queryLangSpecs[entry.first].insert(queryLangSpecs[entry.first].end(), types.begin(), types.end());
+          }
+        }
+        else {
+
+          std::shared_ptr<QueryTermProperties> qProp;
+          if(queryTermDefs_.find(property.first) != queryTermDefs_.end()) {
+            qProp = std::make_shared<QueryTermProperties>(queryTermDefs_[property.first]);
+          }
+          else
+            qProp = std::make_shared<QueryTermProperties>();
+          qProp->key = property.first;
+          std::string l = pt.get<std::string>(property.first + ".location");
+          std::string c = pt.get<std::string>(property.first + ".check");
+          std::vector<std::string> locations, checks;
+          boost::split(locations, l, boost::is_any_of("|& "), boost::token_compress_on);
+          boost::split(checks, c, boost::is_any_of(",|& "), boost::token_compress_on);
+          qProp->location.insert(qProp->location.end(), locations.begin(), locations.end());
+          qProp->check.insert(qProp->check.end(), checks.begin(), checks.end());
+          queryTermDefs_[property.first] = *qProp;
+
+        }
+
+
+      }
+    }
+    catch(boost::property_tree::ini_parser::ini_parser_error &e) {
+      throw_exception_message("Error opening config file: " + p);
       return false;
-
-    std::string l = pt.get<std::string>(key + ".location", "/" + key);
-    std::string c = pt.get<std::string>(key + ".check", "EQUAL");
-    thresh = pt.get<double> (key + ".threshold", 0.f);
-    keepLower = pt.get<bool> (key + ".keepLower", true);
-
-    boost::split(location, l, boost::is_any_of("|& "), boost::token_compress_on);
-    boost::split(check, c, boost::is_any_of(",|& "), boost::token_compress_on);
-
-    return true;
+    }
   }
-  catch(boost::property_tree::ini_parser::ini_parser_error &e) {
-    throw_exception_message("Error opening config file: " + configFile);
-    return false;
-  }
+
+  jsonPrologInterface->assertQueryLanguage(queryLangSpecs);
   return false;
 }
 
@@ -177,10 +216,12 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
     std::string key = queryIt->name.GetString();
     double thresh;
     bool keepLower;
-    if(!getConfigForKey(key, location, check, thresh, keepLower)) continue;
+    if(queryTermDefs_.find(key) == queryTermDefs_.end()) continue;
     const std::string queryValue = queryIt->value.GetString();
 
     if(queryValue == "") continue;
+    check = queryTermDefs_[key].check;
+    location = queryTermDefs_[key].location;
 
     outInfo("No. of resulting Object Designators: " << resultDesignators.size());
     for(size_t i = 0; i < resultDesignators.size(); ++i) {
@@ -206,8 +247,8 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
               matchingDescription[j] = false;
           }
           else if(check[j] == "GEQ") {
-            float volumeofCurrentObj = value->GetDouble();
-            float volumeAsked = atof(queryValue.c_str());
+            double volumeofCurrentObj = value->GetDouble();
+            double volumeAsked = atof(queryValue.c_str());
             outWarn("Volume asked as float: " << volumeAsked);
             if(volumeAsked > volumeofCurrentObj) {
               matchingDescription[j] = false;

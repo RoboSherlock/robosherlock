@@ -36,6 +36,7 @@
 #include <vector>
 #include <utility>
 #include <unordered_set>
+#include <algorithm>
 
 //json
 #include <rapidjson/document.h>
@@ -50,7 +51,7 @@ public:
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
-       xercesc::XMLPlatformUtils::Terminate();
+    xercesc::XMLPlatformUtils::Terminate();
   }
 
   /*
@@ -90,16 +91,23 @@ public:
   bool buildPrologQueryFromDesignator(std::string *desig,
                                       std::string &prologQuery);
 
+  /*
+   * assert terms of the query language and types that correspond to these terms
+   * in: map of keyword to types in the typesystem corresponding to the keys;
+   * out true on success
+   * */
+  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &query_terms);
 
-  bool retractAllAnnotators();
+  bool retractQueryLanguage();
 
   /*brief
    * create individuals for the anntators in the list
    * in: map containing annotator names and capability information
    * return true on succes:
    * */
-  bool assertAnnotators(const std::map<std::string,rs::AnnotatorCapabilities> &annotCap);
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &annotCap);
 
+  bool retractAllAnnotators();
 
   bool expandToFullUri(std::string &entry);
 
@@ -107,7 +115,7 @@ public:
    * in: annotator capabilities (I/O types and restrictions on them)
    * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> , std::string);
+  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> , std::string);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

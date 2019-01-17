@@ -197,8 +197,8 @@ public:
       rs::SemanticSize semSize = rs::create<rs::SemanticSize>(tcas);;
       semSize.source.set("Cluster3DGeometryAnnotator");
 
-      float lowerThreshold = 0.0012,
-            middleThreshold = 0.004,
+      float lowerThreshold = 0.0012f,
+            middleThreshold = 0.004f,
             largestObjVolume = 0.125;
 
 
