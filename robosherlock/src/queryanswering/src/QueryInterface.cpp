@@ -61,7 +61,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
   std::vector<std::string> keys;
   std::vector<std::string> new_pipeline_order;
-  jsonPrologInterface->extractQueryKeysFromDesignator(&req, keys);
+  jsonPrologInterface->extractQueryKeysFromDesignator(req, keys);
   try {
     jsonPrologInterface->planPipelineQuery(keys, new_pipeline_order);
   }

@@ -8,37 +8,45 @@ JsonPrologInterface::JsonPrologInterface()
   outInfo("Creating ROS Service client for json_prolog");
   try {
     XMLPlatformUtils::Initialize();
-  } catch(const XMLException &toCatch) {
-    outInfo("error starting an xml parser: "<<toCatch.getMessage());
   }
-
+  catch(const XMLException &toCatch) {
+    outInfo("error starting an xml parser: " << toCatch.getMessage());
+  }
+  std::stringstream getNamespacesQuery;
+  getNamespacesQuery << "rdf_current_ns(A,_)";
+  json_prolog::PrologQueryProxy bdgs = pl_.query(getNamespacesQuery.str());
+  for(auto bdg : bdgs) {
+    std::string ns = bdg["A"].toString();
+    if(std::find(NS_TO_SKIP.begin(), NS_TO_SKIP.end(), ns) == NS_TO_SKIP.end())
+      krNamespaces_.push_back(ns);
+  }
 }
 
 
-bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
+bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string &desig,
     std::vector<std::string> &keys)
 {
-  if(!desig) {
-    outError("NULL POINTER PASSED TO buildPrologQueryFromDesignator");
+  rapidjson::Document json;
+  json.Parse(desig.c_str());
+  if(!json.IsObject()) {
+    outError("Query could not be converted to json object!");
     return false;
   }
-
-  rapidjson::Document json;
-  json.Parse(desig->c_str());
 
   json_prolog::Prolog pl;
   json_prolog::PrologQueryProxy bdgs = pl.query("retract(requestedValueForKey(_,_))");
 
   //add the ones that are interpretable to the queriedKeys;
   for(rapidjson::Value::ConstMemberIterator iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter) {
-    if(std::find(rs_queryanswering::rsQueryTerms.begin(), rs_queryanswering::rsQueryTerms.end(),
-                 iter->name.GetString()) != std::end(rs_queryanswering::rsQueryTerms)) {
+    std::stringstream checkKeyQuery;
+    checkKeyQuery << "rs_query_predicate(" << iter->name.GetString() << ")";
+    json_prolog::PrologQueryProxy bindings = pl.query(checkKeyQuery.str());
+    if(bindings.begin() != bindings.end()) {
       keys.push_back(iter->name.GetString());
-      //for a select member of keys (type, class, shape, color) let's add value reasoning;
+      //for a select member of keys (type, class, shape, color) let's add value reasoning; TODO: get rid of this somehow;
       std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size"};
       if(std::find(special_keys.begin(), special_keys.end(),
                    iter->name.GetString()) != std::end(special_keys)) {
-        json_prolog::Prolog pl;
         std::string d = iter->value.GetString();
         d[0] = std::toupper(d[0]);
         if(d != "" && !addNamespace(d)) {
@@ -53,7 +61,8 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
           outInfo("Asserted: " << assertionQuery.str());
         }
       }
-    } else {
+    }
+    else {
       outWarn(iter->name.GetString() << " is not a valid query-language term");
     }
   }
@@ -61,7 +70,7 @@ bool JsonPrologInterface::extractQueryKeysFromDesignator(std::string *desig,
 }
 
 
-bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string *desig,
+bool JsonPrologInterface::buildPrologQueryFromDesignator(std::string &desig,
     std::string &prologQuery)
 {
   prologQuery = "build_pipeline_from_predicates([";
@@ -152,7 +161,8 @@ bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
       outInfo(child << " IS " << parent);
       return true;
     }
-  } else {
+  }
+  else {
     outError("Child or parent are not defined in the ontology under any of the known namespaces");
     outError(" Child : " << child);
     outError(" Parent: " << parent);
@@ -172,7 +182,8 @@ bool JsonPrologInterface::retractQueryLanguage()
     query.str("");
     query << "retractall(rs_query_predicate(_))";
     pl.query(query.str());
-  } catch(...) {
+  }
+  catch(...) {
 
   }
   return true;
@@ -222,7 +233,8 @@ bool JsonPrologInterface::assertAnnotators(const  std::map<std::string, rs::Anno
         //outInfo("Individual generated: " << bdg["I"]);
         assertAnnotatorMetaInfo(a, bdg["I"]);
       }
-    } else {
+    }
+    else {
       outError("Annotator not modelled in KB:" << a.first);
       continue;
     }
@@ -352,7 +364,7 @@ bool JsonPrologInterface::addNamespace(const std::string &entry, std::string &re
 bool JsonPrologInterface::addNamespace(std::string &entry)
 {
   json_prolog::Prolog pl;
-  for(auto ns : rs_queryanswering::krNamespaces) {
+  for(auto ns : krNamespaces_) {
     std::stringstream prologQuery;
     prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'Class').";
     json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());

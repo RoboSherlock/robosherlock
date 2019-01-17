@@ -22,7 +22,6 @@
 
 //robosherlock
 #include <rs/utils/output.h>
-#include <rs/queryanswering/KRDefinitions.h>
 #include <rs/utils/common.h>
 #include <rs/queryanswering/query_rules.h>
 
@@ -41,11 +40,15 @@
 //json
 #include <rapidjson/document.h>
 
+//LIST OF rdf namespaces that we will never have objects ar perception entities defined under;
+static const std::vector<std::string> NS_TO_SKIP ={"rdf","rdfs","owl","xsd","dc","dcterms","eor","skos","foaf","void","serql","swrl","swrla"};
+
 //wrapper class for Prolog Engine based on SWI-C++
 class JsonPrologInterface
 {
-  std::vector<std::string> krNamespaces;
+  std::vector<std::string> krNamespaces_;
 
+  json_prolog::Prolog pl_;
 public:
 
   JsonPrologInterface();
@@ -80,7 +83,7 @@ public:
    * in query as a designator
    * out vector of keys
    * */
-  bool extractQueryKeysFromDesignator(std::string *desig,
+  bool extractQueryKeysFromDesignator(std::string &desig,
                                       std::vector<std::string> &keys);
 
   /*brief
@@ -88,7 +91,7 @@ public:
    * out prologQuery: the Prolog Query as a string
    * returns true or false /success or fail
    * */
-  bool buildPrologQueryFromDesignator(std::string *desig,
+  bool buildPrologQueryFromDesignator(std::string &desig,
                                       std::string &prologQuery);
 
   /*
