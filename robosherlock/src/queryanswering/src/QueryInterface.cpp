@@ -105,6 +105,10 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
           std::vector<std::string> detPipeline, trackingPipeline;
           outInfo("b");
           handleDetect(detPipeline, valDetect);
+          handleTrack(trackingPipeline, valTrack);
+          res.push_back(detPipeline);
+          res.push_back(trackingPipeline);
+
           outInfo("c");
           std::vector<std::string> filteredResponse;
           outInfo("d");
@@ -118,10 +122,6 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
 
           outInfo("3");
 
-
-          handleTrack(trackingPipeline, valTrack);
-          res.push_back(detPipeline);
-          res.push_back(trackingPipeline);
           return QueryType::TRACK;
       }
   }
