@@ -1,11 +1,11 @@
 #include <rs/flowcontrol/RSProcessManager.h>
 
-RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
+RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, bool withQnA,
                                    ros::NodeHandle n, const std::string &savePath):
   engine_(), nh_(n), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
-  useVisualizer_(useVisualizer), useIdentityResolution_(false),
-  pause_(true), inspectFromAR_(false), visualizer_(savePath, !useVisualizer)
+  withQA_(false), useVisualizer_(useVisualizer), useIdentityResolution_(false),
+  visualizer_(savePath, !useVisualizer)
 {
 
   outInfo("Creating resource manager");
@@ -34,7 +34,8 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
-  queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+  if(withQA_)
+    queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
 #endif
 }
 
@@ -49,7 +50,8 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
   outInfo("initializing");
 
 #ifdef WITH_JSON_PROLOG
-  queryInterface = new QueryInterface();
+  if(withQA_)
+    queryInterface = new QueryInterface();
 #endif
   this->configFile_ = configFile;
 
@@ -89,7 +91,7 @@ void RSProcessManager::run()
   for(; ros::ok();) {
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if(waitForServiceCall_ || pause_) {
+      if(waitForServiceCall_) {
         usleep(100000);
       }
       else {

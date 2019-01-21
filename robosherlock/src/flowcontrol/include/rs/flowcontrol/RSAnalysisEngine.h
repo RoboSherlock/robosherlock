@@ -45,7 +45,6 @@
 
 #include <tf_conversions/tf_eigen.h>
 
-#include <pcl_ros/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
 
@@ -67,7 +66,7 @@ protected:
   std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
 
 #ifdef WITH_JSON_PROLOG
-  JsonPrologInterface jsonPrologInterface;
+  std::shared_ptr<JsonPrologInterface> jsonPrologInterface;
 #endif
 
 public:

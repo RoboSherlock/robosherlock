@@ -49,7 +49,6 @@
 #include <rs/utils/common.h>
 
 //#define DEBUG_OUTPUT 1;
-
 using namespace uima;
 
 /**
@@ -61,8 +60,7 @@ class PointCloudClusterExtractor : public DrawingAnnotator
 private:
   typedef pcl::PointXYZRGBA PointT;
 
-  struct Cluster
-  {
+  struct Cluster {
     size_t indicesIndex;
     cv::Rect roi, roiHires;
     cv::Mat mask, maskHires;
@@ -75,12 +73,12 @@ private:
   float cluster_tolerance;
   float plane_distance_threshold;
   pcl::PointCloud<PointT>::Ptr cloud_ptr;
+
   std::vector<pcl::PointIndices> cluster_indices;
   std::vector<Cluster> clusters;
   double pointSize;
 
-  enum
-  {
+  enum {
     EC,
     OEC,
     OEC_prism
@@ -97,52 +95,42 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    if(ctx.isParameterDefined("mode"))
-    {
+    if(ctx.isParameterDefined("mode")) {
       std::string sMode;
       ctx.extractValue("mode", sMode);
       outInfo("mode set to: " << sMode);
-      if(sMode == "OEC")
-      {
+      if(sMode == "OEC") {
         mode = OEC;
       }
-      else if(sMode == "EC")
-      {
+      else if(sMode == "EC") {
         mode = EC;
       }
-      else if(sMode == "OEC_prism")
-      {
+      else if(sMode == "OEC_prism") {
         mode = OEC_prism;
       }
     }
-    if(ctx.isParameterDefined("plane_distance_threshold"))
-    {
+    if(ctx.isParameterDefined("plane_distance_threshold")) {
       ctx.extractValue("plane_distance_threshold", plane_distance_threshold);
     }
-    if(ctx.isParameterDefined("polygon_min_height"))
-    {
+    if(ctx.isParameterDefined("polygon_min_height")) {
       ctx.extractValue("polygon_min_height", polygon_min_height);
     }
-    if(ctx.isParameterDefined("polygon_max_height"))
-    {
+    if(ctx.isParameterDefined("polygon_max_height")) {
       ctx.extractValue("polygon_max_height", polygon_max_height);
     }
-    if(ctx.isParameterDefined("cluster_tolerance"))
-    {
+    if(ctx.isParameterDefined("cluster_tolerance")) {
       ctx.extractValue("cluster_tolerance", cluster_tolerance);
     }
-    if(ctx.isParameterDefined("cluster_max_size"))
-    {
+    if(ctx.isParameterDefined("cluster_max_size")) {
       ctx.extractValue("cluster_max_size", cluster_max_size);
     }
-    if(ctx.isParameterDefined("cluster_min_size"))
-    {
+    if(ctx.isParameterDefined("cluster_min_size")) {
       ctx.extractValue("cluster_min_size", cluster_min_size);
     }
     setAnnotatorContext(ctx);
     return UIMA_ERR_NONE;
   }
-  
+
   TyErrorId reconfigure()
   {
     outInfo("Reconfiguring");
@@ -181,8 +169,7 @@ private:
 
     std::vector<rs::Plane> planes;
     scene.annotations.filter(planes);
-    if(planes.empty())
-    {
+    if(planes.empty()) {
       outInfo("NO PLANE COEFFICIENTS SET!! RUN A PLANE ESIMTATION BEFORE!!!");
       outInfo(clock.getTime() << " ms.");
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
@@ -191,8 +178,7 @@ private:
     plane_coefficients->values = planes[0].model();
     plane_inliers->indices = planes[0].inliers();
 
-    if(plane_coefficients->values.empty())
-    {
+    if(plane_coefficients->values.empty()) {
       outInfo("PLane COEFFICIENTS EMPTY");
       outInfo(clock.getTime() << " ms.");
       return UIMA_ERR_NONE;
@@ -200,19 +186,16 @@ private:
     outDebug("getting input data took : " << clock.getTime() - t << " ms.");
     t = clock.getTime();
 
-    if(mode == EC)
-    {
+    if(mode == EC) {
       cloudPreProcessing(cloud_ptr, plane_coefficients, plane_inliers, prism_inliers);
       outDebug("cloud preprocessing took : " << clock.getTime() - t << " ms.");
       t = clock.getTime();
       pointCloudClustering(cloud_ptr, prism_inliers, cluster_indices);
     }
-    else if(mode == OEC)
-    {
+    else if(mode == OEC) {
       organizedCloudClustering(cloud_ptr, cloud_normals, plane_inliers, cluster_indices, prism_inliers);
     }
-    else if(mode == OEC_prism)
-    {
+    else if(mode == OEC_prism) {
       cloudPreProcessing(cloud_ptr, plane_coefficients, plane_inliers, prism_inliers);
       organizedCloudClustering(cloud_ptr, cloud_normals, plane_inliers, cluster_indices, prism_inliers);
     }
@@ -222,8 +205,7 @@ private:
     clusters.resize(cluster_indices.size());
 
     #pragma omp parallel for schedule(dynamic)
-    for(size_t i = 0; i < cluster_indices.size(); ++i)
-    {
+    for(size_t i = 0; i < cluster_indices.size(); ++i) {
       Cluster &cluster = clusters[i];
       cluster.indicesIndex = i;
 
@@ -232,8 +214,7 @@ private:
     outDebug("conversion to image ROI took: " << clock.getTime() - t << " ms.");
     t = clock.getTime();
 
-    for(size_t i = 0; i < cluster_indices.size(); ++i)
-    {
+    for(size_t i = 0; i < cluster_indices.size(); ++i) {
       Cluster &cluster = clusters[i];
       const pcl::PointIndices &indices = cluster_indices[i];
 
@@ -263,8 +244,7 @@ private:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = color.clone();
-    for(size_t i = 0; i < clusters.size(); ++i)
-    {
+    for(size_t i = 0; i < clusters.size(); ++i) {
       cv::rectangle(disp, clusters[i].roiHires, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
   }
@@ -272,23 +252,19 @@ private:
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
   {
     const std::string &cloudname = this->name;
-    for(size_t i = 0; i < cluster_indices.size(); ++i)
-    {
+    for(size_t i = 0; i < cluster_indices.size(); ++i) {
       const pcl::PointIndices &indices = cluster_indices[i];
-      for(size_t j = 0; j < indices.indices.size(); ++j)
-      {
+      for(size_t j = 0; j < indices.indices.size(); ++j) {
         size_t index = indices.indices[j];
         cloud_ptr->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
       }
     }
 
-    if(firstRun)
-    {
+    if(firstRun) {
       visualizer.addPointCloud(cloud_ptr, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
-    else
-    {
+    else {
       visualizer.updatePointCloud(cloud_ptr, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
@@ -317,8 +293,7 @@ private:
     pcl::compute3DCentroid(*cloud_hull, centroid);
     double hull_shrink_factor = 0;
 
-    for(size_t i = 0; i < cloud_hull->points.size(); ++i)
-    {
+    for(size_t i = 0; i < cloud_hull->points.size(); ++i) {
       Eigen::Vector4f scaled_vector = (cloud_hull->points[i].getVector4fMap() - centroid) * hull_shrink_factor;
       cloud_hull->points[i].getVector4fMap() -= scaled_vector;
     }
@@ -341,8 +316,7 @@ private:
                             std::vector<pcl::PointIndices> &cluster_indices)
   {
 
-    if(indices->indices.size() > 0)
-    {
+    if(indices->indices.size() > 0) {
       pcl::EuclideanClusterExtraction<PointT> ec;
       pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>());
       tree->setInputCloud(cloud, boost::make_shared<std::vector<int>>(indices->indices));
@@ -354,8 +328,7 @@ private:
       ec.extract(cluster_indices);
       return true;
     }
-    else
-    {
+    else {
       return false;
     }
   }
@@ -379,21 +352,17 @@ private:
     input_labels->height = cloud->height;
     input_labels->width = cloud->width;
 
-    if(prism_inliers->indices.size() == 0)
-    {
+    if(prism_inliers->indices.size() == 0) {
       label.label = 1;
       input_labels->points.resize(cloud->points.size(), label);
-      for(size_t i = 0; i < plane_inliers->indices.size(); i++)
-      {
+      for(size_t i = 0; i < plane_inliers->indices.size(); i++) {
         input_labels->points[plane_inliers->indices[i]].label = 0;//std::numeric_limits<unsigned>::max();
       }
     }
-    else
-    {
+    else {
       label.label = 0;
       input_labels->points.resize(cloud->points.size(), label);
-      for(size_t i = 0; i < prism_inliers->indices.size(); ++i)
-      {
+      for(size_t i = 0; i < prism_inliers->indices.size(); ++i) {
         input_labels->points[prism_inliers->indices[i]].label = 1;
       }
     }
@@ -411,10 +380,8 @@ private:
     segmenter.segment(*output_labels, cluster_i);
 
     int good_clusters = 0;
-    for(int i = 0 ; i < cluster_i.size(); ++i)
-    {
-      if(cluster_i.at(i).indices.size() > cluster_min_size && cluster_i.at(i).indices.size() < cluster_max_size)
-      {
+    for(int i = 0 ; i < cluster_i.size(); ++i) {
+      if(cluster_i.at(i).indices.size() > cluster_min_size && cluster_i.at(i).indices.size() < cluster_max_size) {
         good_clusters++;
         cluster_indices.push_back(cluster_i.at(i));
       }
@@ -441,8 +408,7 @@ private:
 
     // get min / max extents (rectangular bounding box in image (pixel) coordinates)
     //#pragma omp parallel for
-    for(size_t i = 0; i < indices.indices.size(); ++i)
-    {
+    for(size_t i = 0; i < indices.indices.size(); ++i) {
       const int idx = indices.indices[i];
       const int x = idx % width;
       const int y = idx / width;

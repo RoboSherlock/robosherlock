@@ -12,14 +12,6 @@ JsonPrologInterface::JsonPrologInterface()
   catch(const XMLException &toCatch) {
     outInfo("error starting an xml parser: " << toCatch.getMessage());
   }
-  std::stringstream getNamespacesQuery;
-  getNamespacesQuery << "rdf_current_ns(A,_)";
-  json_prolog::PrologQueryProxy bdgs = pl_.query(getNamespacesQuery.str());
-  for(auto bdg : bdgs) {
-    std::string ns = bdg["A"].toString();
-    if(std::find(NS_TO_SKIP.begin(), NS_TO_SKIP.end(), ns) == NS_TO_SKIP.end())
-      krNamespaces_.push_back(ns);
-  }
 }
 
 
@@ -343,10 +335,9 @@ bool JsonPrologInterface::assertAnnotatorMetaInfo(std::pair<std::string, rs::Ann
 
 bool JsonPrologInterface::expandToFullUri(std::string &entry)
 {
-  json_prolog::Prolog pl;
   std::stringstream prologQuery;
   prologQuery << "rdf_global_id(" << entry << ",A).";
-  json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
+  json_prolog::PrologQueryProxy bdgs = pl_.query(prologQuery.str());
   for(auto bdg : bdgs) {
     std::string newentry = bdg["A"];
     entry = newentry;
@@ -363,11 +354,21 @@ bool JsonPrologInterface::addNamespace(const std::string &entry, std::string &re
 
 bool JsonPrologInterface::addNamespace(std::string &entry)
 {
-  json_prolog::Prolog pl;
+
+  if(krNamespaces_.empty()) {
+    std::stringstream getNamespacesQuery;
+    getNamespacesQuery << "rdf_current_ns(A,_)";
+    json_prolog::PrologQueryProxy bdgs = pl_.query(getNamespacesQuery.str());
+    for(auto bdg : bdgs) {
+      std::string ns = bdg["A"].toString();
+      if(std::find(NS_TO_SKIP.begin(), NS_TO_SKIP.end(), ns) == NS_TO_SKIP.end())
+        krNamespaces_.push_back(ns);
+    }
+  }
   for(auto ns : krNamespaces_) {
     std::stringstream prologQuery;
     prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'Class').";
-    json_prolog::PrologQueryProxy bdgs = pl.query(prologQuery.str());
+    json_prolog::PrologQueryProxy bdgs = pl_.query(prologQuery.str());
     if(bdgs.begin() != bdgs.end()) {
       entry = ns + ":'" + entry + "'";
       return true;
