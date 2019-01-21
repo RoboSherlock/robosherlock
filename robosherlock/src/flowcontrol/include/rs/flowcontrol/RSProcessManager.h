@@ -8,6 +8,8 @@
 
 #include <rs/io/visualizer.h>
 
+#include <rs/scene_cas.h>
+
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
 #include <robosherlock_msgs/RSObjectDescriptions.h>

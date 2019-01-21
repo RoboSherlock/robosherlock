@@ -108,24 +108,36 @@ public:
         MEASURE_TIME;
         outInfo("process begins");
 
+        outInfo("Receiving data from cas");
         rs::SceneCas cas(tcas);
         rs::Scene scene = cas.getScene();
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
+        rs::Size s = rs::create<rs::Size>(tcas); // This is just a hack to get a simple integer (the object ID) from the cas.
+        int obj_id;
+        if(!cas.getFS("OBJ_ID_TRACK", s)){
+            outError("Don't know what to track");
+            return UIMA_ERR_NONE;
+        }
+        obj_id = s.height.get();
 
+
+        outInfo("Getting regions of interest for object id " << obj_id);
         // Get regions of interest. TODO: Which one do we need now?
         scene.identifiables.filter(clusters);
+        outInfo("resizing...");
         clusterRois.resize(clusters.size());
-        for(size_t idx = 0; idx < clusters.size(); ++idx) {
-            rs::ImageROI image_rois = clusters[idx].rois.get();
-
-            cv::Rect roiIterating;
-            rs::conversion::from(image_rois.roi_hires(), roiIterating);
-
-            clusterRois[idx] = roiIterating;
+        outInfo("Iterating through the roi's and converting them...");
+        if(clusters.size() > obj_id){
+            rs::ImageROI image_roi = clusters[obj_id].rois.get();
+            cv::Rect roi;
+            rs::conversion::from(image_roi.roi_hires(), roi);
         }
 
+        outInfo("Setting the object roi to track (currently simply object 0");
         bbox = clusterRois[0]; // cv::Rect2d constructor supports cv::Rect
+        outInfo("Updating the tracker...");
         tracker->update(frame, bbox);
+        outInfo("...tracker updated successfully!");
 
 
         /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen

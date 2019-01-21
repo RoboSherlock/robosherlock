@@ -3,18 +3,20 @@ ae:
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
-  - PointCloudFilter
+  - RegionFilter
   - NormalEstimator
   - PlaneAnnotator
   - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
   - Cluster3DGeometryAnnotator
+  - ClusterColorHistogramCalculator
+  - PrimitiveShapeAnnotator
   - KalmanTrackingAnnotator
   - DrawResultImage
   - StorageWriter
 CollectionReader:
-  -camera_config_files: ['config_kinect_robot.ini']
+  camera_config_files: ['config_kinect_robot.ini']
 StorageWriter:
-  -storagedb: 'ScenesAnnotated'
-  -enableViews: ['color_image_hd','depth_image_hd','camera_info','camera_info_hd','scene']
+  storagedb: 'ScenesAnnotated'
+  enableViews: ['color_image_hd','depth_image_hd','camera_info','camera_info_hd','scene']

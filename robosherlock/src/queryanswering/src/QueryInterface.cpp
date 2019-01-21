@@ -103,9 +103,9 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
 
           outInfo("a");
           std::vector<std::string> detPipeline, trackingPipeline;
-          outInfo("b");
           handleDetect(detPipeline, valDetect);
           handleTrack(trackingPipeline, valTrack);
+          outInfo("b");
           res.push_back(detPipeline);
           res.push_back(trackingPipeline);
 
@@ -204,13 +204,13 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
-  res.push_back("CollectionReader");
+  //res.push_back("CollectionReader");
   res.push_back("ImagePreprocessor");
   //res.push_back("PointCloudClusterExtractor"); // 3D tracking
   //res.push_back("PointCloudFilter"); // 3D tracking
   res.push_back("KalmanTrackingAnnotator");
   //res.push_back("PCLTrackingAnnotator"); // 3D tracking
-  res.push_back("StorageWriter");
+  //res.push_back("StorageWriter");
   outInfo("Planned tracking pipeline: ");
   for(auto const &r:res){
     outInfo(r);

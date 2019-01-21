@@ -155,7 +155,14 @@ private:
       jsonDoc.Parse(jsonQuery);
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes
-      rapidjson::Value &detectQuery = jsonDoc["detect"];
+      rapidjson::Value detectQuery;
+      if(jsonDoc.HasMember("detect")){
+          detectQuery = jsonDoc["detect"];
+      }
+      else
+          if(jsonDoc.HasMember("track")){
+              detectQuery = jsonDoc["track"];
+          }
       outWarn("json query: " << qs.query());
       if(detectQuery.IsObject()){
           //TODO How do we know what keywords can be found at what level in the json?

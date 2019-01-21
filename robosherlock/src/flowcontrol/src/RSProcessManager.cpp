@@ -94,6 +94,7 @@ void RSProcessManager::run()
       }
       else {
         std::vector<std::string> objDescriptions;
+        outInfo("Resetting CAS...");
         engine_.resetCas();
         engine_.process(objDescriptions, "");
         robosherlock_msgs::RSObjectDescriptions objDescr;
@@ -323,14 +324,18 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
       std::vector<rs::ObjectHypothesis> objHyps;
       scene.identifiables.filter(objHyps);
-      outError("Found " <<objHyps.size()<<"objects");
+      int obj_id = 2;
+      rs::Size s = rs::create<rs::Size>(*tcas); // This is just a hack to get a simple integer (the object ID) into the cas.
+      s.height.set(obj_id); // TODO: This has to be set to the correct ID (using resultDesignators)
+      sceneCas.setFS("OBJ_ID_TRACK", s);
+      outInfo("Found " << objHyps.size() << "objects");
 
       engine_.setNextPipeline(newPipelineOrders[1]);
 
-      engine_.changeLowLevelPipeline(newPipelineOrders[1]);
-
       engine_.applyNextPipeline();
       engine_.process(resultDesignators, request);
+      newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "CollectionReader");
+      engine_.changeLowLevelPipeline(newPipelineOrders[1]);
       engine_.resetPipelineOrdering();
       this->waitForServiceCall_=false;
 
