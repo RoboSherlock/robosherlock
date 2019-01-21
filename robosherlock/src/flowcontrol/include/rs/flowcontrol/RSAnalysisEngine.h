@@ -48,6 +48,8 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
 
+#include <pcl_ros/point_cloud.h>
+
 class RSAnalysisEngine
 {
 
