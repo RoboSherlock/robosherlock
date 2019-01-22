@@ -318,6 +318,13 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       engine_.resetPipelineOrdering();
       // engine_.setNextPipeline(lowLvlPipeline_); TODO: What is this for?
 
+      std::vector<std::string> filteredResponse;
+      std::vector<bool> designatorsToKeep;
+      queryInterface->filterResults(resultDesignators, filteredResponse, designatorsToKeep);
+        for(int n = 0; n < designatorsToKeep.size(); n++) {
+            outInfo(designatorsToKeep[n]);
+        }
+
       // TODO: filterResults() here using the resultDesignators that I got from process
 
       uima::CAS *tcas = engine_.getCas();

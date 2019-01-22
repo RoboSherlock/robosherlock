@@ -89,39 +89,19 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
               trackIterator->name.SetString("detect", query.GetAllocator());
           }
 
-          outInfo("1");
-
           rapidjson::StringBuffer buffer;
           buffer.Clear();
           rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
           query.Accept(writer);
           std::string queryDetect(buffer.GetString(), buffer.GetSize());
 
-          outInfo("2");
-
           const rapidjson::Value &valDetect = query["detect"]; // This crashes because "detect" doesnt exist.
 
-          outInfo("a");
           std::vector<std::string> detPipeline, trackingPipeline;
           handleDetect(detPipeline, valDetect);
           handleTrack(trackingPipeline, valTrack);
-          outInfo("b");
           res.push_back(detPipeline);
           res.push_back(trackingPipeline);
-
-          outInfo("c");
-          std::vector<std::string> filteredResponse;
-          outInfo("d");
-          std::vector<bool> designatorsToKeep;
-          outInfo("e");
-          filterResults(res[0], filteredResponse, designatorsToKeep); // TODO: This doesn't belong here, I need to use this in RSProcessManager,
-          // TODO: where actual designator results are available.
-          outInfo("f");
-          for(int n = 0; n < designatorsToKeep.size(); n++) {
-              outInfo(designatorsToKeep[n]);
-          }
-
-          outInfo("3");
 
           return QueryType::TRACK;
       }
