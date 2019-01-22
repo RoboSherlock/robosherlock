@@ -114,6 +114,9 @@ public:
       std::vector<rs::Identifiable> finalClusterVector;
       finalClusterVector[0] = clusters[targetID];
       scene.identifiables.set(finalClusterVector);
+      double finalMovementAmount = sqrt((xTargetPos - xPos) * (xTargetPos - xPos)) +
+                                   ((yTargetPos - yPos) * (yTargetPos - yPos));
+      outInfo("Objects has moved by " + std::to_string(finalMovementAmount) + " since last process call");
       xPos = xTargetPos;
       yPos = yTargetPos;
     }
