@@ -114,7 +114,8 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
           outInfo("d");
           std::vector<bool> designatorsToKeep;
           outInfo("e");
-          filterResults(res[0], filteredResponse, designatorsToKeep);
+          filterResults(res[0], filteredResponse, designatorsToKeep); // TODO: This doesn't belong here, I need to use this in RSProcessManager,
+          // TODO: where actual designator results are available.
           outInfo("f");
           for(int n = 0; n < designatorsToKeep.size(); n++) {
               outInfo(designatorsToKeep[n]);

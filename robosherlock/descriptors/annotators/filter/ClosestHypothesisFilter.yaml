@@ -1,7 +1,12 @@
 annotator:
+  description: Filters the single object hypothesis closest to the that of id OBJ_ID_TRACK
+    during the first process call of ClosestHypothesisFilter, taking potential movement
+    of that hypothesis into account.
   implementation: rs_ClosestHypothesisFilter
+  name: ClosestHypothesisFilter
 parameters:
   test_param: 0.01
 capabilities:
-  inputs: {}
-  outputs: {}
+  inputs:
+  - rs.scene.ObjectHypothesis
+  outputs:
