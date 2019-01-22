@@ -318,6 +318,8 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       engine_.resetPipelineOrdering();
       // engine_.setNextPipeline(lowLvlPipeline_); TODO: What is this for?
 
+      // TODO: filterResults() here using the resultDesignators that I got from process
+
       uima::CAS *tcas = engine_.getCas();
       rs::SceneCas sceneCas(*tcas);
       rs::Scene scene = sceneCas.getScene();

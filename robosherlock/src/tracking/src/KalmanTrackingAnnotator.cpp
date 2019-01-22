@@ -62,7 +62,6 @@ private:
     cv::Mat frame; // Input data for 2D tracking
     Rect2d bbox; // Could later be used for the bounding box query parameter.
     std::vector<rs::ObjectHypothesis> clusters;
-    std::vector<cv::Rect> clusterRois;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -124,20 +123,24 @@ public:
         outInfo("Getting regions of interest for object id " << obj_id);
         // Get regions of interest. TODO: Which one do we need now?
         scene.identifiables.filter(clusters);
-        outInfo("resizing...");
-        clusterRois.resize(clusters.size());
-        outInfo("Iterating through the roi's and converting them...");
+        outInfo("Get the ROI of the object that is to be tracked.");
         if(clusters.size() > obj_id){
             rs::ImageROI image_roi = clusters[obj_id].rois.get();
             cv::Rect roi;
             rs::conversion::from(image_roi.roi_hires(), roi);
+            Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
+
+            outInfo("Updating the tracker...");
+            tracker->update(frame, bbox);
+            outInfo("...tracker updated successfully!");
+        }
+        else{
+            outError("An object of id " + std::to_string(obj_id) + " does not exist.");
+            return UIMA_ERR_NONE;
         }
 
-        outInfo("Setting the object roi to track (currently simply object 0");
-        bbox = clusterRois[0]; // cv::Rect2d constructor supports cv::Rect
-        outInfo("Updating the tracker...");
-        tracker->update(frame, bbox);
-        outInfo("...tracker updated successfully!");
+
+
 
 
         /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen

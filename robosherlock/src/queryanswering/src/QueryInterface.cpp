@@ -204,9 +204,10 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
-  //res.push_back("CollectionReader");
+  res.push_back("CollectionReader"); // Get necessary data after CAS reset
   res.push_back("ImagePreprocessor");
-  //res.push_back("PointCloudClusterExtractor"); // 3D tracking
+  res.push_back("PlaneAnnotator"); // Mandatory for using PointCloudClusterExtractor
+  res.push_back("PointCloudClusterExtractor"); // Have ROI's available for every track iteration
   //res.push_back("PointCloudFilter"); // 3D tracking
   res.push_back("KalmanTrackingAnnotator");
   //res.push_back("PCLTrackingAnnotator"); // 3D tracking
