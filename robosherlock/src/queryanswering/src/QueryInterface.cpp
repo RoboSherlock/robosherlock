@@ -18,17 +18,20 @@ bool QueryInterface::parseQuery(std::string query)
 
 QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
 {
-  if(query.HasMember("detect")) {
+  if(query.HasMember("detect"))
+  {
     handleDetect(res);
     return QueryType::DETECT;
   }
 
-  else if(query.HasMember("inspect")) {
+  else if(query.HasMember("inspect"))
+  {
     handleInspect(res);
     return QueryType::INSPECT;
   }
 
-  else if(query.HasMember("scan")) {
+  else if(query.HasMember("scan"))
+  {
     handleScan(res);
     return QueryType::SCAN;
   }
@@ -62,27 +65,33 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   std::vector<std::string> keys;
   std::vector<std::string> new_pipeline_order;
   jsonPrologInterface->extractQueryKeysFromDesignator(req, keys);
-  try {
+  try
+  {
     jsonPrologInterface->planPipelineQuery(keys, new_pipeline_order);
   }
-  catch(std::exception e) {
+  catch(std::exception e)
+  {
     outError("calling json_prolog was not successfull. Is the node running?");
     return false;
   }
 
-  if(new_pipeline_order.empty()) {
+  if(new_pipeline_order.empty())
+  {
     outInfo("Can't find solution for pipeline planning");
     return false; // Indicate failure
   }
   outInfo("New Pipeline: ");
-  std::for_each(new_pipeline_order.begin(), new_pipeline_order.end(), [](std::string & p) {
+  std::for_each(new_pipeline_order.begin(), new_pipeline_order.end(), [](std::string & p)
+  {
     outInfo(p);
   });
 
   //always estimate a pose...these could go directly into the planning phase in Prolog?
-  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "Cluster3DGeometryAnnotator") == new_pipeline_order.end()) {
+  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "Cluster3DGeometryAnnotator") == new_pipeline_order.end())
+  {
     std::vector<std::string>::iterator it = std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ClusterMerger");
-    if(it != new_pipeline_order.end()) {
+    if(it != new_pipeline_order.end())
+    {
       new_pipeline_order.insert(it + 1, "Cluster3DGeometryAnnotator");
     }
   }
@@ -91,7 +100,8 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   //  new_pipeline_order.push_back("TFBroadcaster");
 
   //whatever happens do ID res and spawn to gazebo...this is also pretty weird
-  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ObjectIdentityResolution") == new_pipeline_order.end()) {
+  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ObjectIdentityResolution") == new_pipeline_order.end())
+  {
     new_pipeline_order.push_back("ObjectIdentityResolution");
     new_pipeline_order.push_back("BeliefToKnowRob");
   }
@@ -110,14 +120,17 @@ bool QueryInterface::getQueryConfig()
   searchPaths.push_back(ros::package::getPath("robosherlock") + "/config");
   std::vector<std::string> child_packages;
   ros::package::command("depends-on robosherlock", child_packages);
-  for(size_t i = 0; i < child_packages.size(); ++i) {
+  for(size_t i = 0; i < child_packages.size(); ++i)
+  {
     searchPaths.push_back(ros::package::getPath(child_packages[i]) + "/config");
   }
 
   std::vector<std::string> configPaths;
-  for(auto p : searchPaths) {
+  for(auto p : searchPaths)
+  {
     boost::filesystem::path filePath(p + "/query_specifications.ini");
-    if(boost::filesystem::exists(filePath)) {
+    if(boost::filesystem::exists(filePath))
+    {
       configPaths.push_back(filePath.string());
     }
   }
@@ -125,25 +138,32 @@ bool QueryInterface::getQueryConfig()
   jsonPrologInterface->retractQueryLanguage();
 
   std::map <std::string, std::vector<std::string>> queryLangSpecs;
-  for(auto p : configPaths) {
+  for(auto p : configPaths)
+  {
     outInfo("Path to config file: " FG_BLUE << p);
     boost::property_tree::ptree pt;
-    try {
+    try
+    {
       boost::property_tree::ini_parser::read_ini(p, pt);
 
-      for(auto property : pt) {
-        if(property.first == "keys") {
-          for(auto entry : property.second) {
+      for(auto property : pt)
+      {
+        if(property.first == "keys")
+        {
+          for(auto entry : property.second)
+          {
             std::vector<std::string> types;
             std::string typesEntry = pt.get<std::string>(property.first + "." + entry.first);
             boost::algorithm::split(types, typesEntry, boost::is_any_of(" ,"), boost::token_compress_on);
             queryLangSpecs[entry.first].insert(queryLangSpecs[entry.first].end(), types.begin(), types.end());
           }
         }
-        else {
+        else
+        {
 
           std::shared_ptr<QueryTermProperties> qProp;
-          if(queryTermDefs_.find(property.first) != queryTermDefs_.end()) {
+          if(queryTermDefs_.find(property.first) != queryTermDefs_.end())
+          {
             qProp = std::make_shared<QueryTermProperties>(queryTermDefs_[property.first]);
           }
           else
@@ -163,7 +183,8 @@ bool QueryInterface::getQueryConfig()
 
       }
     }
-    catch(boost::property_tree::ini_parser::ini_parser_error &e) {
+    catch(boost::property_tree::ini_parser::ini_parser_error &e)
+    {
       throw_exception_message("Error opening config file: " + p);
       return false;
     }
@@ -176,10 +197,12 @@ bool QueryInterface::getQueryConfig()
 bool QueryInterface::checkSubClass(const std::string &resultValue, const std::string &queryValue)
 {
   bool ok = false;
-  try {
+  try
+  {
     ok = jsonPrologInterface->q_subClassOf(resultValue, queryValue);
   }
-  catch(std::exception &e) {
+  catch(std::exception &e)
+  {
     outError("Prolog Exception: Malformed owl_subclass_of. Child or superclass undefined:");
     outError("     Child: " << resultValue);
     outError("     Parent: " << queryValue);
@@ -189,9 +212,12 @@ bool QueryInterface::checkSubClass(const std::string &resultValue, const std::st
 
 bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower)
 {
-  for(rapidjson::Value::ConstMemberIterator listIt = list.MemberBegin(); listIt != list.MemberEnd(); ++listIt) {
-    if(listIt->name == requestedKey) {
-      if(!keepLower) {
+  for(rapidjson::Value::ConstMemberIterator listIt = list.MemberBegin(); listIt != list.MemberEnd(); ++listIt)
+  {
+    if(listIt->name == requestedKey)
+    {
+      if(!keepLower)
+      {
         if(listIt->value.GetDouble() >= threshold)
           return true;
       }
@@ -211,7 +237,8 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   const rapidjson::Value &detectQuery = query["detect"];
   designatorsToKeep.resize(resultDesignators.size(), true);
 
-  for(rapidjson::Value::ConstMemberIterator queryIt = detectQuery.MemberBegin(); queryIt != detectQuery.MemberEnd(); ++queryIt) {
+  for(rapidjson::Value::ConstMemberIterator queryIt = detectQuery.MemberBegin(); queryIt != detectQuery.MemberEnd(); ++queryIt)
+  {
     std::vector<std::string> location, check;
     std::string key = queryIt->name.GetString();
     double thresh;
@@ -224,21 +251,26 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
     location = queryTermDefs_[key].location;
 
     outInfo("No. of resulting Object Designators: " << resultDesignators.size());
-    for(size_t i = 0; i < resultDesignators.size(); ++i) {
+    for(size_t i = 0; i < resultDesignators.size(); ++i)
+    {
       rapidjson::Document resultJson;
       resultJson.Parse(resultDesignators[i].c_str());
 
       std::vector<bool> matchingDescription(location.size(), true);
-      for(size_t j = 0; j < location.size(); ++j) {
+      for(size_t j = 0; j < location.size(); ++j)
+      {
         //check if this query key exists in the result
         rapidjson::Pointer p(location[j]);
 
         if(!p.IsValid())
           outError("Location: [" << location[j] << "] is not a valid rapidjson location. Check the documentation of rapidjson;");
         rapidjson::Value *value = rapidjson::GetValueByPointer(resultJson, p);
-        if(value != nullptr) {
-          if(check[j] == "EQUAL") {
-            if(value->GetType() == rapidjson::Type::kStringType) {
+        if(value != nullptr)
+        {
+          if(check[j] == "EQUAL")
+          {
+            if(value->GetType() == rapidjson::Type::kStringType)
+            {
               std::string resultValue = value->GetString();;
               if((resultValue != queryValue && queryValue != "") || !checkSubClass(resultValue, queryValue))
                 matchingDescription[j] = false;
@@ -246,20 +278,25 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             else
               matchingDescription[j] = false;
           }
-          else if(check[j] == "GEQ") {
+          else if(check[j] == "GEQ")
+          {
             double volumeofCurrentObj = value->GetDouble();
             double volumeAsked = atof(queryValue.c_str());
             outWarn("Volume asked as float: " << volumeAsked);
-            if(volumeAsked > volumeofCurrentObj) {
+            if(volumeAsked > volumeofCurrentObj)
+            {
               matchingDescription[j] = false;
             }
           }
-          else if(check[j] == "THRESHLIST") {
-            if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "") {
+          else if(check[j] == "THRESHLIST")
+          {
+            if(!checkThresholdOnList(*value, thresh, queryValue, keepLower) && queryValue != "")
+            {
               matchingDescription[j] = false;
             }
           }
-          else if(check[j] == "CONTAINS") {
+          else if(check[j] == "CONTAINS")
+          {
             bool found = false;
             for(auto &v : value->GetArray())
               if(v == queryValue || queryValue == "")
@@ -267,21 +304,26 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
             if(!found)
               matchingDescription[j] = false;
           }
-          else {
+          else
+          {
             outWarn("There is no such check: " + check[j] + ". Please check the filter_config.ini");
             matchingDescription[j] = false;
           }
         }
-        else if(check[j] == "ARRAY-VAL-CHECK") {
+        else if(check[j] == "ARRAY-VAL-CHECK")
+        {
           std::string delimiter = "*";
           int delLoc = location[j].find(delimiter);
           std::string prefix = location[j].substr(0, delLoc - 1);
           std::string suffix = location[j].substr(delLoc + 1, location[j].size());
           bool matched = false;
-          if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson)) {
-            for(int i = 0; i < suffixVal->Size(); i ++) {
+          if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson))
+          {
+            for(int i = 0; i < suffixVal->Size(); i ++)
+            {
               std::string newLocation = prefix + "/" + std::to_string(i) + suffix;
-              if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson)) {
+              if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
+              {
                 std::string resultValue = value->GetString();;
                 if(resultValue == queryValue || checkSubClass(resultValue, queryValue))
                   matched = true;
@@ -294,15 +336,18 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
           matchingDescription[j] = false;
       }
       bool what = false;
-      for(auto m : matchingDescription) {
+      for(auto m : matchingDescription)
+      {
         what = m | what;
       }
 
       designatorsToKeep[i] = what & designatorsToKeep[i];
     }
   }
-  for(int i = 0; i < designatorsToKeep.size(); ++i) {
-    if(designatorsToKeep[i]) {
+  for(int i = 0; i < designatorsToKeep.size(); ++i)
+  {
+    if(designatorsToKeep[i])
+    {
       filteredResponse.push_back(resultDesignators[i]);
     }
   }

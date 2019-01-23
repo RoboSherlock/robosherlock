@@ -41,7 +41,7 @@
 #include <rapidjson/document.h>
 
 //LIST OF rdf namespaces that we will never have objects ar perception entities defined under;
-static const std::vector<std::string> NS_TO_SKIP ={"rdf","rdfs","owl","xsd","dc","dcterms","eor","skos","foaf","void","serql","swrl","swrla"};
+static const std::vector<std::string> NS_TO_SKIP = {"rdf", "rdfs", "owl", "xsd", "dc", "dcterms", "eor", "skos", "foaf", "void", "serql", "swrl", "swrla"};
 
 //wrapper class for Prolog Engine based on SWI-C++
 class JsonPrologInterface

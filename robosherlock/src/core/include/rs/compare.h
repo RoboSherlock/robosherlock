@@ -49,7 +49,8 @@ double compare(PoseAnnotation &a, PoseAnnotation &b)
 template<>
 double compare(TFLocation &a, TFLocation &b)
 {
-  if(a.frame_id() == b.frame_id() && a.reference_desc() == b.reference_desc()) {
+  if(a.frame_id() == b.frame_id() && a.reference_desc() == b.reference_desc())
+  {
     return 0;
   }
   return 1;
@@ -58,7 +59,8 @@ double compare(TFLocation &a, TFLocation &b)
 template<>
 double compare(Shape &a, Shape &b)
 {
-  if(a.shape() == b.shape()) {
+  if(a.shape() == b.shape())
+  {
     return 0;
   }
   return 1;
@@ -100,7 +102,8 @@ double compare(SemanticColor &a, SemanticColor &b)
   const float &ratiosB = b.ratio.get();
   double dist = 0.0;
 
-  if(colorsA == colorsB) {
+  if(colorsA == colorsB)
+  {
     dist += fabs(ratiosA - ratiosB);
   }
 
@@ -120,7 +123,8 @@ double compare(ColorHistogram &a, ColorHistogram &b)
 template<>
 double compare(Features &a, Features &b)
 {
-  if(a.source() != b.source() || a.descriptorType() != b.descriptorType()) {
+  if(a.source() != b.source() || a.descriptorType() != b.descriptorType())
+  {
     outDebug("Features do not match.");
     return 1;
   }
@@ -128,31 +132,36 @@ double compare(Features &a, Features &b)
   cv::Mat descA, descB;
   rs::conversion::from(a.descriptors(), descA);
   rs::conversion::from(b.descriptors(), descB);
-  if(descA.rows == 0 || descB.rows == 0) {
+  if(descA.rows == 0 || descB.rows == 0)
+  {
     outDebug("one of the features is empty.");
     return 1;
   }
 
   cv::BFMatcher matcher;
   double maxDist = 0;
-  if(a.descriptorType() == "binary") {
+  if(a.descriptorType() == "binary")
+  {
     matcher = cv::BFMatcher(cv::NORM_HAMMING, true);
     maxDist = (double)((descA.cols * descA.elemSize() * 8) >> 1); // theoretical maxium is number of bits, but the half is used as max
   }
-  else {
+  else
+  {
     matcher = cv::BFMatcher(cv::NORM_L2, false);
     maxDist = 1.0; // theoretical max is 2 for normalized vectors, but the half is used as max
   }
 
   std::vector<cv::DMatch> matches;
   matcher.match(descA, descB, matches);
-  if(matches.empty()) {
+  if(matches.empty())
+  {
     outDebug("no matches found.");
     return 1.0;
   }
 
   double dist = 0;
-  for(size_t i = 0; i < matches.size(); ++i) {
+  for(size_t i = 0; i < matches.size(); ++i)
+  {
     const cv::DMatch &match = matches[i];
     dist += match.distance;
   }
@@ -163,7 +172,8 @@ double compare(Features &a, Features &b)
 template<>
 double compare(PclFeature &a, PclFeature &b)
 {
-  if(a.feat_type() != b.feat_type() && a.feature.size() != b.feature.size()) {
+  if(a.feat_type() != b.feat_type() && a.feature.size() != b.feature.size())
+  {
     outDebug("Features do not match.");
     return 1;
   }
@@ -184,11 +194,13 @@ double compare(PclFeature &a, PclFeature &b)
 template<>
 double compare(Detection &a, Detection &b)
 {
-  if(a.source() != b.source()) {
+  if(a.source() != b.source())
+  {
     outDebug("Features do not match.");
     return 1;
   }
-  if(a.name() == b.name()) {
+  if(a.name() == b.name())
+  {
     return 0.0;
   }
   return 1.0;

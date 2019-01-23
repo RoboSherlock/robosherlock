@@ -53,7 +53,8 @@ class Cluster3DGeometryAnnotation : public DrawingAnnotator
 private:
   typedef pcl::PointXYZRGBA PointT;
 
-  struct OrientedBoundingBox {
+  struct OrientedBoundingBox
+  {
     tf::Transform objectToWorld;
     float width, depth, height, volume;
 
@@ -78,13 +79,16 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    if(ctx.isParameterDefined("projectOnPlane")) {
+    if(ctx.isParameterDefined("projectOnPlane"))
+    {
       ctx.extractValue("projectOnPlane", projectOnPlane_);
     }
-    if(ctx.isParameterDefined("estimateAll")) {
+    if(ctx.isParameterDefined("estimateAll"))
+    {
       ctx.extractValue("overwriteExistingPoseEstimate", overwriteExistingPoseEstimate_);
     }
-    if(ctx.isParameterDefined("sor_filter")) {
+    if(ctx.isParameterDefined("sor_filter"))
+    {
       ctx.extractValue("sor_filter", sorFilter_);
     }
 
@@ -115,7 +119,8 @@ public:
     cas.get(VIEW_COLOR_IMAGE_HD, disp);
 
     scene.annotations.filter(planes);
-    if(planes.empty()) {
+    if(planes.empty())
+    {
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
     }
 
@@ -128,10 +133,12 @@ public:
     orientedBoundingBoxes.resize(clusters.size());
 
     camToWorld.setIdentity();
-    if(scene.viewPoint.has()) {
+    if(scene.viewPoint.has())
+    {
       rs::conversion::from(scene.viewPoint.get(), camToWorld);
     }
-    else {
+    else
+    {
       outInfo("No camera to world transformation!!!");
     }
     worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
@@ -140,9 +147,11 @@ public:
 
     //iterate over clusters
     #pragma omp parallel for
-    for(size_t i = 0; i < clusters.size(); ++i) {
+    for(size_t i = 0; i < clusters.size(); ++i)
+    {
       rs::ObjectHypothesis &cluster = clusters[i];
-      if(!cluster.points.has()) {
+      if(!cluster.points.has())
+      {
         continue;
       }
       pcl::PointIndicesPtr indices(new pcl::PointIndices());
@@ -154,7 +163,8 @@ public:
       ei.setIndices(indices);
       ei.filter(*cluster_cloud);
 
-      if(sorFilter_) {
+      if(sorFilter_)
+      {
         outDebug("Before SOR filter: " << cluster_cloud->points.size());
         pcl::StatisticalOutlierRemoval<PointT> sor;
         sor.setInputCloud(cluster_cloud);
@@ -177,7 +187,8 @@ public:
       computePose(box);
     }
 
-    for(size_t i = 0; i < clusters.size(); ++i) {
+    for(size_t i = 0; i < clusters.size(); ++i)
+    {
       rs::ObjectHypothesis &cluster = clusters[i];
       OrientedBoundingBox &box = orientedBoundingBoxes[i];
 
@@ -202,15 +213,18 @@ public:
             largestObjVolume = 0.125;
 
 
-      if(box.volume < lowerThreshold) {
+      if(box.volume < lowerThreshold)
+      {
         semSize.size.set("small");
         semSize.confidence.set(std::abs(lowerThreshold / 2 - box.volume) / (lowerThreshold / 2));
       }
-      else if(box.volume < middleThreshold) {
+      else if(box.volume < middleThreshold)
+      {
         semSize.size.set("medium");
         semSize.confidence.set(std::abs((middleThreshold - lowerThreshold) / 2 - box.volume) / (middleThreshold - lowerThreshold) / 2);
       }
-      else { //if(box.volume < 0.02)
+      else   //if(box.volume < 0.02)
+      {
         semSize.size.set("large");
         semSize.confidence.set(std::abs((largestObjVolume - middleThreshold) / 2 - box.volume) / (largestObjVolume - middleThreshold) / 2);
       }
@@ -219,20 +233,23 @@ public:
       std::vector<rs::PoseAnnotation> poses;
       cluster.annotations.filter(poses);
 
-      if(projectOnPlane_) {
+      if(projectOnPlane_)
+      {
         rs::common::projectPointOnPlane(box.poseCam, plane_model);
         tf::Transform transform(box.poseCam.getRotation(), box.poseCam.getOrigin());
         box.poseWorld = tf::Stamped<tf::Pose>(camToWorld * transform, camToWorld.stamp_, camToWorld.frame_id_);
       }
 
-      if(poses.empty()) {
+      if(poses.empty())
+      {
         rs::PoseAnnotation poseAnnotation = rs::create<rs::PoseAnnotation>(tcas);
         poseAnnotation.source.set("3DEstimate");
         poseAnnotation.camera.set(rs::conversion::to(tcas, box.poseCam));
         poseAnnotation.world.set(rs::conversion::to(tcas, box.poseWorld));
         cluster.annotations.append(poseAnnotation);
       }
-      else if(overwriteExistingPoseEstimate_) {
+      else if(overwriteExistingPoseEstimate_)
+      {
         poses[0].source.set("3DEstimate");
         poses[0].camera.set(rs::conversion::to(tcas, box.poseCam));
         poses[0].world.set(rs::conversion::to(tcas, box.poseWorld));
@@ -249,34 +266,42 @@ public:
     max = cv::Point3f(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min());
     points.resize(cloud->points.size() * 2);
 
-    for(size_t i = 0; i < cloud->points.size(); ++i) {
+    for(size_t i = 0; i < cloud->points.size(); ++i)
+    {
 
       const PointT &point = cloud->points[i];
 
-      if(point.x < min.x) {
+      if(point.x < min.x)
+      {
         min.x = point.x;
       }
-      else if(point.x > max.x) {
+      else if(point.x > max.x)
+      {
         max.x = point.x;
       }
 
-      if(point.y < min.y) {
+      if(point.y < min.y)
+      {
         min.y = point.y;
       }
-      else if(point.y > max.y) {
+      else if(point.y > max.y)
+      {
         max.y = point.y;
       }
 
-      if(point.z < min.z) {
+      if(point.z < min.z)
+      {
         min.z = point.z;
       }
-      else if(point.z > max.z) {
+      else if(point.z > max.z)
+      {
         max.z = point.z;
       }
     }
 
     cv::Point corner((max.x - min.x) * 1000, (max.y - min.y) * 1000);
-    for(size_t i = 0, j = cloud->points.size(); i < cloud->points.size(); ++i, ++j) {
+    for(size_t i = 0, j = cloud->points.size(); i < cloud->points.size(); ++i, ++j)
+    {
       const PointT &point = cloud->points[i];
       points[i] = cv::Point((point.x - min.x) * 1000, (point.y - min.y) * 1000);
       points[j] = corner - points[i];
@@ -323,7 +348,8 @@ public:
     project2D(cloud, points, min, max);
 
     cv::RotatedRect rect = cv::minAreaRect(points);
-    if(rect.size.width < rect.size.height) {
+    if(rect.size.width < rect.size.height)
+    {
       rect.angle += 90;
       rect.size = cv::Size2f(rect.size.height, rect.size.width);
     }
@@ -359,7 +385,8 @@ public:
     size_t cols = (int)((max.x - min.x) * 1000) + 1;
     cv::Mat img = cv::Mat::zeros(rows, cols, CV_8U);
 
-    for(size_t i = 0; i < points.size(); ++i) {
+    for(size_t i = 0; i < points.size(); ++i)
+    {
       const cv::Point &p = points[i];
       img.at<uint8_t>(p.y, p.x) += 1;
     }
@@ -402,13 +429,16 @@ public:
 
   void computeSemnaticSize(OrientedBoundingBox &box) const
   {
-    if(box.volume < 0.0012) {
+    if(box.volume < 0.0012)
+    {
       box.semanticSize = "small";
     }
-    else if(box.volume < 0.004) {
+    else if(box.volume < 0.004)
+    {
       box.semanticSize = "medium";
     }
-    else { //if(box.volume < 0.02)
+    else   //if(box.volume < 0.02)
+    {
       box.semanticSize = "large";
     }
     /*else
@@ -433,11 +463,13 @@ public:
   {
     const std::string &cloudname = this->name;
 
-    if(firstRun) {
+    if(firstRun)
+    {
       visualizer.addPointCloud(dispCloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
     }
-    else {
+    else
+    {
       visualizer.updatePointCloud(dispCloud, cloudname);
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       visualizer.removeAllShapes();
@@ -462,7 +494,8 @@ public:
     visualizer.addLine(pclOrigin, pclLineY, 0, 1, 0, "lineY");
     visualizer.addLine(pclOrigin, pclLineZ, 0, 0, 1, "lineZ");
 
-    for(int i = 0; i < orientedBoundingBoxes.size(); ++i) {
+    for(int i = 0; i < orientedBoundingBoxes.size(); ++i)
+    {
       OrientedBoundingBox &box = orientedBoundingBoxes[i];
       std::ostringstream oss;
       oss << "box_" << i;
