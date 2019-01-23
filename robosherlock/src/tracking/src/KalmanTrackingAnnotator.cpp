@@ -110,22 +110,21 @@ public:
         outInfo("Receiving data from cas");
         rs::SceneCas cas(tcas);
         rs::Scene scene = cas.getScene();
+        scene.identifiables.filter(clusters);
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
-        rs::Size s = rs::create<rs::Size>(tcas); // This is just a hack to get a simple integer (the object ID) from the cas.
-        int obj_id;
-        if(!cas.getFS("OBJ_ID_TRACK", s)){
-            outError("Don't know what to track");
+
+        outInfo("Get the ROI of the object that is to be tracked.");
+        if(clusters.size() < 1){
+            outError("An object of id " + std::to_string(0) + " does not exist.");
             return UIMA_ERR_NONE;
         }
-        obj_id = s.height.get();
-
-
-        outInfo("Getting regions of interest for object id " << obj_id);
-        // Get regions of interest. TODO: Which one do we need now?
-        scene.identifiables.filter(clusters);
-        outInfo("Get the ROI of the object that is to be tracked.");
-        if(clusters.size() > obj_id){
-            rs::ImageROI image_roi = clusters[obj_id].rois.get();
+        else{
+            if(clusters.size() > 1) {
+                outWarn("Found more than one object in the scene. "
+                        "It is recommended to run ClosestHypothesisFilter before running KalmanTrackingAnnotator. "
+                        "Now tracking the object hypothesis of ID 0 by default...");
+            }
+            rs::ImageROI image_roi = clusters[0].rois.get();
             cv::Rect roi;
             rs::conversion::from(image_roi.roi_hires(), roi);
             Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
@@ -133,10 +132,6 @@ public:
             outInfo("Updating the tracker...");
             tracker->update(frame, bbox);
             outInfo("...tracker updated successfully!");
-        }
-        else{
-            outError("An object of id " + std::to_string(obj_id) + " does not exist.");
-            return UIMA_ERR_NONE;
         }
 
 

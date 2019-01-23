@@ -11,6 +11,7 @@ fixedflow:
   - ClusterMerger
   - Cluster3DGeometryAnnotator
   - ClusterColorHistogramCalculator
+  - ClosestHypothesisFilter
   - PrimitiveShapeAnnotator
   - KalmanTrackingAnnotator
   - DrawResultImage

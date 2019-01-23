@@ -13,7 +13,6 @@ class ClosestHypothesisFilter : public DrawingAnnotator
 {
 private:
   bool firstExecution = true;
-  std::vector<rs::ObjectHypothesis> clusters;
   int xPos;
   int yPos;
 
@@ -37,10 +36,10 @@ public:
 
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
-    outInfo("process start");
     rs::StopWatch clock;
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
+    std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
 
     /**
@@ -50,20 +49,24 @@ public:
      * saved for future process calls.
      */
     if(firstExecution) {
-      rs::Size s = rs::create<rs::Size>(
-              tcas); // This is just a hack to get a simple integer (the object ID) from the cas.
+      rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
       if (!cas.getFS("OBJ_ID_TRACK", s)) {
         outError("Please set OBJ_TO_TRACK before processing with ClosestHypothesisFilter for the first time.");
         return UIMA_ERR_NONE;
       }
       int obj_id = s.height.get();
-      outInfo("Get the ROI of the object that is to be tracked.");
       if(clusters.size() > obj_id){
         rs::ImageROI image_roi = clusters[obj_id].rois.get();
         cv::Rect roi;
         rs::conversion::from(image_roi.roi_hires(), roi);
         xPos = roi.x + (roi.width / 2);
         yPos = roi.y + (roi.height / 2);
+        std::vector<rs::Identifiable> finalClusterVector;
+        finalClusterVector.push_back(clusters[obj_id]);
+        scene.identifiables.set(finalClusterVector);
+        outInfo("Successfully extracted the object hypothesis of ID " + std::to_string(obj_id) +
+        " in the scene and saved its position. "
+        "Following process calls with attempt to segment the same object hypothesis.");
       }
       else{
         outError("An object of id " + std::to_string(obj_id) + " does not exist.");
@@ -79,6 +82,7 @@ public:
      * cluster back into the scene identifiables.
      */
     else{
+      outInfo("This is a successive execution.");
       int targetID = 0;
       int xTargetPos;
       int yTargetPos;
@@ -87,6 +91,7 @@ public:
         return UIMA_ERR_NONE;
       }
       else{
+        outInfo("There is at least one cluster in this scene.");
         rs::ImageROI rs_target_roi = clusters[0].rois.get();
         cv::Rect target_roi;
         rs::conversion::from(rs_target_roi.roi_hires(), target_roi);
@@ -96,6 +101,7 @@ public:
                 ((yTargetPos - yPos) * (yTargetPos - yPos));
 
         for(int n = 1; n < clusters.size(); n++) {
+            outInfo("Checking distance of object hypothesis " + std::to_string(n));
           rs::ImageROI rs_current_roi = clusters[n].rois.get();
           cv::Rect current_roi;
           rs::conversion::from(rs_current_roi.roi_hires(), current_roi);
@@ -112,11 +118,11 @@ public:
         }
       }
       std::vector<rs::Identifiable> finalClusterVector;
-      finalClusterVector[0] = clusters[targetID];
+      finalClusterVector.push_back(clusters[targetID]);
       scene.identifiables.set(finalClusterVector);
       double finalMovementAmount = sqrt((xTargetPos - xPos) * (xTargetPos - xPos)) +
                                    ((yTargetPos - yPos) * (yTargetPos - yPos));
-      outInfo("Objects has moved by " + std::to_string(finalMovementAmount) + " since last process call");
+      outInfo("Object has moved by " + std::to_string(finalMovementAmount) + " since last process call");
       xPos = xTargetPos;
       yPos = yTargetPos;
     }
