@@ -4,7 +4,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
                                    ros::NodeHandle n, const std::string &savePath):
   engine_(), nh_(n), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
-  withQA_(false), useVisualizer_(useVisualizer), useIdentityResolution_(false),
+  withQA_(withQnA), useVisualizer_(useVisualizer), useIdentityResolution_(false),
   visualizer_(savePath, !useVisualizer)
 {
 
