@@ -61,7 +61,6 @@ private:
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
     Rect2d bbox; // Could later be used for the bounding box query parameter.
-    std::vector<rs::ObjectHypothesis> clusters;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -110,6 +109,7 @@ public:
         outInfo("Receiving data from cas");
         rs::SceneCas cas(tcas);
         rs::Scene scene = cas.getScene();
+        std::vector<rs::ObjectHypothesis> clusters;
         scene.identifiables.filter(clusters);
         cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
 
