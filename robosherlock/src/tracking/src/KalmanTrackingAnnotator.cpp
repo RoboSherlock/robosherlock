@@ -61,6 +61,8 @@ private:
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
     cv::Mat frame; // Input data for 2D tracking
     Rect2d bbox; // Could later be used for the bounding box query parameter.
+    bool firstExecution = true;
+    int debugCounter = 0;
 public:
     TrackingAnnotator() : DrawingAnnotator(__func__)
     {
@@ -72,15 +74,6 @@ public:
      */
     TyErrorId initialize(AnnotatorContext &ctx) {
         outInfo("initialize");
-
-        // TODO: Check and extract ctx parameters
-
-        // Default bounding box. Could be overridden by parameter. Is later overridden using region of interest.
-        Rect2d bbox(0, 0, 200, 200);
-
-        // Initializes tracker
-        tracker->init(frame, bbox);
-        
         return UIMA_ERR_NONE;
     }
 
@@ -96,7 +89,6 @@ public:
     TyErrorId destroy()
     {
         outInfo("destroy");
-
         return UIMA_ERR_NONE;
     }
 
@@ -129,28 +121,39 @@ public:
             rs::conversion::from(image_roi.roi_hires(), roi);
             Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
 
-            outInfo("Updating the tracker...");
-            tracker->update(frame, bbox);
-            outInfo("...tracker updated successfully!");
-        }
-
-
-
-
-
-        /** TODO: Now that the PCL tracker has its own Annotator, decision on which one to run has to happen
-         *  TODO: somewhere else, most likely in Prolog (?)
-        if(!kcfStarted && !pclStarted) {
-            hasDepth = cas.get(VIEW_DEPTH_IMAGE, depthImage);
-            if (hasDepth) {
-                PCLTracker();
+            if(firstExecution){
+                outInfo("Initializing tracker using current object hypothesis in the scene...");
+                tracker->init(frame, bbox);
+                outInfo("...tracker initialized successfully!");
+                firstExecution = false;
             }
             else {
-                KCFTracker();
+                outInfo("Updating the tracker...");
+                tracker->update(frame, bbox);
+                outInfo("...tracker updated successfully!");
+
+                if(debugCounter < 3){
+                    debugCounter++;
+                }
+                else{
+                    rectangle( frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+                    imshow("tracker",frame);
+                    if(waitKey(1)==27)return UIMA_ERR_NONE;
+                }
+                // Result visualization
+                /**
+                rectangle( frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+                imshow("tracker",frame);
+                if(waitKey(1)==27)return UIMA_ERR_NONE;
+                 **/
+
+                // bbox position debug output
+                outInfo("x: " + std::to_string(bbox.x));
+                outInfo("y: " + std::to_string(bbox.y));
+                outInfo("width: " + std::to_string(bbox.width));
+                outInfo("height: " + std::to_string(bbox.height));
             }
         }
-         **/
-
         return UIMA_ERR_NONE;
     }
 };
