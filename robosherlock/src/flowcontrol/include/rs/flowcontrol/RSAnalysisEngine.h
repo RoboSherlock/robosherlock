@@ -68,7 +68,7 @@ protected:
   std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
 
 #ifdef WITH_JSON_PROLOG
-  std::shared_ptr<JsonPrologInterface> jsonPrologInterface;
+  std::shared_ptr<JsonPrologInterface> json_prolog_interface_;
 #endif
 
 public:

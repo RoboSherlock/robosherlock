@@ -130,9 +130,9 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
 #ifdef WITH_JSON_PROLOG
   if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
   {
-    jsonPrologInterface = std::make_shared<JsonPrologInterface>();
-    jsonPrologInterface->retractAllAnnotators();
-    jsonPrologInterface->assertAnnotators(delegateCapabilities_);
+    json_prolog_interface_ = std::make_shared<JsonPrologInterface>();
+    json_prolog_interface_->retractAllAnnotators();
+    json_prolog_interface_->assertAnnotators(delegateCapabilities_);
   }
   else
   {
