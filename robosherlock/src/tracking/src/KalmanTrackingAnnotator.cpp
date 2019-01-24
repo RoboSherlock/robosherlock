@@ -103,7 +103,11 @@ public:
         rs::Scene scene = cas.getScene();
         std::vector<rs::ObjectHypothesis> clusters;
         scene.identifiables.filter(clusters);
-        cas.get(VIEW_COLOR_IMAGE, frame); // Fill input data for 2D tracking
+        cas.get(VIEW_COLOR_IMAGE_HD, frame); // Fill input data for 2D tracking
+        if(!frame.rows > 0){
+            outError("Visual input is empty. Has VIEW_COLOR_IMAGE been filled?");
+            return UIMA_ERR_NONE;
+        }
 
         outInfo("Get the ROI of the object that is to be tracked.");
         if(clusters.size() < 1){
@@ -120,18 +124,47 @@ public:
             cv::Rect roi;
             rs::conversion::from(image_roi.roi_hires(), roi);
             Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
+            outInfo("x: " + std::to_string(bbox.x));
+            outInfo("y: " + std::to_string(bbox.y));
+            outInfo("width: " + std::to_string(bbox.width));
+            outInfo("height: " + std::to_string(bbox.height));
+
+            /**
+            while(ros::ok) {
+                Rect2d testbbox(287, 23, 86, 320);
+                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
+                imshow("tracker", frame);
+                int k = waitKey(1);
+                if(k == 27)
+                {
+                    break;
+                }
+            }
+             **/
 
             if(firstExecution){
                 outInfo("Initializing tracker using current object hypothesis in the scene...");
-                tracker->init(frame, bbox);
-                outInfo("...tracker initialized successfully!");
+                bool init_ok = tracker->init(frame, bbox);
+                if(init_ok){
+                    outInfo("Tracker initialized successfully!");
+                }
+                else{
+                    outError("Tracker initialization failed!");
+                }
                 firstExecution = false;
             }
             else {
                 outInfo("Updating the tracker...");
-                tracker->update(frame, bbox);
-                outInfo("...tracker updated successfully!");
+                bool ok = tracker->update(frame, bbox);
+                if(ok){
+                    outInfo("Tracker updated successfully!");
+                }
+                else{
+                    outError("Tracking failed!");
+                }
 
+
+                /**
                 if(debugCounter < 3){
                     debugCounter++;
                 }
@@ -140,19 +173,19 @@ public:
                     imshow("tracker",frame);
                     if(waitKey(1)==27)return UIMA_ERR_NONE;
                 }
+                 **/
                 // Result visualization
                 /**
                 rectangle( frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
                 imshow("tracker",frame);
                 if(waitKey(1)==27)return UIMA_ERR_NONE;
                  **/
-
-                // bbox position debug output
-                outInfo("x: " + std::to_string(bbox.x));
-                outInfo("y: " + std::to_string(bbox.y));
-                outInfo("width: " + std::to_string(bbox.width));
-                outInfo("height: " + std::to_string(bbox.height));
             }
+            // bbox position debug output
+            outInfo("x: " + std::to_string(bbox.x));
+            outInfo("y: " + std::to_string(bbox.y));
+            outInfo("width: " + std::to_string(bbox.width));
+            outInfo("height: " + std::to_string(bbox.height));
         }
         return UIMA_ERR_NONE;
     }

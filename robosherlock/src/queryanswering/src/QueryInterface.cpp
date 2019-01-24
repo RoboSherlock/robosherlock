@@ -61,50 +61,27 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
     return QueryType::SCAN;
   }
 
-  else if(query.HasMember("track")) {
-      //create json string for detection
+  else if(query.HasMember("track"))
+  {
+    const rapidjson::Value &valTrack = query["track"];
+    rapidjson::Value::MemberIterator trackIterator = query.FindMember("track");
+    trackIterator->name.SetString("detect", query.GetAllocator());
 
-      outInfo("This is a track query!");
+    rapidjson::StringBuffer buffer;
+    buffer.Clear();
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    query.Accept(writer);
+    std::string queryDetect(buffer.GetString(), buffer.GetSize());
 
-      // Makes detect query from track query.
-      if (query.HasMember("command"))
-      {
-          rapidjson::Value::MemberIterator commandIterator = query.FindMember("command");
-          if(commandIterator->value.GetString() == "stop"){
-              // TODO: Do whatever is necessary to stop tracking
-              outInfo("Stopping tracking...");
-          }
+    const rapidjson::Value &valDetect = query["detect"];
 
-      } else {
+    std::vector<std::string> detPipeline, trackingPipeline;
+    handleDetect(detPipeline, valDetect);
+    handleTrack(trackingPipeline, valTrack);
+    res.push_back(detPipeline);
+    res.push_back(trackingPipeline);
 
-          outInfo("Starting tracking...");
-
-          const rapidjson::Value &valTrack = query["track"];
-
-          // is it really needed to literally replace the "detect" with a "track"?
-          // Where in the code is the first member (detect/track/...) relevant again after the else if above?
-          if (query.HasMember("track")) {
-              outInfo("track member found. Inserting detect member instead...");
-              rapidjson::Value::MemberIterator trackIterator = query.FindMember("track");
-              trackIterator->name.SetString("detect", query.GetAllocator());
-          }
-
-          rapidjson::StringBuffer buffer;
-          buffer.Clear();
-          rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-          query.Accept(writer);
-          std::string queryDetect(buffer.GetString(), buffer.GetSize());
-
-          const rapidjson::Value &valDetect = query["detect"]; // This crashes because "detect" doesnt exist.
-
-          std::vector<std::string> detPipeline, trackingPipeline;
-          handleDetect(detPipeline, valDetect);
-          handleTrack(trackingPipeline, valTrack);
-          res.push_back(detPipeline);
-          res.push_back(trackingPipeline);
-
-          return QueryType::TRACK;
-      }
+    return QueryType::TRACK;
   }
 
   return QueryType::NONE;
