@@ -208,16 +208,12 @@ public:
       if(color.size() > 0) {
         outDebug("No. of Color Annotations :" << color.size());
         for(int i = 0; i < color.size(); ++i) {
-          std::vector<std::string> temp = color[i].color();
-          std::vector<float> ratio  = color[i].ratio();
+          std::string temp = color[i].color();
+          float ratio  = color[i].ratio();
 
-          for(int j = 0; j < temp.size(); ++j) {
-            if(ratio[j] > 0.30) {
-              mlnDatabase << generateAtom("color", index, temp[j], ratio[j]) << std::endl;
-              atoms.push_back(generateAtom("color", index, temp[j], ratio[j]));
-            }
+          mlnDatabase << generateAtom("color", index, temp, ratio) << std::endl;
+          atoms.push_back(generateAtom("color", index, temp, ratio));
 
-          }
         }
       }
       if(goggles.size() > 0) {
@@ -401,7 +397,7 @@ private:
     for(int32_t i = 0; i < atoms.size(); ++i) {
       int baseLine;
       cv::Size textSize = cv::getTextSize(atoms[i], cv::FONT_HERSHEY_PLAIN, 1.0, 2, &baseLine);
-      cv::putText(dispRgb, atoms[i], cv::Point(rect.x + (rect.width - textSize.width) / 2, rect.y - offset - textSize.height - i * 17), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0,0,0), 2.0);
+      cv::putText(dispRgb, atoms[i], cv::Point(rect.x + (rect.width - textSize.width) / 2, rect.y - offset - textSize.height - i * 17), cv::FONT_HERSHEY_PLAIN, 1.0, CV_RGB(0, 0, 0), 2.0);
     }
   }
 

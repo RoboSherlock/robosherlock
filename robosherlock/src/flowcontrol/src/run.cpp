@@ -100,7 +100,7 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   std::string analysisEnginesName, analysisEngineFile, savePath;
-  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel;
+  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel, enableQnA;
 
   nh.param("ae", analysisEnginesName, std::string(""));
   nh.param("analysis_engines", analysisEnginesName, analysisEnginesName);
@@ -113,6 +113,7 @@ int main(int argc, char *argv[])
   nh.param("pervasive", pervasive, false);
   nh.param("parallel", parallel, false);
   nh.param("withIDRes", useObjIDRes,false);
+  nh.param("enableQnA",enableQnA,false);
 
   nh.deleteParam("ae");
   nh.deleteParam("analysis_engines");
@@ -122,6 +123,7 @@ int main(int argc, char *argv[])
   nh.deleteParam("wait");
   nh.deleteParam("pervasive");
   nh.deleteParam("parallel");
+  nh.deleteParam("enableQnA");
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -150,9 +152,8 @@ int main(int argc, char *argv[])
 
   try
   {
-    RSProcessManager manager(useVisualizer, waitForServiceCall, nh, savePath);
+    RSProcessManager manager(useVisualizer, waitForServiceCall,enableQnA, nh, savePath);
     manager.setUseIdentityResolution(useObjIDRes);
-    manager.pause();
     manager.init(analysisEngineFile, configFile, pervasive, parallel);
     manager.run();
     manager.stop();

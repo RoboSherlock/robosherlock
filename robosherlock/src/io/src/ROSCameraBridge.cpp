@@ -72,6 +72,7 @@ void ROSCameraBridge::readConfig(const boost::property_tree::ptree &pt)
 void ROSCameraBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
                           const sensor_msgs::CameraInfo::ConstPtr camera_info_msg)
 {
+  std::lock_guard<std::mutex> lock_guard(lock);
   cv::Mat color;
   sensor_msgs::CameraInfo cameraInfo;
 
@@ -79,51 +80,41 @@ void ROSCameraBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
   orig_rgb_img = cv_bridge::toCvShare(rgb_img_msg, sensor_msgs::image_encodings::BGR8);
   cameraInfo = sensor_msgs::CameraInfo(*camera_info_msg);
 
-  if(!lookupTransform(cameraInfo.header.stamp))
-  {
-    lock.lock();
+  if(!lookupTransform(cameraInfo.header.stamp)) {
     _newData = false;
-    lock.unlock();
     return;
   }
 
-  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image))
-  {
-    lock.lock();
+  if(filterBlurredImages && detector.detectBlur(orig_rgb_img->image)) {
     _newData = false;
-    lock.unlock();
     outWarn("Skipping blurred image!");
     return;
   }
 
   color = orig_rgb_img->image.clone();
-
-  lock.lock();
   this->timestamp = cameraInfo.header.stamp;
   this->color = color;
   this->cameraInfo = cameraInfo;
   _newData = true;
-  lock.unlock();
 }
 
 bool ROSCameraBridge::setData(uima::CAS &tcas, uint64_t ts)
 {
-  if(!newData())
-  {
+  if(!newData()) {
     return false;
   }
   MEASURE_TIME;
 
+  std::lock_guard<std::mutex> lock_guard(lock);
   cv::Mat color;
   sensor_msgs::CameraInfo cameraInfo;
+  rs::SceneCas cas(tcas);
 
-  lock.lock();
   color = this->color;
   cameraInfo = this->cameraInfo;
   _newData = false;
-  rs::SceneCas cas(tcas);
   setTransformAndTime(tcas);
-  lock.unlock();
+
 
   cas.set(VIEW_COLOR_IMAGE_HD, color);
   cas.set(VIEW_COLOR_IMAGE, color);

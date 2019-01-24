@@ -28,7 +28,7 @@
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/queryanswering/JsonPrologInterface.h>
-#include <rs/queryanswering/DesignatorWrapper.h>
+#include <rs/queryanswering/ObjectDesignatorFactory.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -45,9 +45,10 @@
 
 #include <tf_conversions/tf_eigen.h>
 
-#include <pcl_ros/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
+
+#include <pcl_ros/point_cloud.h>
 
 class RSAnalysisEngine
 {
@@ -67,7 +68,7 @@ protected:
   std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
 
 #ifdef WITH_JSON_PROLOG
-  JsonPrologInterface jsonPrologInterface;
+  std::shared_ptr<JsonPrologInterface> json_prolog_interface_;
 #endif
 
 public:
