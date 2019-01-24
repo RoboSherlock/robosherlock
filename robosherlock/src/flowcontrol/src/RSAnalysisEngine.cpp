@@ -135,9 +135,8 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
     json_prolog_interface_->assertAnnotators(delegateCapabilities_);
   }
   else
-  {
     outWarn("Json Prolog is not running! Query answering will not be possible");
-  }
+
 #endif
 
   if (pervasive)

@@ -103,7 +103,7 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(std::map<std::string, rs:
 
   //actually there are two implementation logic: DEMAND_BASED or SUPPLY_BASED, we will try DEMAND_BASED first
   #pragma omp parallel for
-  for(int src_it = 0; src_it < annotatorList.size(); src_it++) {
+  for(size_t src_it = 0; src_it < annotatorList.size(); src_it++) {
     //for debug purpose
     std::unordered_set<std::string> satisfiedInputs;
 
@@ -114,7 +114,7 @@ bool RSParallelPipelinePlanner::buildDependenciesGraph(std::map<std::string, rs:
     //    std::unordered_set<std::string> &src_inputs = dependencies[annotatorList[src_it]].first;
 
     for(auto src_it_in = src_inputs.begin(); src_it_in != src_inputs.end(); src_it_in++) {
-      for(int tgt_it = 0; tgt_it < annotatorList.size(); tgt_it++) {
+      for(size_t tgt_it = 0; tgt_it < annotatorList.size(); tgt_it++) {
         if(src_it != tgt_it) {
           std::unordered_set<std::string> tgt_outputs;
           for(auto outputs : dependencies[annotatorList[tgt_it]].oTypeValueDomains) {

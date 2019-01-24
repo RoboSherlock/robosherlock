@@ -1,8 +1,5 @@
 /**
  * Copyright 2014 University of Bremen, Institute for Artificial Intelligence
- * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
- *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
- *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.

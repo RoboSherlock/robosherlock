@@ -170,10 +170,11 @@ bool QueryInterface::getQueryConfig()
             qProp = std::make_shared<QueryTermProperties>();
           qProp->key = property.first;
           std::string l = pt.get<std::string>(property.first + ".location");
-          std::string c = pt.get<std::string>(property.first + ".check");
-          std::vector<std::string> locations, checks;
+//          std::string c = pt.get<std::string>(property.first + ".check");
+          std::vector<std::string> locations;
           boost::split(locations, l, boost::is_any_of("|& "), boost::token_compress_on);
-          boost::split(checks, c, boost::is_any_of(",|& "), boost::token_compress_on);
+          std::vector<std::string> checks(locations.size(),"ARRAY-VAL-CHECK");
+//          boost::split(checks, c, boost::is_any_of(",|& "), boost::token_compress_on);
           qProp->location.insert(qProp->location.end(), locations.begin(), locations.end());
           qProp->check.insert(qProp->check.end(), checks.begin(), checks.end());
           queryTermDefs_[property.first] = *qProp;
