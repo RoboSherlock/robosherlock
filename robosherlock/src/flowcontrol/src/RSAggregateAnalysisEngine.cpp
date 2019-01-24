@@ -383,6 +383,7 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const
   }
   catch(uima::Exception &rExc) {
     errInfo = rExc.getErrorInfo();
+    outError(errInfo.asString());
   }
 
   assert(errInfo.getErrorId() != UIMA_ERR_NONE);

@@ -96,24 +96,17 @@ double compare(Geometry &a, Geometry &b)
 template<>
 double compare(SemanticColor &a, SemanticColor &b)
 {
-  const std::vector<std::string> &colorsA = a.color.get();
-  const std::vector<std::string> &colorsB = b.color.get();
-  const std::vector<float> &ratiosA = a.ratio.get();
-  const std::vector<float> &ratiosB = b.ratio.get();
+  const std::string &colorsA = a.color.get();
+  const std::string &colorsB = b.color.get();
+  const float &ratiosA = a.ratio.get();
+  const float &ratiosB = b.ratio.get();
   double dist = 0.0;
 
-  for(size_t i = 0; i < colorsA.size(); ++i)
+  if(colorsA == colorsB)
   {
-    const std::string &colorA = colorsA[i];
-    for(size_t j = 0; j < colorsB.size(); ++j)
-    {
-      if(colorA == colorsB[j])
-      {
-        dist += fabs(ratiosA[i] - ratiosB[j]);
-        break;
-      }
-    }
+    dist += fabs(ratiosA - ratiosB);
   }
+
   return dist /= 2;
 }
 

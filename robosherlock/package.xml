@@ -18,7 +18,6 @@
 
   <buildtool_depend>catkin</buildtool_depend>
 
-  <depend>pcl_ros                    </depend>
   <depend>rospy                      </depend>
   <depend>cv_bridge                  </depend>
   <depend>cmake_modules              </depend>
@@ -33,6 +32,8 @@
   <depend>tf_conversions             </depend>
   <depend>image_transport            </depend>
   <depend>image_geometry             </depend>
+  <depend>pcl_ros		     </depend>
+  <depend>pcl_conversions	     </depend>
 
   <depend>uimacpp_ros                </depend>
   <depend>robosherlock_msgs          </depend>

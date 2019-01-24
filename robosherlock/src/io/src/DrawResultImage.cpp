@@ -60,7 +60,7 @@ private:
 
 public:
 
-  DrawResultImage():savePath_("./")
+  DrawResultImage(): savePath_("./")
   {
     locationMapping["kitchen_counter_island_top"] = "table";
   }
@@ -70,9 +70,9 @@ public:
     outInfo("initialize");
     if(ctx.isParameterDefined("save_path")) {
       ctx.extractValue("save_path", savePath_);
-      if (!boost::filesystem::exists(savePath_)){
+      if(!boost::filesystem::exists(savePath_)) {
         outWarn("The save path set does not exist. Saving in workdir.");
-        savePath_="./";
+        savePath_ = "./";
       }
     }
 
@@ -95,7 +95,6 @@ public:
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     outInfo("iterating over clusters");
-    std::stringstream mlnDatabase;
     for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it) {
 
       std::vector<std::string> atoms;
@@ -135,15 +134,9 @@ public:
       if(color.size() > 0) {
         outDebug("No. of Color Annotations :" << color.size());
         for(int i = 0; i < color.size(); ++i) {
-          std::vector<std::string> temp = color[i].color();
-          std::vector<float> ratio  = color[i].ratio();
-
-          for(int j = 0; j < temp.size(); ++j) {
-            if(ratio[j] > 0.30) {
-              atoms.push_back(generateAtom("color", index, temp[j], ratio[j]));
-            }
-
-          }
+          std::string temp = color[i].color();
+          float ratio  = color[i].ratio();
+          atoms.push_back(generateAtom("color", index, color[i].color(), color[i].ratio()));
         }
       }
       if(goggles.size() > 0) {
@@ -187,7 +180,7 @@ public:
         }
       }
       std::stringstream clustername;
-      clustername<<"hyp_"<<index;
+      clustername << "hyp_" << index;
       drawCluster(*it, tcas, clustername.str());
       drawAtoms(*it, tcas, atoms);
 
@@ -195,8 +188,8 @@ public:
 
     uint64_t ts =  scene.timestamp.get();
     std::stringstream filename;
-    filename<<savePath_<<"/scene_"<<ts<<".png";
-    cv::imwrite(filename.str(),dispRgb);
+    filename << savePath_ << "/scene_" << ts << ".png";
+    cv::imwrite(filename.str(), dispRgb);
 
     return  UIMA_ERR_NONE;
   }

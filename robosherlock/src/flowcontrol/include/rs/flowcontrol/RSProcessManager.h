@@ -46,14 +46,10 @@ public:
 
 
   bool waitForServiceCall_;
-  const bool useVisualizer_;
-
+  bool withQA_;
+  bool useVisualizer_;
   bool useIdentityResolution_;
-  bool pause_;
-  bool inspectFromAR_;
-
   bool parallel_;
-
 
   std::mutex processing_mutex_;
 
@@ -67,11 +63,12 @@ public:
    * @brief RSProcessManager::RSProcessManager constructror: the one and only...for now
    * @param useVisualizer flag for starting visualization window; If false it runs in headless mode, advertising partial results on a topic
    * @param waitForServiceCall run engine in synchroniouse mode, waiting for queries to arrive
+   * @param run with query answering enabled
    * @param n ros NodeHandle
    * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
    *
    */
-  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
+  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, bool withQnA,
                    ros::NodeHandle n, const std::string &savePath);
 
   /**
@@ -166,16 +163,6 @@ public:
   inline std::string getEngineName()
   {
     return engine_.getCurrentAEName();
-  }
-
-  /**
-   * @brief pause pause or unpause continuous exeution
-   */
-  inline void pause()
-  {
-    processing_mutex_.lock();
-    pause_ = !pause_;
-    processing_mutex_.unlock();
   }
 
 };

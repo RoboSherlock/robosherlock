@@ -16,7 +16,7 @@
       <features>
         <featureDescription>
           <name>rotation</name>
-          <description>3x3 rotation (bullet) matrix</description>
+          <description>quaternion (x,y,z,w)</description>
           <rangeTypeName>uima.cas.DoubleArray</rangeTypeName>
           <multipleReferencesAllowed>true</multipleReferencesAllowed>
         </featureDescription>
