@@ -22,7 +22,6 @@
 
 //robosherlock
 #include <rs/utils/output.h>
-#include <rs/queryanswering/KRDefinitions.h>
 #include <rs/utils/common.h>
 #include <rs/queryanswering/query_rules.h>
 
@@ -36,21 +35,26 @@
 #include <vector>
 #include <utility>
 #include <unordered_set>
+#include <algorithm>
 
 //json
 #include <rapidjson/document.h>
 
+//LIST OF rdf namespaces that we will never have objects ar perception entities defined under;
+static const std::vector<std::string> NS_TO_SKIP = {"rdf", "rdfs", "owl", "xsd", "dc", "dcterms", "eor", "skos", "foaf", "void", "serql", "swrl", "swrla"};
+
 //wrapper class for Prolog Engine based on SWI-C++
 class JsonPrologInterface
 {
-  std::vector<std::string> krNamespaces;
+  std::vector<std::string> krNamespaces_;
 
+  json_prolog::Prolog pl_;
 public:
 
   JsonPrologInterface();
   ~JsonPrologInterface()
   {
-       xercesc::XMLPlatformUtils::Terminate();
+    xercesc::XMLPlatformUtils::Terminate();
   }
 
   /*
@@ -79,7 +83,7 @@ public:
    * in query as a designator
    * out vector of keys
    * */
-  bool extractQueryKeysFromDesignator(std::string *desig,
+  bool extractQueryKeysFromDesignator(std::string &desig,
                                       std::vector<std::string> &keys);
 
   /*brief
@@ -87,19 +91,26 @@ public:
    * out prologQuery: the Prolog Query as a string
    * returns true or false /success or fail
    * */
-  bool buildPrologQueryFromDesignator(std::string *desig,
+  bool buildPrologQueryFromDesignator(std::string &desig,
                                       std::string &prologQuery);
 
+  /*
+   * assert terms of the query language and types that correspond to these terms
+   * in: map of keyword to types in the typesystem corresponding to the keys;
+   * out true on success
+   * */
+  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &query_terms);
 
-  bool retractAllAnnotators();
+  bool retractQueryLanguage();
 
   /*brief
    * create individuals for the anntators in the list
    * in: map containing annotator names and capability information
    * return true on succes:
    * */
-  bool assertAnnotators(const std::map<std::string,rs::AnnotatorCapabilities> &annotCap);
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &annotCap);
 
+  bool retractAllAnnotators();
 
   bool expandToFullUri(std::string &entry);
 
@@ -107,7 +118,7 @@ public:
    * in: annotator capabilities (I/O types and restrictions on them)
    * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::pair<std::string,rs::AnnotatorCapabilities> , std::string);
+  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> , std::string);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

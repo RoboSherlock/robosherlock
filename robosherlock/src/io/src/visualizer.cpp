@@ -182,7 +182,6 @@ std::string Visualizer::selectAnnotator(std::string anno)
   updateImage = true;
   updateCloud = true;
   changedAnnotator = true;
-  lock.unlock();
   outDebug("switching to annotator: " << activeAnnotators[index]);
   return activeAnnotators[index];
 }
@@ -190,13 +189,12 @@ std::string Visualizer::selectAnnotator(std::string anno)
 
 void Visualizer::checkAnnotator()
 {
-  lock.lock();
+  std::lock_guard<std::mutex> lock_guard(lock);
   if(annotator->update) {
     annotator->update = false;
     updateImage = true;
     updateCloud = true;
   }
-  lock.unlock();
 }
 
 void Visualizer::shutdown()
@@ -343,19 +341,18 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
 
 void Visualizer::saveImage(const cv::Mat &disp)
 {
-  lock.lock();
+  std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
   oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << names[index] << ".png";
 
   outInfo("saving image: " << oss.str());
   cv::imwrite(oss.str(), disp, saveParams);
   ++saveFrameImage;
-  lock.unlock();
 }
 
 void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,  pcl::visualization::PCLVisualizer::Ptr &visualizer)
 {
-  lock.lock();
+  std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss, oss_cloud;
   oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << names[index] << ".pcd";
   oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << names[index] << ".png";
@@ -365,6 +362,5 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   outInfo("saving screenshot: " << oss.str());
   visualizer->saveScreenshot(oss.str());
   ++saveFrameCloud;
-  lock.unlock();
 }
 

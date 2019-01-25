@@ -208,10 +208,10 @@ void OverSegmenter::refineSegments(std::vector< std::vector<pcl::PointIndices> >
           {
             int linearSrcSegmentSub = matrixToLinear(segmentations, srcSegmentationIt, srcSegmentIt);
             int linearTgtSegmentSub = matrixToLinear(segmentations, tgtSegmentationIt, tgtSegmentIt);
-
-            graph_mutex.lock();
-            segmentGraph.addEdge(linearSrcSegmentSub, linearTgtSegmentSub);
-            graph_mutex.unlock();
+            {
+              std::lock_guard<std::mutex> lock_guard(graph_mutex);
+              segmentGraph.addEdge(linearSrcSegmentSub, linearTgtSegmentSub);
+	    }
           }
         }
       }

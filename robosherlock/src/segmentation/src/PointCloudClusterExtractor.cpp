@@ -49,7 +49,6 @@
 #include <rs/utils/common.h>
 
 //#define DEBUG_OUTPUT 1;
-
 using namespace uima;
 
 /**
@@ -63,9 +62,9 @@ private:
 
   struct Cluster
   {
-    size_t indicesIndex;
-    cv::Rect roi, roiHires;
-    cv::Mat mask, maskHires;
+    size_t indices_index_;
+    cv::Rect roi_, roi_hires_;
+    cv::Mat mask, mask_hires_;
   };
 
   Type cloud_type;
@@ -75,6 +74,7 @@ private:
   float cluster_tolerance;
   float plane_distance_threshold;
   pcl::PointCloud<PointT>::Ptr cloud_ptr;
+
   std::vector<pcl::PointIndices> cluster_indices;
   std::vector<Cluster> clusters;
   double pointSize;
@@ -142,7 +142,7 @@ public:
     setAnnotatorContext(ctx);
     return UIMA_ERR_NONE;
   }
-  
+
   TyErrorId reconfigure()
   {
     outInfo("Reconfiguring");
@@ -225,7 +225,7 @@ private:
     for(size_t i = 0; i < cluster_indices.size(); ++i)
     {
       Cluster &cluster = clusters[i];
-      cluster.indicesIndex = i;
+      cluster.indices_index_ = i;
 
       createImageRoi(cluster);
     }
@@ -246,9 +246,9 @@ private:
 
       rs::ImageROI imageRoi = rs::create<rs::ImageROI>(tcas);
       imageRoi.mask(rs::conversion::to(tcas, cluster.mask));
-      imageRoi.mask_hires(rs::conversion::to(tcas, cluster.maskHires));
-      imageRoi.roi(rs::conversion::to(tcas, cluster.roi));
-      imageRoi.roi_hires(rs::conversion::to(tcas, cluster.roiHires));
+      imageRoi.mask_hires(rs::conversion::to(tcas, cluster.mask_hires_));
+      imageRoi.roi(rs::conversion::to(tcas, cluster.roi_));
+      imageRoi.roi_hires(rs::conversion::to(tcas, cluster.roi_hires_));
 
       uimaCluster.points.set(rcp);
       uimaCluster.rois.set(imageRoi);
@@ -265,7 +265,7 @@ private:
     disp = color.clone();
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      cv::rectangle(disp, clusters[i].roiHires, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
+      cv::rectangle(disp, clusters[i].roi_hires_, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
   }
 
@@ -384,9 +384,8 @@ private:
       label.label = 1;
       input_labels->points.resize(cloud->points.size(), label);
       for(size_t i = 0; i < plane_inliers->indices.size(); i++)
-      {
         input_labels->points[plane_inliers->indices[i]].label = 0;//std::numeric_limits<unsigned>::max();
-      }
+
     }
     else
     {
@@ -427,7 +426,7 @@ private:
    */
   void createImageRoi(Cluster &cluster) const
   {
-    const pcl::PointIndices &indices = cluster_indices[cluster.indicesIndex];
+    const pcl::PointIndices &indices = cluster_indices[cluster.indices_index_];
 
     size_t width = cloud_ptr->width;
     size_t height = cloud_ptr->height;
@@ -455,10 +454,10 @@ private:
       mask_full.at<uint8_t>(y, x) = 255;
     }
 
-    cluster.roi = cv::Rect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1);
-    cluster.roiHires = cv::Rect(cluster.roi.x << 1, cluster.roi.y << 1, cluster.roi.width << 1, cluster.roi.height << 1);
-    mask_full(cluster.roi).copyTo(cluster.mask);
-    cv::resize(cluster.mask, cluster.maskHires, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
+    cluster.roi_ = cv::Rect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1);
+    cluster.roi_hires_ = cv::Rect(cluster.roi_.x << 1, cluster.roi_.y << 1, cluster.roi_.width << 1, cluster.roi_.height << 1);
+    mask_full(cluster.roi_).copyTo(cluster.mask);
+    cv::resize(cluster.mask, cluster.mask_hires_, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
   }
 };
 

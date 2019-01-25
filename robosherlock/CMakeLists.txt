@@ -135,7 +135,7 @@ endif()
 ## CMake variables                                                            ##
 ################################################################################
 
-#add_definitions(${PCL_DEFINITIONS})
+add_definitions(${PCL_DEFINITIONS})
 
 ################################################################################
 ## catkin specific configuration                                              ##

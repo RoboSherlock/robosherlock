@@ -155,7 +155,7 @@ public:
         continue;
       }
       pcl::PointIndicesPtr indices(new pcl::PointIndices());
-      rs::conversion::from(((rs::ReferenceClusterPoints)cluster.points.get()).indices.get(), *indices);
+      rs::conversion::from(static_cast<rs::ReferenceClusterPoints>(cluster.points.get()).indices.get(), *indices);
       pcl::PointCloud<PointT>::Ptr cluster_cloud(new pcl::PointCloud<PointT>());
       pcl::PointCloud<PointT>::Ptr cluster_transformed(new pcl::PointCloud<PointT>());
       pcl::ExtractIndices<PointT> ei;
@@ -199,19 +199,21 @@ public:
       box3d.height(box.height);
 
       rs::Geometry geometry = rs::create<rs::Geometry>(tcas);
-      geometry.camera.set(rs::conversion::to(tcas, box.poseCam));
-      geometry.world.set(rs::conversion::to(tcas, box.poseWorld));
       geometry.boundingBox(box3d);
-      geometry.size(box.semanticSize);
 
-      double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(box.poseCam.getOrigin().x(), box.poseCam.getOrigin().y(), box.poseCam.getOrigin().z()), plane_model[0], plane_model[1], plane_model[2], plane_model[3]));
+      double dist = std::fabs(pcl::pointToPlaneDistanceSigned(pcl::PointXYZ(static_cast<float>(box.poseCam.getOrigin().x()),
+                                                                            static_cast<float>(box.poseCam.getOrigin().y()),
+                                                                            static_cast<float>(box.poseCam.getOrigin().z())),
+                                                              static_cast<double>(plane_model[0]), static_cast<double>(plane_model[1]),
+                                                              static_cast<double>(plane_model[2]), static_cast<double>(plane_model[3])));
       geometry.distanceToPlane.set(dist);
       cluster.annotations.append(geometry);
 
       rs::SemanticSize semSize = rs::create<rs::SemanticSize>(tcas);;
+      semSize.source.set("Cluster3DGeometryAnnotator");
 
-      float lowerThreshold = 0.0012,
-            middleThreshold = 0.004,
+      float lowerThreshold = 0.0012f,
+            middleThreshold = 0.004f,
             largestObjVolume = 0.125;
 
 
@@ -225,7 +227,7 @@ public:
         semSize.size.set("medium");
         semSize.confidence.set(std::abs((middleThreshold - lowerThreshold) / 2 - box.volume) / (middleThreshold - lowerThreshold) / 2);
       }
-      else //if(box.volume < 0.02)
+      else   //if(box.volume < 0.02)
       {
         semSize.size.set("large");
         semSize.confidence.set(std::abs((largestObjVolume - middleThreshold) / 2 - box.volume) / (largestObjVolume - middleThreshold) / 2);
@@ -264,13 +266,13 @@ public:
 
   void project2D(const pcl::PointCloud<PointT>::ConstPtr &cloud, std::vector<cv::Point> &points, cv::Point3f &min, cv::Point3f &max) const
   {
-    min.x = max.x = cloud->points[0].x;
-    min.y = max.y = cloud->points[0].y;
-    min.z = max.z = cloud->points[0].z;
+    min = cv::Point3f(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
+    max = cv::Point3f(std::numeric_limits<float>::min(), std::numeric_limits<float>::min(), std::numeric_limits<float>::min());
     points.resize(cloud->points.size() * 2);
 
-    for(size_t i = 1; i < cloud->points.size(); ++i)
+    for(size_t i = 0; i < cloud->points.size(); ++i)
     {
+
       const PointT &point = cloud->points[i];
 
       if(point.x < min.x)
@@ -356,7 +358,6 @@ public:
       rect.size = cv::Size2f(rect.size.height, rect.size.width);
     }
 
-
     tf::Vector3 trans = tf::Vector3((max.x + min.x) / 2.0, (max.y + min.y) / 2.0, (max.z + min.z) / 2.0);
     float sinA, cosA;
 
@@ -440,7 +441,7 @@ public:
     {
       box.semanticSize = "medium";
     }
-    else //if(box.volume < 0.02)
+    else   //if(box.volume < 0.02)
     {
       box.semanticSize = "large";
     }

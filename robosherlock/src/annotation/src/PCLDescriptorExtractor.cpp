@@ -168,6 +168,14 @@ public:
 
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_NORMALS, *normals);
+    if(cloud->empty()){
+	outError("Point cloud is empty! Is there a point cloud in the CAS?");
+	return UIMA_ERR_NONE;	
+    }
+    if(normals->empty()){
+	outError("normal cloud is empty! normals need to be extracted before descriptor extraction!");
+	return UIMA_ERR_NONE;	
+    }    
     cas.get(VIEW_COLOR_IMAGE, color);
 
     scene.identifiables.filter(clusters);
