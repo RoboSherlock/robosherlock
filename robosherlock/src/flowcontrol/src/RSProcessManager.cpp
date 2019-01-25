@@ -335,13 +335,13 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       std::vector<bool> designatorsToKeep;
       queryInterface->filterResults(resultDesignators, filteredResponse, designatorsToKeep);
       int obj_id;
-        for(int n = 0; n < designatorsToKeep.size(); n++) {
-            if(designatorsToKeep[n]){
-                obj_id = n;
-                outInfo("Found an object that satisfies query designators.");
-                break;
-            }
+      for(int n = 0; n < designatorsToKeep.size(); n++) {
+        if(designatorsToKeep[n]){
+          obj_id = n;
+          outInfo("Found an object that satisfies query designators.");
+          break;
         }
+      }
 
 
       uima::CAS *tcas = engine_.getCas();
@@ -352,8 +352,11 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       scene.identifiables.filter(objHyps);
       rs::Size s = rs::create<rs::Size>(*tcas); // This is just a hack to get a simple integer (the object ID) into the cas.
       s.height.set(obj_id);
+      outInfo(FG_GREEN << "SETTING OBJ_TO_TRACK");
       sceneCas.setFS("OBJ_ID_TRACK", s);
-      outInfo("Found " << objHyps.size() << "objects");
+      outInfo("Found " << objHyps.size() << " objects");
+
+      visualizer_.setActiveAnnotators(newPipelineOrders[1]);
 
       engine_.setNextPipeline(newPipelineOrders[1]);
 
@@ -363,6 +366,10 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       engine_.changeLowLevelPipeline(newPipelineOrders[1]);
       engine_.resetPipelineOrdering();
       this->waitForServiceCall_=false;
+
+      outInfo("Building result...");
+      result.push_back("ok");
+      outInfo("... built result successfully.");
 
       return true;
 

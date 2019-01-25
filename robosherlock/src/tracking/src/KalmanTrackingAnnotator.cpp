@@ -52,143 +52,120 @@ using namespace uima;
 #define SSTR( x ) static_cast< std::ostringstream & >( \
 ( std::ostringstream() << std::dec << x ) ).str()
 
-class TrackingAnnotator : public DrawingAnnotator
+class KalmanTrackingAnnotator : public DrawingAnnotator
 {
 private:
-    Ptr<Tracker> tracker = TrackerKCF::create();
-    cv::Mat depthImage;
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud; // Input data for 3D tracking
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr objectCloud; // Loaded PCD file for 3D tracking
-    cv::Mat frame; // Input data for 2D tracking
-    Rect2d bbox; // Could later be used for the bounding box query parameter.
-    bool firstExecution = true;
-    int debugCounter = 0;
+  Ptr<Tracker> tracker = TrackerKCF::create();
+  cv::Mat frame; // Input data for 2D tracking
+  Rect2d bbox;
+  bool firstExecution = true;
+  std::vector <rs::ObjectHypothesis> clusters;
 public:
-    TrackingAnnotator() : DrawingAnnotator(__func__)
-    {
-        //cv::initModule_nonfree();
-    }
+  KalmanTrackingAnnotator() : DrawingAnnotator(__func__)
+  {
+    //cv::initModule_nonfree();
+  }
 
-    /*
-     * Initializes annotator
-     */
-    TyErrorId initialize(AnnotatorContext &ctx) {
-        outInfo("initialize");
+  /*
+   * Initializes annotator
+   */
+  TyErrorId initialize(AnnotatorContext &ctx) {
+    outInfo("initialize");
+    return UIMA_ERR_NONE;
+  }
+
+  TyErrorId reconfigure()
+  {
+    outInfo("Reconfiguring");
+    AnnotatorContext &ctx = getAnnotatorContext();
+    initialize(ctx);
+    return UIMA_ERR_NONE;
+  }
+
+  // Destroys annotator
+  TyErrorId destroy()
+  {
+    outInfo("destroy");
+    return UIMA_ERR_NONE;
+  }
+
+  // Processes a frame
+  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec) {
+    MEASURE_TIME;
+    outInfo("process begins");
+    rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
+    cas.get(VIEW_COLOR_IMAGE_HD, frame); // Fill input data
+
+    // TODO: Either get query here and check if it's still the same one, or call reconfigure() somehow.
+    if (firstExecution) {
+      scene.identifiables.filter(clusters);
+      if (!frame.rows > 0) {
+        outError("Visual input is empty. Has VIEW_COLOR_IMAGE been filled?");
         return UIMA_ERR_NONE;
-    }
+      }
 
-    TyErrorId reconfigure()
-    {
-        outInfo("Reconfiguring");
-        AnnotatorContext &ctx = getAnnotatorContext();
-        initialize(ctx);
+      rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
+      outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
+      if (!cas.getFS("OBJ_ID_TRACK", s)) {
+        outError("Please set OBJ_TO_TRACK before processing with KalmanKalmanTrackingAnnotator for the first time.");
         return UIMA_ERR_NONE;
-    }
+      }
+      int obj_id = s.height.get();
 
-    // Destroys annotator
-    TyErrorId destroy()
-    {
-        outInfo("destroy");
+      outInfo("Get the ROI of the object that is to be tracked.");
+      if (clusters.size() <= obj_id) {
+        outError("An object of id " + std::to_string(obj_id) + " does not exist. "
+                                                               "There are only " + std::to_string(clusters.size())
+                                                               + " potential objects in the scene.");
         return UIMA_ERR_NONE;
+      }
+      /**
+       * This is not relevant anymore since no redetection is required for the KCF tracker.
+      if(clusters.size() > 1) {
+        outWarn("Found more than one object in the scene. "
+                "It is recommended to run ClosestHypothesisFilter before running KalmanKalmanTrackingAnnotator. "
+                "Now tracking the object hypothesis of ID 0 by default...");
+      }
+       **/
+      rs::ImageROI image_roi = clusters[obj_id].rois.get();
+      cv::Rect roi;
+      rs::conversion::from(image_roi.roi_hires(), roi);
+      Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
+      outInfo("Initializing tracker using current object hypothesis in the scene...");
+      bool init_ok = tracker->init(frame, bbox);
+      if (init_ok) {
+        outInfo("Tracker initialized successfully!");
+      } else {
+        outError("Tracker initialization failed!");
+      }
+      firstExecution = false;
+    } else {
+      outInfo("Updating the tracker...");
+      bool ok = tracker->update(frame, bbox);
+      if (ok) {
+        outInfo("Tracker updated successfully!");
+      } else {
+        outError("Tracking failed!");
+      }
     }
+    // bbox position debug output
+    outInfo("x: " + std::to_string(bbox.x));
+    outInfo("y: " + std::to_string(bbox.y));
+    outInfo("width: " + std::to_string(bbox.width));
+    outInfo("height: " + std::to_string(bbox.height));
+    return UIMA_ERR_NONE;
+  }
 
-    // Processes a frame
-    TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
-    {
-        MEASURE_TIME;
-        outInfo("process begins");
+  void drawImageWithLock(cv::Mat &disp)
+  {
+    disp = frame.clone();
+    rectangle( disp, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+  }
 
-        outInfo("Receiving data from cas");
-        rs::SceneCas cas(tcas);
-        rs::Scene scene = cas.getScene();
-        std::vector<rs::ObjectHypothesis> clusters;
-        scene.identifiables.filter(clusters);
-        cas.get(VIEW_COLOR_IMAGE_HD, frame); // Fill input data for 2D tracking
-        if(!frame.rows > 0){
-            outError("Visual input is empty. Has VIEW_COLOR_IMAGE been filled?");
-            return UIMA_ERR_NONE;
-        }
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
+  }
 
-        outInfo("Get the ROI of the object that is to be tracked.");
-        if(clusters.size() < 1){
-            outError("An object of id " + std::to_string(0) + " does not exist.");
-            return UIMA_ERR_NONE;
-        }
-        else{
-            if(clusters.size() > 1) {
-                outWarn("Found more than one object in the scene. "
-                        "It is recommended to run ClosestHypothesisFilter before running KalmanTrackingAnnotator. "
-                        "Now tracking the object hypothesis of ID 0 by default...");
-            }
-            rs::ImageROI image_roi = clusters[0].rois.get();
-            cv::Rect roi;
-            rs::conversion::from(image_roi.roi_hires(), roi);
-            Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
-            outInfo("x: " + std::to_string(bbox.x));
-            outInfo("y: " + std::to_string(bbox.y));
-            outInfo("width: " + std::to_string(bbox.width));
-            outInfo("height: " + std::to_string(bbox.height));
-
-            /**
-            while(ros::ok) {
-                Rect2d testbbox(287, 23, 86, 320);
-                rectangle(frame, bbox, Scalar(255, 0, 0), 2, 1);
-                imshow("tracker", frame);
-                int k = waitKey(1);
-                if(k == 27)
-                {
-                    break;
-                }
-            }
-             **/
-
-            if(firstExecution){
-                outInfo("Initializing tracker using current object hypothesis in the scene...");
-                bool init_ok = tracker->init(frame, bbox);
-                if(init_ok){
-                    outInfo("Tracker initialized successfully!");
-                }
-                else{
-                    outError("Tracker initialization failed!");
-                }
-                firstExecution = false;
-            }
-            else {
-                outInfo("Updating the tracker...");
-                bool ok = tracker->update(frame, bbox);
-                if(ok){
-                    outInfo("Tracker updated successfully!");
-                }
-                else{
-                    outError("Tracking failed!");
-                }
-
-
-                /**
-                if(debugCounter < 3){
-                    debugCounter++;
-                }
-                else{
-                    rectangle( frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
-                    imshow("tracker",frame);
-                    if(waitKey(1)==27)return UIMA_ERR_NONE;
-                }
-                 **/
-                // Result visualization
-                /**
-                rectangle( frame, bbox, Scalar( 255, 0, 0 ), 2, 1 );
-                imshow("tracker",frame);
-                if(waitKey(1)==27)return UIMA_ERR_NONE;
-                 **/
-            }
-            // bbox position debug output
-            outInfo("x: " + std::to_string(bbox.x));
-            outInfo("y: " + std::to_string(bbox.y));
-            outInfo("width: " + std::to_string(bbox.width));
-            outInfo("height: " + std::to_string(bbox.height));
-        }
-        return UIMA_ERR_NONE;
-    }
 };
 
-MAKE_AE(TrackingAnnotator)
+MAKE_AE(KalmanTrackingAnnotator)
