@@ -1,7 +1,7 @@
 project(rs_queryanswering)
 
 add_library(rs_queryanswering SHARED
-        src/DesignatorWrapper.cpp
+        src/ObjectDesignatorFactory.cpp
         src/JsonPrologInterface.cpp
         src/QueryInterface.cpp)
 target_link_libraries(rs_queryanswering
