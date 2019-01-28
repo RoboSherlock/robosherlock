@@ -263,6 +263,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
       engine_.setNextPipeline(newPipelineOrders[0]);
       engine_.applyNextPipeline();
+      engine_.resetCas();
       engine_.process(resultDesignators, request);
       engine_.resetPipelineOrdering();
       engine_.setNextPipeline(lowLvlPipeline_);
@@ -316,9 +317,9 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
         assert(queryInterface->query["command"].IsString());
         if (queryInterface->query["command"] == "stop") { // for some reason, this is never true
           outInfo(FG_LIGHTYELLOW << "COMMAND STOP");
+          engine_.reconfigure();
           this->waitForServiceCall_=true;
-          // TODO: I should still terminate the tracker so if tracking restarts, it's initialized again.
-          // TODO: Find out how to go about this.
+          result.push_back("Tracking stopped.");
           return true;
         }
       }
@@ -337,8 +338,9 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       std::vector<bool> designatorsToKeep;
       queryInterface->filterResults(resultDesignators, filteredResponse, designatorsToKeep);
       int obj_id;
-      for(int n = 0; n < designatorsToKeep.size(); n++) {
-        if(designatorsToKeep[n]){
+      for(int n = 0; n < designatorsToKeep.size(); n++){
+        if(designatorsToKeep[n])
+        {
           obj_id = n;
           outInfo("Found an object that satisfies query designators.");
           break;
@@ -365,14 +367,12 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       engine_.applyNextPipeline();
       engine_.process(resultDesignators, request);
       newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "CollectionReader");
+      //newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "Trigger");
       engine_.changeLowLevelPipeline(newPipelineOrders[1]);
       engine_.resetPipelineOrdering();
       this->waitForServiceCall_=false;
 
-      outInfo("Building result...");
-      result.push_back("ok");
-      outInfo("... built result successfully.");
-
+      result.push_back("Tracking started.");
       return true;
 
       // TODO: Do I need the other stuff in the DETECT case here? What is that for?

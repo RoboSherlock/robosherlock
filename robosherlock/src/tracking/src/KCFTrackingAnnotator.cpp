@@ -52,7 +52,7 @@ using namespace uima;
 #define SSTR( x ) static_cast< std::ostringstream & >( \
 ( std::ostringstream() << std::dec << x ) ).str()
 
-class KalmanTrackingAnnotator : public DrawingAnnotator
+class KCFTrackingAnnotator : public DrawingAnnotator
 {
 private:
   Ptr<Tracker> tracker = TrackerKCF::create();
@@ -61,7 +61,7 @@ private:
   bool firstExecution = true;
   std::vector <rs::ObjectHypothesis> clusters;
 public:
-  KalmanTrackingAnnotator() : DrawingAnnotator(__func__)
+  KCFTrackingAnnotator() : DrawingAnnotator(__func__)
   {
     //cv::initModule_nonfree();
   }
@@ -77,8 +77,10 @@ public:
   TyErrorId reconfigure()
   {
     outInfo("Reconfiguring");
-    AnnotatorContext &ctx = getAnnotatorContext();
-    initialize(ctx);
+    tracker = TrackerKCF::create();
+    firstExecution = true;
+    cv::Mat frameTemp = frame;
+    frame = Mat(frameTemp.rows, frameTemp.cols, CV_32F, 5.0);
     return UIMA_ERR_NONE;
   }
 
@@ -91,13 +93,12 @@ public:
 
   // Processes a frame
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec) {
-    MEASURE_TIME;
+    rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     cas.get(VIEW_COLOR_IMAGE_HD, frame); // Fill input data
 
-    // TODO: Either get query here and check if it's still the same one, or call reconfigure() somehow.
     if (firstExecution) {
       scene.identifiables.filter(clusters);
       if (!frame.rows > 0) {
@@ -108,7 +109,7 @@ public:
       rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
       outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
       if (!cas.getFS("OBJ_ID_TRACK", s)) {
-        outError("Please set OBJ_TO_TRACK before processing with KalmanKalmanTrackingAnnotator for the first time.");
+        outError("Please set OBJ_TO_TRACK before processing with KalmanKCFTrackingAnnotator for the first time.");
         return UIMA_ERR_NONE;
       }
       int obj_id = s.height.get();
@@ -124,7 +125,7 @@ public:
        * This is not relevant anymore since no redetection is required for the KCF tracker.
       if(clusters.size() > 1) {
         outWarn("Found more than one object in the scene. "
-                "It is recommended to run ClosestHypothesisFilter before running KalmanKalmanTrackingAnnotator. "
+                "It is recommended to run ClosestHypothesisFilter before running KalmanKCFTrackingAnnotator. "
                 "Now tracking the object hypothesis of ID 0 by default...");
       }
        **/
@@ -154,6 +155,7 @@ public:
     outInfo("y: " + std::to_string(bbox.y));
     outInfo("width: " + std::to_string(bbox.width));
     outInfo("height: " + std::to_string(bbox.height));
+    outInfo("took: " << clock.getTime() << " ms.");
     return UIMA_ERR_NONE;
   }
 
@@ -168,4 +170,4 @@ public:
 
 };
 
-MAKE_AE(KalmanTrackingAnnotator)
+MAKE_AE(KCFTrackingAnnotator)

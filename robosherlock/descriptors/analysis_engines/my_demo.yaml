@@ -13,7 +13,7 @@ fixedflow:
   - ClusterColorHistogramCalculator
   - ClosestHypothesisFilter
   - PrimitiveShapeAnnotator
-  - KalmanTrackingAnnotator
+  - KCFTrackingAnnotator
   - DrawResultImage
   - StorageWriter
 CollectionReader:
