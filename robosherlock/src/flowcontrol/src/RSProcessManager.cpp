@@ -113,7 +113,6 @@ void RSProcessManager::run()
 void RSProcessManager::stop()
 {
   visualizer_.stop();
-  // Don't change behavior of other calls by keeping the reset for other QueryTypes apart from TRACK
   engine_.stop();
 }
 
@@ -263,6 +262,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
       engine_.setNextPipeline(newPipelineOrders[0]);
       engine_.applyNextPipeline();
+      outInfo("Resetting CAS...");
       engine_.resetCas();
       engine_.process(resultDesignators, request);
       engine_.resetPipelineOrdering();
@@ -329,6 +329,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       visualizer_.setActiveAnnotators(newPipelineOrders[0]);
       engine_.setNextPipeline(newPipelineOrders[0]);
       engine_.applyNextPipeline();
+      outInfo("Resetting CAS...");
       engine_.resetCas();
       engine_.process(resultDesignators, request);
       engine_.resetPipelineOrdering();
@@ -342,7 +343,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
         if(designatorsToKeep[n])
         {
           obj_id = n;
-          outInfo("Found an object that satisfies query designators.");
+          outInfo("Object " + std::to_string(obj_id) +  " satisfies query designators.");
           break;
         }
       }

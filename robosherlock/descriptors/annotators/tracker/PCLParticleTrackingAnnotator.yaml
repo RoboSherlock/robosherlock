@@ -1,6 +1,6 @@
 annotator:
-  name: PCLTrackingAnnotator
-  implementation: rs_PCLTrackingAnnotator
+  name: PCLParticleTrackingAnnotator
+  implementation: rs_PCLParticleTrackingAnnotator
 parameters:
   test_param: 0.01
 capabilities:

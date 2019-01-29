@@ -1,6 +1,6 @@
 annotator:
-  name: KalmanTrackingAnnotator
-  implementation: rs_KalmanTrackingAnnotator
+  name: KCFTrackingAnnotator
+  implementation: rs_KCFTrackingAnnotator
 parameters:
   test_param: 0.01
 capabilities:
