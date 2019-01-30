@@ -138,7 +138,7 @@ static std::vector<std::string> rsQueryTerms =
 {
   "shape", "volume", "contains", "color", "size","class",
   "location", "logo", "text", "product", "obj-part",
-  "detection", "type", "handle", "ingredient", "cad-model"
+  "detection", "type", "handle", "ingredient", "cad-model", "pose"
 };
 
 
