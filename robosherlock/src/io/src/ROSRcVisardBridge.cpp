@@ -484,7 +484,7 @@ bool ROSRcVisardBridge::setData(uima::CAS &tcas, uint64_t ts)
   const auto to_color = [](const cv::Mat &img)
   {
     cv::Mat img_c;
-    if (img_c.channels() == 1) { cv::cvtColor(img, img_c, CV_GRAY2BGR); }
+    if (img.channels() == 1) { cv::cvtColor(img, img_c, CV_GRAY2BGR); }
     else { img_c = img; }
     return img_c;
   };
