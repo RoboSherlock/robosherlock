@@ -60,6 +60,7 @@ private:
   Rect2d bbox;
   bool firstExecution = true;
   std::vector <rs::ObjectHypothesis> clusters;
+  bool ok = false;
 public:
   KCFTrackingAnnotator() : DrawingAnnotator(__func__)
   {
@@ -143,7 +144,7 @@ public:
       firstExecution = false;
     } else {
       outInfo("Updating the tracker...");
-      bool ok = tracker->update(frame, bbox);
+      ok = tracker->update(frame, bbox);
       if (ok) {
         outInfo("Tracker updated successfully!");
       } else {
@@ -162,7 +163,9 @@ public:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = frame.clone();
-    rectangle( disp, bbox, Scalar( 255, 0, 0 ), 2, 1 );
+    if(ok) {
+      rectangle(disp, bbox, Scalar(255, 0, 0), 2, 1);
+    }
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
