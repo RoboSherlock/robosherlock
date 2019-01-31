@@ -162,7 +162,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
 bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
 {
   //res.push_back("CollectionReader"); // Not required because is added manually
-  res.push_back("ImagePreprocessor"); // [REDETECT ONLY]
+  //res.push_back("ImagePreprocessor"); // [REDETECT ONLY]
   //res.push_back("NormalEstimator");
   //res.push_back("RegionFilter");
   // TODO: Currently, the following two are required, even though clusters are only needed for the first tracking process call.
@@ -176,9 +176,21 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
   //res.push_back("ClusterColorHistogramAnnotator");
   //res.push_back("PointCloudFilter"); // 3D tracking
   //res.push_back("ClosestHypothesisFilter"); // [REDETECT ONLY]
-  res.push_back("KCFTrackingAnnotator");
-  //res.push_back("PCLTrackingAnnotator"); // 3D tracking
+  //res.push_back("KCFTrackingAnnotator");
+  //res.push_back("PCLParticleTrackingAnnotator"); // 3D tracking
   //res.push_back("StorageWriter");
+
+  /**
+  res.push_back("ImagePreprocessor");
+  res.push_back("KCFTrackingAnnotator");
+  **/
+
+  res.push_back("ImagePreprocessor");
+  res.push_back("PlaneAnnotator");
+  res.push_back("PointCloudClusterExtractor");
+  res.push_back("PointCloudFilter");
+  res.push_back("PCLParticleTrackingAnnotator");
+
   outInfo("Planned tracking pipeline: ");
   for(auto const &r:res){
     outInfo(r);

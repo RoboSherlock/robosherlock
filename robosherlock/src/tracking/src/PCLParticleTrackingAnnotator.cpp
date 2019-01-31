@@ -87,23 +87,33 @@ class PCLParticleTrackingAnnotator : public DrawingAnnotator {
 private:
   boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
   Cloud::Ptr target_cloud;
-  Cloud::Ptr cloud; // Input data for 3D tracking
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud;
 public:
   PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__) {
     //cv::initModule_nonfree();
   }
 
+  void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
+  {
+    pcl::ApproximateVoxelGrid<pcl::PointXYZRGBA> grid;
+    grid.setLeafSize (static_cast<float> (leaf_size), static_cast<float> (leaf_size), static_cast<float> (leaf_size));
+    grid.setInputCloud (cloud);
+    grid.filter (result);
+  }
+
   TyErrorId initialize(AnnotatorContext &ctx) {
     outInfo("initialize");
 
-    // TODO: Check and extract ctx parameters
-
+    outInfo("1");
     target_cloud.reset(new Cloud());
-    if (pcl::io::loadPCDFile("path/to/pcd/file", *target_cloud) == -1) {
-      std::cout << "pcd file not found" << std::endl;
-      return false;
+    outInfo("2");
+    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker.pcd", *target_cloud) == -1) {
+      outWarn(".pcd-file not found!");
+      return UIMA_ERR_NONE;
     }
 
+    outInfo("3");
+    double downsampling_grid_size_ =  0.002;
     std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
     default_step_covariance[3] *= 40.0;
     default_step_covariance[4] *= 40.0;
@@ -159,19 +169,17 @@ public:
     //prepare the model of tracker's target
     Eigen::Vector4f c;
     Eigen::Affine3f trans = Eigen::Affine3f::Identity();
-    Cloud::Ptr transed_ref(new Cloud);
+    CloudPtr transed_ref(new Cloud);
+    CloudPtr transed_ref_downsampled (new Cloud);
 
     pcl::compute3DCentroid<pcl::PointXYZRGBA>(*target_cloud, c);
     trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
     pcl::transformPointCloud<pcl::PointXYZRGBA>(*target_cloud, *transed_ref, trans.inverse());
+    gridSampleApprox (transed_ref, *transed_ref_downsampled, downsampling_grid_size_);
 
     //set reference model and trans
-    tracker_->setReferenceCloud(transed_ref);
+    tracker_->setReferenceCloud(transed_ref_downsampled);
     tracker_->setTrans(trans);
-
-    //interface->start();
-    //interface->stop();
-    // TODO: Visualize according to how other annotators visualize results
 
     return UIMA_ERR_NONE;
   }
@@ -198,9 +206,19 @@ public:
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
-    cas.get(VIEW_CLOUD_DOWNSAMPLED, *cloud); // Fill input data for 3D tracking
-    tracker_->setInputCloud (cloud);
-    tracker_->compute();
+    outInfo("1");
+    // TODO: I would rather use VIEW_CLOUD_DOWNSAMPLED, but can't find an Annotator that outputs this.
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>); // Input data for 3D tracking
+    cas.get(VIEW_CLOUD, *input_cloud); // Fill input data for 3D tracking
+    outInfo("2");
+    if(input_cloud->size() > 0 && target_cloud->size()) {
+      tracker_->setInputCloud(input_cloud);
+      outInfo("3");
+      tracker_->compute();
+    }
+    else{
+      outError("Can't track: At least one cloud is empty.");
+    }
     outInfo("took: " << clock.getTime() << " ms.");
     return UIMA_ERR_NONE;
   }
@@ -209,6 +227,30 @@ public:
   }
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
+    ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
+    if (particles && input_cloud)
+    {
+      //Set pointCloud with particle's points
+      pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud (new pcl::PointCloud<pcl::PointXYZ> ());
+      for (size_t i = 0; i < particles->points.size (); i++)
+      {
+        pcl::PointXYZ point;
+
+        point.x = particles->points[i].x;
+        point.y = particles->points[i].y;
+        point.z = particles->points[i].z;
+        particle_cloud->points.push_back (point);
+      }
+
+      //Draw red particles
+      {
+        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+
+        if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
+          visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
+      }
+    }
+    return;
   }
 };
 

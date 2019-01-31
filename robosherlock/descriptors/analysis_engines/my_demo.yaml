@@ -12,8 +12,10 @@ fixedflow:
   - Cluster3DGeometryAnnotator
   - ClusterColorHistogramCalculator
   - ClosestHypothesisFilter
+  - PointCloudFilter
   - PrimitiveShapeAnnotator
   - KCFTrackingAnnotator
+  - PCLParticleTrackingAnnotator
   - DrawResultImage
   - StorageWriter
 CollectionReader:
