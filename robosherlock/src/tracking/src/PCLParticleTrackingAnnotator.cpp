@@ -88,8 +88,9 @@ private:
   boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
   Cloud::Ptr target_cloud;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud;
+  double pointSize;
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__) {
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1) {
     //cv::initModule_nonfree();
   }
 
@@ -103,16 +104,11 @@ public:
 
   TyErrorId initialize(AnnotatorContext &ctx) {
     outInfo("initialize");
-
-    outInfo("1");
     target_cloud.reset(new Cloud());
-    outInfo("2");
     if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker.pcd", *target_cloud) == -1) {
       outWarn(".pcd-file not found!");
       return UIMA_ERR_NONE;
     }
-
-    outInfo("3");
     double downsampling_grid_size_ =  0.002;
     std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
     default_step_covariance[3] *= 40.0;
@@ -206,15 +202,35 @@ public:
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
-    outInfo("1");
     // TODO: I would rather use VIEW_CLOUD_DOWNSAMPLED, but can't find an Annotator that outputs this.
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>); // Input data for 3D tracking
     cas.get(VIEW_CLOUD, *input_cloud); // Fill input data for 3D tracking
-    outInfo("2");
     if(input_cloud->size() > 0 && target_cloud->size()) {
       tracker_->setInputCloud(input_cloud);
-      outInfo("3");
       tracker_->compute();
+
+      // ------------------------------------------------------------------------------- //
+      ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
+      if (particles && input_cloud) {
+        //Set pointCloud with particle's points
+        pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+        for (size_t i = 0; i < particles->points.size(); i++) {
+          pcl::PointXYZ point;
+
+          point.x = particles->points[i].x;
+          point.y = particles->points[i].y;
+          point.z = particles->points[i].z;
+          particle_cloud->points.push_back(point);
+        }
+
+        //pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+        //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
+        //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
+
+        const std::string &cloudname = this->name;
+        outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+      }
+      // ------------------------------------------------------------------------------- //
     }
     else{
       outError("Can't track: At least one cloud is empty.");
@@ -242,12 +258,21 @@ public:
         particle_cloud->points.push_back (point);
       }
 
-      //Draw red particles
-      {
-        pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+      pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+      //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
+      //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
-        if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
-          visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
+      const std::string &cloudname = this->name;
+
+      if(firstRun)
+      {
+        visualizer.addPointCloud(particle_cloud, cloudname);
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+      }
+      else
+      {
+        visualizer.updatePointCloud(particle_cloud, red_color, cloudname);
+        visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
       }
     }
     return;
