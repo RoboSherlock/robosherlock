@@ -13,6 +13,7 @@ fixedflow:
   - ClusterColorHistogramCalculator
   - ClosestHypothesisFilter
   - PointCloudFilter
+  - PointCloudDownsampler
   - PrimitiveShapeAnnotator
   - KCFTrackingAnnotator
   - PCLParticleTrackingAnnotator

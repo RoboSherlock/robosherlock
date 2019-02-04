@@ -202,38 +202,42 @@ public:
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
-    // TODO: I would rather use VIEW_CLOUD_DOWNSAMPLED, but can't find an Annotator that outputs this.
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>); // Input data for 3D tracking
     cas.get(VIEW_CLOUD, *input_cloud); // Fill input data for 3D tracking
-    if(input_cloud->size() > 0 && target_cloud->size()) {
-      tracker_->setInputCloud(input_cloud);
-      tracker_->compute();
-
-      // ------------------------------------------------------------------------------- //
-      ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
-      if (particles && input_cloud) {
-        //Set pointCloud with particle's points
-        pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-        for (size_t i = 0; i < particles->points.size(); i++) {
-          pcl::PointXYZ point;
-
-          point.x = particles->points[i].x;
-          point.y = particles->points[i].y;
-          point.z = particles->points[i].z;
-          particle_cloud->points.push_back(point);
-        }
-
-        //pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
-        //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
-        //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
-
-        const std::string &cloudname = this->name;
-        outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
-      }
-      // ------------------------------------------------------------------------------- //
+    if(!input_cloud->size() > 0) {
+      outError("Input cloud is empty.");
     }
-    else{
-      outError("Can't track: At least one cloud is empty.");
+    else {
+      if (!target_cloud->size() > 0) {
+        outError("Target cloud is empty.");
+      }
+      else {
+        tracker_->setInputCloud(input_cloud);
+        tracker_->compute();
+
+        // ------------------------------------------------------------------------------- //
+        ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
+        if (particles && input_cloud) {
+          //Set pointCloud with particle's points
+          pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+          for (size_t i = 0; i < particles->points.size(); i++) {
+            pcl::PointXYZ point;
+
+            point.x = particles->points[i].x;
+            point.y = particles->points[i].y;
+            point.z = particles->points[i].z;
+            particle_cloud->points.push_back(point);
+          }
+
+          //pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+          //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
+          //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
+
+          const std::string &cloudname = this->name;
+          outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+        }
+        // ------------------------------------------------------------------------------- //
+      }
     }
     outInfo("took: " << clock.getTime() << " ms.");
     return UIMA_ERR_NONE;
@@ -244,36 +248,38 @@ public:
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
     ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
-    if (particles && input_cloud)
-    {
+    if (!particles->size() > 0) {
+      outError("Particle result cloud is empty.");
+    }
+    else {
+      outInfo("Particle result cloud is fine.");
       //Set pointCloud with particle's points
-      pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud (new pcl::PointCloud<pcl::PointXYZ> ());
-      for (size_t i = 0; i < particles->points.size (); i++)
-      {
+      pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+      for (size_t i = 0; i < particles->points.size(); i++) {
         pcl::PointXYZ point;
 
         point.x = particles->points[i].x;
         point.y = particles->points[i].y;
         point.z = particles->points[i].z;
-        particle_cloud->points.push_back (point);
+        particle_cloud->points.push_back(point);
       }
 
-      pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
+      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> red_color(particle_cloud, 250, 99, 71);
       //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
       //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
       const std::string &cloudname = this->name;
 
-      if(firstRun)
-      {
+      if (firstRun) {
+        visualizer.setBackgroundColor(0.5, 0.5, 0.5);
         visualizer.addPointCloud(particle_cloud, red_color, cloudname);
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-        visualizer.setBackgroundColor (255, 255, 255);
-      }
-      else
-      {
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
+                                                    cloudname);
+      } else {
+        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud->size()) + " points!");
         visualizer.updatePointCloud(particle_cloud, red_color, cloudname);
-        visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
+                                                    cloudname);
       }
     }
     return;

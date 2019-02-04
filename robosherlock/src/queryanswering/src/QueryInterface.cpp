@@ -183,13 +183,15 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
   /**
   res.push_back("ImagePreprocessor");
   res.push_back("KCFTrackingAnnotator");
-  **/
+    **/
 
   res.push_back("ImagePreprocessor");
   res.push_back("PlaneAnnotator");
   res.push_back("PointCloudClusterExtractor");
   res.push_back("PointCloudFilter");
+  res.push_back("PointCloudDownsampler");
   res.push_back("PCLParticleTrackingAnnotator");
+
 
   outInfo("Planned tracking pipeline: ");
   for(auto const &r:res){
