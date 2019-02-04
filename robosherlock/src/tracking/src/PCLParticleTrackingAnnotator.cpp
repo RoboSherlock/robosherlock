@@ -268,6 +268,7 @@ public:
       {
         visualizer.addPointCloud(particle_cloud, red_color, cloudname);
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        visualizer.setBackgroundColor (255, 255, 255);
       }
       else
       {
