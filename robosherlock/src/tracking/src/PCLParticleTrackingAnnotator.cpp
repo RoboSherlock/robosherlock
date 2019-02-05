@@ -45,6 +45,7 @@
 #include <pcl/filters/passthrough.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/approximate_voxel_grid.h>
+#include <pcl/filters/filter.h>
 
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
@@ -212,6 +213,18 @@ public:
         outError("Target cloud is empty.");
       }
       else {
+        outInfo(input_cloud->points[0].x);
+        outInfo(input_cloud->points[0].y);
+        outInfo(input_cloud->points[0].z);
+        outInfo(input_cloud->points[4].x);
+        outInfo(input_cloud->points[4].y);
+        outInfo(input_cloud->points[4].z);
+        outInfo(input_cloud->points[20].x);
+        outInfo(input_cloud->points[20].y);
+        outInfo(input_cloud->points[20].z);
+        outInfo(input_cloud->points[40].x);
+        outInfo(input_cloud->points[40].y);
+        outInfo(input_cloud->points[40].z);
         tracker_->setInputCloud(input_cloud);
         tracker_->compute();
 
@@ -269,15 +282,32 @@ public:
       //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
       const std::string &cloudname = this->name;
-
+      outInfo("Attempting to update visualizer...");
       if (firstRun) {
+        outInfo("firstRun");
         visualizer.setBackgroundColor(0.5, 0.5, 0.5);
         visualizer.addPointCloud(particle_cloud, red_color, cloudname);
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
                                                     cloudname);
       } else {
-        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud->size()) + " points!");
-        visualizer.updatePointCloud(particle_cloud, red_color, cloudname);
+        pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
+        std::vector<int> indices;
+        pcl::removeNaNFromPointCloud(*particle_cloud, *particle_cloud_filtered, indices);
+        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud_filtered->size()) + " points!");
+        // TODO: These points are too low
+        outInfo(particle_cloud_filtered->points[0].x);
+        outInfo(particle_cloud_filtered->points[0].y);
+        outInfo(particle_cloud_filtered->points[0].z);
+        outInfo(particle_cloud_filtered->points[4].x);
+        outInfo(particle_cloud_filtered->points[4].y);
+        outInfo(particle_cloud_filtered->points[4].z);
+        outInfo(particle_cloud_filtered->points[20].x);
+        outInfo(particle_cloud_filtered->points[20].y);
+        outInfo(particle_cloud_filtered->points[20].z);
+        outInfo(particle_cloud_filtered->points[40].x);
+        outInfo(particle_cloud_filtered->points[40].y);
+        outInfo(particle_cloud_filtered->points[40].z);
+        visualizer.updatePointCloud(particle_cloud_filtered, red_color, cloudname);
         visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
                                                     cloudname);
       }
