@@ -106,7 +106,7 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx) {
     outInfo("initialize");
     target_cloud.reset(new Cloud());
-    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker.pcd", *target_cloud) == -1) {
+    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker_5mm.pcd", *target_cloud) == -1) {
       outWarn(".pcd-file not found!");
       return UIMA_ERR_NONE;
     }
@@ -277,18 +277,22 @@ public:
         particle_cloud->points.push_back(point);
       }
 
-      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> red_color(particle_cloud, 250, 99, 71);
+      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> result_color(particle_cloud, 20, 40, 255);
+      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> cloud_color(particle_cloud, 255, 40, 20);
       //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
       //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
       const std::string &cloudname = this->name;
       outInfo("Attempting to update visualizer...");
+      pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_xyz;
+      pcl::copyPointCloud(*input_cloud, *input_cloud_xyz);
       if (firstRun) {
-        outInfo("firstRun");
-        visualizer.setBackgroundColor(0.5, 0.5, 0.5);
-        visualizer.addPointCloud(particle_cloud, red_color, cloudname);
+        visualizer.addPointCloud(particle_cloud, result_color, cloudname);
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
                                                     cloudname);
+        visualizer.addPointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
+                                                    "tracking_input_cloud");
       } else {
         pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
         std::vector<int> indices;
@@ -301,15 +305,9 @@ public:
         outInfo(particle_cloud_filtered->points[4].x);
         outInfo(particle_cloud_filtered->points[4].y);
         outInfo(particle_cloud_filtered->points[4].z);
-        outInfo(particle_cloud_filtered->points[20].x);
-        outInfo(particle_cloud_filtered->points[20].y);
-        outInfo(particle_cloud_filtered->points[20].z);
-        outInfo(particle_cloud_filtered->points[40].x);
-        outInfo(particle_cloud_filtered->points[40].y);
-        outInfo(particle_cloud_filtered->points[40].z);
-        visualizer.updatePointCloud(particle_cloud_filtered, red_color, cloudname);
-        visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
-                                                    cloudname);
+        visualizer.updatePointCloud(particle_cloud_filtered, result_color, cloudname);
+        //visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        visualizer.updatePointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
       }
     }
     return;
