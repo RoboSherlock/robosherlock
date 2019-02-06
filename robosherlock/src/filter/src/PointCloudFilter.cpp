@@ -29,6 +29,8 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 #include <rs/DrawingAnnotator.h>
+#include <tf_conversions/tf_eigen.h>
+#include <tf/tf.h>
 
 using namespace uima;
 
@@ -43,6 +45,8 @@ private:
   double pointSize;
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
+
+  std::string frame;
 
   cv::Mat rgb_;
 
@@ -65,6 +69,10 @@ public:
     ctx.extractValue("minZ", minZ);
     ctx.extractValue("maxZ", maxZ);
 
+    if(ctx.isParameterDefined("frame")) {
+      ctx.extractValue("frame", frame);
+    }
+
 
     return UIMA_ERR_NONE;
   }
@@ -81,11 +89,30 @@ public:
     MEASURE_TIME;
     outInfo("process start");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
     pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>);
     (new pcl::PointCloud<PointT>);
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_COLOR_IMAGE, rgb_);
+
+    pcl::PointCloud<PointT>::Ptr cloud_transformed;
+    if(frame == "base") {
+      tf::StampedTransform camToWorld;
+      tf::StampedTransform worldToCam;
+      camToWorld.setIdentity();
+      if(scene.viewPoint.has()) {
+        rs::conversion::from(scene.viewPoint.get(), camToWorld);
+      } else {
+        outInfo("No camera to world transformation!!!");
+      }
+      worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
+      tf::Transform transform;
+      transform.setIdentity();
+      transform = transform * camToWorld;
+      Eigen::Affine3d eigenTransform;
+      tf::transformTFToEigen(transform, eigenTransform);
+    }
 
     pcl::PassThrough<PointT> pass;
     pass.setInputCloud(cloud_ptr);
@@ -105,6 +132,8 @@ public:
     pass.filter(*cloud_filtered);
 
     cas.set(VIEW_CLOUD, *cloud_filtered);
+
+
 
     return UIMA_ERR_NONE;
   }
