@@ -77,6 +77,12 @@ find_package(Boost REQUIRED COMPONENTS system thread date_time python)
 find_package(APR REQUIRED)
 find_package(ICUUC REQUIRED)
 
+include(FindPkgConfig)
+pkg_check_modules(SWIPL REQUIRED swipl)
+include_directories(${SWIPL_INCLUDE_DIRS})
+link_directories(${SWIPL_LIBRARY_DIRS})
+
+
 find_library(LIBPRACMLN pracmln QUIET)
 if(LIBPRACMLN)
   message(STATUS "libpracmln FOUND = " ${LIBPRACMLN})
