@@ -338,7 +338,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       std::vector<std::string> filteredResponse;
       std::vector<bool> designatorsToKeep;
       queryInterface->filterResults(resultDesignators, filteredResponse, designatorsToKeep);
-      int obj_id;
+      int obj_id = -1;
       for(int n = 0; n < designatorsToKeep.size(); n++){
         if(designatorsToKeep[n])
         {
@@ -348,35 +348,41 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
         }
       }
 
+      if(obj_id == -1){
+        outError("Can't find any object fulfilling all given constraints. Tracking will not be started.");
+        engine_.reconfigure();
+        this->waitForServiceCall_=true;
+        result.push_back("Can't find any object fulfilling all given constraints. Tracking has not been started.");
+        return true;
+      }
+      else{
+        uima::CAS *tcas = engine_.getCas();
+        rs::SceneCas sceneCas(*tcas);
+        rs::Scene scene = sceneCas.getScene();
 
-      uima::CAS *tcas = engine_.getCas();
-      rs::SceneCas sceneCas(*tcas);
-      rs::Scene scene = sceneCas.getScene();
+        std::vector<rs::ObjectHypothesis> objHyps;
+        scene.identifiables.filter(objHyps);
+        rs::Size s = rs::create<rs::Size>(*tcas); // This is just a hack to get a simple integer (the object ID) into the cas.
+        s.height.set(obj_id);
+        outInfo(FG_GREEN << "SETTING OBJ_TO_TRACK");
+        sceneCas.setFS("OBJ_ID_TRACK", s);
+        outInfo("Found " << objHyps.size() << " objects");
 
-      std::vector<rs::ObjectHypothesis> objHyps;
-      scene.identifiables.filter(objHyps);
-      rs::Size s = rs::create<rs::Size>(*tcas); // This is just a hack to get a simple integer (the object ID) into the cas.
-      s.height.set(obj_id);
-      outInfo(FG_GREEN << "SETTING OBJ_TO_TRACK");
-      sceneCas.setFS("OBJ_ID_TRACK", s);
-      outInfo("Found " << objHyps.size() << " objects");
+        visualizer_.setActiveAnnotators(newPipelineOrders[1]);
 
-      visualizer_.setActiveAnnotators(newPipelineOrders[1]);
+        engine_.setNextPipeline(newPipelineOrders[1]);
 
-      engine_.setNextPipeline(newPipelineOrders[1]);
+        engine_.applyNextPipeline();
+        engine_.process(resultDesignators, request);
+        newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "CollectionReader");
+        //newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "Trigger");
+        engine_.changeLowLevelPipeline(newPipelineOrders[1]);
+        engine_.resetPipelineOrdering();
+        this->waitForServiceCall_=false;
 
-      engine_.applyNextPipeline();
-      engine_.process(resultDesignators, request);
-      newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "CollectionReader");
-      //newPipelineOrders[1].insert(newPipelineOrders[1].begin(), "Trigger");
-      engine_.changeLowLevelPipeline(newPipelineOrders[1]);
-      engine_.resetPipelineOrdering();
-      this->waitForServiceCall_=false;
-
-      result.push_back("Tracking started.");
-      return true;
-
-      // TODO: Do I need the other stuff in the DETECT case here? What is that for?
+        result.push_back("Tracking started.");
+        return true;
+      }
     }
   }
 
