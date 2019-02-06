@@ -110,7 +110,6 @@ public:
       outWarn(".pcd-file not found!");
       return UIMA_ERR_NONE;
     }
-    double downsampling_grid_size_ =  0.002;
     std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
     default_step_covariance[3] *= 40.0;
     default_step_covariance[4] *= 40.0;
@@ -167,15 +166,13 @@ public:
     Eigen::Vector4f c;
     Eigen::Affine3f trans = Eigen::Affine3f::Identity();
     CloudPtr transed_ref(new Cloud);
-    CloudPtr transed_ref_downsampled (new Cloud);
 
     pcl::compute3DCentroid<pcl::PointXYZRGBA>(*target_cloud, c);
     trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
     pcl::transformPointCloud<pcl::PointXYZRGBA>(*target_cloud, *transed_ref, trans.inverse());
-    gridSampleApprox (transed_ref, *transed_ref_downsampled, downsampling_grid_size_);
 
     //set reference model and trans
-    tracker_->setReferenceCloud(transed_ref_downsampled);
+    tracker_->setReferenceCloud(transed_ref);
     tracker_->setTrans(trans);
 
     return UIMA_ERR_NONE;
