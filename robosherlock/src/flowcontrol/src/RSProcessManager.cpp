@@ -312,15 +312,20 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
       outInfo("Checking whether to start or stop tracking...");
       if (queryInterface->query.HasMember("command")) {
-        outInfo(FG_BLUE << "Found a command member!");
         rapidjson::Value::MemberIterator commandIterator = queryInterface->query.FindMember("command");
         assert(queryInterface->query["command"].IsString());
         if (queryInterface->query["command"] == "stop") { // for some reason, this is never true
           outInfo(FG_LIGHTYELLOW << "COMMAND STOP");
-          engine_.reconfigure();
-          this->waitForServiceCall_=true;
-          result.push_back("Tracking stopped.");
-          return true;
+          if(waitForServiceCall_){
+            result.push_back("Nothing is being tracked currently. Please start tracking before trying to stop it.");
+            return true;
+          }
+          else{
+            engine_.reconfigure();
+            this->waitForServiceCall_=true;
+            result.push_back("Tracking stopped.");
+            return true;
+            }
         }
       }
       outInfo(FG_GREEN << "START TRACKING");
