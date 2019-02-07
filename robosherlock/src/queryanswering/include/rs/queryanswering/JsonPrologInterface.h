@@ -23,8 +23,6 @@
 //robosherlock
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
-#include <rs/queryanswering/query_rules.h>
-
 
 //json_prolog interface
 #include <json_prolog/prolog.h>
@@ -36,38 +34,56 @@
 #include <utility>
 #include <unordered_set>
 #include <algorithm>
+#include <mutex>
 
 //json
 #include <rapidjson/document.h>
 
-//LIST OF rdf namespaces that we will never have objects ar perception entities defined under;
-static const std::vector<std::string> NS_TO_SKIP = {"rdf", "rdfs", "owl", "xsd", "dc", "dcterms", "eor", "skos", "foaf", "void", "serql", "swrl", "swrla"};
+#include <rs/queryanswering/KnowledgeEngine.h>
 
-//wrapper class for Prolog Engine based on SWI-C++
-class JsonPrologInterface
+class JsonPrologInterface: public rs::KnowledgeEngine
 {
-  std::vector<std::string> krNamespaces_;
 
+  std::vector<std::string> krNamespaces_;
   json_prolog::Prolog pl_;
+  std::mutex lock_;
+
 public:
 
   JsonPrologInterface();
-  ~JsonPrologInterface()
-  {
-    xercesc::XMLPlatformUtils::Terminate();
-  }
+  ~JsonPrologInterface(){};
 
-  /*
-   * in: vector of keys extracted from query
-   * out: vector of annotator names forming the pipeline
+  /**
+   * @brief planPipelineQuery
+   * @param keys vector of keys extracted from query
+   * @param pipeline vector of annotator names forming the pipeline
+   * @return true on success
    */
   bool planPipelineQuery(const std::vector<std::string> &keys,
                          std::vector<std::string> &pipeline);
 
-  /*brief
-   * ask prolog if child is of type parent
-   * */
+  /**
+   * @brief q_subClassOf
+   * @param child name of child
+   * @param parent name of parent
+   * @return
+   */
   bool q_subClassOf(std::string child, std::string parent);
+
+  /**
+   * @brief checkValidQueryTerm verify if term of query language has been defined in KB
+   * @param term term to verify
+   * @return true if defined
+   */
+  bool checkValidQueryTerm(const std::string &term);
+
+  /**
+   * @brief assertValueForKey assert a key value pair to the knowledge base
+   * @param key
+   * @param value
+   * @return true on success
+   */
+  bool assertValueForKey(const  std::string &key, const std::string &value);
 
   bool addNamespace(const std::string &entry, std::string &results);
 
@@ -77,22 +93,6 @@ public:
    * check for a class property
    * */
   bool q_classProperty(std::string className, std::string property, std::string value);
-
-  /*brief
-   *extract the keys that serve as input for pipeline planning
-   * in query as a designator
-   * out vector of keys
-   * */
-  bool extractQueryKeysFromDesignator(std::string &desig,
-                                      std::vector<std::string> &keys);
-
-  /*brief
-   * in desig: query as designator
-   * out prologQuery: the Prolog Query as a string
-   * returns true or false /success or fail
-   * */
-  bool buildPrologQueryFromDesignator(std::string &desig,
-                                      std::string &prologQuery);
 
   /*
    * assert terms of the query language and types that correspond to these terms
@@ -112,6 +112,8 @@ public:
 
   bool retractAllAnnotators();
 
+  bool retractQueryKvPs();
+
   bool expandToFullUri(std::string &entry);
 
   /* brief:assert capabilities of an annotator of to the knowledge base
@@ -127,6 +129,8 @@ public:
    * This vector can be used as input for RSAnalysisEngine::setNextPipelineOrder
    */
   std::vector<std::string> createPipelineFromPrologResult(std::string result);
+
+  json_prolog::PrologQueryProxy queryWithLock(const std::string &query);
 
 };
 
