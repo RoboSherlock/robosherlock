@@ -11,6 +11,7 @@ parameters:
 capabilities:
   inputs: ['rs.scene.MergedHypothesis']
   outputs: 
-    - rs.annotation.Geometry: [small, medium, big]
+    - rs.annotation.Geometry
     - rs.annotation.Pose
-  domain: [small, medium, big]
+    - rs.annotation.SemanticSize: [small, medium, big]
+    
