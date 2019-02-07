@@ -31,6 +31,7 @@
 #include <rs/DrawingAnnotator.h>
 #include <tf_conversions/tf_eigen.h>
 #include <tf/tf.h>
+#include <pcl/common/transforms.h>
 
 using namespace uima;
 
@@ -46,7 +47,7 @@ private:
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
 
-  std::string frame;
+  std::string viewport_id;
 
   cv::Mat rgb_;
 
@@ -69,10 +70,7 @@ public:
     ctx.extractValue("minZ", minZ);
     ctx.extractValue("maxZ", maxZ);
 
-    if(ctx.isParameterDefined("frame")) {
-      ctx.extractValue("frame", frame);
-    }
-
+    ctx.extractValue("viewport_id", viewport_id);
 
     return UIMA_ERR_NONE;
   }
@@ -91,13 +89,17 @@ public:
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>);
-    (new pcl::PointCloud<PointT>);
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_COLOR_IMAGE, rgb_);
 
-    pcl::PointCloud<PointT>::Ptr cloud_transformed;
-    if(frame == "base") {
+    pcl::PointCloud<PointT>::Ptr cloud_transformed(new pcl::PointCloud<PointT>);
+    tf::Transform viewport;
+    bool transformed = false;
+
+    if(viewport_id == "base") {
+      //@Todo This has nothing to do with base frame yet...
+      outInfo("Transforming Point Cloud to Viewport space");
       tf::StampedTransform camToWorld;
       tf::StampedTransform worldToCam;
       camToWorld.setIdentity();
@@ -106,16 +108,20 @@ public:
       } else {
         outInfo("No camera to world transformation!!!");
       }
-      worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
-      tf::Transform transform;
-      transform.setIdentity();
-      transform = transform * camToWorld;
+      //worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
+      viewport.setIdentity();
+      viewport = viewport * camToWorld;
       Eigen::Affine3d eigenTransform;
-      tf::transformTFToEigen(transform, eigenTransform);
+      tf::transformTFToEigen(viewport, eigenTransform);
+      pcl::transformPointCloud<PointT>(*cloud_ptr, *cloud_transformed, eigenTransform);
+      transformed = true;
+    } else {
+        outInfo("Unknown frame defined: " <<  viewport_id);
+        cloud_transformed = cloud_ptr;
     }
 
     pcl::PassThrough<PointT> pass;
-    pass.setInputCloud(cloud_ptr);
+    pass.setInputCloud(cloud_transformed);
     pass.setKeepOrganized(true);
     pass.setFilterLimits(minX, maxX);
     pass.setFilterFieldName("x");
@@ -131,7 +137,16 @@ public:
     pass.setFilterFieldName("z");
     pass.filter(*cloud_filtered);
 
-    cas.set(VIEW_CLOUD, *cloud_filtered);
+    pcl::PointCloud<PointT>::Ptr cloud(new pcl::PointCloud<PointT>);
+    if(transformed) {
+        outInfo("Transforming matrix back (this will deeply hurt the CPU...");
+        Eigen::Affine3d eigenTransform;
+        tf::transformTFToEigen(viewport.inverse(), eigenTransform);
+        pcl::transformPointCloud<PointT>(*cloud_filtered, *cloud, eigenTransform);
+    } else {
+        cloud = cloud_filtered;
+    }
+    cas.set(VIEW_CLOUD, *cloud);
 
 
 
