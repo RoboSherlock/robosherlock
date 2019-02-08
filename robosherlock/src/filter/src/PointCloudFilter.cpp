@@ -47,7 +47,7 @@ private:
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
 
-  std::string viewport_id;
+  bool transform_cloud;
 
   cv::Mat rgb_;
 
@@ -70,7 +70,7 @@ public:
     ctx.extractValue("minZ", minZ);
     ctx.extractValue("maxZ", maxZ);
 
-    ctx.extractValue("viewport_id", viewport_id);
+    ctx.extractValue("transform_cloud", transform_cloud);
 
     return UIMA_ERR_NONE;
   }
@@ -95,9 +95,8 @@ public:
 
     pcl::PointCloud<PointT>::Ptr cloud_transformed(new pcl::PointCloud<PointT>);
     tf::Transform viewport;
-    bool transformed = false;
 
-    if(viewport_id == "base") {
+    if(transform_cloud) {
       //@Todo This has nothing to do with base frame yet...
       outInfo("Transforming Point Cloud to Viewport space");
       tf::StampedTransform camToWorld;
@@ -114,9 +113,7 @@ public:
       Eigen::Affine3d eigenTransform;
       tf::transformTFToEigen(viewport, eigenTransform);
       pcl::transformPointCloud<PointT>(*cloud_ptr, *cloud_transformed, eigenTransform);
-      transformed = true;
     } else {
-        outInfo("Unknown frame defined: " <<  viewport_id);
         cloud_transformed = cloud_ptr;
     }
 
@@ -138,7 +135,7 @@ public:
     pass.filter(*cloud_filtered);
 
     pcl::PointCloud<PointT>::Ptr cloud(new pcl::PointCloud<PointT>);
-    if(transformed) {
+    if(transform_cloud) {
         outInfo("Transforming matrix back (this will deeply hurt the CPU...");
         Eigen::Affine3d eigenTransform;
         tf::transformTFToEigen(viewport.inverse(), eigenTransform);

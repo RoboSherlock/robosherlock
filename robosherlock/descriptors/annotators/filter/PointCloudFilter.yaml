@@ -3,7 +3,7 @@ annotator:
   implementation: rs_PointCloudFilter
   description: 'Filters a point cloud given X,Y,and Z limits while keeping it organized.'
 parameters:
-  viewport_id: 'base'
+  transform_cloud: false
   minX: -1.2
   maxX: 1.2
   minY: -1.2
