@@ -1,90 +1,73 @@
 #include <rs/queryanswering/SWIPLInterface.h>
 
 
-PrologInterface::PrologInterface()
+SWIPLInterface::SWIPLInterface()
 {
   char *argv[4];
   int argc = 0;
   argv[argc++] = "PrologEngine";
   argv[argc++] = "-f";
-  std::string rosPrologInit = ros::package::getPath("rosprolog") + "/prolog/init.pl";
+  std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init.pl";
   argv[argc] = new char[rosPrologInit.size() + 1];
   std::copy(rosPrologInit.begin(), rosPrologInit.end(), argv[argc]);
   argv[argc++][rosPrologInit.size()] = '\0';
   argv[argc] = NULL;
-  engine  = std::make_shared<PlEngine>(argc, argv);
+  engine_ = new PlEngine(argc, argv);
 
   outError("PROLOG ENGINE BEING INITIALIZED");
-  init();
 }
 
-void PrologInterface::init()
-{
-  outInfo("Initializing Prolog Engine");
-  PlTerm av("knowrob_robosherlock");
-  try
-  {
-    PlCall("register_ros_package", av);
-  }
-  catch(PlException &ex)
-  {
-    outInfo((char *)ex);
-  }
-}
 
-bool PrologInterface::extractQueryKeysFromDesignator(std::string &desig,
-                                    std::vector<std::string> &keys)
+bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
+                              std::vector<std::string> &pipeline)
 {
-	
+  PlTermv av(2);
+  PlTail l(av[0]);
+  for(auto key : keys)
+  {
+    l.append(key.c_str());
+  }
+  l.close();
+  PlQuery q("build_single_pipeline_from_predicates", av);
+  std::string prefix("http://knowrob.org/kb/rs_components.owl#");
+  while(q.next_solution())
+  {
+    //      std::cerr<<(char*)av[1]<<std::endl;
+    PlTail res(av[1]);//result is a list
+    PlTerm e;//elements of that list
+    while(res.next(e))
+    {
+        std::string element((char*)e);
+        element.erase(0,prefix.length());
+        pipeline.push_back(element);
+    }
+  }
   return true;
 }
 
-
-bool PrologInterface::buildPrologQueryFromDesignator(std::string &desig,
-    std::string &prologQuery)
+bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 {
-
-    prologQuery = "build_single_pipeline_from_predicates([";
-    std::vector<std::string> queriedKeys;
-    extractQueryKeysFromDesignator(desig,queriedKeys);
-    for(int i = 0; i < queriedKeys.size(); i++)
-    {
-      prologQuery += queriedKeys.at(i);
-      if(i < queriedKeys.size() - 1)
-      {
-        prologQuery += ",";
-      }
-    }
-    prologQuery += "], A)";
-    return true;
-}
-std::vector< std::string > PrologInterface::createPipelineFromPrologResult(std::string queryResult)
-{
-  std::vector<std::string> new_pipeline;
-
-  // Strip the braces from the result
-  queryResult.erase(queryResult.end() - 1);
-  queryResult.erase(queryResult.begin());
-
-  std::stringstream resultstream(queryResult);
-
-  std::string token;
-  while(std::getline(resultstream, token, ','))
+  PlTermv av(2);
+  av[0] =  "child";
+  av[1] =  "parent";
+  try
   {
-    // erase leading whitespaces
-    token.erase(token.begin(), std::find_if(token.begin(), token.end(), std::bind1st(std::not_equal_to<char>(), ' ')));
-    outDebug("Planned Annotator by Prolog Planner " << token);
-
-    // From the extracted tokens, remove the prefix
-    std::string prefix("http://knowrob.org/kb/rs_components.owl#");
-    int prefix_length = prefix.length();
-
-    // Erase by length, to avoid string comparison
-    token.erase(0, prefix_length);
-    // outInfo("Annotator name sanitized: " << token );
-
-    new_pipeline.push_back(token);
+    if(PlCall("owl_subclass_of", av))
+    {
+      outInfo(child << " is subclass of " << parent );
+      return true;
+    }
+    else
+    {
+      outInfo(child << " is NOT subclass of " << parent );
+      return false;
+    }
   }
-  return new_pipeline;
+  catch(PlException &ex)
+  {
+    outError((char *)ex);
+    return false;
+  }
+  return false;
 }
 

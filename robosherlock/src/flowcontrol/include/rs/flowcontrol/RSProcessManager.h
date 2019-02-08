@@ -2,9 +2,6 @@
 #define __RSPROCESS_MANAGER_H__
 
 #include <rs/flowcontrol/RSAnalysisEngine.h>
-#ifdef WITH_JSON_PROLOG
-#include <rs/queryanswering/QueryInterface.h>
-#endif
 
 #include <rs/io/visualizer.h>
 
@@ -21,6 +18,10 @@
 #include <sensor_msgs/image_encodings.h>
 
 #include <pcl_ros/point_cloud.h>
+
+#ifdef WITH_JSON_PROLOG
+#include <rs/queryanswering/QueryInterface.h>
+#endif
 
 //TODO: Make this the ROS communication interface class
 class RSProcessManager

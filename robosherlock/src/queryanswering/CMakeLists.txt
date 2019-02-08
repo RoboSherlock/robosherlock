@@ -6,7 +6,7 @@ add_library(rs_queryanswering SHARED
 	src/SWIPLInterface.cpp 
         src/QueryInterface.cpp)
 target_link_libraries(rs_queryanswering
-        ${catkin_LIBRARIES}
         ${SWIPL_LIBRARIES}
+        ${catkin_LIBRARIES}
         ${json_prolog_LIBRARIES})
 

@@ -21,7 +21,7 @@ class KnowledgeEngine
 public:
   KnowledgeEngine() {}
 
-  ~KnowledgeEngine() {};
+  ~KnowledgeEngine() {}
 
   /**
    * @brief planPipelineQuery

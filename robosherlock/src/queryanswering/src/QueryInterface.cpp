@@ -1,14 +1,6 @@
 #include<rs/queryanswering/QueryInterface.h>
 
 #ifdef WITH_JSON_PROLOG
-#include<rs/queryanswering/ObjectDesignatorFactory.h>
-
-// Boost
-#include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
-
-//RapidJson
-#include "rapidjson/pointer.h"
 
 bool QueryInterface::parseQuery(std::string query)
 {
@@ -199,7 +191,7 @@ bool QueryInterface::getQueryConfig()
     }
     catch(boost::property_tree::ini_parser::ini_parser_error &e)
     {
-      throw_exception_message("Error opening config file: " + p);
+      outError("Error opening config file: "<<p);
       return false;
     }
   }

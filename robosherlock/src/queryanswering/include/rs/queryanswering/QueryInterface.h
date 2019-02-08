@@ -3,9 +3,11 @@
 
 
 #ifdef WITH_JSON_PROLOG
+
 //json
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
+#include <rapidjson/pointer.h>
 
 #include <vector>
 
@@ -13,8 +15,13 @@
 #include <rs/utils/exception.h>
 #include <rs/queryanswering/JsonPrologInterface.h>
 #include <rs/queryanswering/KnowledgeEngine.h>
+#include <rs/queryanswering/ObjectDesignatorFactory.h>
 
-#include <std_srvs/Trigger.h>
+// Boost
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
+//RapidJson
 
 
 class QueryInterface
