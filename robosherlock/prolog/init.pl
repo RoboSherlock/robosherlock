@@ -10,8 +10,8 @@
 :- rdf_db:rdf_register_prefix(kitchen, 'http://knowrob.org/kb/iai-kitchen.owl#', [keep(true)]).
 :- rdf_db:rdf_register_prefix(rs_components, 'http://knowrob.org/kb/rs_components.owl#', [keep(true)]).
 
-:- rdf_load('rs_components.owl').
-:- rdf_load('iai-kitchen-objects.owl').
+:- rdf_load('../owl/rs_components.owl').
+:- rdf_load('../owl/iai-kitchen-objects.owl').
 
 :- use_module(rs_query_reasoning). % reasoning about queries
 
