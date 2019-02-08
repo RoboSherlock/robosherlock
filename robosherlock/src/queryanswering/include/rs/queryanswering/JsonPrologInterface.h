@@ -41,6 +41,9 @@
 
 #include <rs/queryanswering/KnowledgeEngine.h>
 
+namespace rs
+{
+
 class JsonPrologInterface: public rs::KnowledgeEngine
 {
 
@@ -51,7 +54,7 @@ class JsonPrologInterface: public rs::KnowledgeEngine
 public:
 
   JsonPrologInterface();
-  ~JsonPrologInterface(){};
+  ~JsonPrologInterface() {};
 
   /**
    * @brief planPipelineQuery
@@ -133,6 +136,6 @@ public:
   json_prolog::PrologQueryProxy queryWithLock(const std::string &query);
 
 };
-
+}
 #endif //WITH_JSON_PROLOG
 #endif //JSONPROLOGINTERFACE_H

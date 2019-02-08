@@ -1,7 +1,9 @@
 #include <rs/queryanswering/JsonPrologInterface.h>
 #ifdef WITH_JSON_PROLOG
 
-using namespace xercesc;
+
+namespace rs
+{
 
 JsonPrologInterface::JsonPrologInterface()
 {
@@ -29,8 +31,8 @@ bool JsonPrologInterface::assertValueForKey(const  std::string &key, const std::
 
 bool JsonPrologInterface::retractQueryKvPs()
 {
-    queryWithLock("retract(requestedValueForKey(_,_))");
-    return true;
+  queryWithLock("retract(requestedValueForKey(_,_))");
+  return true;
 }
 
 
@@ -187,7 +189,7 @@ bool JsonPrologInterface::assertQueryLanguage(std::map<std::string, std::vector<
   return true;
 }
 
-bool JsonPrologInterface::assertAnnotators(const  std::map<std::string, rs::AnnotatorCapabilities> &annotatorCapabilities)
+bool JsonPrologInterface::assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &annotatorCapabilities)
 {
   for(auto a : annotatorCapabilities)
   {
@@ -384,5 +386,5 @@ json_prolog::PrologQueryProxy JsonPrologInterface::queryWithLock(const std::stri
   return pl_.query(query);
 }
 
-
+}
 #endif

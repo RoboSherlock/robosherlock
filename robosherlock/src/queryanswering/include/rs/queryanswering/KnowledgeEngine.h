@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <rs/utils/common.h>
 
 namespace rs
 {
@@ -62,6 +63,10 @@ public:
   virtual bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &) = 0;
 
   virtual bool addNamespace(std::string &) = 0;
+
+  virtual bool retractAllAnnotators() = 0;
+
+  virtual bool assertAnnotators(const std::map < std::string, rs::AnnotatorCapabilities> &caps) = 0;
 
 
 };

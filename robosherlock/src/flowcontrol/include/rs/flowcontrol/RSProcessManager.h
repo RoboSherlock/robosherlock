@@ -13,15 +13,16 @@
 
 #include <mongo/client/dbclient.h>
 
+#ifdef WITH_JSON_PROLOG
+#include <rs/queryanswering/QueryInterface.h>
+#endif
+
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
 #include <sensor_msgs/image_encodings.h>
 
 #include <pcl_ros/point_cloud.h>
-
-#ifdef WITH_JSON_PROLOG
-#include <rs/queryanswering/QueryInterface.h>
-#endif
+#include <memory>
 
 //TODO: Make this the ROS communication interface class
 class RSProcessManager
@@ -33,6 +34,7 @@ public:
 
 #ifdef WITH_JSON_PROLOG
   QueryInterface *queryInterface;
+  std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
 #endif
 
   mongo::client::GlobalInstance instance;

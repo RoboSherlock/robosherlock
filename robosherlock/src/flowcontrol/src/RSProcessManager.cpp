@@ -34,8 +34,10 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
-  if(withQA_)
+  if(withQA_){
+    knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
     queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+  }
 #endif
 }
 
@@ -51,7 +53,7 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 
 #ifdef WITH_JSON_PROLOG
   if(withQA_)
-    queryInterface = new QueryInterface();
+    queryInterface = new QueryInterface(knowledgeEngine_);
 #endif
   this->configFile_ = configFile;
 
@@ -76,6 +78,16 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 
   engine_.init(engineFile, parallel, pervasive , lowLvlPipeline_);
 
+#ifdef WITH_JSON_PROLOG
+  if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
+  {
+    knowledgeEngine_->retractAllAnnotators();
+    knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
+  }
+  else
+    outWarn("Json Prolog is not running! Query answering will not be possible");
+
+#endif
   parallel_ = parallel;
 
   visualizer_.start();
@@ -306,7 +318,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       return true;
     }
   }
-
   return false;
 }
 #endif

@@ -1,8 +1,10 @@
 #include <rs/queryanswering/SWIPLInterface.h>
 
-
+namespace rs
+{
 SWIPLInterface::SWIPLInterface()
 {
+    std::lock_guard<std::mutex> lock(lock_);
   char *argv[4];
   int argc = 0;
   argv[argc++] = "PrologEngine";
@@ -12,41 +14,51 @@ SWIPLInterface::SWIPLInterface()
   std::copy(rosPrologInit.begin(), rosPrologInit.end(), argv[argc]);
   argv[argc++][rosPrologInit.size()] = '\0';
   argv[argc] = NULL;
-  engine_ = new PlEngine(argc, argv);
+  engine_ = std::make_shared<PlEngine>(argc, argv);
 
-  outError("PROLOG ENGINE BEING INITIALIZED");
+  outInfo("PROLOG ENGINE BEING INITIALIZED");
 }
 
 
 bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
-                              std::vector<std::string> &pipeline)
+                                       std::vector<std::string> &pipeline)
 {
+    std::lock_guard<std::mutex> lock(lock_);
+  outInfo("Planning Pipeline");
   PlTermv av(2);
+  outInfo("");
   PlTail l(av[0]);
+  outInfo("");
   for(auto key : keys)
-  {
     l.append(key.c_str());
-  }
+  outInfo("");
   l.close();
-  PlQuery q("build_single_pipeline_from_predicates", av);
+  outInfo("");
+  PlQuery q("pipeline_from_predicates_with_domain_constraint", av);
+  outInfo("");
   std::string prefix("http://knowrob.org/kb/rs_components.owl#");
+  outInfo("");
   while(q.next_solution())
   {
     //      std::cerr<<(char*)av[1]<<std::endl;
     PlTail res(av[1]);//result is a list
+    outInfo("");
     PlTerm e;//elements of that list
+    outInfo("");
     while(res.next(e))
     {
-        std::string element((char*)e);
-        element.erase(0,prefix.length());
-        pipeline.push_back(element);
+      std::string element((char *)e);
+      element.erase(0, prefix.length());
+      pipeline.push_back(element);
     }
   }
+  outInfo("");
   return true;
 }
 
 bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 {
+  std::lock_guard<std::mutex> lock(lock_);
   PlTermv av(2);
   av[0] =  "child";
   av[1] =  "parent";
@@ -54,12 +66,12 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   {
     if(PlCall("owl_subclass_of", av))
     {
-      outInfo(child << " is subclass of " << parent );
+      outInfo(child << " is subclass of " << parent);
       return true;
     }
     else
     {
-      outInfo(child << " is NOT subclass of " << parent );
+      outInfo(child << " is NOT subclass of " << parent);
       return false;
     }
   }
@@ -70,4 +82,4 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   }
   return false;
 }
-
+}

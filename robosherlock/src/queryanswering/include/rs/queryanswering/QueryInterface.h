@@ -14,8 +14,12 @@
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
 #include <rs/queryanswering/JsonPrologInterface.h>
-#include <rs/queryanswering/KnowledgeEngine.h>
+
+#undef PL_A1 //without this there is a conflicting declaration between SWI-cpp and Eigen;
+//TODO can this undef have unwanted consequences?
 #include <rs/queryanswering/ObjectDesignatorFactory.h>
+#include <rs/queryanswering/SWIPLInterface.h>
+
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
@@ -45,10 +49,11 @@ public:
 
   enum class QueryType {NONE, INSPECT, DETECT, SCAN};
 
-  QueryInterface()
+  QueryInterface(std::shared_ptr<rs::KnowledgeEngine> ke)
   {
+    knowledgeEngine_ = ke;
     query_ = rapidjson::Document(rapidjson::kObjectType);
-    knowledgeEngine_ = std::make_shared<JsonPrologInterface>();
+//    knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
     getQueryConfig();
   }
 

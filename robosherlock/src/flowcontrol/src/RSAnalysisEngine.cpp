@@ -25,21 +25,26 @@ RSAnalysisEngine::RSAnalysisEngine() : useIdentityResolution_(false), query_("")
 {
 }
 
+std::map<std::string, rs::AnnotatorCapabilities > RSAnalysisEngine::getDelegateCapabilities()
+{
+  engine_->getDelegateAnnotatorCapabilities();
+}
+
 RSAnalysisEngine::~RSAnalysisEngine()
 {
-  if (cas_)
+  if(cas_)
   {
     delete cas_;
     cas_ = NULL;
   }
-  if (engine_)
+  if(engine_)
   {
     delete engine_;
     engine_ = NULL;
   }
 }
 
-void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool pervasive,
+void RSAnalysisEngine::init(const std::string &ae_file, bool parallel, bool pervasive,
                             std::vector<std::string> cont_pipeline)
 {
   size_t pos = ae_file.rfind('/');
@@ -47,10 +52,10 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
   uima::ErrorInfo errorInfo;
 
   // Get the processed XML file
-  passwd* pw = getpwuid(getuid());
+  passwd *pw = getpwuid(getuid());
   std::string HOMEPath(pw->pw_dir);
   std::string AEXMLDir(HOMEPath + "/" + GEN_XML_PATH);
-  if (!boost::filesystem::exists(AEXMLDir))
+  if(!boost::filesystem::exists(AEXMLDir))
     boost::filesystem::create_directory(AEXMLDir);
   // Extract the AE name without the extension
 
@@ -74,10 +79,10 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
   std::unordered_map<std::string, std::string> delegateMapping;
 
   aeConverter.getDelegates(delegates_);
-  for (std::string& a : delegates_)
+  for(std::string &a : delegates_)
   {
     std::string genXmlPath = convertYamlToXML(a);
-    if (genXmlPath != "")
+    if(genXmlPath != "")
       delegateMapping[a] = genXmlPath;
     else
     {
@@ -87,14 +92,14 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
   }
   outInfo("generated XML for annotators");
 
-  engine_ = (RSAggregateAnalysisEngine*)rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
+  engine_ = (RSAggregateAnalysisEngine *)rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
 
-  if (engine_ == nullptr)
+  if(engine_ == nullptr)
   {
     outInfo("Could not  create RSAggregateAnalysisEngine. Terminating");
     exit(1);
   }
-  if (errorInfo.getErrorId() != UIMA_ERR_NONE)
+  if(errorInfo.getErrorId() != UIMA_ERR_NONE)
   {
     outError("createAnalysisEngine failed.");
     throw std::runtime_error("An error occured during initializations;");
@@ -104,20 +109,20 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
   engine_->setDelegateAnnotatorCapabilities(delegateCapabilities_);
 
   parallel_ = parallel;
-  if (parallel)
+  if(parallel)
   {
     engine_->initParallelPipelineManager();
     engine_->parallelPlanner.print();
   }
 
-  const uima::AnalysisEngineMetaData& data = engine_->getAnalysisEngineMetaData();
+  const uima::AnalysisEngineMetaData &data = engine_->getAnalysisEngineMetaData();
   data.getName().toUTF8String(name_);
 
   // Get a new CAS
   outInfo("Creating a new CAS");
   cas_ = engine_->newCAS();
 
-  if (cas_ == NULL)
+  if(cas_ == NULL)
   {
     outError("Creating new CAS failed.");
     engine_->destroy();
@@ -127,19 +132,7 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
                           uima::ErrorInfo::unrecoverable);
   }
 
-#ifdef WITH_JSON_PROLOG
-  if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
-  {
-    json_prolog_interface_ = std::make_shared<JsonPrologInterface>();
-    json_prolog_interface_->retractAllAnnotators();
-    json_prolog_interface_->assertAnnotators(delegateCapabilities_);
-  }
-  else
-    outWarn("Json Prolog is not running! Query answering will not be possible");
-
-#endif
-
-  if (pervasive)
+  if(pervasive)
   {
     // After all annotators have been initialized, pick the default pipeline
     // this stores the pipeline
@@ -151,13 +144,13 @@ void RSAnalysisEngine::init(const std::string& ae_file, bool parallel, bool perv
 std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
 {
   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
-  if (yamlPath == "")
+  if(yamlPath == "")
   {
     outError("Annotator defined in fixedFlow: " << annotatorName << " can not be found! Exiting!");
     exit(1);
   }
   // If the path is yaml file, we need to convert it to xml
-  if (boost::algorithm::ends_with(yamlPath, "yaml"))
+  if(boost::algorithm::ends_with(yamlPath, "yaml"))
   {
     YamlToXMLConverter converter(yamlPath, YamlToXMLConverter::YAMLType::Annotator);
     try
@@ -166,7 +159,7 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
       delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
     }
 
-    catch (YAML::ParserException e)
+    catch(YAML::ParserException e)
     {
       outError("Exception happened when parsing the yaml file: " << yamlPath);
       outError(e.what());
@@ -176,12 +169,12 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
     try
     {
       // To Get $HOME path
-      passwd* pw = getpwuid(getuid());
+      passwd *pw = getpwuid(getuid());
       std::string HOMEPath(pw->pw_dir);
       std::string xmlDir = HOMEPath + "/" + GEN_XML_PATH;
       std::string xmlPath = xmlDir + "/" + annotatorName + ".xml";
 
-      if (!boost::filesystem::exists(xmlDir))
+      if(!boost::filesystem::exists(xmlDir))
         boost::filesystem::create_directory(xmlDir);
       std::ofstream of(xmlPath);
       of << converter;
@@ -189,12 +182,12 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
 
       return xmlPath;
     }
-    catch (std::runtime_error& e)
+    catch(std::runtime_error &e)
     {
       outError("Exception happened when creating the output file: " << e.what());
       return "";
     }
-    catch (std::exception& e)
+    catch(std::exception &e)
     {
       outError("Exception happened when creating the output file: " << e.what());
       return "";
@@ -217,12 +210,12 @@ void RSAnalysisEngine::process()
   this->process(desigResponse, query_);
 }
 
-void RSAnalysisEngine::process(std::vector<std::string>& designatorResponse, std::string queryString)
+void RSAnalysisEngine::process(std::vector<std::string> &designatorResponse, std::string queryString)
 {
   outInfo("executing analisys engine: " << name_);
   cas_->reset();
 
-  if (queryString != "" || query_ != "")
+  if(queryString != "" || query_ != "")
   {
     rs::Query query = rs::create<rs::Query>(*cas_);
     queryString != "" ? query.query.set(queryString) : query.query.set(query_);
@@ -239,9 +232,9 @@ void RSAnalysisEngine::process(std::vector<std::string>& designatorResponse, std
     outInfo("processing CAS");
     try
     {
-      if (parallel_)
+      if(parallel_)
       {
-        if (engine_->querySuccess)
+        if(engine_->querySuccess)
           engine_->parallelProcess(*cas_);
 
         else
@@ -253,7 +246,7 @@ void RSAnalysisEngine::process(std::vector<std::string>& designatorResponse, std
       else
         engine_->process(*cas_);
     }
-    catch (const rs::FrameFilterException&)
+    catch(const rs::FrameFilterException &)
     {
       // we could handle image logging here
       // handle extra pipeline here->signal thread that we can start processing
@@ -262,40 +255,40 @@ void RSAnalysisEngine::process(std::vector<std::string>& designatorResponse, std
 
     rs::ObjectDesignatorFactory dw(cas_);
     useIdentityResolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
-                             dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+    dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
     dw.getObjectDesignators(designatorResponse);
     setQuery("");
     outInfo("processing finished");
     outInfo(clock.getTime() << " ms." << std::endl
-                            << std::endl
-                            << FG_YELLOW
-                            << "********************************************************************************"
-                            << std::endl);
+            << std::endl
+            << FG_YELLOW
+            << "********************************************************************************"
+            << std::endl);
   }
-  catch (const rs::Exception& e)
+  catch(const rs::Exception &e)
   {
     outError("RoboSherlock Exception: " << std::endl << e.what());
   }
-  catch (const uima::Exception& e)
+  catch(const uima::Exception &e)
   {
     outError("UIMA Exception: " << std::endl << e);
   }
-  catch (const std::exception& e)
+  catch(const std::exception &e)
   {
     outError("Standard Exception: " << std::endl << e.what());
   }
-  catch (...)
+  catch(...)
   {
     outError("Unknown exception!");
   }
 }
 
 template <class T>
-bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool>& filter,
-                                          const std::vector<std::string>& resultDesignators, std::string& requestJson,
-                                          cv::Mat& outImg)
+bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators, std::string &requestJson,
+    cv::Mat &outImg)
 {
-  if (filter.size() != resultDesignators.size())
+  if(filter.size() != resultDesignators.size())
   {
     outError("Filter and results descriptions sizes don't match");
     return false;
@@ -310,7 +303,7 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool>& filter,
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
 
   std::vector<T> clusters;
-  if (std::is_same<T, rs::ObjectHypothesis>::value)
+  if(std::is_same<T, rs::ObjectHypothesis>::value)
   {
     scene.identifiables.filter(clusters);
   }
@@ -321,21 +314,21 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool>& filter,
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if (clusters.size() != resultDesignators.size())
+  if(clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
   }
-  for (int i = 0; i < filter.size(); ++i)
+  for(int i = 0; i < filter.size(); ++i)
   {
-    if (!filter[i])
+    if(!filter[i])
       continue;
 
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
 
-    if (desig.HasMember("id"))
+    if(desig.HasMember("id"))
     {
       std::string cID(desig["id"].GetString());
 
@@ -354,34 +347,34 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool>& filter,
 
   rapidjson::Document request;
   request.Parse(requestJson.c_str());
-  if (request.HasMember("obj-part"))
+  if(request.HasMember("obj-part"))
   {
-    for (int i = 0; i < clusters.size(); ++i)
+    for(int i = 0; i < clusters.size(); ++i)
     {
-      rs::ObjectHypothesis& cluster = clusters[i];
+      rs::ObjectHypothesis &cluster = clusters[i];
       std::vector<rs::ClusterPart> parts;
       cluster.annotations.filter(parts);
-      for (int pIdx = 0; pIdx < parts.size(); ++pIdx)
+      for(int pIdx = 0; pIdx < parts.size(); ++pIdx)
       {
-        rs::ClusterPart& part = parts[pIdx];
-        if (part.name() == request["obj-part"] || request["obj-part"] == "")
+        rs::ClusterPart &part = parts[pIdx];
+        if(part.name() == request["obj-part"] || request["obj-part"] == "")
         {
           pcl::PointIndices indices;
           rs::conversion::from(part.indices(), indices);
-          for (int iIdx = 0; iIdx < indices.indices.size(); ++iIdx)
+          for(int iIdx = 0; iIdx < indices.indices.size(); ++iIdx)
           {
             int idx = indices.indices[iIdx];
             rgb.at<cv::Vec3b>(cv::Point(idx % cam_info.width, idx / cam_info.width)) =
-                rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
+              rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
           }
           colorIdx++;
         }
       }
     }
   }
-  if (request.HasMember("cad-model"))
+  if(request.HasMember("cad-model"))
   {
-    if (sceneCas.has("VIEW_DISPLAY_IMAGE"))
+    if(sceneCas.has("VIEW_DISPLAY_IMAGE"))
     {
       outInfo("Scene has a display image");
       sceneCas.get("VIEW_DISPLAY_IMAGE", rgb);
@@ -392,11 +385,11 @@ bool RSAnalysisEngine::drawResulstOnImage(const std::vector<bool>& filter,
 }
 
 template <class T>
-bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool>& filter,
-                                               const std::vector<std::string>& resultDesignators,
-                                               std::string& requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud)
+bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud)
 {
-  if (filter.size() != resultDesignators.size())
+  if(filter.size() != resultDesignators.size())
   {
     outError("Filter and results descriptions sizes don't match");
     return false;
@@ -412,31 +405,31 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool>& filter,
 
   std::vector<T> clusters;
   std::is_same<T, rs::ObjectHypothesis>::value ? scene.identifiables.filter(clusters) :
-                                                 sceneCas.get(VIEW_OBJECTS, clusters);
+  sceneCas.get(VIEW_OBJECTS, clusters);
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if (clusters.size() != resultDesignators.size())
+  if(clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
   }
 
-  for (int i = 0; i < filter.size(); ++i)
+  for(int i = 0; i < filter.size(); ++i)
   {
-    if (!filter[i])
+    if(!filter[i])
       continue;
 
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
-    if (desig.HasMember("id"))
+    if(desig.HasMember("id"))
     {
       pcl::PointIndicesPtr inliers(new pcl::PointIndices());
-      if (clusters[i].points.has())
+      if(clusters[i].points.has())
       {
         rs::conversion::from(((rs::ReferenceClusterPoints)clusters[i].points()).indices(), *inliers);
-        for (unsigned int idx = 0; idx < inliers->indices.size(); ++idx)
+        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx)
         {
           dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
           dispCloud->points[inliers->indices[idx]].a = 255;
@@ -448,7 +441,7 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool>& filter,
 
   tf::StampedTransform camToWorld;
   camToWorld.setIdentity();
-  if (scene.viewPoint.has())
+  if(scene.viewPoint.has())
   {
     rs::conversion::from(scene.viewPoint.get(), camToWorld);
   }
@@ -471,19 +464,19 @@ bool RSAnalysisEngine::highlightResultsInCloud(const std::vector<bool>& filter,
   return true;
 }
 
-template bool RSAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector<bool>& filter,
-                                                               const std::vector<std::string>& resultDesignators,
-                                                               std::string& requestJson, cv::Mat& resImage);
+template bool RSAnalysisEngine::drawResulstOnImage<rs::Object>(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson, cv::Mat &resImage);
 
 template bool RSAnalysisEngine::drawResulstOnImage<rs::ObjectHypothesis>(
-    const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators, std::string& requestJson,
-    cv::Mat& resImage);
+  const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators, std::string &requestJson,
+  cv::Mat &resImage);
 
-template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::vector<bool>& filter,
-                                                                    const std::vector<std::string>& resultDesignators,
-                                                                    std::string& requestJson,
-                                                                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud);
+template bool RSAnalysisEngine::highlightResultsInCloud<rs::Object>(const std::vector<bool> &filter,
+    const std::vector<std::string> &resultDesignators,
+    std::string &requestJson,
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
 template bool RSAnalysisEngine::highlightResultsInCloud<rs::ObjectHypothesis>(
-    const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators, std::string& requestJson,
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud);
+  const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators, std::string &requestJson,
+  pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
