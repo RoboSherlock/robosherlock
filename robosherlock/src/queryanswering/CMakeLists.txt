@@ -10,7 +10,7 @@ target_link_libraries(rs_queryanswering
         ${SWIPL_LIBRARIES}
         ${catkin_LIBRARIES})
 
-add_executable(swi_test src/swiprolog_test.cpp)
+add_executable(swi_test src/swiprolog_test.cpp src/SWIPLInterface.cpp)
 target_link_libraries(swi_test
         ${SWIPL_LIBRARIES}
         ${catkin_LIBRARIES})

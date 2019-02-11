@@ -116,6 +116,28 @@ public:
     return true;
   }
 
+  void simple_query()
+  {
+      std::lock_guard<std::mutex> lock(lock_);
+    PlTermv av(0);
+    PlTermv av2(1);
+    try
+    {
+      PlQuery q("assert_query_lang", av);
+      q.next_solution();
+      PlQuery q2("rs_query_reasoning","rs_query_predicate",av2);
+      while(q2.next_solution())
+      {
+        std::cerr << static_cast<char *>(av2[0]) << std::endl;
+      }
+    }
+    catch(PlException &ex)
+    {
+      std::cerr << (char *)ex << std::endl;
+    }
+  }
+
+
 
 
 };
