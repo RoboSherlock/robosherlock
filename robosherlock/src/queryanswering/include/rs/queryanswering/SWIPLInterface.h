@@ -20,7 +20,7 @@ namespace rs
 {
 
 //wrapper class for Prolog Engine based on SWI-C++
-class SWIPLInterface : public KnowledgeEngine
+class SWIPLInterface: public KnowledgeEngine
 {
   std::mutex lock_;
   std::shared_ptr<PlEngine> engine_;
@@ -51,29 +51,30 @@ public:
 
   bool assertValueForKey(const  std::string &key, const std::string &value)
   {
-      std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Asserting value for key");
+    std::lock_guard<std::mutex> lock(lock_);
+    outInfo("Asserting value ["<<value<<"] for key ["<<key<<"]" );
+    PlTermv av(1);
     return true;
   }
 
   bool retractQueryKvPs()
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting all query KvPs");
-    PlTermv av(2);
+    PlTerm t;
     return true;
   }
 
   bool retractQueryLanguage()
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting Query language");
     return true;
   }
 
   bool retractAllAnnotators()
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting Query language");
     return true;
   }
@@ -81,7 +82,7 @@ public:
 
   bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &)
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting query language specific knowledge");
     PlTermv av(0);
     PlTermv av2(1);
@@ -104,28 +105,28 @@ public:
 
   bool addNamespace(std::string &s)
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("Adding namespace to: " << s);
     return true;
   }
 
   bool assertAnnotators(const std::map < std::string, rs::AnnotatorCapabilities> &caps)
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     outInfo("ASSERTING ANNOTATORS TO KB");
     return true;
   }
 
   void simple_query()
   {
-      std::lock_guard<std::mutex> lock(lock_);
+    std::lock_guard<std::mutex> lock(lock_);
     PlTermv av(0);
     PlTermv av2(1);
     try
     {
       PlQuery q("assert_query_lang", av);
       q.next_solution();
-      PlQuery q2("rs_query_reasoning","rs_query_predicate",av2);
+      PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
       while(q2.next_solution())
       {
         std::cerr << static_cast<char *>(av2[0]) << std::endl;

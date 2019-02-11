@@ -26,25 +26,19 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
     std::lock_guard<std::mutex> lock(lock_);
   outInfo("Planning Pipeline");
   PlTermv av(2);
-  outInfo("");
   PlTail l(av[0]);
-  outInfo("");
   for(auto key : keys)
     l.append(key.c_str());
-  outInfo("");
   l.close();
-  outInfo("");
   PlQuery q("pipeline_from_predicates_with_domain_constraint", av);
-  outInfo("");
   std::string prefix("http://knowrob.org/kb/rs_components.owl#");
-  outInfo("");
   while(q.next_solution())
   {
     //      std::cerr<<(char*)av[1]<<std::endl;
     PlTail res(av[1]);//result is a list
-    outInfo("");
+
     PlTerm e;//elements of that list
-    outInfo("");
+
     while(res.next(e))
     {
       std::string element((char *)e);
@@ -52,7 +46,6 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
       pipeline.push_back(element);
     }
   }
-  outInfo("");
   return true;
 }
 

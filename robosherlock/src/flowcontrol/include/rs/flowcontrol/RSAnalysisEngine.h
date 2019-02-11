@@ -67,10 +67,6 @@ protected:
   std::vector<std::string> delegates_;
   std::map<std::string,rs::AnnotatorCapabilities> delegateCapabilities_;
 
-#ifdef WITH_JSON_PROLOG
-  std::shared_ptr<rs::JsonPrologInterface> json_prolog_interface_;
-#endif
-
 public:
 
   RSAnalysisEngine();
