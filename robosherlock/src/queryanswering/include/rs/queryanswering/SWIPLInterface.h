@@ -26,6 +26,19 @@ class SWIPLInterface : public KnowledgeEngine
   PL_engine_t engine1_, engine2_;
   PL_thread_attr_t attributes_;
 
+  //TODO: we probably need an Engine and a Query class for a cleaner implementation;
+  //  class Engine
+  //  {
+  //    PL_engine_t engine_;
+  //    std::string name_;
+  //    bool acquire(){
+
+  //    }
+  //    bool release(){
+
+  //    }
+  //  };
+
 public:
   SWIPLInterface();
 
@@ -40,22 +53,24 @@ public:
    */
   void setEngine()
   {
-    PL_engine_t engine;
-    int result = PL_set_engine(PL_ENGINE_CURRENT, &engine);
-    outError("PL_CURRENT_ENGINE: " << engine);
+    PL_engine_t current_engine;
+    int result = PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
+    outError("PL_CURRENT_ENGINE: " << current_engine);
     outError("ENGINE1_: " << engine1_);
-    if (engine == 0)
+    if(current_engine == 0)
     {
-      engine1_ = PL_create_engine(&attributes_);
-      result = PL_set_engine(engine1_, &engine);
-      if (result != PL_ENGINE_SET)
+      if(engine1_ == 0)
+        engine1_ = PL_create_engine(&attributes_);
+
+      result = PL_set_engine(engine1_, &current_engine);
+      if(result != PL_ENGINE_SET)
       {
-        if (result == PL_ENGINE_INVAL)
-          throw std::exception("Engine is invalid.");
-        else if (result == PL_ENGINE_INUSE)
-          throw std::exception("Engine is invalid.");
+        if(result == PL_ENGINE_INVAL)
+          throw std::runtime_error("Engine is invalid.");
+        else if(result == PL_ENGINE_INUSE)
+          throw std::runtime_error("Engine is invalid.");
         else
-          throw std::exception("Unknown Response when setting PL_engine");
+          throw std::runtime_error("Unknown Response when setting PL_engine");
       }
       else
       {
@@ -67,11 +82,11 @@ public:
    * in: vector of keys extracted from query
    * out: vector of annotator names forming the pipeline
    */
-  bool planPipelineQuery(const std::vector<std::string>& keys, std::vector<std::string>& pipeline);
+  bool planPipelineQuery(const std::vector<std::string> &keys, std::vector<std::string> &pipeline);
 
   bool q_subClassOf(std::string child, std::string parent);
 
-  bool checkValidQueryTerm(const std::string& term)
+  bool checkValidQueryTerm(const std::string &term)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Checking validity of term");
@@ -79,7 +94,7 @@ public:
     return true;
   }
 
-  bool assertValueForKey(const std::string& key, const std::string& value)
+  bool assertValueForKey(const std::string &key, const std::string &value)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting value [" << value << "] for key [" << key << "]");
@@ -113,7 +128,7 @@ public:
     return true;
   }
 
-  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>>&)
+  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting query language specific knowledge");
@@ -124,19 +139,19 @@ public:
       PlQuery q("assert_query_lang", av);
       q.next_solution();
       PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while (q2.next_solution())
+      while(q2.next_solution())
       {
-        std::cerr << static_cast<char*>(av2[0]) << std::endl;
+        std::cerr << static_cast<char *>(av2[0]) << std::endl;
       }
     }
-    catch (PlException& ex)
+    catch(PlException &ex)
     {
-      std::cerr << (char*)ex << std::endl;
+      std::cerr << (char *)ex << std::endl;
     }
     return true;
   }
 
-  bool addNamespace(std::string& s)
+  bool addNamespace(std::string &s)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Adding namespace to: " << s);
@@ -144,7 +159,7 @@ public:
     return true;
   }
 
-  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities>& caps)
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("ASSERTING ANNOTATORS TO KB");
@@ -164,14 +179,14 @@ public:
       PlQuery q("assert_query_lang", av);
       q.next_solution();
       PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while (q2.next_solution())
+      while(q2.next_solution())
       {
-        std::cerr << static_cast<char*>(av2[0]) << std::endl;
+        std::cerr << static_cast<char *>(av2[0]) << std::endl;
       }
     }
-    catch (PlException& ex)
+    catch(PlException &ex)
     {
-      std::cerr << (char*)ex << std::endl;
+      std::cerr << (char *)ex << std::endl;
     }
   }
 };

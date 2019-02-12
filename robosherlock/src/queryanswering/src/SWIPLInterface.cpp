@@ -16,13 +16,13 @@ SWIPLInterface::SWIPLInterface()
   argv[argc] = NULL;
   PL_initialise(argc, argv);
 
-  attributes.local_size = 100000000;
-  attributes.global_size = 100000000;
-  attributes.trail_size = 100000000;
-  attributes.argument_size = 0;
-  attributes.alias = 0;
-  attributes.cancel = 0;
-  attributes.flags = 0;
+  attributes_.local_size = 100000000;
+  attributes_.global_size = 100000000;
+  attributes_.trail_size = 100000000;
+  attributes_.argument_size = 0;
+  attributes_.alias = 0;
+  attributes_.cancel = 0;
+  attributes_.flags = 0;
 //  engine1_ = PL_create_engine(&attributes);
   outInfo("PROLOG ENGINE BEING INITIALIZED");
 }
