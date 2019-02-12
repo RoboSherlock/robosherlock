@@ -4,18 +4,26 @@ namespace rs
 {
 SWIPLInterface::SWIPLInterface()
 {
-    std::lock_guard<std::mutex> lock(lock_);
+  std::lock_guard<std::mutex> lock(lock_);
   char *argv[4];
   int argc = 0;
-  argv[argc++] = "PrologEngine";
+  argv[argc++] = "swi_test";
   argv[argc++] = "-f";
   std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init.pl";
   argv[argc] = new char[rosPrologInit.size() + 1];
   std::copy(rosPrologInit.begin(), rosPrologInit.end(), argv[argc]);
   argv[argc++][rosPrologInit.size()] = '\0';
   argv[argc] = NULL;
-  engine_ = std::make_shared<PlEngine>(argc, argv);
+  PL_initialise(argc, argv);
 
+  attributes.local_size = 100000000;
+  attributes.global_size = 100000000;
+  attributes.trail_size = 100000000;
+  attributes.argument_size = 0;
+  attributes.alias = 0;
+  attributes.cancel = 0;
+  attributes.flags = 0;
+//  engine1_ = PL_create_engine(&attributes);
   outInfo("PROLOG ENGINE BEING INITIALIZED");
 }
 
@@ -23,8 +31,9 @@ SWIPLInterface::SWIPLInterface()
 bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
                                        std::vector<std::string> &pipeline)
 {
-    std::lock_guard<std::mutex> lock(lock_);
+  std::lock_guard<std::mutex> lock(lock_);
   outInfo("Planning Pipeline");
+  setEngine();
   PlTermv av(2);
   PlTail l(av[0]);
   for(auto key : keys)
@@ -52,6 +61,8 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
 bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 {
   std::lock_guard<std::mutex> lock(lock_);
+  outInfo("Planning Pipeline");
+  setEngine();
   PlTermv av(2);
   av[0] =  "child";
   av[1] =  "parent";

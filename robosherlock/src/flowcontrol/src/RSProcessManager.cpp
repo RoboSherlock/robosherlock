@@ -11,7 +11,8 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   outInfo("Creating resource manager");
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
-  switch(OUT_LEVEL) {
+  switch(OUT_LEVEL)
+  {
   case OUT_LEVEL_NOOUT:
   case OUT_LEVEL_ERROR:
     resourceManager.setLoggingLevel(uima::LogStream::EnError);
@@ -34,7 +35,8 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
 #ifdef WITH_JSON_PROLOG
-  if(withQA_){
+  if(withQA_)
+  {
     knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
     queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
   }
@@ -57,29 +59,34 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 #endif
   this->configFile_ = configFile;
 
-  try {
+  try
+  {
     cv::FileStorage fs(cv::String(configFile), cv::FileStorage::READ);
 
-    if(lowLvlPipeline_.empty()) { //if not set programatically, load from a config file
+    if(lowLvlPipeline_.empty())   //if not set programatically, load from a config file
+    {
       cv::FileNode n = fs["annotators"];
-      if(n.type() != cv::FileNode::SEQ) {
+      if(n.type() != cv::FileNode::SEQ)
+      {
         outError("Annotators missing from config file");
       }
       cv::FileNodeIterator it = n.begin(), it_end = n.end(); // Go through the node
-      for(; it != it_end; ++it) {
+      for(; it != it_end; ++it)
+      {
         lowLvlPipeline_.push_back(*it);
       }
     }
     fs.release();
   }
-  catch(cv::Exception &e) {
+  catch(cv::Exception &e)
+  {
     outWarn("No low-level pipeline defined. Setting empty!");
   }
 
   engine_.init(engineFile, parallel, pervasive , lowLvlPipeline_);
 
 #ifdef WITH_JSON_PROLOG
-  if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
+  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
   {
     knowledgeEngine_->retractAllAnnotators();
     knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
@@ -91,7 +98,8 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
   parallel_ = parallel;
 
   visualizer_.start();
-  if(pervasive) {
+  if(pervasive)
+  {
     visualizer_.setActiveAnnotators(lowLvlPipeline_);
   }
   outInfo("done intializing");
@@ -100,13 +108,16 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 
 void RSProcessManager::run()
 {
-  for(; ros::ok();) {
+  for(; ros::ok();)
+  {
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if(waitForServiceCall_) {
+      if(waitForServiceCall_)
+      {
         usleep(100000);
       }
-      else {
+      else
+      {
         std::vector<std::string> objDescriptions;
         engine_.process(objDescriptions, "");
         robosherlock_msgs::RSObjectDescriptions objDescr;
@@ -134,14 +145,17 @@ bool RSProcessManager::visControlCallback(robosherlock_msgs::RSVisControl::Reque
   std::string command = req.command;
   bool result = true;
   std::string activeAnnotator = "";
-  if(command == "next") {
+  if(command == "next")
+  {
     activeAnnotator = visualizer_.nextAnnotator();
 
   }
-  else if(command == "previous") {
+  else if(command == "previous")
+  {
     activeAnnotator = visualizer_.prevAnnotator();
   }
-  else if(command != "") {
+  else if(command != "")
+  {
     activeAnnotator = visualizer_.selectAnnotator(command);
   }
   if(activeAnnotator == "")
@@ -159,10 +173,12 @@ bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request 
 {
   std::string newContextName = req.newAe;
 
-  if(resetAE(newContextName)) {
+  if(resetAE(newContextName))
+  {
     return true;
   }
-  else {
+  else
+  {
     outError("Contexts need to have a an AE defined");
     outInfo("releasing lock");
     processing_mutex_.unlock();
@@ -174,19 +190,22 @@ bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request 
 bool RSProcessManager::resetAE(std::string newAAEName)
 {
   std::string contextAEPath;
-  if(rs::common::getAEPaths(newAAEName, contextAEPath)) {
+  if(rs::common::getAEPaths(newAAEName, contextAEPath))
+  {
     outInfo("Setting new context: " << newAAEName);
     cv::FileStorage fs(cv::String(configFile_), cv::FileStorage::READ);
 
     cv::FileNode n = fs["annotators"];
-    if(n.type() != cv::FileNode::SEQ) {
+    if(n.type() != cv::FileNode::SEQ)
+    {
       outError("Somethings wrong with pipeline definition");
       return 1;
     }
 
     std::vector<std::string> lowLvlPipeline;
     cv::FileNodeIterator it = n.begin(), it_end = n.end(); // Go through the node
-    for(; it != it_end; ++it) {
+    for(; it != it_end; ++it)
+    {
       lowLvlPipeline.push_back(*it);
     }
 
@@ -199,7 +218,8 @@ bool RSProcessManager::resetAE(std::string newAAEName)
 
     return true;
   }
-  else {
+  else
+  {
     return false;
   }
 }
@@ -207,24 +227,29 @@ bool RSProcessManager::resetAE(std::string newAAEName)
 bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
     robosherlock_msgs::ExecutePipeline::Response &res)
 {
-  if(req.annotators.empty()) {
+  if(req.annotators.empty())
+  {
     return false;
   }
 
   std::vector<std::string> newPipelineOrder = req.annotators;
   outInfo("Setting new pipeline: ");
-  for(auto a : newPipelineOrder) {
-    if(!engine_.isInDelegateList(a)) {
+  for(auto a : newPipelineOrder)
+  {
+    if(!engine_.isInDelegateList(a))
+    {
       outError(a << " was not initialized in current analysis engine");
       return false;
     }
-    else {
+    else
+    {
       outInfo(a);
     }
   }
 
 
-  if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end()) {
+  if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end())
+  {
     newPipelineOrder.push_back("ObjectIdentityResolution");
   }
 
@@ -251,6 +276,7 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
 bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
     robosherlock_msgs::RSQueryService::Response &res)
 {
+
   handleQuery(req.query, res.answer);
   return true;
 }
@@ -264,7 +290,8 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
-    if(queryType == QueryInterface::QueryType::DETECT) {
+    if(queryType == QueryInterface::QueryType::DETECT)
+    {
       std::vector<std::string> resultDesignators;
 
 
@@ -288,11 +315,13 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       cv::Mat resImage;
       pcl::PointCloud<pcl::PointXYZRGB>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-      if(useIdentityResolution_) {
+      if(useIdentityResolution_)
+      {
         engine_.drawResulstOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);
         engine_.highlightResultsInCloud<rs::Object>(desigsToKeep, resultDesignators, request, dispCloud);
       }
-      else {
+      else
+      {
         engine_.drawResulstOnImage<rs::ObjectHypothesis>(desigsToKeep, resultDesignators, request, resImage);
         engine_.highlightResultsInCloud<rs::ObjectHypothesis>(desigsToKeep, resultDesignators, request, dispCloud);
       }
@@ -313,7 +342,8 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       return true;
     }
 
-    else if(queryType == QueryInterface::QueryType::INSPECT) {
+    else if(queryType == QueryInterface::QueryType::INSPECT)
+    {
       outInfo("Inspection is not implemented");
       return true;
     }

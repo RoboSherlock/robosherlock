@@ -15,6 +15,7 @@
 
 //SWI Prolog
 #include <SWI-cpp.h>
+#include <SWI-Prolog.h>
 
 namespace rs
 {
@@ -23,7 +24,9 @@ namespace rs
 class SWIPLInterface: public KnowledgeEngine
 {
   std::mutex lock_;
-  std::shared_ptr<PlEngine> engine_;
+  //  std::shared_ptr<PlEngine> pLEngine_;
+  PL_engine_t engine1_, engine2_;
+  PL_thread_attr_t attributes;
 public:
 
   SWIPLInterface();
@@ -32,6 +35,40 @@ public:
   {
   }
 
+  /**
+   * @brief setEnginge for multi-threading SWI-prolog needs to attach an engine to each thread; call this when executing from a thread;
+   * this is a hack for now; this shoudl happen inside each query;
+   */
+  void setEngine()
+  {
+    PL_engine_t engine;
+    int result = PL_set_engine(PL_ENGINE_CURRENT, &engine);
+    outError("Current Engine: " << engine);
+    if(engine == engine1_)
+    {
+      outError( "Current engine is the one created in the constructor");
+    }
+    else if(engine == 0)
+    {
+      engine1_ = PL_create_engine(&attributes);
+      result = PL_set_engine(engine1_, &engine);
+      if(result != PL_ENGINE_SET)
+      {
+        if(result == PL_ENGINE_INVAL)
+          outError("Engine is invalid.");
+        else if(result == PL_ENGINE_INUSE)
+          outError("Engine is currently in use.");
+        else
+          outError("Unknown Response");
+        engine2_ = PL_create_engine(&attributes);
+        outError("Created new engine: "<<engine2_);
+        PL_set_engine(engine2_, NULL);
+      }
+      else{
+        outError("Set: "<<engine1_<<"As active engine");
+      }
+    }
+  }
   /*
    * in: vector of keys extracted from query
    * out: vector of annotator names forming the pipeline
@@ -46,13 +83,15 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Checking validity of term");
+    setEngine();
     return true;
   }
 
   bool assertValueForKey(const  std::string &key, const std::string &value)
   {
     std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Asserting value ["<<value<<"] for key ["<<key<<"]" );
+    outInfo("Asserting value [" << value << "] for key [" << key << "]");
+    setEngine();
     PlTermv av(1);
     return true;
   }
@@ -61,6 +100,7 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting all query KvPs");
+    setEngine();
     PlTerm t;
     return true;
   }
@@ -69,13 +109,15 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting Query language");
+    setEngine();
     return true;
   }
 
   bool retractAllAnnotators()
   {
     std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Retracting Query language");
+    outInfo("Retracting all annotators");
+    setEngine();
     return true;
   }
 
@@ -84,8 +126,8 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting query language specific knowledge");
-    PlTermv av(0);
-    PlTermv av2(1);
+    setEngine();
+    PlTermv av(0), av2(1);
     try
     {
       PlQuery q("assert_query_lang", av);
@@ -107,6 +149,7 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Adding namespace to: " << s);
+    setEngine();
     return true;
   }
 
@@ -114,12 +157,15 @@ public:
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("ASSERTING ANNOTATORS TO KB");
+    setEngine();
     return true;
   }
 
   void simple_query()
   {
     std::lock_guard<std::mutex> lock(lock_);
+    setEngine();
+
     PlTermv av(0);
     PlTermv av2(1);
     try
