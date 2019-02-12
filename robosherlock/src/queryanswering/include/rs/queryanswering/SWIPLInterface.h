@@ -1,71 +1,65 @@
 #ifndef SWIPLINTERFACE_H
 #define SWIPLINTERFACE_H
 
-//robosherlock
+// robosherlock
 #include <rs/utils/output.h>
 
-//ROS
+// ROS
 #include <ros/package.h>
 
-//STD
+// STD
 #include <memory>
 #include <mutex>
 
 #include <rs/queryanswering/KnowledgeEngine.h>
 
-//SWI Prolog
+// SWI Prolog
 #include <SWI-cpp.h>
 #include <SWI-Prolog.h>
 
 namespace rs
 {
-
-//wrapper class for Prolog Engine based on SWI-C++
-class SWIPLInterface: public KnowledgeEngine
+// wrapper class for Prolog Engine based on SWI-C++
+class SWIPLInterface : public KnowledgeEngine
 {
   std::mutex lock_;
-  //  std::shared_ptr<PlEngine> pLEngine_;
   PL_engine_t engine1_, engine2_;
-  PL_thread_attr_t attributes;
-public:
+  PL_thread_attr_t attributes_;
 
+public:
   SWIPLInterface();
 
   ~SWIPLInterface()
   {
+    PL_destroy_engine(engine1_);
   }
 
   /**
-   * @brief setEnginge for multi-threading SWI-prolog needs to attach an engine to each thread; call this when executing from a thread;
-   * this is a hack for now; this shoudl happen inside each query;
+   * @brief setEnginge for multi-threading SWI-prolog needs to attach an engine to each thread; call this when executing
+   * from a thread; this is a hack for now; this shoudl happen inside each query;
    */
   void setEngine()
   {
     PL_engine_t engine;
     int result = PL_set_engine(PL_ENGINE_CURRENT, &engine);
-    outError("Current Engine: " << engine);
-    if(engine == engine1_)
+    outError("PL_CURRENT_ENGINE: " << engine);
+    outError("ENGINE1_: " << engine1_);
+    if (engine == 0)
     {
-      outError( "Current engine is the one created in the constructor");
-    }
-    else if(engine == 0)
-    {
-      engine1_ = PL_create_engine(&attributes);
+      engine1_ = PL_create_engine(&attributes_);
       result = PL_set_engine(engine1_, &engine);
-      if(result != PL_ENGINE_SET)
+      if (result != PL_ENGINE_SET)
       {
-        if(result == PL_ENGINE_INVAL)
-          outError("Engine is invalid.");
-        else if(result == PL_ENGINE_INUSE)
-          outError("Engine is currently in use.");
+        if (result == PL_ENGINE_INVAL)
+          throw std::exception("Engine is invalid.");
+        else if (result == PL_ENGINE_INUSE)
+          throw std::exception("Engine is invalid.");
         else
-          outError("Unknown Response");
-        engine2_ = PL_create_engine(&attributes);
-        outError("Created new engine: "<<engine2_);
-        PL_set_engine(engine2_, NULL);
+          throw std::exception("Unknown Response when setting PL_engine");
       }
-      else{
-        outError("Set: "<<engine1_<<"As active engine");
+      else
+      {
+        outError("Set: " << engine1_ << "As active engine");
       }
     }
   }
@@ -73,13 +67,11 @@ public:
    * in: vector of keys extracted from query
    * out: vector of annotator names forming the pipeline
    */
-  bool planPipelineQuery(const std::vector<std::string> &keys,
-                         std::vector<std::string> &pipeline);
-
+  bool planPipelineQuery(const std::vector<std::string>& keys, std::vector<std::string>& pipeline);
 
   bool q_subClassOf(std::string child, std::string parent);
 
-  bool checkValidQueryTerm(const std::string &term)
+  bool checkValidQueryTerm(const std::string& term)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Checking validity of term");
@@ -87,7 +79,7 @@ public:
     return true;
   }
 
-  bool assertValueForKey(const  std::string &key, const std::string &value)
+  bool assertValueForKey(const std::string& key, const std::string& value)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting value [" << value << "] for key [" << key << "]");
@@ -121,8 +113,7 @@ public:
     return true;
   }
 
-
-  bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &)
+  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>>&)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting query language specific knowledge");
@@ -133,19 +124,19 @@ public:
       PlQuery q("assert_query_lang", av);
       q.next_solution();
       PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while(q2.next_solution())
+      while (q2.next_solution())
       {
-        std::cerr << static_cast<char *>(av2[0]) << std::endl;
+        std::cerr << static_cast<char*>(av2[0]) << std::endl;
       }
     }
-    catch(PlException &ex)
+    catch (PlException& ex)
     {
-      std::cerr << (char *)ex << std::endl;
+      std::cerr << (char*)ex << std::endl;
     }
     return true;
   }
 
-  bool addNamespace(std::string &s)
+  bool addNamespace(std::string& s)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Adding namespace to: " << s);
@@ -153,7 +144,7 @@ public:
     return true;
   }
 
-  bool assertAnnotators(const std::map < std::string, rs::AnnotatorCapabilities> &caps)
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities>& caps)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("ASSERTING ANNOTATORS TO KB");
@@ -173,22 +164,16 @@ public:
       PlQuery q("assert_query_lang", av);
       q.next_solution();
       PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while(q2.next_solution())
+      while (q2.next_solution())
       {
-        std::cerr << static_cast<char *>(av2[0]) << std::endl;
+        std::cerr << static_cast<char*>(av2[0]) << std::endl;
       }
     }
-    catch(PlException &ex)
+    catch (PlException& ex)
     {
-      std::cerr << (char *)ex << std::endl;
+      std::cerr << (char*)ex << std::endl;
     }
   }
-
-
-
-
 };
-}
-#endif //SWIPLINTERFACE_H
-
-
+}  // namespace rs
+#endif  // SWIPLINTERFACE_H
