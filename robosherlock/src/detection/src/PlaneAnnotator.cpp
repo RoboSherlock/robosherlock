@@ -92,6 +92,7 @@ private:
         angular_threshold_deg;
 
   std::string pathToModelFile;
+  bool multiple_planes;
 
 public:
   PlaneAnnotator() : DrawingAnnotator(__func__), mode(BOARD), display(new pcl::PointCloud<pcl::PointXYZRGBA>()),
@@ -102,59 +103,62 @@ public:
 
   TyErrorId initialize(AnnotatorContext &ctx)
   {
-    outInfo("initialize");
+      outInfo("initialize");
 
-    if(ctx.isParameterDefined("plane_estimation_mode"))
-    {
-      std::string sMode;
-      ctx.extractValue("plane_estimation_mode", sMode);
-      outInfo("mode set to: " << sMode);
-      if(sMode == "BOARD")
+      if(ctx.isParameterDefined("plane_estimation_mode"))
       {
-        mode = BOARD;
+          std::string sMode;
+          ctx.extractValue("plane_estimation_mode", sMode);
+          outInfo("mode set to: " << sMode);
+          if(sMode == "BOARD")
+          {
+              mode = BOARD;
+          }
+          else if(sMode == "PCL")
+          {
+              mode = PCL;
+          }
+          else if(sMode == "MPS")
+          {
+              mode = MPS;
+          }
+          else if(sMode == "FILE")
+          {
+              mode = FILE;
+          }
       }
-      else if(sMode == "PCL")
+      if(ctx.isParameterDefined("use_non_nan_cloud"))
       {
-        mode = PCL;
+          ctx.extractValue("use_non_nan_cloud", useNonNANCloud);
       }
-      else if(sMode == "MPS")
+      if(ctx.isParameterDefined("min_plane_inliers"))
       {
-        mode = MPS;
+          ctx.extractValue("min_plane_inliers", min_plane_inliers);
       }
-      else if(sMode == "FILE")
+      if(ctx.isParameterDefined("max_iterations"))
       {
-        mode = FILE;
+          ctx.extractValue("max_iterations", max_iterations);
       }
-    }
-    if(ctx.isParameterDefined("use_non_nan_cloud"))
-    {
-      ctx.extractValue("use_non_nan_cloud", useNonNANCloud);
-    }
-    if(ctx.isParameterDefined("min_plane_inliers"))
-    {
-      ctx.extractValue("min_plane_inliers", min_plane_inliers);
-    }
-    if(ctx.isParameterDefined("max_iterations"))
-    {
-      ctx.extractValue("max_iterations", max_iterations);
-    }
-    if(ctx.isParameterDefined("distance_threshold"))
-    {
-      ctx.extractValue("distance_threshold", distance_threshold);
-    }
-    if(ctx.isParameterDefined("max_curvature"))
-    {
-      ctx.extractValue("max_curvature", max_curvature);
-    }
-    if(ctx.isParameterDefined("angular_threshold_deg"))
-    {
-      ctx.extractValue("angular_threshold_deg", angular_threshold_deg);
-    }
-    if(ctx.isParameterDefined("save_to_file"))
-    {
-      ctx.extractValue("save_to_file", saveToFile);
-    }
-
+      if(ctx.isParameterDefined("distance_threshold"))
+      {
+          ctx.extractValue("distance_threshold", distance_threshold);
+      }
+      if(ctx.isParameterDefined("max_curvature"))
+      {
+          ctx.extractValue("max_curvature", max_curvature);
+      }
+      if(ctx.isParameterDefined("angular_threshold_deg"))
+      {
+          ctx.extractValue("angular_threshold_deg", angular_threshold_deg);
+      }
+      if(ctx.isParameterDefined("save_to_file"))
+      {
+          ctx.extractValue("save_to_file", saveToFile);
+      }
+      if(ctx.isParameterDefined("multiple_planes"))
+      {
+          ctx.extractValue("multiple_planes", multiple_planes);
+      }
 
 
     return UIMA_ERR_NONE;
@@ -408,62 +412,51 @@ private:
     }
 
     std::vector<float> planeModel(4);
-    if(process_cloud(plane_coefficients))
+    if(process_cloud(plane_coefficients, cloud))
     {
       foundPlane = true;
+        savePlane(plane_coefficients, planeModel);
+        cv::Mat mask;
+        cv::Rect roi;
+        getMask(*plane_inliers, cv::Size(cloud->width, cloud->height), mask, roi);
 
-      if(plane_coefficients->values[3] < 0)
-      {
-        planeModel[0] = plane_coefficients->values[0];
-        planeModel[1] = plane_coefficients->values[1];
-        planeModel[2] = plane_coefficients->values[2];
-        planeModel[3] = plane_coefficients->values[3];
-      }
-      else
-      {
-        planeModel[0] = -plane_coefficients->values[0];
-        planeModel[1] = -plane_coefficients->values[1];
-        planeModel[2] = -plane_coefficients->values[2];
-        planeModel[3] = -plane_coefficients->values[3];
-      }
-
-      if(saveToFile)
-      {
-        outInfo("Saving Plane to file: " << pathToModelFile);
-        cv::Mat coeffs = cv::Mat_<float>(4, 1);
-        for(size_t i = 0; i < planeModel.size(); ++i)
-        {
-          coeffs.at<float>(i) = planeModel[i];
-        }
-        cv::FileStorage fs;
-        fs.open(pathToModelFile, cv::FileStorage::WRITE);
-        fs << "PlaneModel" << coeffs;
-        fs.release();
-      }
-
-      pcl::PointIndices::Ptr temp(new pcl::PointIndices());
-      temp->indices.resize(plane_inliers->indices.size());
-      for(size_t i = 0; i < plane_inliers->indices.size(); ++i)
-      {
-        temp->indices[i] = mapping_indices[plane_inliers->indices[i]];
-      }
-      plane_inliers.swap(temp);
-
-      cv::Mat mask;
-      cv::Rect roi;
-      getMask(*plane_inliers, cv::Size(cloud->width, cloud->height), mask, roi);
-
-      rs::Plane plane = rs::create<rs::Plane>(tcas);
-      plane.model(planeModel);
-      plane.inliers(plane_inliers->indices);
-      plane.roi(rs::conversion::to(tcas, roi));
-      plane.mask(rs::conversion::to(tcas, mask));
-      plane.source("RANSAC");
-      scene.annotations.append(plane);
+        rs::Plane plane = rs::create<rs::Plane>(tcas);
+        plane.model(planeModel);
+        plane.inliers(plane_inliers->indices);
+        plane.roi(rs::conversion::to(tcas, roi));
+        plane.mask(rs::conversion::to(tcas, mask));
+        plane.source("RANSAC");
+        scene.annotations.append(plane);
     }
     else
     {
       outInfo("No plane found in the cloud");
+    }
+
+    if(foundPlane && multiple_planes) {
+        const auto input_cloud = pcl::PointCloud<pcl::PointXYZRGBA>::Ptr(new pcl::PointCloud<pcl::PointXYZRGBA>(*(cloud.get())));
+        while(foundPlane) {
+            pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
+            extract.setInputCloud(input_cloud);
+            extract.setIndices(plane_inliers);
+            extract.setNegative(true);
+            extract.filter(*input_cloud);
+
+            foundPlane = process_cloud(plane_coefficients, input_cloud);
+            savePlane(plane_coefficients, planeModel);
+            cv::Mat mask;
+            cv::Rect roi;
+            getMask(*plane_inliers, cv::Size(cloud->width, cloud->height), mask, roi);
+
+            rs::Plane plane = rs::create<rs::Plane>(tcas);
+            plane.model(planeModel);
+            plane.inliers(plane_inliers->indices);
+            plane.roi(rs::conversion::to(tcas, roi));
+            plane.mask(rs::conversion::to(tcas, mask));
+            plane.source("RANSAC");
+            scene.annotations.append(plane);
+        }
+        foundPlane = true;
     }
   }
 
@@ -534,10 +527,10 @@ private:
     scene.annotations.append(plane);
   }
 
-  bool process_cloud(pcl::ModelCoefficients::Ptr &plane_coefficients)
+  bool process_cloud(pcl::ModelCoefficients::Ptr &plane_coefficients, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud)
   {
     plane_inliers = pcl::PointIndices::Ptr(new pcl::PointIndices);
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_filtered(cloud);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_filtered(input_cloud);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_filtered_no_nan(new pcl::PointCloud<pcl::PointXYZRGBA>);
 
     mapping_indices.clear();
@@ -584,6 +577,45 @@ private:
 
 #endif
     return true;
+  }
+
+  void savePlane(pcl::ModelCoefficients::Ptr plane_coefficients, std::vector<float> planeModel) {
+      if(plane_coefficients->values[3] < 0)
+      {
+          planeModel[0] = plane_coefficients->values[0];
+          planeModel[1] = plane_coefficients->values[1];
+          planeModel[2] = plane_coefficients->values[2];
+          planeModel[3] = plane_coefficients->values[3];
+      }
+      else
+      {
+          planeModel[0] = -plane_coefficients->values[0];
+          planeModel[1] = -plane_coefficients->values[1];
+          planeModel[2] = -plane_coefficients->values[2];
+          planeModel[3] = -plane_coefficients->values[3];
+      }
+
+      if(saveToFile)
+      {
+          outInfo("Saving Plane to file: " << pathToModelFile);
+          cv::Mat coeffs = cv::Mat_<float>(4, 1);
+          for(size_t i = 0; i < planeModel.size(); ++i)
+          {
+              coeffs.at<float>(i) = planeModel[i];
+          }
+          cv::FileStorage fs;
+          fs.open(pathToModelFile, cv::FileStorage::WRITE);
+          fs << "PlaneModel" << coeffs;
+          fs.release();
+      }
+
+      pcl::PointIndices::Ptr temp(new pcl::PointIndices());
+      temp->indices.resize(plane_inliers->indices.size());
+      for(size_t i = 0; i < plane_inliers->indices.size(); ++i)
+      {
+          temp->indices[i] = mapping_indices[plane_inliers->indices[i]];
+      }
+      plane_inliers.swap(temp);
   }
 
   void readCameraInfo(const sensor_msgs::CameraInfo &camInfo)
