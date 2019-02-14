@@ -26,7 +26,9 @@ class SWIPLInterface : public KnowledgeEngine
   PL_engine_t engine1_, engine2_;
   PL_thread_attr_t attributes_;
 
-  //TODO: we probably need an Engine and a Query class for a cleaner implementation;
+  std::set<PL_engine_t> engine_pool_;
+
+  //TODO: we probably need an Engine and a Query class
   //  class Engine
   //  {
   //    PL_engine_t engine_;
@@ -44,7 +46,11 @@ public:
 
   ~SWIPLInterface()
   {
-    PL_destroy_engine(engine1_);
+    for(void *a : engine_pool_)
+    {
+      PL_destroy_engine(a);
+    }
+
   }
 
   /**
@@ -54,30 +60,45 @@ public:
   void setEngine()
   {
     PL_engine_t current_engine;
+    outWarn("Current Engine: " << current_engine);
     int result = PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
     outError("PL_CURRENT_ENGINE: " << current_engine);
-    outError("ENGINE1_: " << engine1_);
     if(current_engine == 0)
     {
-      if(engine1_ == 0)
-        engine1_ = PL_create_engine(&attributes_);
-
-      result = PL_set_engine(engine1_, &current_engine);
-      if(result != PL_ENGINE_SET)
-      {
-        if(result == PL_ENGINE_INVAL)
-          throw std::runtime_error("Engine is invalid.");
-        else if(result == PL_ENGINE_INUSE)
-          throw std::runtime_error("Engine is invalid.");
-        else
-          throw std::runtime_error("Unknown Response when setting PL_engine");
-      }
-      else
-      {
-        outError("Set: " << engine1_ << "As active engine");
-      }
+      PL_engine_t newEngine = PL_create_engine(&attributes_);
+      engine_pool_.insert(newEngine);
+      PL_set_engine(newEngine, 0);
     }
+    outWarn("Engine pool size: " << engine_pool_.size());
+    //    outError("ENGINE1_: " << engine1_);
+    //    if(current_engine == 0 || (engine1_ != current_engine))
+    //    {
+    //      engine1_ = PL_create_engine(&attributes_);
+    //      result = PL_set_engine(engine1_, &current_engine);
+    //      if(result != PL_ENGINE_SET)
+    //      {
+    //        if(result == PL_ENGINE_INVAL)
+    //          throw std::runtime_error("Engine is invalid.");
+    //        else if(result == PL_ENGINE_INUSE)
+    //          throw std::runtime_error("Engine is invalid.");
+    //        else
+    //          throw std::runtime_error("Unknown Response when setting PL_engine");
+    //      }
+    //      else
+    //      {
+    //        outError("Set: " << engine1_ << " as active engine");
+    //      }
+    //    }
+
   }
+
+  //for future reference: we could release the engine at the end of each query;
+  // this way we only need a finita amount of engines, otherwise we get as many
+  //engines as there are threads calling queries;
+  void releaseEngine(){
+//    PL_set_engine(0,0);
+  }
+
   /*
    * in: vector of keys extracted from query
    * out: vector of annotator names forming the pipeline
@@ -91,6 +112,7 @@ public:
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Checking validity of term");
     setEngine();
+    releaseEngine();
     return true;
   }
 
@@ -100,6 +122,7 @@ public:
     outInfo("Asserting value [" << value << "] for key [" << key << "]");
     setEngine();
     PlTermv av(1);
+    releaseEngine();
     return true;
   }
 
@@ -109,6 +132,7 @@ public:
     outInfo("Retracting all query KvPs");
     setEngine();
     PlTerm t;
+    releaseEngine();
     return true;
   }
 
@@ -117,6 +141,7 @@ public:
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Retracting Query language");
     setEngine();
+    releaseEngine();
     return true;
   }
 

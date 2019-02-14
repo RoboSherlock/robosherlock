@@ -24,7 +24,15 @@ SWIPLInterface::SWIPLInterface()
   attributes_.cancel = 0;
   attributes_.flags = 0;
 //  engine1_ = PL_create_engine(&attributes);
+
+  void* current_engine,*main_engine;
+  int res1 = PL_set_engine(PL_ENGINE_CURRENT,&current_engine);
+  int res2 = PL_set_engine(PL_ENGINE_MAIN,&main_engine);
+
+  outWarn("After initialization the main engine is: "<<main_engine);
+  outWarn("After initialization the current engine is: "<<current_engine);
   outInfo("PROLOG ENGINE BEING INITIALIZED");
+  outWarn("Engine1: " <<engine1_);
 }
 
 

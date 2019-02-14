@@ -86,13 +86,14 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
   engine_.init(engineFile, parallel, pervasive , lowLvlPipeline_);
 
 #ifdef WITH_JSON_PROLOG
-  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
-  {
+  //TODO: check if json or internal
+//  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
+//  {
     knowledgeEngine_->retractAllAnnotators();
     knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
-  }
-  else
-    outWarn("Json Prolog is not running! Query answering will not be possible");
+//  }
+//  else
+//    outWarn("Json Prolog is not running! Query answering will not be possible");
 
 #endif
   parallel_ = parallel;

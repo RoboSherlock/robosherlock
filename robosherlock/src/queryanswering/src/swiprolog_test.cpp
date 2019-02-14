@@ -25,17 +25,18 @@ public:
   //  typedef std::shared_ptr<PlEngine> PlEnginePtr;
 
   std::shared_ptr<rs::SWIPLInterface> plEngine_;
-  ros::ServiceServer srv_;
+  ros::ServiceServer srv1_, srv2_;
   ros::NodeHandle *nh_;
   ros::AsyncSpinner spinner;
   std::mutex mutex;
 
-  ROSInterface(): spinner(1)
+  ROSInterface(): spinner(4)
   {
     plEngine_ = std::make_shared<rs::SWIPLInterface>();
     plEngine_->simple_query();
     nh_ = new ros::NodeHandle("ROS_SWIPL");
-    srv_ = nh_->advertiseService("trigger", &ROSInterface::trigger_service_cb_, this);
+    srv1_ = nh_->advertiseService("trigger1", &ROSInterface::trigger_service_cb1_, this);
+    srv2_ = nh_->advertiseService("trigger2", &ROSInterface::trigger_service_cb2_, this);
     spinner.start();
   }
   ~ROSInterface()
@@ -43,10 +44,19 @@ public:
     spinner.stop();
   }
 
-  bool trigger_service_cb_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
+  bool trigger_service_cb1_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
   {
     std::lock_guard<std::mutex> lock(mutex);
     plEngine_->assertValueForKey("key", "value");
+    res.success = true;
+    res.message = "Trigger successfull";
+    return true;
+  }
+
+  bool trigger_service_cb2_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
+  {
+    std::lock_guard<std::mutex> lock(mutex);
+    plEngine_->retractQueryLanguage();
     res.success = true;
     res.message = "Trigger successfull";
     return true;
@@ -55,9 +65,11 @@ public:
   {
     for(; ros::ok();)
     {
-     std::lock_guard<std::mutex> lock(mutex);
-//      ros::spinOnce();
-      usleep(100000);
+      {
+        std::lock_guard<std::mutex> lock(mutex);
+        plEngine_->retractQueryKvPs();
+      }
+      sleep(1);
     }
   }
 };
@@ -67,7 +79,7 @@ int main(int argc, char **argv)
   std::cerr << argv[0] << std::endl;
   ros::init(argc, argv, "test_swi");
   ROSInterface ri;
-//  ri.run();
-  ros::waitForShutdown();
+  ri.run();
+  //  ros::waitForShutdown();
   return 0;
 }
