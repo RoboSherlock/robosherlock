@@ -31,6 +31,9 @@
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
 
+// ROS
+#include <robosherlock_msgs/RSObjectDescriptions.h>
+
 // PCL
 #include <pcl/io/pcd_io.h>
 #include <pcl/tracking/tracking.h>
@@ -66,6 +69,9 @@ public:
   {
     //cv::initModule_nonfree();
   }
+
+  ros::NodeHandle nh_;
+  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("RoboSherlock/tracking_info"), 1);
 
   /*
    * Initializes annotator
@@ -145,10 +151,33 @@ public:
     } else {
       outInfo("Updating the tracker...");
       ok = tracker->update(frame, bbox);
+      robosherlock_msgs::RSObjectDescriptions result_message;
       if (ok) {
         outInfo("Tracker updated successfully!");
+
+        // TODO: The output is supposed to happen through RSProcessManager's result_pub. To do this, put an
+        // TODO: ObjectHypothesis with a set roi parameter into the scene. For now, this Annotator just has its own
+        // TODO: publisher.
+        /**
+        cv::Rect roi(bbox.x, bbox.y, bbox.width, bbox.height);
+        rs::ObjectHypothesis tracked_cluster = rs::create<rs::ObjectHypothesis>(tcas);
+        tracked_cluster.rois.set(roi);
+        scene.identifiables.append(tracked_cluster);
+         **/
+
+        std::vector<std::string> result_response;
+        result_response.push_back("x: " + std::to_string(bbox.x));
+        result_response.push_back("y: " + std::to_string(bbox.y));
+        result_response.push_back("width: " + std::to_string(bbox.width));
+        result_response.push_back("height: " + std::to_string(bbox.height));
+        result_message.obj_descriptions = result_response;
+        result_pub.publish(result_message);
       } else {
         outError("Tracking failed!");
+        std::vector<std::string> result_response;
+        result_response.push_back("Object lost!");
+        result_message.obj_descriptions = result_response;
+        result_pub.publish(result_message);
       }
     }
     // bbox position debug output

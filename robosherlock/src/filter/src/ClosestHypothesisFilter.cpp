@@ -91,7 +91,7 @@ public:
         return UIMA_ERR_NONE;
       }
       else{
-        outInfo("There is at least one cluster in this scene.");
+        //outInfo("There is at least one cluster in this scene.");
         rs::ImageROI rs_target_roi = clusters[0].rois.get();
         cv::Rect target_roi;
         rs::conversion::from(rs_target_roi.roi_hires(), target_roi);
@@ -101,7 +101,7 @@ public:
                 ((yTargetPos - yPos) * (yTargetPos - yPos));
 
         for(int n = 1; n < clusters.size(); n++) {
-            outInfo("Checking distance of object hypothesis " + std::to_string(n));
+          //outInfo("Checking distance of object hypothesis " + std::to_string(n));
           rs::ImageROI rs_current_roi = clusters[n].rois.get();
           cv::Rect current_roi;
           rs::conversion::from(rs_current_roi.roi_hires(), current_roi);
