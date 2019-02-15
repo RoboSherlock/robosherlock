@@ -334,14 +334,6 @@ public:
       visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, std::string("stuff"));
     }
   }
-
-  void calculate_line_inliers(pcl::PointCloud<PointT>::Ptr cloud, pcl::PointIndices::Ptr line_inliers) {
-    // Pick three random points from this cloud and project them to conformal space
-    auto point1 = cloud.get()->points.at(std::rand() % cloud.get()->points.size());
-    auto point2 = cloud.get()->points.at(std::rand() % cloud.get()->points.size());
-    auto point3 = cloud.get()->points.at(std::rand() % cloud.get()->points.size());
-
-  }
 };
 
 // This macro exports an entry point that is used to create the annotator.
