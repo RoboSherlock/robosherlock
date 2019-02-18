@@ -2,15 +2,6 @@
 #define JSONPROLOGINTERFACE_H
 
 #ifdef WITH_JSON_PROLOG
-//boost
-#include <boost/algorithm/string.hpp>
-
-//xerces
-#include <xercesc/parsers/XercesDOMParser.hpp>
-#include <xercesc/dom/DOM.hpp>
-#include <xercesc/sax/HandlerBase.hpp>
-#include <xercesc/util/XMLString.hpp>
-#include <xercesc/util/PlatformUtils.hpp>
 
 //YAML parsing
 #include <yaml-cpp/exceptions.h>
@@ -88,7 +79,27 @@ public:
    */
   bool assertValueForKey(const  std::string &key, const std::string &value);
 
-  bool addNamespace(const std::string &entry, std::string &results);
+  /**
+   * @brief assertInputTypeConstraint given an Individual of an annotator assert constraints on the input values a given type can take
+   * @param individual ID of individual;
+   * @param values array of values that can be possible inputs
+   * @param type the type these values belong to
+   * @return true if successfull
+   */
+  bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string>& values, std::string& type);
+
+  /**
+   * @brief assertOutputTypeRestriction given an Individual of an annotator assert restrictions on the output values a given type can take
+   * @param individual
+   * @param values
+   * @param type
+   * @return
+   */
+  bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string>& values, std::string& type);
+
+
+  bool individualOf(const std::string &, std::vector<std::string> &);
+
 
   bool addNamespace(std::string &entry);
 
@@ -106,13 +117,6 @@ public:
 
   bool retractQueryLanguage();
 
-  /*brief
-   * create individuals for the anntators in the list
-   * in: map containing annotator names and capability information
-   * return true on succes:
-   * */
-  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &annotCap);
-
   bool retractAllAnnotators();
 
   bool retractQueryKvPs();
@@ -123,7 +127,7 @@ public:
    * in: annotator capabilities (I/O types and restrictions on them)
    * returns: true for succes
    * */
-  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> , std::string);
+//  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> , std::string);
 
   std::string buildPrologQueryFromKeys(const std::vector<std::string> &keys);
 

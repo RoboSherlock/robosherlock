@@ -43,11 +43,13 @@ void SWIPLInterface::setEngine()
   outError("ENGINE1: " << engine1_);
   if(current_engine == 0)
   {
-    if(engine1_ == 0)
-      engine1_ = PL_create_engine(&attributes_);
-    //      PL_engine_t  new_engine = PL_create_engine(&attributes_);
-    //      engine_pool_.insert(new_engine);
-    int result = PL_set_engine(engine1_, 0);
+    //    if(engine1_ == 0)
+    //    {
+    //      engine1_ = PL_create_engine(&attributes_);
+    PL_engine_t  new_engine = PL_create_engine(&attributes_);
+    engine_pool_.insert(new_engine);
+    int result = PL_set_engine(new_engine, 0);
+    //    }
     if(result != PL_ENGINE_SET)
     {
       if(result == PL_ENGINE_INVAL)
@@ -91,7 +93,7 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
     }
   }
   q.reset();
-  releaseEngine();
+  //  releaseEngine();
   return true;
 }
 
@@ -101,36 +103,37 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   outInfo("Planning Pipeline");
   setEngine();
   PlTermv av(2);
-  av[0] =  "child";
-  av[1] =  "parent";
+  addNamespace(child);
+  addNamespace(parent);
+  av[0] = child.c_str();
+  av[1] = parent.c_str();
   try
   {
     if(PlCall("owl_subclass_of", av))
     {
       outInfo(child << " is subclass of " << parent);
-      releaseEngine();
+      //      releaseEngine();
       return true;
     }
     else
     {
       outInfo(child << " is NOT subclass of " << parent);
-      releaseEngine();
+      //      releaseEngine();
       return false;
     }
   }
   catch(PlException &ex)
   {
     outError((char *)ex);
-    releaseEngine();
+    //    releaseEngine();
     return false;
   }
 }
 
 
-
 bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::string>> &query_terms)
 {
-  std::lock_guard<std::mutex> lock(lock_);
+  MEASURE_TIME;
   outInfo("Asserting query language specific knowledge");
   setEngine();
   try
@@ -139,7 +142,12 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
     {
       std::stringstream query;
       query << "assert(rs_query_reasoning:rs_query_predicate(" << term.first << "))";
-      if(PlCall(query.str().c_str()))
+      int res;
+      {
+        std::lock_guard<std::mutex> lock(lock_);
+        res = PlCall(query.str().c_str());
+      }
+      if(res)
       {
         outInfo("Asserted " << term.first << " as a query language term");
         for(auto type : term.second)
@@ -153,6 +161,11 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
             krType << token;
           }
           query.str("");
+          std::string krTypeClass;
+          KnowledgeEngine::addNamespace(krType.str(), krTypeClass);
+          query << "assert(rs_query_reasonging:rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
+          if(PlCall(query.str().c_str()))
+            outInfo("Assertion successfull: " << query.str());
         }
       }
     }
@@ -161,61 +174,9 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
   {
     outError(static_cast<char *>(ex));
   }
-
-
-  releaseEngine();
+  //  releaseEngine();
   return true;
 }
-
-bool SWIPLInterface::retractAllAnnotators()
-{
-  MEASURE_TIME;
-  std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Retracting all annotators");
-  setEngine();
-
-  PlTermv av(0), av2(2), av3(2);
-  av2[1] = "http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent";
-  av3[1] = "http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent";
-
-  {
-    MEASURE_TIME;
-    if(PlCall("assert_test_pipeline"))
-      //    if(q->next_solution())
-      outInfo("Success when asserting test pipeline");
-    //    q.reset();
-  }
-  try
-  {
-    std::shared_ptr<PlQuery> check(new PlQuery("owl_individual_of", av2));
-    {
-      MEASURE_TIME;
-      while(check->next_solution())
-      {
-        outInfo(static_cast<char *>(av2[0]));
-        std::stringstream query;
-        query << "rdf_db:rdf_retractall('" << static_cast<char *>(av2[0])
-              << "','http://www.w3.org/1999/02/22-rdf-syntax-ns#type',_)";
-        PlCall(query.str().c_str());
-        //        outInfo("retracted: " << query.str());
-      }
-    }
-    check.reset();
-    std::shared_ptr<PlQuery> check2(new PlQuery("owl_individual_of", av3));
-    int count = 0;
-    while(check2->next_solution() && count++)
-      outError(static_cast<char *>(av3[0]));
-    outError("COUNT AFTER RETRACTING:" << count);
-    check2.reset();
-  }
-  catch(PlException &ex)
-  {
-    outError(static_cast<char *>(ex));
-  }
-  releaseEngine();
-  return true;
-}
-
 
 bool SWIPLInterface::retractQueryLanguage()
 {
@@ -237,34 +198,97 @@ bool SWIPLInterface::retractQueryLanguage()
     outError(static_cast<char *>(ex));
   }
 
-  q.reset();
-  releaseEngine();
+//  q.reset();
+  //  releaseEngine();
+  return true;
+}
+
+
+bool SWIPLInterface::assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  outInfo("Asserting annotators to KB");
+  setEngine();
+//    releaseEngine();
+  for(auto a : caps)
+  {
+    std::string nameWithNS;
+//    if(addNamespace(a.first, nameWithNS)){
+
+//    }
+  }
+  return true;
+}
+
+bool SWIPLInterface::retractAllAnnotators()
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  outInfo("Retracting all annotators");
+  setEngine();
+
+  PlTermv av(2);
+  av[1] = "http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent";
+
+  try
+  {
+    std::shared_ptr<PlQuery> check(new PlQuery("owl_individual_of", av));
+    {
+      while(check->next_solution())
+      {
+        std::stringstream query;
+        query << "rdf_db:rdf_retractall('" << static_cast<char *>(av[0])
+              << "','http://www.w3.org/1999/02/22-rdf-syntax-ns#type',_)";
+        PlCall(query.str().c_str());
+      }
+    }
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+  }
+//  releaseEngine();
   return true;
 }
 
 bool SWIPLInterface::addNamespace(std::string &s)
 {
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Adding namespace to: " << s);
+//  outInfo("Adding namespace to: " << s);
   setEngine();
-
-  if(krNamespaces_.empty())
+  try
   {
-    std::stringstream getNamespacesQuery;
-    getNamespacesQuery << "rdf_current_ns(A,_)";
-
-    PlTermv av(2);
-//    PlQuery query ()
-//    for(auto bdg : bdgs)
-//    {
-//      std::string ns = bdg["A"].toString();
-//      if(std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
-//        krNamespaces_.push_back(ns);
-//    }
+    if(krNamespaces_.empty())
+    {
+      PlTermv av(2);
+      std::shared_ptr<PlQuery> q(new PlQuery("rdf_current_ns", av));
+      while(q->next_solution())
+      {
+        std::string ns = std::string(static_cast<char *>(av[1]));
+        if(std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
+          krNamespaces_.push_back(ns);
+      }
+//      q.reset();
+    }
+    for(auto ns : krNamespaces_)
+    {
+      std::stringstream prologQuery;
+      prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE << ",'http://www.w3.org/2002/07/owl#Class').";
+      if(PlCall(prologQuery.str().c_str()))
+      {
+        s = "'" + ns + s + "'";
+        outInfo(s);
+        return true;
+      }
+    }
   }
-
-  releaseEngine();
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+  }
+  //  releaseEngine();
   return true;
 }
+
+
 
 }//namespace rs

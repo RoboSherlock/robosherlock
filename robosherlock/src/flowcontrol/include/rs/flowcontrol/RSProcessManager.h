@@ -169,7 +169,7 @@ public:
 
   static void signalHandler(int signum)
   {
-    outWarn("Interrupt Signal"<< signum <<" recevied. Exiting!");
+    outWarn("Interrupt signal "<< signum <<" recevied. Exiting!");
     exit(signum);
   }
 

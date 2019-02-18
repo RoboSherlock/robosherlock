@@ -27,7 +27,7 @@ RSAnalysisEngine::RSAnalysisEngine() : useIdentityResolution_(false), query_("")
 
 std::map<std::string, rs::AnnotatorCapabilities > RSAnalysisEngine::getDelegateCapabilities()
 {
-  engine_->getDelegateAnnotatorCapabilities();
+  return engine_->getDelegateAnnotatorCapabilities();
 }
 
 RSAnalysisEngine::~RSAnalysisEngine()

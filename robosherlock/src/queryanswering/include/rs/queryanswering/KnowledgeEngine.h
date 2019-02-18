@@ -5,6 +5,8 @@
 #include <string>
 #include <map>
 #include <rs/utils/common.h>
+#include <mutex>
+#include <boost/algorithm/string.hpp>
 
 namespace rs
 {
@@ -64,10 +66,126 @@ public:
 
   virtual bool addNamespace(std::string &) = 0;
 
+  /**
+   * @brief addNamespace alternative implementation of adding a namespace
+   * @param kb entry entry to add namespace to
+   * @param results resulting namespaced kb entry
+   * @return true if success false if entry was not found under any of known namespaces
+   */
+  virtual bool addNamespace(const std::string &entry, std::string &results)
+  {
+    results = entry;
+    return addNamespace(results);
+  }
+
   virtual bool retractAllAnnotators() = 0;
 
-  virtual bool assertAnnotators(const std::map < std::string, rs::AnnotatorCapabilities> &caps) = 0;
+  virtual bool individualOf(const std::string &, std::vector<std::string> &) = 0;
 
+  virtual bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string>& values, std::string& type)=0;
+
+  virtual bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string>& values, std::string& type)=0;
+
+  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> annotatorData, std::string individualOfAnnotator)
+  {
+    std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
+    std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
+
+    if(!inputRestrictions.empty())
+    {
+      for(auto iR : inputRestrictions)
+      {
+        if(!iR.second.empty())
+        {
+          std::vector<std::string> inputTypeConstraintInKnowRob;
+          for(auto d : iR.second)
+          {
+            d[0] = std::toupper(d[0]);
+            if(!addNamespace(d))
+            {
+              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+              continue;
+            }
+            outInfo(d);
+            inputTypeConstraintInKnowRob.push_back(d);
+          }
+
+          std::string typeName = iR.first, typeClass;
+          std::vector<std::string> typeSplit;
+          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+          for(auto &t : typeSplit)
+          {
+            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+            t[0] = std::toupper(t[0]);
+            typeClass.append(t);
+          }
+          outInfo(typeName << ":" << typeClass);
+          assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
+        }
+      }
+    }
+
+    if(!outputDomains.empty())
+    {
+      for(auto oD : outputDomains)
+      {
+        if(!oD.second.empty())
+        {
+          std::vector<std::string> resultDomainInKnowRob;
+          for(auto d : oD.second)
+          {
+            d[0] = std::toupper(d[0]);
+            if(!addNamespace(d))
+            {
+              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+              continue;
+            }
+            outInfo(d);
+            resultDomainInKnowRob.push_back(d);
+          }
+
+          std::string typeName = oD.first, typeClass;
+          std::vector<std::string> typeSplit;
+          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+          for(auto &t : typeSplit)
+          {
+            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+            t[0] = std::toupper(t[0]);
+            typeClass.append(t);
+          }
+          outInfo(typeName << ":" << typeClass);
+
+          assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
+        }
+      }
+    }
+    return true;
+  }
+
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
+  {
+    outInfo("Asserting annotators to KB");
+    for(const std::pair<std::string, rs::AnnotatorCapabilities> &a : caps)
+    {
+      std::string nameWithNS;
+      if(addNamespace(a.first, nameWithNS))
+      {
+        std::vector<std::string> individualsOf;
+        individualOf(nameWithNS, individualsOf);
+        for(auto i : individualsOf)
+        {
+          outInfo(i);
+          assertAnnotatorMetaInfo(a, i);
+        }
+      }
+      else
+      {
+        outError("Annotator not modelled in KB:" << a.first);
+        continue;
+      }
+    }
+    return true;
+  }
 
 };
 

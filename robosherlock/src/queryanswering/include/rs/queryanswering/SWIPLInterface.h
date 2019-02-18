@@ -17,6 +17,8 @@
 #include <SWI-cpp.h>
 #include <SWI-Prolog.h>
 
+#define RDF_TYPE "'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'"
+
 namespace rs
 {
 // wrapper class for Prolog Engine based on SWI-C++
@@ -92,7 +94,7 @@ public:
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Checking validity of term");
     setEngine();
-    releaseEngine();
+    //    releaseEngine();
     return true;
   }
 
@@ -102,7 +104,7 @@ public:
     outInfo("Asserting value [" << value << "] for key [" << key << "]");
     setEngine();
     //    PlTermv av(1);
-    releaseEngine();
+    //    releaseEngine();
     return true;
   }
 
@@ -112,9 +114,22 @@ public:
     outInfo("Retracting all query KvPs");
     setEngine();
     PlTerm t;
-    releaseEngine();
+    //    releaseEngine();
     return true;
   }
+
+  bool individualOf(const std::string &class_name, std::vector<std::string> &individualsOF){
+
+  }
+
+  bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type){
+
+  }
+
+  bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string> &values, std::string &type){
+
+  }
+
 
   bool retractQueryLanguage();
 
@@ -124,14 +139,8 @@ public:
 
   bool addNamespace(std::string &s);
 
-  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outInfo("ASSERTING ANNOTATORS TO KB");
-    setEngine();
-    releaseEngine();
-    return true;
-  }
+  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps);
+
 };
 }  // namespace rs
 #endif  // SWIPLINTERFACE_H

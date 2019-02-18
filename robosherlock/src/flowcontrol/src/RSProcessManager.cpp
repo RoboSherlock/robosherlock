@@ -255,7 +255,6 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
     }
   }
 
-
   if(useIdentityResolution_ && std::find(newPipelineOrder.begin(), newPipelineOrder.end(), "ObjectIdentityResolution") == newPipelineOrder.end())
   {
     newPipelineOrder.push_back("ObjectIdentityResolution");
