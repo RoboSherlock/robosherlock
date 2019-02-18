@@ -1,7 +1,5 @@
 #include<rs/queryanswering/QueryInterface.h>
 
-#ifdef WITH_JSON_PROLOG
-
 bool QueryInterface::parseQuery(std::string query)
 {
   this->query_.Parse(query);
@@ -361,5 +359,3 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
 }
-
-#endif //WITH_JSON_PROLOG

@@ -1,13 +1,14 @@
 #include <rs/flowcontrol/RSProcessManager.h>
 
-RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, bool withQnA,
+RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, RSProcessManager::KnowledgeEngineType keType,
                                    ros::NodeHandle n, const std::string &savePath):
   engine_(), nh_(n), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
-  withQA_(withQnA), useVisualizer_(useVisualizer), useIdentityResolution_(false),
+  useVisualizer_(useVisualizer), useIdentityResolution_(false),
   visualizer_(savePath, !useVisualizer)
 {
 
+  signal(SIGINT, RSProcessManager::signalHandler);
   outInfo("Creating resource manager");
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
@@ -34,13 +35,31 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   image_pub_ = it_.advertise("result_image", 1, true);
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
-#ifdef WITH_JSON_PROLOG
-  if(withQA_)
+
+  if(keType == KnowledgeEngineType::JSON_PROLOG)
+  {
+    outInfo("Setting KnowRob (through json prolog interface) as the knowledge engine.");
+#if WITH_JSON_PROLOG
+    if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
+      knowledgeEngine_ = std::make_shared<rs::JsonPrologInterface>();
+    else
+      throw rs::Exception("Json prolog not reachable");
+#elif
+    throw rs::Exception("Json prolog was not found at compile time!");
+#endif
+  }
+  else if(keType == KnowledgeEngineType::SWI_PROLOG)
   {
     knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
-    queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
   }
-#endif
+  else
+  {
+    outError("This can not be!");
+    throw rs::Exception("Wrong initialization param for knowledge engine");
+  }
+
+  queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+  queryInterface = new QueryInterface(knowledgeEngine_);
 }
 
 RSProcessManager::~RSProcessManager()
@@ -53,12 +72,8 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 {
   outInfo("initializing");
 
-#ifdef WITH_JSON_PROLOG
-  if(withQA_)
-    queryInterface = new QueryInterface(knowledgeEngine_);
-#endif
-  this->configFile_ = configFile;
 
+  this->configFile_ = configFile;
   try
   {
     cv::FileStorage fs(cv::String(configFile), cv::FileStorage::READ);
@@ -85,17 +100,9 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
 
   engine_.init(engineFile, parallel, pervasive , lowLvlPipeline_);
 
-#ifdef WITH_JSON_PROLOG
-  //TODO: check if json or internal
-//  if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(2.0)))
-//  {
-    knowledgeEngine_->retractAllAnnotators();
-    knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
-//  }
-//  else
-//    outWarn("Json Prolog is not running! Query answering will not be possible");
 
-#endif
+  knowledgeEngine_->retractAllAnnotators();
+  knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
   parallel_ = parallel;
 
   visualizer_.start();
@@ -111,6 +118,7 @@ void RSProcessManager::run()
 {
   for(; ros::ok();)
   {
+    signal(SIGINT, RSProcessManager::signalHandler);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
       if(waitForServiceCall_)
@@ -257,9 +265,7 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
   std::vector<std::string> objDescriptions;
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
-
     visualizer_.setActiveAnnotators(newPipelineOrder);
-
     engine_.setNextPipeline(newPipelineOrder);
     engine_.applyNextPipeline();
     engine_.process(objDescriptions, "");
@@ -271,8 +277,6 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
 
   return true;
 }
-
-#ifdef WITH_JSON_PROLOG
 
 bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
     robosherlock_msgs::RSQueryService::Response &res)
@@ -351,4 +355,3 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
   }
   return false;
 }
-#endif

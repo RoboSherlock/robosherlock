@@ -13,9 +13,9 @@
 
 #include <mongo/client/dbclient.h>
 
-#ifdef WITH_JSON_PROLOG
 #include <rs/queryanswering/QueryInterface.h>
-#endif
+#include <rs/queryanswering/SWIPLInterface.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
 
 #include <image_transport/image_transport.h>
 #include <cv_bridge/cv_bridge.h>
@@ -32,10 +32,12 @@ public:
 
   RSAnalysisEngine engine_;
 
-#ifdef WITH_JSON_PROLOG
+  enum class KnowledgeEngineType {JSON_PROLOG, SWI_PROLOG};
+
+
+  KnowledgeEngineType ke_type_;
   QueryInterface *queryInterface;
   std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
-#endif
 
   mongo::client::GlobalInstance instance;
 
@@ -49,7 +51,6 @@ public:
 
 
   bool waitForServiceCall_;
-  bool withQA_;
   bool useVisualizer_;
   bool useIdentityResolution_;
   bool parallel_;
@@ -66,12 +67,12 @@ public:
    * @brief RSProcessManager::RSProcessManager constructror: the one and only...for now
    * @param useVisualizer flag for starting visualization window; If false it runs in headless mode, advertising partial results on a topic
    * @param waitForServiceCall run engine in synchroniouse mode, waiting for queries to arrive
-   * @param run with query answering enabled
+   * @param keType set the knowledge Engine you would like to use. options are knowrob (JSON_PROLOG) or SWI_PROLOG
    * @param n ros NodeHandle
    * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
-   *
    */
-  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, bool withQnA,
+  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
+                   RSProcessManager::KnowledgeEngineType keType,
                    ros::NodeHandle n, const std::string &savePath);
 
   /**
@@ -120,7 +121,6 @@ public:
    */
   bool executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
                                robosherlock_msgs::ExecutePipeline::Response &res);
-#ifdef WITH_JSON_PROLOG
 
   /**
    * @brief RSProcessManager::jsonQueryCallback the callback function
@@ -138,7 +138,6 @@ public:
    * @return
    */
   bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
-#endif
 
 
   /**
@@ -166,6 +165,12 @@ public:
   inline std::string getEngineName()
   {
     return engine_.getCurrentAEName();
+  }
+
+  static void signalHandler(int signum)
+  {
+    outWarn("Interrupt Signal"<< signum <<" recevied. Exiting!");
+    exit(signum);
   }
 
 };

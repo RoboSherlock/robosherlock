@@ -1,32 +1,27 @@
 #ifndef __QUERY_INTERFACE_H__
 #define __QUERY_INTERFACE_H__
 
-
-#ifdef WITH_JSON_PROLOG
-
-//json
+//rapidjson
 #include <rapidjson/document.h>
 #include <rapidjson/prettywriter.h>
 #include <rapidjson/pointer.h>
 
+//STL
 #include <vector>
 
+//RS
 #include <rs/utils/output.h>
 #include <rs/utils/exception.h>
-#include <rs/queryanswering/JsonPrologInterface.h>
-
-#undef PL_A1 //without this there is a conflicting declaration between SWI-cpp and Eigen;
-//TODO can this undef have unwanted consequences?
 #include <rs/queryanswering/ObjectDesignatorFactory.h>
-#include <rs/queryanswering/SWIPLInterface.h>
-
+#include <rs/queryanswering/KnowledgeEngine.h>
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <boost/algorithm/string.hpp>
 
-//RapidJson
-
+// ROS
+#include <ros/package.h>
 
 class QueryInterface
 {
@@ -53,7 +48,6 @@ public:
   {
     knowledgeEngine_ = ke;
     query_ = rapidjson::Document(rapidjson::kObjectType);
-//    knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
     getQueryConfig();
   }
 
@@ -82,7 +76,5 @@ public:
   bool extractQueryKeysFromDesignator(rapidjson::Value &desig, std::vector<std::string> &keys);
 
 };
-
-#endif // WITH_JSON_PROLOG
 
 #endif // __QUERYINTERFACE_H__

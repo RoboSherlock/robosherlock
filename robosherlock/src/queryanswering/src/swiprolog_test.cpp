@@ -33,7 +33,6 @@ public:
   ROSInterface(): spinner(4)
   {
     plEngine_ = std::make_shared<rs::SWIPLInterface>();
-    plEngine_->simple_query();
     nh_ = new ros::NodeHandle("ROS_SWIPL");
     srv1_ = nh_->advertiseService("trigger1", &ROSInterface::trigger_service_cb1_, this);
     srv2_ = nh_->advertiseService("trigger2", &ROSInterface::trigger_service_cb2_, this);

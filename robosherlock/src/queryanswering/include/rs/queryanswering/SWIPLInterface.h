@@ -3,7 +3,7 @@
 
 // robosherlock
 #include <rs/utils/output.h>
-
+#include <rs/utils/time.h>
 // ROS
 #include <ros/package.h>
 
@@ -23,10 +23,13 @@ namespace rs
 class SWIPLInterface : public KnowledgeEngine
 {
   std::mutex lock_;
-  PL_engine_t engine1_, engine2_;
+  PL_engine_t engine1_;
   PL_thread_attr_t attributes_;
 
   std::set<PL_engine_t> engine_pool_;
+
+  std::vector<std::string> krNamespaces_;
+
 
   //TODO: we probably need an Engine and a Query class
   //  class Engine
@@ -57,51 +60,28 @@ public:
    * @brief setEnginge for multi-threading SWI-prolog needs to attach an engine to each thread; call this when executing
    * from a thread; this is a hack for now; this shoudl happen inside each query;
    */
-  void setEngine()
+  void setEngine();
+
+  /**
+   * @brief for future reference: we could release the engine at the end of each query;
+   * this way we only need a finita amount of engines, otherwise we get as many
+   * engines as there are threads calling queries;
+   *
+   * An alternative solution to this is to just create as many engines as there are threads calling this
+   * As a ROS node there will not be more queries than threads that spin;
+   *
+   * NOTE: releaseing an Engine before the destrutcion of a PlQuery object can cause nasty segfaults so
+   * treat with care and we should wrap around this;
+   */
+  void releaseEngine()
   {
-    PL_engine_t current_engine;
-    outWarn("Current Engine: " << current_engine);
-    int result = PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
-    outError("PL_CURRENT_ENGINE: " << current_engine);
-    if(current_engine == 0)
-    {
-      PL_engine_t newEngine = PL_create_engine(&attributes_);
-      engine_pool_.insert(newEngine);
-      PL_set_engine(newEngine, 0);
-    }
-    outWarn("Engine pool size: " << engine_pool_.size());
-    //    outError("ENGINE1_: " << engine1_);
-    //    if(current_engine == 0 || (engine1_ != current_engine))
-    //    {
-    //      engine1_ = PL_create_engine(&attributes_);
-    //      result = PL_set_engine(engine1_, &current_engine);
-    //      if(result != PL_ENGINE_SET)
-    //      {
-    //        if(result == PL_ENGINE_INVAL)
-    //          throw std::runtime_error("Engine is invalid.");
-    //        else if(result == PL_ENGINE_INUSE)
-    //          throw std::runtime_error("Engine is invalid.");
-    //        else
-    //          throw std::runtime_error("Unknown Response when setting PL_engine");
-    //      }
-    //      else
-    //      {
-    //        outError("Set: " << engine1_ << " as active engine");
-    //      }
-    //    }
-
+    PL_set_engine(0, 0);
   }
 
-  //for future reference: we could release the engine at the end of each query;
-  // this way we only need a finita amount of engines, otherwise we get as many
-  //engines as there are threads calling queries;
-  void releaseEngine(){
-//    PL_set_engine(0,0);
-  }
-
-  /*
-   * in: vector of keys extracted from query
-   * out: vector of annotator names forming the pipeline
+  /**
+   * @brief
+   * @param keys vector of keys extracted from query
+   * @param pipeline vector of annotator names forming the pipeline
    */
   bool planPipelineQuery(const std::vector<std::string> &keys, std::vector<std::string> &pipeline);
 
@@ -121,7 +101,7 @@ public:
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("Asserting value [" << value << "] for key [" << key << "]");
     setEngine();
-    PlTermv av(1);
+    //    PlTermv av(1);
     releaseEngine();
     return true;
   }
@@ -136,83 +116,21 @@ public:
     return true;
   }
 
-  bool retractQueryLanguage()
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Retracting Query language");
-    setEngine();
-    releaseEngine();
-    return true;
-  }
+  bool retractQueryLanguage();
 
-  bool retractAllAnnotators()
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Retracting all annotators");
-    setEngine();
-    return true;
-  }
+  bool retractAllAnnotators();
 
-  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &)
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Asserting query language specific knowledge");
-    setEngine();
-    PlTermv av(0), av2(1);
-    try
-    {
-      PlQuery q("assert_query_lang", av);
-      q.next_solution();
-      PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while(q2.next_solution())
-      {
-        std::cerr << static_cast<char *>(av2[0]) << std::endl;
-      }
-    }
-    catch(PlException &ex)
-    {
-      std::cerr << (char *)ex << std::endl;
-    }
-    return true;
-  }
+  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &);
 
-  bool addNamespace(std::string &s)
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Adding namespace to: " << s);
-    setEngine();
-    return true;
-  }
+  bool addNamespace(std::string &s);
 
   bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
   {
     std::lock_guard<std::mutex> lock(lock_);
     outInfo("ASSERTING ANNOTATORS TO KB");
     setEngine();
+    releaseEngine();
     return true;
-  }
-
-  void simple_query()
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    setEngine();
-
-    PlTermv av(0);
-    PlTermv av2(1);
-    try
-    {
-      PlQuery q("assert_query_lang", av);
-      q.next_solution();
-      PlQuery q2("rs_query_reasoning", "rs_query_predicate", av2);
-      while(q2.next_solution())
-      {
-        std::cerr << static_cast<char *>(av2[0]) << std::endl;
-      }
-    }
-    catch(PlException &ex)
-    {
-      std::cerr << (char *)ex << std::endl;
-    }
   }
 };
 }  // namespace rs

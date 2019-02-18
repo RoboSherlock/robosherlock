@@ -1,6 +1,6 @@
 #include <rs/queryanswering/JsonPrologInterface.h>
-#ifdef WITH_JSON_PROLOG
 
+#ifdef WITH_JSON_PROLOG
 
 namespace rs
 {
