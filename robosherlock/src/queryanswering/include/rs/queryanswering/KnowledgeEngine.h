@@ -120,6 +120,7 @@ public:
             typeClass.append(t);
           }
           outInfo(typeName << ":" << typeClass);
+          addNamespace(typeClass);
           assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
         }
       }
@@ -154,7 +155,7 @@ public:
             typeClass.append(t);
           }
           outInfo(typeName << ":" << typeClass);
-
+          addNamespace(typeClass);
           assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
         }
       }

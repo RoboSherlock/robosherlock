@@ -92,7 +92,7 @@ public:
   bool checkValidQueryTerm(const std::string &term)
   {
     std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Checking validity of term");
+    outError("[Missing implementation] Checking validity of term");
     setEngine();
     //    releaseEngine();
     return true;
@@ -101,7 +101,7 @@ public:
   bool assertValueForKey(const std::string &key, const std::string &value)
   {
     std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Asserting value [" << value << "] for key [" << key << "]");
+    outError("[MIssing Implementation ]Asserting value [" << value << "] for key [" << key << "]");
     setEngine();
     //    PlTermv av(1);
     //    releaseEngine();
@@ -111,25 +111,18 @@ public:
   bool retractQueryKvPs()
   {
     std::lock_guard<std::mutex> lock(lock_);
-    outInfo("Retracting all query KvPs");
+    outError("[Missing Implementation] Retracting all query KvPs");
     setEngine();
     PlTerm t;
     //    releaseEngine();
     return true;
   }
 
-  bool individualOf(const std::string &class_name, std::vector<std::string> &individualsOF){
+  bool individualOf(const std::string &class_name, std::vector<std::string> &individualsOF);
 
-  }
+  bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type);
 
-  bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type){
-
-  }
-
-  bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string> &values, std::string &type){
-
-  }
-
+  bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string> &values, std::string &type);
 
   bool retractQueryLanguage();
 

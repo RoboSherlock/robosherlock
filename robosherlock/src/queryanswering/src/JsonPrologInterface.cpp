@@ -233,7 +233,7 @@ bool JsonPrologInterface::assertInputTypeConstraint(const std::string &individua
     if(std::next(it) == values.end()) separator = "";
     query << *it << separator;
   }
-  query << "], rs_components:'" << type << "').";
+  query << "], " << type << ").";
 
   outInfo("Query: " << query.str());
   json_prolog::PrologQueryProxy bdgs = queryWithLock(query.str());
@@ -253,7 +253,7 @@ bool JsonPrologInterface::assertOutputTypeRestriction(const std::string &individ
       if(std::next(it) == values.end()) separator = "";
       query << *it << separator;
     }
-    query << "], rs_components:'" << type << "').";
+    query << "], " << type << ").";
 
     outInfo("Query: " << query.str());
     json_prolog::Prolog pl;
@@ -276,8 +276,12 @@ bool JsonPrologInterface::addNamespace(std::string &entry)
     for(auto bdg : bdgs)
     {
       std::string ns = bdg["A"].toString();
+      ns = ns.substr(1,ns.size()-2);
       if(std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
-        krNamespaces_.push_back(ns);
+        {
+          outError(ns);
+          krNamespaces_.push_back(ns);
+      }
     }
   }
   for(auto ns : krNamespaces_)

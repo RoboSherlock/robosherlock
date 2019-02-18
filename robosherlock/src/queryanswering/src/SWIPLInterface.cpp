@@ -38,9 +38,9 @@ SWIPLInterface::SWIPLInterface(): engine1_(0)
 void SWIPLInterface::setEngine()
 {
   PL_engine_t current_engine;
-  int result = PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
-  outError("PL_CURRENT_ENGINE: " << current_engine);
-  outError("ENGINE1: " << engine1_);
+  PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
+  outDebug("PL_CURRENT_ENGINE: " << current_engine);
+  outDebug("ENGINE1: " << engine1_);
   if(current_engine == 0)
   {
     //    if(engine1_ == 0)
@@ -162,7 +162,11 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
           }
           query.str("");
           std::string krTypeClass;
-          KnowledgeEngine::addNamespace(krType.str(), krTypeClass);
+          if(!KnowledgeEngine::addNamespace(krType.str(), krTypeClass))
+          {
+            outWarn(krType.str() << "Was not found in ontology");
+            continue;
+          }
           query << "assert(rs_query_reasonging:rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
           if(PlCall(query.str().c_str()))
             outInfo("Assertion successfull: " << query.str());
@@ -177,6 +181,61 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
   //  releaseEngine();
   return true;
 }
+
+bool SWIPLInterface::assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string> &values, std::string &type)
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+
+  std::stringstream query;
+  query << "rs_query_reasoning:set_annotator_output_type_domain(" << individual << ",[";
+  std::string separator = ",";
+  for(auto it = values.begin(); it != values.end(); ++it)
+  {
+    if(std::next(it) == values.end()) separator = "";
+    query << *it << separator;
+  }
+  query << "], " << type << ").";
+  outInfo("Query: " << query.str());
+  try
+  {
+    PlCall(query.str().c_str());
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+    return false;
+  }
+  return true;
+}
+
+bool SWIPLInterface::assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type)
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+
+  std::stringstream query;
+  query << "rs_query_reasoning:set_annotator_input_type_constraint(" << individual << ",[";
+  std::string separator = ",";
+  for(auto it = values.begin(); it != values.end(); ++it)
+  {
+    if(std::next(it) == values.end()) separator = "";
+    query << *it << separator;
+  }
+  query << "], " << type << ").";
+  outInfo("Query: " << query.str());
+  try
+  {
+    PlCall(query.str().c_str());
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+    return false;
+  }
+  return true;
+}
+
 
 bool SWIPLInterface::retractQueryLanguage()
 {
@@ -198,27 +257,36 @@ bool SWIPLInterface::retractQueryLanguage()
     outError(static_cast<char *>(ex));
   }
 
-//  q.reset();
+  //  q.reset();
   //  releaseEngine();
   return true;
 }
 
 
-bool SWIPLInterface::assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
+bool SWIPLInterface::individualOf(const std::string &class_name, std::vector<std::string> &individualsOF)
 {
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Asserting annotators to KB");
   setEngine();
-//    releaseEngine();
-  for(auto a : caps)
-  {
-    std::string nameWithNS;
-//    if(addNamespace(a.first, nameWithNS)){
+  PlTermv av(2);
+  av[0] = class_name.substr(1,class_name.size()-2).c_str();
 
-//    }
+  try
+  {
+    std::shared_ptr<PlQuery> query(new PlQuery("owl_instance_from_class", av));
+    while(query->next_solution())
+    {
+      std::string indiv = "'"+ std::string(static_cast<char*>(av[1])) + "'";
+      individualsOF.push_back(indiv);
+    }
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+    return false;
   }
   return true;
 }
+
 
 bool SWIPLInterface::retractAllAnnotators()
 {
@@ -232,28 +300,27 @@ bool SWIPLInterface::retractAllAnnotators()
   try
   {
     std::shared_ptr<PlQuery> check(new PlQuery("owl_individual_of", av));
+    while(check->next_solution())
     {
-      while(check->next_solution())
-      {
-        std::stringstream query;
-        query << "rdf_db:rdf_retractall('" << static_cast<char *>(av[0])
-              << "','http://www.w3.org/1999/02/22-rdf-syntax-ns#type',_)";
-        PlCall(query.str().c_str());
-      }
+      std::stringstream query;
+      query << "rdf_db:rdf_retractall('" << static_cast<char *>(av[0])
+            << "','http://www.w3.org/1999/02/22-rdf-syntax-ns#type',_)";
+      PlCall(query.str().c_str());
     }
   }
   catch(PlException &ex)
   {
     outError(static_cast<char *>(ex));
+    return false;
   }
-//  releaseEngine();
+  //  releaseEngine();
   return true;
 }
 
 bool SWIPLInterface::addNamespace(std::string &s)
 {
   std::lock_guard<std::mutex> lock(lock_);
-//  outInfo("Adding namespace to: " << s);
+  //  outInfo("Adding namespace to: " << s);
   setEngine();
   try
   {
@@ -267,7 +334,7 @@ bool SWIPLInterface::addNamespace(std::string &s)
         if(std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
           krNamespaces_.push_back(ns);
       }
-//      q.reset();
+      //      q.reset();
     }
     for(auto ns : krNamespaces_)
     {
@@ -276,7 +343,6 @@ bool SWIPLInterface::addNamespace(std::string &s)
       if(PlCall(prologQuery.str().c_str()))
       {
         s = "'" + ns + s + "'";
-        outInfo(s);
         return true;
       }
     }
@@ -284,9 +350,10 @@ bool SWIPLInterface::addNamespace(std::string &s)
   catch(PlException &ex)
   {
     outError(static_cast<char *>(ex));
+    return false;
   }
   //  releaseEngine();
-  return true;
+  return false;
 }
 
 
