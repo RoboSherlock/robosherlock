@@ -44,7 +44,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
       knowledgeEngine_ = std::make_shared<rs::JsonPrologInterface>();
     else
       throw rs::Exception("Json prolog not reachable");
-#elif
+#else
     throw rs::Exception("Json prolog was not found at compile time!");
 #endif
   }
@@ -71,7 +71,7 @@ RSProcessManager::~RSProcessManager()
 void RSProcessManager::init(std::string &engineFile, std::string configFile, bool pervasive, bool parallel)
 {
   outInfo("initializing");
-
+  signal(SIGINT, RSProcessManager::signalHandler);
 
   this->configFile_ = configFile;
   try
@@ -99,7 +99,6 @@ void RSProcessManager::init(std::string &engineFile, std::string configFile, boo
   }
 
   engine_.init(engineFile, parallel, pervasive , lowLvlPipeline_);
-
 
   knowledgeEngine_->retractAllAnnotators();
   knowledgeEngine_->assertAnnotators(engine_.getDelegateCapabilities());
