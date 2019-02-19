@@ -33,9 +33,10 @@ public:
   ROSInterface(): spinner(4)
   {
     plEngine_ = std::make_shared<rs::SWIPLInterface>();
-    nh_ = new ros::NodeHandle("ROS_SWIPL");
+    nh_ = new ros::NodeHandle("test_swi");
     srv1_ = nh_->advertiseService("trigger1", &ROSInterface::trigger_service_cb1_, this);
     srv2_ = nh_->advertiseService("trigger2", &ROSInterface::trigger_service_cb2_, this);
+    plEngine_->assertTestPipelnie();
     spinner.start();
   }
   ~ROSInterface()
@@ -46,7 +47,10 @@ public:
   bool trigger_service_cb1_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
   {
     std::lock_guard<std::mutex> lock(mutex);
-    plEngine_->assertValueForKey("key", "value");
+    std::vector<std::string> pipeline;
+    std::vector<std::string> keywords = {"shape"};
+    plEngine_->planPipelineQuery(keywords,pipeline);
+    std::for_each(pipeline.begin(), pipeline.end(), [](std::string &p){outInfo(p);});
     res.success = true;
     res.message = "Trigger successfull";
     return true;

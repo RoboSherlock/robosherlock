@@ -89,34 +89,11 @@ public:
 
   bool q_subClassOf(std::string child, std::string parent);
 
-  bool checkValidQueryTerm(const std::string &term)
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outError("[Missing implementation] Checking validity of term");
-    setEngine();
-    //    releaseEngine();
-    return true;
-  }
+  bool checkValidQueryTerm(const std::string &term);
 
-  bool assertValueForKey(const std::string &key, const std::string &value)
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outError("[MIssing Implementation ]Asserting value [" << value << "] for key [" << key << "]");
-    setEngine();
-    //    PlTermv av(1);
-    //    releaseEngine();
-    return true;
-  }
+  bool assertValueForKey(const std::string &key, const std::string &value);
 
-  bool retractQueryKvPs()
-  {
-    std::lock_guard<std::mutex> lock(lock_);
-    outError("[Missing Implementation] Retracting all query KvPs");
-    setEngine();
-    PlTerm t;
-    //    releaseEngine();
-    return true;
-  }
+  bool retractQueryKvPs();
 
   bool individualOf(const std::string &class_name, std::vector<std::string> &individualsOF);
 
@@ -133,6 +110,24 @@ public:
   bool addNamespace(std::string &s);
 
   bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps);
+
+  bool assertTestPipelnie()
+  {
+    setEngine();
+    try
+    {
+      if(!PlCall("rs_query_reasoning:assert_query_lang"))
+        return false;
+      if(!PlCall("rs_query_reasoning:assert_test_pipeline"))
+        return false;
+      outInfo("Asserted query lang and pipeline for testing");
+    }
+    catch(PlException &ex)
+    {
+      outError(static_cast<char *>(ex));
+    }
+    return true;
+  }
 
 };
 }  // namespace rs

@@ -76,35 +76,44 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
   for(auto key : keys)
     l.append(key.c_str());
   l.close();
-
-  //interesting; if I
-  std::shared_ptr<PlQuery> q(new PlQuery("pipeline_from_predicates_with_domain_constraint", av));
-  std::string prefix("http://knowrob.org/kb/rs_components.owl#");
-  while(q->next_solution())
+  try
   {
-    //      std::cerr<<(char*)av[1]<<std::endl;
-    PlTail res(av[1]);//result is a list
-    PlTerm e;//elements of that list
-    while(res.next(e))
+    std::shared_ptr<PlQuery> q(new PlQuery("pipeline_from_predicates_with_domain_constraint", av));
+    std::string prefix("http://knowrob.org/kb/rs_components.owl#");
+    while(q->next_solution())
     {
-      std::string element((char *)e);
-      element.erase(0, prefix.length());
-      pipeline.push_back(element);
+      //      std::cerr<<(char*)av[1]<<std::endl;
+      PlTail res(av[1]);//result is a list
+      PlTerm e;//elements of that list
+      while(res.next(e))
+      {
+        std::string element((char *)e);
+        element.erase(0, prefix.length());
+        pipeline.push_back(element);
+      }
     }
+    q.reset();
   }
-  q.reset();
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+  }
+  //interesting; if I
+
   //  releaseEngine();
   return true;
 }
 
 bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 {
+  addNamespace(child);
+  addNamespace(parent);
   std::lock_guard<std::mutex> lock(lock_);
   outInfo("Planning Pipeline");
   setEngine();
   PlTermv av(2);
-  addNamespace(child);
-  addNamespace(parent);
+
+
   av[0] = child.c_str();
   av[1] = parent.c_str();
   try
@@ -167,7 +176,7 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
             outWarn(krType.str() << "Was not found in ontology");
             continue;
           }
-          query << "assert(rs_query_reasonging:rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
+          query << "assert(rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
           if(PlCall(query.str().c_str()))
             outInfo("Assertion successfull: " << query.str());
         }
@@ -237,20 +246,47 @@ bool SWIPLInterface::assertInputTypeConstraint(const std::string &individual, co
 }
 
 
+bool SWIPLInterface::assertValueForKey(const std::string &key, const std::string &value)
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+
+  std::stringstream assertionQuery;
+  assertionQuery << "assert(requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
+  outInfo("Calling query: " << assertionQuery.str());
+  int res;
+  try
+  {
+    res = PlCall(assertionQuery.str().c_str());
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char * >(ex));
+    return false;
+  }
+  if(res)
+  {
+    outInfo("Asserted: " << assertionQuery.str());
+    return true;
+  }
+  else
+  {
+    outError("Asserttion: " << assertionQuery.str() << " failed!");
+    return false;
+  }
+}
+
+
 bool SWIPLInterface::retractQueryLanguage()
 {
   std::lock_guard<std::mutex> lock(lock_);
   outInfo("Retracting Query language");
   setEngine();
-  PlTermv av(0);
-
-  std::shared_ptr<PlQuery> q(new PlQuery("assert_query_lang", av));
-  q->next_solution();
 
   try
   {
-    PlCall("retractall(rs_query_reasoning:rs_type_for_predicate(_,_))");
-    PlCall("retractall(rs_query_reasoning:rs_query_predicate(_))");
+    PlCall("retractall(rs_type_for_predicate(_,_))");
+    PlCall("retractall(rs_query_predicate(_))");
   }
   catch(PlException &ex)
   {
@@ -263,19 +299,60 @@ bool SWIPLInterface::retractQueryLanguage()
 }
 
 
+bool SWIPLInterface::retractQueryKvPs()
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  try
+  {
+    PlCall("retract(requestedValueForKey(_,_))");
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+    return false;
+  }
+  //    releaseEngine();
+  return true;
+}
+
+
+bool SWIPLInterface::checkValidQueryTerm(const std::string &term)
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  std::stringstream checkTermQuery;
+  checkTermQuery << "rs_query_reasoning:rs_query_predicate(" << term << ")";
+  int res;
+  try
+  {
+    res = PlCall(checkTermQuery.str().c_str());
+  }
+  catch(PlException &ex)
+  {
+    outError(static_cast<char *>(ex));
+    return false;
+  }
+  if(res)
+    return true;
+  else
+    return false;
+}
+
+
 bool SWIPLInterface::individualOf(const std::string &class_name, std::vector<std::string> &individualsOF)
 {
   std::lock_guard<std::mutex> lock(lock_);
   setEngine();
   PlTermv av(2);
-  av[0] = class_name.substr(1,class_name.size()-2).c_str();
+  av[0] = class_name.substr(1, class_name.size() - 2).c_str();
 
   try
   {
     std::shared_ptr<PlQuery> query(new PlQuery("owl_instance_from_class", av));
     while(query->next_solution())
     {
-      std::string indiv = "'"+ std::string(static_cast<char*>(av[1])) + "'";
+      std::string indiv = "'" + std::string(static_cast<char *>(av[1])) + "'";
       individualsOF.push_back(indiv);
     }
   }

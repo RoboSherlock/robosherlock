@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
   }
   else
   {
-    outError("Unsupported Knowledge Engine type! Exiting.");
+    outError("Unsupported Knowledge Engine type! Valid values are: [SWI_PROLOG, JSON_PROLOG]. Exiting.");
     return 0;
   }
 
