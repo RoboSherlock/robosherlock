@@ -181,16 +181,42 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
   //res.push_back("StorageWriter");
 
 
+/**
   res.push_back("ImagePreprocessor");
   res.push_back("KCFTrackingAnnotator");
 
-  /**
+
+  // Old PCL pipeline, but it shouldn't need segmented clusters
   res.push_back("ImagePreprocessor");
   res.push_back("PlaneAnnotator");
   res.push_back("PointCloudClusterExtractor");
   res.push_back("PointCloudDownsampler");
   res.push_back("PCLParticleTrackingAnnotator");
-   **/
+  **/
+
+
+  res.push_back("ImagePreprocessor");
+  res.push_back("PointCloudFilter");
+  res.push_back("PointCloudDownsampler");
+  res.push_back("PCLParticleTrackingAnnotator");
+
+
+  // Just for testing/evaluation purposes
+  /**
+  res.push_back("ImagePreprocessor");
+  res.push_back("RegionFilter");
+  res.push_back("PlaneAnnotator");
+  res.push_back("PointCloudClusterExtractor");
+  res.push_back("ClusterMerger");
+  res.push_back("ImageSegmentationAnnotator");
+  res.push_back("Cluster3DGeometryAnnotator");
+  res.push_back("ClusterColorHistogramCalculator");
+  res.push_back("NormalEstimator");
+  res.push_back("PrimitiveShapeAnnotator");
+  res.push_back("ClosestHypothesisFilter");
+  **/
+
+
 
 
   outInfo("Planned tracking pipeline: ");
