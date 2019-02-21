@@ -10,6 +10,12 @@ target_link_libraries(rs_queryanswering
         ${SWIPL_LIBRARIES}
         ${catkin_LIBRARIES})
 
+add_library(rs_prologQueries SHARED src/PrologCPPQueries.cpp)
+target_link_libraries(rs_prologQueries ${robosherlock_LIBRARIES} 
+    ${SWIPL_LIBRARIES} ${catkin_LIBRARIES})
+add_dependencies(rs_prologQueries ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+
 add_executable(swi_test src/swiprolog_test.cpp src/SWIPLInterface.cpp)
 target_link_libraries(swi_test
         ${SWIPL_LIBRARIES}

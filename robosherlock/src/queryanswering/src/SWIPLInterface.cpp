@@ -10,7 +10,7 @@ SWIPLInterface::SWIPLInterface()
   int argc = 0;
   argv[argc++] = "robosherlock";
   argv[argc++] = "-f";
-  std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init.pl";
+  std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init_rs_internal.pl";
   argv[argc] = new char[rosPrologInit.size() + 1];
   std::copy(rosPrologInit.begin(), rosPrologInit.end(), argv[argc]);
   argv[argc++][rosPrologInit.size()] = '\0';
