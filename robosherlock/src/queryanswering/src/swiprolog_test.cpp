@@ -12,10 +12,16 @@
 #include <mutex>
 #include <algorithm>
 
-#include <pcl/point_types.h>
 #include <rs/queryanswering/SWIPLInterface.h>
+#include <rs/queryanswering/ObjectDesignatorFactory.h>
+#include <pcl/point_types.h>
+
 #include <iostream>
 
+#include <pcl/sample_consensus/sac.h>
+#include <pcl/sample_consensus/ransac.h>
+#include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/io/pcd_io.h>
 
 class ROSInterface
 {
@@ -30,6 +36,7 @@ public:
   ros::AsyncSpinner spinner;
   std::mutex mutex;
 
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_;
   ROSInterface(): spinner(4)
   {
     plEngine_ = std::make_shared<rs::SWIPLInterface>();
@@ -37,6 +44,8 @@ public:
     srv1_ = nh_->advertiseService("trigger1", &ROSInterface::trigger_service_cb1_, this);
     srv2_ = nh_->advertiseService("trigger2", &ROSInterface::trigger_service_cb2_, this);
     plEngine_->assertTestPipelnie();
+    cloud_ = boost::make_shared<pcl::PointCloud<pcl::PointXYZRGBA>>();
+    pcl::io::loadPCDFile("/home/ferenc/work/rs_ws/src/robosherlock/robosherlock/clud_filtered_no_nan.pcd",*cloud_);
     spinner.start();
   }
   ~ROSInterface()
@@ -49,21 +58,49 @@ public:
     std::lock_guard<std::mutex> lock(mutex);
     std::vector<std::string> pipeline;
     std::vector<std::string> keywords = {"shape"};
-    plEngine_->planPipelineQuery(keywords,pipeline);
-    std::for_each(pipeline.begin(), pipeline.end(), [](std::string &p){outInfo(p);});
+    plEngine_->q_subClassOf("KoellnMuesliKnusperHonigNuss","Drink");
+
     res.success = true;
     res.message = "Trigger successfull";
     return true;
   }
 
+
   bool trigger_service_cb2_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
   {
-    std::lock_guard<std::mutex> lock(mutex);
-    plEngine_->retractQueryLanguage();
-    res.success = true;
-    res.message = "Trigger successfull";
+    plEngine_->assertTestPipelnie();
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_filtered_no_nan(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::SACSegmentation<pcl::PointXYZRGBA> plane_segmentation;
+
+    pcl::PointIndicesPtr plane_inliers(new pcl::PointIndices);
+    pcl::ModelCoefficientsPtr plane_coefficients(new pcl::ModelCoefficients);
+    plane_segmentation.setOptimizeCoefficients(true);
+    plane_segmentation.setModelType(pcl::SACMODEL_PLANE);
+    plane_segmentation.setMethodType(pcl::SAC_RANSAC);
+    plane_segmentation.setDistanceThreshold(0.01);
+    plane_segmentation.setMaxIterations(50);
+    plane_segmentation.setInputCloud(cloud_);
+    plane_segmentation.segment(*plane_inliers, *plane_coefficients);
+
+   pcl::io::savePCDFile("clud_plane.pcd", *cloud_, plane_inliers->indices);
+
+    outInfo("plane inliers: " << plane_inliers->indices.size());
+    if(plane_inliers->indices.size() < 5000)
+    {
+      outWarn("not enough inliers!");
+      return false;
+    }
+
+    std::sort(plane_inliers->indices.begin(), plane_inliers->indices.end());
+    if(plane_inliers->indices.size() == 0)
+    {
+      return false;
+    }
+    outDebug("Number of inliers in plane:" << plane_inliers->indices.size());
     return true;
   }
+
+
   void run()
   {
     for(; ros::ok();)

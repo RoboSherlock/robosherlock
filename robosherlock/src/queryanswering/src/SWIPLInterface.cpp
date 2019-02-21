@@ -2,20 +2,23 @@
 
 namespace rs
 {
-SWIPLInterface::SWIPLInterface(): engine1_(0)
+
+SWIPLInterface::SWIPLInterface()
 {
   std::lock_guard<std::mutex> lock(lock_);
-  char *argv[4];
+
   int argc = 0;
-  argv[argc++] = "swi_test";
+  argv[argc++] = "robosherlock";
   argv[argc++] = "-f";
   std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init.pl";
   argv[argc] = new char[rosPrologInit.size() + 1];
   std::copy(rosPrologInit.begin(), rosPrologInit.end(), argv[argc]);
   argv[argc++][rosPrologInit.size()] = '\0';
+  argv[argc++] = "-O";
   argv[argc] = NULL;
   PL_initialise(argc, argv);
 
+  std::setlocale(LC_ALL, "C"); //PL_initialise will get whatever locale you have set on you system and change the current settings; so we need to set it back to C style;
   attributes_.local_size = 100000000;
   attributes_.global_size = 100000000;
   attributes_.trail_size = 100000000;
@@ -24,14 +27,7 @@ SWIPLInterface::SWIPLInterface(): engine1_(0)
   attributes_.cancel = 0;
   attributes_.flags = 0;
 
-  void *current_engine, *main_engine;
-  int res1 = PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
-  int res2 = PL_set_engine(PL_ENGINE_MAIN, &main_engine);
-
-  outWarn("After initialization the main engine is: " << main_engine);
-  outWarn("After initialization the current engine is: " << current_engine);
-  outInfo("PROLOG ENGINE BEING INITIALIZED");
-  //  outWarn("Engine1: " <<engine1_);
+  outInfo("SWI-PROLOG ENGINE INITIALIZED");
 }
 
 
@@ -39,15 +35,10 @@ void SWIPLInterface::setEngine()
 {
   PL_engine_t current_engine;
   PL_set_engine(PL_ENGINE_CURRENT, &current_engine);
-  outDebug("PL_CURRENT_ENGINE: " << current_engine);
-  outDebug("ENGINE1: " << engine1_);
   if(current_engine == 0)
   {
-    //    if(engine1_ == 0)
-    //    {
-    //      engine1_ = PL_create_engine(&attributes_);
     PL_engine_t  new_engine = PL_create_engine(&attributes_);
-    engine_pool_.insert(new_engine);
+    engine_pool_.insert(new_engine); //store new engine so we can delete them at the end;
     int result = PL_set_engine(new_engine, 0);
     //    }
     if(result != PL_ENGINE_SET)
@@ -59,8 +50,6 @@ void SWIPLInterface::setEngine()
       else
         throw std::runtime_error("Unknown Response when setting PL_engine");
     }
-    else
-      outInfo("Engine: " << engine1_ << " set successfully");
   }
 }
 
@@ -106,19 +95,30 @@ bool SWIPLInterface::planPipelineQuery(const std::vector<std::string> &keys,
 
 bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 {
-  addNamespace(child);
-  addNamespace(parent);
+  if(!addNamespace(child))
+  {
+    outWarn(child << " is not found under any of the namespaces");
+    return false;
+  }
+  if(!addNamespace(parent))
+  {
+    outWarn(child << " is not found under any of the namespaces");
+    return false;
+  }
   std::lock_guard<std::mutex> lock(lock_);
   outInfo("Planning Pipeline");
   setEngine();
   PlTermv av(2);
-
-
+  std::stringstream query;
+  query << "owl_subclass_of(" << child << "," << parent << ")";
   av[0] = child.c_str();
   av[1] = parent.c_str();
+  int res;// = PlCall("owl_subclass_of", av);
   try
   {
-    if(PlCall("owl_subclass_of", av))
+    res = PlCall(query.str().c_str());
+    outInfo("result of PlCall:" << res);
+    if(res)
     {
       outInfo(child << " is subclass of " << parent);
       //      releaseEngine();
@@ -302,6 +302,7 @@ bool SWIPLInterface::retractQueryLanguage()
 bool SWIPLInterface::retractQueryKvPs()
 {
   std::lock_guard<std::mutex> lock(lock_);
+  outInfo("Retractking Query KvPs");
   setEngine();
   try
   {

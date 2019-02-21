@@ -45,15 +45,13 @@
 
 
 /**
- * Error output if program is called with wrong parameter.
+ * @brief help description of parameters
  */
-
 void help()
 {
   std::cout << "Usage: rosrun robosherlock run [options] [analysis_engines]" << std::endl
             << "Options:" << std::endl
             << "               _ae:=engine         Name of analysis enginee for execution" << std::endl
-            << "    _visualization:=true|false     Enable/disable visualization" << std::endl
             << "              _vis:=true|false     shorter version for _visualization" << std::endl
             << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
             << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts" << std::endl
@@ -105,14 +103,13 @@ int main(int argc, char *argv[])
   nh.param("ke", knowledge_engine, std::string("SWI_PROLOG"));
 
   nh.deleteParam("ae");
-  nh.deleteParam("analysis_engines");
   nh.deleteParam("vis");
-  nh.deleteParam("visualization");
   nh.deleteParam("save_path");
   nh.deleteParam("wait");
   nh.deleteParam("pervasive");
   nh.deleteParam("parallel");
-  nh.deleteParam("enableQnA");
+  nh.deleteParam("ke");
+
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -129,7 +126,7 @@ int main(int argc, char *argv[])
 
   if(analysis_engine_file.empty())
   {
-    outError("analysis   engine \"" << analysis_engine_file << "\" not found.");
+    outError("analysis engine \"" << analysis_engine_file << "\" not found.");
     return -1;
   }
   else

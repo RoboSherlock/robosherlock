@@ -21,7 +21,12 @@ static const std::vector<std::string> NS_TO_SKIP = {"rdf", "rdfs", "owl", "xsd",
 class KnowledgeEngine
 {
 
+protected:
+  std::mutex lock_;
+  std::vector<std::string> krNamespaces_;
+
 public:
+
   KnowledgeEngine() {}
 
   ~KnowledgeEngine() {}
@@ -58,13 +63,33 @@ public:
    */
   virtual bool assertValueForKey(const  std::string &key, const std::string &value) = 0;
 
+  /**
+   * @brief retractQueryKvPs retract the key value pairs of a  query
+   * @return true on success
+   */
   virtual bool retractQueryKvPs() = 0;
 
+  /**
+   * @brief retractQueryLanguage retract the query language specifics
+   * @return true on success
+   */
   virtual bool retractQueryLanguage() = 0;
 
-  virtual bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &) = 0;
+  /**
+   * @brief assertQueryLanguage assert qyery language definitions
+   * @param query_terms map between keyword and RoboSherlock Type name
+   * Exemple: {"type": {"rs..annotation.Detection","rs.annotation.Classification"}}
+   * These are defined in ${PROJECT_ROOT}/config/query_specifications.ini
+   * @return true on success
+   */
+  virtual bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &query_terms) = 0;
 
-  virtual bool addNamespace(std::string &) = 0;
+  /**
+   * @brief addNamespace find namespace of an entry in the knowledge base and append it to entry
+   * @param entry the entry we are searching for in the KB
+   * @return true on success
+   */
+  virtual bool addNamespace(std::string &entry) = 0;
 
   /**
    * @brief addNamespace alternative implementation of adding a namespace
@@ -78,116 +103,138 @@ public:
     return addNamespace(results);
   }
 
+  /**
+   * @brief retractAllAnnotators retract all knowledge about annotators
+   * @return true on success
+   */
   virtual bool retractAllAnnotators() = 0;
 
-  virtual bool individualOf(const std::string &, std::vector<std::string> &) = 0;
+  /**
+   * @brief individualOf check owl_individual_of; returns the "instances" of an OWL class
+   * @param[in] class_name class name we want individuals for
+   * @param[out] individuals list of individuals for class_name
+   * @return true on success
+   */
+  virtual bool individualOf(const std::string &class_name, std::vector<std::string> &individuals) = 0;
 
-  virtual bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string>& values, std::string& type)=0;
+  /**
+   * @brief assertInputTypeConstraint given an Individual of an annotator assert constraints on the input values a given type can take
+   * @param individual ID of individual;
+   * @param values array of values that can be possible inputs
+   * @param type the type these values belong to
+   * @return true if successfull
+   */
+  virtual bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type) = 0;
 
-  virtual bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string>& values, std::string& type)=0;
+  /**
+   * @brief assertOutputTypeRestriction given an Individual of an annotator assert restrictions on the output values a given type can take
+   * @param individual
+   * @param values
+   * @param type
+   * @return true on success
+   */
+  virtual bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string> &values, std::string &type) = 0;
 
-  bool assertAnnotatorMetaInfo(std::pair<std::string, rs::AnnotatorCapabilities> annotatorData, std::string individualOfAnnotator)
-  {
-    std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
-    std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
-
-    if(!inputRestrictions.empty())
-    {
-      for(auto iR : inputRestrictions)
-      {
-        if(!iR.second.empty())
-        {
-          std::vector<std::string> inputTypeConstraintInKnowRob;
-          for(auto d : iR.second)
-          {
-            d[0] = std::toupper(d[0]);
-            if(!addNamespace(d))
-            {
-              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
-              continue;
-            }
-            outInfo(d);
-            inputTypeConstraintInKnowRob.push_back(d);
-          }
-
-          std::string typeName = iR.first, typeClass;
-          std::vector<std::string> typeSplit;
-          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
-          for(auto &t : typeSplit)
-          {
-            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
-            t[0] = std::toupper(t[0]);
-            typeClass.append(t);
-          }
-          outInfo(typeName << ":" << typeClass);
-          addNamespace(typeClass);
-          assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
-        }
-      }
-    }
-
-    if(!outputDomains.empty())
-    {
-      for(auto oD : outputDomains)
-      {
-        if(!oD.second.empty())
-        {
-          std::vector<std::string> resultDomainInKnowRob;
-          for(auto d : oD.second)
-          {
-            d[0] = std::toupper(d[0]);
-            if(!addNamespace(d))
-            {
-              outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
-              continue;
-            }
-            outInfo(d);
-            resultDomainInKnowRob.push_back(d);
-          }
-
-          std::string typeName = oD.first, typeClass;
-          std::vector<std::string> typeSplit;
-          boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
-          for(auto &t : typeSplit)
-          {
-            std::transform(t.begin(), t.end(), t.begin(), ::tolower);
-            t[0] = std::toupper(t[0]);
-            typeClass.append(t);
-          }
-          outInfo(typeName << ":" << typeClass);
-          addNamespace(typeClass);
-          assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
-        }
-      }
-    }
-    return true;
-  }
-
+  /**
+   * @brief assertAnnotators helper function for asserting the information about annotaators;
+   * @param[in] caps map of annotator name to capabbility definitions
+   * @return true on success
+   */
   bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
   {
     outInfo("Asserting annotators to KB");
-    for(const std::pair<std::string, rs::AnnotatorCapabilities> &a : caps)
+    for(const std::pair<std::string, rs::AnnotatorCapabilities> &annotatorData : caps)
     {
       std::string nameWithNS;
-      if(addNamespace(a.first, nameWithNS))
+      if(addNamespace(annotatorData.first, nameWithNS))
       {
         std::vector<std::string> individualsOf;
         individualOf(nameWithNS, individualsOf);
-        for(auto i : individualsOf)
+        for(auto individualOfAnnotator : individualsOf)
         {
-          outInfo(i);
-          assertAnnotatorMetaInfo(a, i);
+          outInfo(individualOfAnnotator);
+          std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
+          std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
+
+          if(!inputRestrictions.empty())
+          {
+            for(auto iR : inputRestrictions)
+            {
+              if(!iR.second.empty())
+              {
+                std::vector<std::string> inputTypeConstraintInKnowRob;
+                for(auto d : iR.second)
+                {
+                  d[0] = std::toupper(d[0]);
+                  if(!addNamespace(d))
+                  {
+                    outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+                    continue;
+                  }
+                  outInfo(d);
+                  inputTypeConstraintInKnowRob.push_back(d);
+                }
+
+                std::string typeName = iR.first, typeClass;
+                std::vector<std::string> typeSplit;
+                boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+                for(auto &t : typeSplit)
+                {
+                  std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+                  t[0] = std::toupper(t[0]);
+                  typeClass.append(t);
+                }
+                outInfo(typeName << ":" << typeClass);
+                addNamespace(typeClass);
+                assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
+              }
+            }
+          }
+
+          if(!outputDomains.empty())
+          {
+            for(auto oD : outputDomains)
+            {
+              if(!oD.second.empty())
+              {
+                std::vector<std::string> resultDomainInKnowRob;
+                for(auto d : oD.second)
+                {
+                  d[0] = std::toupper(d[0]);
+                  if(!addNamespace(d))
+                  {
+                    outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
+                    continue;
+                  }
+                  outInfo(d);
+                  resultDomainInKnowRob.push_back(d);
+                }
+
+                std::string typeName = oD.first, typeClass;
+                std::vector<std::string> typeSplit;
+                boost::algorithm::split(typeSplit, typeName, boost::is_any_of("."), boost::algorithm::token_compress_on);
+                for(auto &t : typeSplit)
+                {
+                  std::transform(t.begin(), t.end(), t.begin(), ::tolower);
+                  t[0] = std::toupper(t[0]);
+                  typeClass.append(t);
+                }
+                outInfo(typeName << ":" << typeClass);
+                addNamespace(typeClass);
+                assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
+              }
+            }
+          }
         }
       }
       else
       {
-        outError("Annotator not modelled in KB:" << a.first);
+        outError("Annotator not modelled in KB:" << annotatorData.first);
         continue;
       }
     }
     return true;
   }
-
 };
 
 }

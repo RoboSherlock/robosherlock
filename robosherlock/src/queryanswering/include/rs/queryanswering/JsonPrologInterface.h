@@ -38,9 +38,7 @@ namespace rs
 class JsonPrologInterface: public rs::KnowledgeEngine
 {
 
-  std::vector<std::string> krNamespaces_;
   json_prolog::Prolog pl_;
-  std::mutex lock_;
 
 public:
 

@@ -10,12 +10,36 @@
 // STD
 #include <memory>
 #include <mutex>
+#include <locale>
 
 #include <rs/queryanswering/KnowledgeEngine.h>
 
 // SWI Prolog
+
 #include <SWI-cpp.h>
-#include <SWI-Prolog.h>
+
+// we need to undef these, otherwise they collied with eigen/boost/PCL
+//(need to look at it in more detail to figure it out)
+#undef PL_A1
+#undef PL_A2
+#undef PL_A3
+#undef PL_A4
+#undef PL_A5
+#undef PL_A6
+#undef PL_A7
+#undef PL_A8
+#undef PL_A9
+#undef PL_A10
+#undef A1
+#undef A2
+#undef A3
+#undef A4
+#undef A5
+#undef A6
+#undef A7
+#undef A8
+#undef A9
+#undef A10
 
 #define RDF_TYPE "'http://www.w3.org/1999/02/22-rdf-syntax-ns#type'"
 
@@ -24,14 +48,13 @@ namespace rs
 // wrapper class for Prolog Engine based on SWI-C++
 class SWIPLInterface : public KnowledgeEngine
 {
-  std::mutex lock_;
-  PL_engine_t engine1_;
+
   PL_thread_attr_t attributes_;
 
+  //argument vector needed to intialize PL engine; needs to be valid while prolog engien is alive.
+  char *argv[10];
+
   std::set<PL_engine_t> engine_pool_;
-
-  std::vector<std::string> krNamespaces_;
-
 
   //TODO: we probably need an Engine and a Query class
   //  class Engine
@@ -108,8 +131,6 @@ public:
   bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &);
 
   bool addNamespace(std::string &s);
-
-  bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps);
 
   bool assertTestPipelnie()
   {
