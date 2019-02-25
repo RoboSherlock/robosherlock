@@ -354,7 +354,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       }
 
       if(obj_id == -1){
-        outError("Can't find any object fulfilling all given constraints. Tracking will not be started.");
+        outError("Can't find any object fulfilling all given constraints. Tracking has not been started.");
         engine_.reconfigure();
         this->waitForServiceCall_=true;
         result.push_back("Can't find any object fulfilling all given constraints. Tracking has not been started.");
