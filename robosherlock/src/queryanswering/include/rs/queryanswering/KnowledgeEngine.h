@@ -110,7 +110,7 @@ public:
   virtual bool retractAllAnnotators() = 0;
 
   /**
-   * @brief individualOf check owl_individual_of; returns the "instances" of an OWL class
+   * @brief creates and individual for the class that we specify;
    * @param[in] class_name class name we want individuals for
    * @param[out] individuals list of individuals for class_name
    * @return true on success

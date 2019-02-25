@@ -118,7 +118,7 @@ public:
 
   bool retractQueryKvPs();
 
-  bool individualOf(const std::string &class_name, std::vector<std::string> &individualsOF);
+  bool instanceFromClass(const std::string &class_name, std::vector<std::string> &individualsOF);
 
   bool assertInputTypeConstraint(const std::string &individual, const std::vector<std::string> &values, std::string &type);
 
