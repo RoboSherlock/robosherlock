@@ -20,9 +20,13 @@ class SWIPLInterfaceTest : public testing::Test
 protected:
 
   std::shared_ptr<rs::SWIPLInterface> ke;
-  virtual void SetUp()
+  SWIPLInterfaceTest()
   {
     ke = std::make_shared<rs::SWIPLInterface>();
+  }
+  virtual void SetUp()
+  {
+
   }
 
   virtual void TearDown()
@@ -53,6 +57,24 @@ TEST_F(SWIPLInterfaceTest, PlanPipelinTest)
   });
   EXPECT_TRUE(pipeline.end() != std::find(pipeline.begin(), pipeline.end(), "PrimitiveShapeAnnotator"));
 }
+
+TEST_F(SWIPLInterfaceTest, IndividualOfTest)
+{
+  std::vector<std::string> individuals;
+  ke->instanceFromClass("'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'", individuals);
+  std::for_each(individuals.begin(), individuals.end(), [](std::string & p)
+  {
+    outInfo(p);
+  });
+  EXPECT_TRUE(individuals.size() > 0);
+}
+
+TEST_F(SWIPLInterfaceTest, ValidQueryTerm)
+{
+  bool value = ke->checkValidQueryTerm("type");
+  EXPECT_TRUE(value == true);
+}
+
 
 TEST_F(SWIPLInterfaceTest, ReatractTest)
 {

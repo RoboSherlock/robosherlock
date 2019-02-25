@@ -198,7 +198,7 @@ bool JsonPrologInterface::assertQueryLanguage(std::map<std::string, std::vector<
 }
 
 
-bool JsonPrologInterface::individualOf(const std::string &class_name, std::vector<std::string> &individualsOF)
+bool JsonPrologInterface::instanceFromClass(const std::string &class_name, std::vector<std::string> &individualsOF)
 {
   std::stringstream prologQuery;
   prologQuery << "owl_instance_from_class(" << class_name << "," << "I)";

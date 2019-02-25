@@ -96,7 +96,7 @@ public:
   bool assertOutputTypeRestriction(const std::string &individual, const std::vector<std::string>& values, std::string& type);
 
 
-  bool individualOf(const std::string &, std::vector<std::string> &);
+  bool instanceFromClass(const std::string &, std::vector<std::string> &);
 
 
   bool addNamespace(std::string &entry);

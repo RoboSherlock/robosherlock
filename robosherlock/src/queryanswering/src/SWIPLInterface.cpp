@@ -341,7 +341,7 @@ bool SWIPLInterface::checkValidQueryTerm(const std::string &term)
 }
 
 
-bool SWIPLInterface::individualOf(const std::string &class_name, std::vector<std::string> &individualsOF)
+bool SWIPLInterface::instanceFromClass(const std::string &class_name, std::vector<std::string> &individualsOF)
 {
   std::lock_guard<std::mutex> lock(lock_);
   setEngine();

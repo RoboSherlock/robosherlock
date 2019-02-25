@@ -115,7 +115,7 @@ public:
    * @param[out] individuals list of individuals for class_name
    * @return true on success
    */
-  virtual bool individualOf(const std::string &class_name, std::vector<std::string> &individuals) = 0;
+  virtual bool instanceFromClass(const std::string &class_name, std::vector<std::string> &individuals) = 0;
 
   /**
    * @brief assertInputTypeConstraint given an Individual of an annotator assert constraints on the input values a given type can take
@@ -149,7 +149,7 @@ public:
       if(addNamespace(annotatorData.first, nameWithNS))
       {
         std::vector<std::string> individualsOf;
-        individualOf(nameWithNS, individualsOf);
+        instanceFromClass(nameWithNS, individualsOf);
         for(auto individualOfAnnotator : individualsOf)
         {
           outInfo(individualOfAnnotator);
