@@ -251,7 +251,7 @@ public:
         gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, 0.002);
         outInfo("Input cloud size is " + std::to_string(cloud_pass_downsampled_->size()));
 
-        if(counter < 10){
+        if(counter < 0){ // Changed 10 to 0 for testing
           counter++;
         }else{
           //Track the object
@@ -291,7 +291,7 @@ public:
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
     ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
-    if (!particles->size() > 0) {
+    if (!particles->size() > 0) { // TODO: Before going in counter loop: Segfault here because particles is null
       outError("Particle result cloud is empty.");
     }
     else {
@@ -315,7 +315,18 @@ public:
       const std::string &cloudname = this->name;
       outInfo("Attempting to update visualizer...");
       pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_xyz;
-      pcl::copyPointCloud(*input_cloud, *input_cloud_xyz); // TODO: Segfault here. Is this because of the new changes?
+      outInfo("1");
+      for(int n = 0; n < input_cloud->size(); n++){ // TODO: Once the PCL error spam occurs: Segfault here, smth wrong with input_cloud
+        outInfo("2.1");
+        pcl::PointXYZ point;
+        outInfo("2.2");
+        point.x = input_cloud->points[n].x;
+        point.y = input_cloud->points[n].y;
+        point.z = input_cloud->points[n].z;
+        outInfo("2.3");
+        input_cloud_xyz->push_back(point);
+      }
+      //pcl::copyPointCloud(*input_cloud, *input_cloud_xyz);
       outInfo("test");
       if (firstRun) {
         visualizer.addPointCloud(particle_cloud, result_color, cloudname);
