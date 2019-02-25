@@ -251,9 +251,8 @@ public:
         outError("Target cloud is empty.");
       }
       else {
-        outInfo("Target cloud size is " + std::to_string(target_cloud->size()));
-        //CloudPtr test_ref = tracker_->getReferenceCloud();
-        //outInfo("Transformed target cloud size from tracker is " + std::to_string(test_ref->size()));
+        CloudConstPtr test_ref = tracker_->getReferenceCloud();
+        outInfo("Target cloud size is " + std::to_string(test_ref->size()));
         outInfo(input_cloud->points[0].x);
         outInfo(input_cloud->points[0].y);
         outInfo(input_cloud->points[0].z);
@@ -284,10 +283,6 @@ public:
             particle_cloud->points.push_back(point);
           }
 
-          //pcl::visualization::PointCloudColorHandlerCustom<pcl::PointXYZ> red_color (particle_cloud, 250, 99, 71);
-          //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
-          //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
-
           const std::string &cloudname = this->name;
           outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
         }
@@ -308,7 +303,6 @@ public:
     }
     else {
       outInfo("Particle result cloud is fine.");
-      //Set pointCloud with particle's points
       pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
       for (size_t i = 0; i < particles->points.size(); i++) {
         pcl::PointXYZ point;
