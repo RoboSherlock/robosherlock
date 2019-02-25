@@ -215,20 +215,20 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test.cpp
     test/robosherlock/test_parallelism.cpp
-    test/segmentation/symmetry_segmentation_test.cpp
-    test/robosherlock_utest/test_storage.cpp
-    test/robosherlock_utest/ImagePreprocessor_utest.cpp
-    test/robosherlock_utest/PlaneAnnotator_utest.cpp
-    test/robosherlock_utest/PointCloudClusterExtractor_utest.cpp
-    test/robosherlock_utest/ImageSegmentationAnnotator_utest.cpp
-    test/robosherlock_utest/Cluster3DGeometry_utest.cpp
-    test/robosherlock_utest/ClusterColorHistogramCalculator_utest.cpp
-    test/robosherlock_utest/PrimitiveShapesAnnotator_utest.cpp
-    test/robosherlock_utest/FeatureAnnotator_utest.cpp
-    test/robosherlock_utest/SacModelAnnotator_utest.cpp
+    test/annotators_utest/symmetry_segmentation_test.cpp
+    test/annotators_utest/test_storage.cpp
+    test/annotators_utest/ImagePreprocessor_utest.cpp
+    test/annotators_utest/PlaneAnnotator_utest.cpp
+    test/annotators_utest/PointCloudClusterExtractor_utest.cpp
+    test/annotators_utest/ImageSegmentationAnnotator_utest.cpp
+    test/annotators_utest/Cluster3DGeometry_utest.cpp
+    test/annotators_utest/ClusterColorHistogramCalculator_utest.cpp
+    test/annotators_utest/PrimitiveShapesAnnotator_utest.cpp
+    test/annotators_utest/FeatureAnnotator_utest.cpp
+    test/annotators_utest/SacModelAnnotator_utest.cpp
     #test/robosherlock_utest/MLNInferencer_utest.cpp
-    test/robosherlock_utest/PCLDescriptorExtractor_utest.cpp
-    test/robosherlock_utest/reconf_utest.cpp)
+    test/annotators_utest/PCLDescriptorExtractor_utest.cpp
+    test/annotators_utest/reconf_utest.cpp)
 target_link_libraries(${PROJECT_NAME}-test
     rs_flowcontrol
     rs_core
