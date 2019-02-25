@@ -357,7 +357,7 @@ assert_test_pipeline:-
     owl_instance_from_class(rs_components:'CaffeAnnotator',_),
     owl_instance_from_class(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl'], rs_components:'RsAnnotationClassification'),
     owl_instance_from_class(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection'),
-    assert(requestedValueForKey(shape,box)).
+    assert(requestedValueForKey(shape,rs_components:'Box')).
     
 assert_query_lang:-
 	assert(rs_query_predicate(shape)),
