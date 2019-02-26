@@ -45,35 +45,21 @@
 
 
 /**
- * Error output if program is called with wrong parameter.
+ * @brief help description of parameters
  */
-
 void help()
 {
-    std::cout << "Usage: rosrun robosherlock run [options] [analysis_engines]" << std::endl
-              << "Options:" << std::endl
-              << " _analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
-              << "               _ae:=engine1[,...]  shorter version for _analysis_engines" << std::endl
-              << "    _visualization:=true|false     Enable/disable visualization" << std::endl
-              << "              _vis:=true|false     shorter version for _visualization" << std::endl
-              << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
-              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
-              << "        _parallel:=true|false      Enable/Disable parallel execution of pipeline (json_prolog is required)"<< std::endl
-              << "        _withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl
-              << std::endl
-              << "Usage: roslaunch robosherlock rs.launch [options]" << std::endl
-              << "Options:" << std::endl
-              << "  analysis_engines:=engine1[,...]  List of analysis engines for execution" << std::endl
-              << "                ae:=engine1[,...]  shorter version for analysis_engines" << std::endl
-              << "     visualization:=true|false     Enable/disable visualization" << std::endl
-              << "               vis:=true|false     shorter version for visualization" << std::endl
-              << "         save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-              << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts"<< std::endl
-              << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml"<< std::endl
-              << "        _parallel:=true|false      Enable/Disable parallel execution of pipeline (json_prolog is required)"<< std::endl
-              << "         withIDRes:=true|false     Enable/Disable running object identity resolution"<< std::endl;
-
+  std::cout << "Usage: rosrun robosherlock run [options] [analysis_engines]" << std::endl
+            << "Options:" << std::endl
+            << "               _ae:=engine         Name of analysis enginee for execution" << std::endl
+            << "              _vis:=true|false     shorter version for _visualization" << std::endl
+            << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
+            << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts" << std::endl
+            << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml" << std::endl
+            << "         _parallel:=true|false     Enable/Disable parallel execution of pipeline (json_prolog is required)" << std::endl
+            << "        _withIDRes:=true|false     Enable/Disable running object identity resolution" << std::endl
+            << "               _ke:=ke_type        Set the knowledge engine you want to use; Values are: [SWI_PROLOG, KNOWROB]. Default is SWI_PROLOG." << std::endl
+            << std::endl;
 }
 
 
@@ -91,39 +77,39 @@ int main(int argc, char *argv[])
 
   if(OUT_LEVEL == OUT_LEVEL_DEBUG)
   {
-      if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) ) {
-         ros::console::notifyLoggerLevelsChanged();
-      }
+    if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+    {
+      ros::console::notifyLoggerLevelsChanged();
+    }
   }
 
   ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
   ros::NodeHandle nh("~");
 
-  std::string analysisEnginesName, analysisEngineFile, savePath;
-  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel, enableQnA;
+  std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;
+  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel;
 
-  nh.param("ae", analysisEnginesName, std::string(""));
-  nh.param("analysis_engines", analysisEnginesName, analysisEnginesName);
+  nh.param("ae", analysis_engine_names, std::string(""));
+  nh.param("analysis_engines", analysis_engine_names, analysis_engine_names);
 
-  nh.param("wait",waitForServiceCall, false);
+  nh.param("wait", waitForServiceCall, false);
   nh.param("vis", useVisualizer, false);
   nh.param("visualization", useVisualizer, useVisualizer);
 
-  nh.param("save_path", savePath, std::string(getenv("HOME")));
+  nh.param("save_path", save_path, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
   nh.param("parallel", parallel, false);
-  nh.param("withIDRes", useObjIDRes,false);
-  nh.param("enableQnA",enableQnA,false);
+  nh.param("withIDRes", useObjIDRes, false);
+  nh.param("ke", knowledge_engine, std::string("SWI_PROLOG"));
 
   nh.deleteParam("ae");
-  nh.deleteParam("analysis_engines");
   nh.deleteParam("vis");
-  nh.deleteParam("visualization");
   nh.deleteParam("save_path");
   nh.deleteParam("wait");
   nh.deleteParam("pervasive");
   nh.deleteParam("parallel");
-  nh.deleteParam("enableQnA");
+  nh.deleteParam("ke");
+
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -134,33 +120,48 @@ int main(int argc, char *argv[])
       help();
       return 0;
     }
-    analysisEnginesName = argv[1];
+    analysis_engine_names = argv[1];
   }
-  rs::common::getAEPaths(analysisEnginesName, analysisEngineFile);
+  rs::common::getAEPaths(analysis_engine_names, analysis_engine_file);
 
-  if(analysisEngineFile.empty())
+  if(analysis_engine_file.empty())
   {
-    outError("analysis   engine \"" << analysisEngineFile << "\" not found.");
+    outError("analysis engine \"" << analysis_engine_file << "\" not found.");
     return -1;
   }
   else
   {
-    outInfo(analysisEngineFile);
+    outInfo(analysis_engine_file);
   }
 
   std::string configFile = ros::package::getPath("robosherlock") + "/config/config.yaml";
 
+  RSProcessManager::KnowledgeEngineType keType;
+  if(knowledge_engine == "SWI_PROLOG")
+  {
+    keType = RSProcessManager::KnowledgeEngineType::SWI_PROLOG;
+  }
+  else if(knowledge_engine == "KNOWROB")
+  {
+    keType = RSProcessManager::KnowledgeEngineType::JSON_PROLOG;
+  }
+  else
+  {
+    outError("Unsupported Knowledge Engine type! Valid values are: [SWI_PROLOG, JSON_PROLOG]. Exiting.");
+    return 0;
+  }
+
   try
   {
-    RSProcessManager manager(useVisualizer, waitForServiceCall,enableQnA, nh, savePath);
+    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, nh, save_path);
     manager.setUseIdentityResolution(useObjIDRes);
-    manager.init(analysisEngineFile, configFile, pervasive, parallel);
+    manager.init(analysis_engine_file, configFile, pervasive, parallel);
     manager.run();
     manager.stop();
   }
   catch(const rs::Exception &e)
   {
-    outError("Exception: " << std::endl << e.what());
+    outError("Exception: [" << e.what()<<"]");
     return -1;
   }
   catch(const uima::Exception &e)

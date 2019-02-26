@@ -134,6 +134,10 @@ public:
     annotatorCapabilities_ = caps;
   }
 
+  std::map < std::string, rs::AnnotatorCapabilities>  getDelegateAnnotatorCapabilities()
+  {
+    return annotatorCapabilities_;
+  }
   /**
    * @brief setParallel
    * @param[in] f flag for parallel execution or not
