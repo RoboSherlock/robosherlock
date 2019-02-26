@@ -75,12 +75,27 @@ TEST_F(SWIPLInterfaceTest, ValidQueryTerm)
   EXPECT_TRUE(value == true);
 }
 
+TEST_F(SWIPLInterfaceTest, AssertValueForKey)
+{
+  bool res = ke->assertValueForKey("shape", "cylinder");
+  EXPECT_TRUE(res);
+}
+TEST_F(SWIPLInterfaceTest, AssertQueryLan)
+{
+  std::map<std::string, std::vector<std::string>> queryDefs;
+  queryDefs["shape"] = {"rs.annotation.Shape"};
+  bool res = ke->assertQueryLanguage(queryDefs);
+  EXPECT_TRUE(res == true);
+}
+
 
 TEST_F(SWIPLInterfaceTest, ReatractTest)
 {
   bool retract_KvPs = ke->retractQueryKvPs();
   bool retract_annotators = ke->retractAllAnnotators();
+  bool retract_queryknowledge = ke ->retractQueryLanguage();
 
   EXPECT_TRUE(retract_KvPs == true);
   EXPECT_TRUE(retract_annotators == true);
+  EXPECT_TRUE(retract_queryknowledge == true);
 }

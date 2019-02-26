@@ -214,6 +214,7 @@ add_subdirectory(src/queryanswering)
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test_swipl_interface.cpp
+    test/robosherlock/test_queryinterface.cpp
     test/robosherlock/test_parallelism.cpp
     test/annotators_utest/symmetry_segmentation_test.cpp
     test/annotators_utest/test_storage.cpp

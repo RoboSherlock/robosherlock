@@ -2,9 +2,18 @@
 
 bool QueryInterface::parseQuery(std::string query)
 {
-  this->query_.Parse(query);
-  return true;
-}
+  outInfo("parsing query:" << query);
+
+  rapidjson::Document doc;
+  doc.Parse(query);
+  if(doc.IsObject())
+  {
+    query_.Swap(doc);
+    return true;
+  }
+  else
+    return false;
+  }
 
 QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
 {
@@ -189,7 +198,7 @@ bool QueryInterface::getQueryConfig()
     }
     catch(boost::property_tree::ini_parser::ini_parser_error &e)
     {
-      outError("Error opening config file: "<<p);
+      outError("Error opening config file: " << p);
       return false;
     }
   }
@@ -236,8 +245,8 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
 
 
 void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
-                                   std::vector<std::string> &filteredResponse,
-                                   std::vector<bool> &designatorsToKeep)
+    std::vector<std::string> &filteredResponse,
+    std::vector<bool> &designatorsToKeep)
 {
 
   const rapidjson::Value &detectQuery = query_["detect"];
