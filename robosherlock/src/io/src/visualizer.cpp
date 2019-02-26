@@ -123,6 +123,7 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
 
 void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
 {
+  if(!annotators.empty()){
   std::vector<std::string> activeDrawingAnnotators(names.size());
   std::vector<std::string>::iterator it;
   std::sort(annotators.begin(), annotators.end());
@@ -134,6 +135,7 @@ void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
   robosherlock_msgs::RSActiveAnnotatorList listMsg;
   listMsg.annotators = activeAnnotators;
   pubAnnotList.publish(listMsg);
+  }
 
 }
 

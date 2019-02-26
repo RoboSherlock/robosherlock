@@ -1,0 +1,723 @@
+<?xml version="1.0"?>
+<rdf:RDF xmlns="http://knowrob.org/kb/iai-kitchen.owl#"
+     xml:base="http://knowrob.org/kb/iai-kitchen.owl"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:knowrob="http://knowrob.org/kb/knowrob.owl#"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:kitchen="http://knowrob.org/kb/iai-kitchen.owl#">
+    <owl:Ontology rdf:about="http://knowrob.org/kb/iai-kitchen-objects.owl">
+        <owl:imports rdf:resource="package://knowrob_common/owl/knowrob.owl"/>
+        <owl:imports rdf:resource="package://knowrob_household/owl/kitchen.owl"/>
+    </owl:Ontology>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#pathToCadModel -->
+
+    <owl:DatatypeProperty rdf:about="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen-objects.owl#RedPlasticSpoon -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen-objects.owl#RedPlasticSpoon">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spoon"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#AlbiHimbeerJuice -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#AlbiHimbeerJuice">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Juice"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BlackCeramicBowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BlackCeramicBowl">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BlueCampingCup -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BlueCampingCup">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BlueCeramicIkeaMug -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BlueCeramicIkeaMug">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BlueMetalPlateWhiteSpeckles -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BlueMetalPlateWhiteSpeckles">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DinnerPlate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BluePlasticBowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BluePlasticBowl">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Mixing"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BluePlasticFork -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BluePlasticFork">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Fork-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BluePlasticKnife -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BluePlasticKnife">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Knife-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#BluePlasticSpoon -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#BluePlasticSpoon">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spoon"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">package://rs_resources/objects_dataset/cad_models/BluePlasticSpoon/BluePlasticSpoon.dae</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#ComdoCappuccinoClassico">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Coffee-Beverage"/>
+    </owl:Class>
+    
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#CupEcoOrange -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#CupEcoOrange">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">package://rs_resources/objects_dataset/cad_models/CupEcoOrange/CupEcoOrange.dae</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">package://rs_resources/objects_dataset/cad_models/EdekaRedBowl/EdekaRedBowl.dae</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#ElBrygCoffee -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#ElBrygCoffee">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Coffee-Beverage"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#FryingPan -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#FryingPan">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#CookingVessel"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#FryingSpatula -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#FryingSpatula">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spatula"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#HelaCurryKetchup -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#HelaCurryKetchup">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Ketchup"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#JaMilch -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#JaMilch">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#CowsMilk-Product"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Milk"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#JodSalz -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#JodSalz">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#TableSalt"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#KelloggsCornFlakes -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#KelloggsCornFlakes">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#KellogsToppasMini -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#KellogsToppasMini">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#KnusperSchokoKeks -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#KnusperSchokoKeks">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#KoellnMuesliKnusperHonigNuss -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#KoellnMuesliKnusperHonigNuss">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">package://kitchen/iai_kitchen_objects/KoellnMuesliKnusperHonigNuss/KoellnMuesliKnusperHonigNuss.dae</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#LargeGreySpoon -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#LargeGreySpoon">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spoon"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#LinuxCup -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#LinuxCup">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#LionCerealBox -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#LionCerealBox">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#MarkenSalz -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#MarkenSalz">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#TableSalt"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#MeerSalz -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#MeerSalz">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#TableSalt"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#MondaminPancakeMix -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#MondaminPancakeMix">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#PancakeMix"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#NesquikCereal -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#NesquikCereal">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PfannerGruneIcetea -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PfannerGruneIcetea">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Juice"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Tea-Iced"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PfannerPfirsichIcetea -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PfannerPfirsichIcetea">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Juice"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Tea-Iced"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PopcornPot -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PopcornPot">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#StoveTopCookingPot"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PringlesPaprika -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PringlesPaprika">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Chip-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PringlesSalt -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PringlesSalt">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Chip-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#PringlesVinegar -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#PringlesVinegar">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Chip-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#RedMetalBowlWhiteSpeckles -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedMetalBowlWhiteSpeckles">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#RedMetalCupWhiteSpeckles -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedMetalCupWhiteSpeckles">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#RedMetalPlateWhiteSpeckles -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedMetalPlateWhiteSpeckles">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DinnerPlate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#RedPlasticFork -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedPlasticFork">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Fork-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#RedPlasticKnife -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedPlasticKnife">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Knife-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#ReineButterMilch -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#ReineButterMilch">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Buttermilk"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SeverinPancakeMaker -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SeverinPancakeMaker">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#PancakeMaker"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SiggBottle -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SiggBottle">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bottle"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingBottle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SlottedSpatula -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SlottedSpatula">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spatula"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SojaMilch -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SojaMilch">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Milk"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SpitzenReis -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SpitzenReis">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Rice"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#Toaster -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#Toaster">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#ElectricalHouseholdAppliance"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#TomatoAlGustoBasilikum -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#TomatoAlGustoBasilikum">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#TomatoBasedSauce"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#TomatoSauceOroDiParma -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#TomatoSauceOroDiParma">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#TomatoBasedSauce"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#VollMilch -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#VollMilch">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#CowsMilk-Product"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Milk"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#WeideMilchSmall -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#WeideMilchSmall">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#CowsMilk-Product"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Milk"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#string">package://rs_resources/objects_dataset/cad_models/WeiderMilchSmall/WeideMilchSmall.dae</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#WhiteBottle -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#WhiteBottle">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bottle"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#WhiteCeramicIkeaBowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#WhiteCeramicIkeaBowl">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#WhitePitcher -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#WhitePitcher">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Pitcher"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#YcbFork -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#YcbFork">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Fork-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#YcbKnife -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#YcbKnife">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Knife-Food"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#YellowCeramicPlate -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#YellowCeramicPlate">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DinnerPlate"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#YellowPitcher -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#YellowPitcher">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Pitcher"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Bottle -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Bottle"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Bowl-Eating -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Bowl-Mixing -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Bowl-Mixing"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#BreakfastCereal -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Buttermilk -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Buttermilk"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Chip-Food -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Chip-Food"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Coffee-Beverage -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Coffee-Beverage"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#CookingVessel -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#CookingVessel"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#CowsMilk-Product -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#CowsMilk-Product"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#DinnerPlate -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#DinnerPlate"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#DrinkingBottle -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#DrinkingBottle"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#DrinkingMug -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#ElectricalHouseholdAppliance -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#ElectricalHouseholdAppliance"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Fork-Food -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Fork-Food"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Juice -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Juice"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Ketchup -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Ketchup"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Knife -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Knife"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Knife-Food -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Knife-Food"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Milk -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Milk"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#PancakeMaker -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#PancakeMaker"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#PancakeMix -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#PancakeMix"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Pitcher -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Pitcher"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Rice -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Rice"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Spatula -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Spatula"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Spoon -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Spoon"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#StoveTopCookingPot -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#StoveTopCookingPot"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#TableSalt -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#TableSalt"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#Tea-Iced -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Tea-Iced"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#TomatoBasedSauce -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#TomatoBasedSauce"/>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 4.2.5.20160517-0735) https://github.com/owlcs/owlapi -->
+

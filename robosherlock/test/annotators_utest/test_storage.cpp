@@ -44,36 +44,16 @@ int db_image_height = 0;
 
 int processEngine()
 {
-  //const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-  //std::string name;
-
-  //data.getName().toUTF8String(name);
-  //std::cerr<<"Enigne: " << name<<std::endl;
-
-
-  /*if(cas == NULL)
-  {
-    std::cerr<<"Creating new CAS failed."<<std::endl;
-    engine->destroy();
-    delete engine;
-    return 0;
-  }*/
   UnicodeString ustrInputText;
-  //ustrInputText.fromUTF8(name);
+
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
- 
-  //const uima::AnalysisEngineMetaData &aeMetaData = engine->getAnalysisEngineMetaData();
-  //std::string aeDescription;
-  //aeMetaData.getDescription().toUTF8String(aeDescription);
   
   std::vector<std::string> engineList = {"CollectionReader","StorageWriter"};
   engine.setPipelineOrdering(engineList);
 
  try
     {
-      //we process here
-      //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
       engine.process();
       cas = engine.getCas();	
       rs::SceneCas sceneCas(*cas);
@@ -117,6 +97,5 @@ TEST(UnitTest,CheckImageWidth)
 TEST(UnitTest,CheckImageHeight)
 {
    EXPECT_EQ(initial_image_height,db_image_height);
-
 }
 
