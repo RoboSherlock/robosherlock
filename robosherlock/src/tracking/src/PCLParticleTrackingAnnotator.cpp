@@ -96,8 +96,10 @@ private:
   CloudPtr input_cloud;
   double pointSize;
   int counter = 0;
+  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb;
+
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1) {
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1), input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>) {
     //cv::initModule_nonfree();
   }
 
@@ -203,6 +205,13 @@ public:
     CloudPtr transed_ref(new Cloud);
     CloudPtr transed_ref_downsampled (new Cloud);
 
+    // TODO: The Particle Tracker won't find the object from the scene on its own. Instead, I need the (inverse of)
+    // TODO: the pose of the object. That way, the tracker will be aware of the initial frame for the object, and
+    // TODO: instead of spawning the particle cloud at 0 0 0, it will spawn it on the target object. Do the following:
+    // TODO:   Instead of the PCD file, use the segmented cluster of the target object from the scene as reference.
+    // TODO:   Otherwise, I might have problems regarding initial pose, which would be tricky to get right.
+    // TODO:   Then, the compute3DCentroid below this will actually get the transform from the object to the camera.
+    // TODO:   Right now, this is 0 0 0, because we are calculating the centroid of the loaded pcd file.
     pcl::compute3DCentroid<RefPointType>(*target_cloud, c);
     trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
     pcl::transformPointCloud<RefPointType>(*target_cloud, *transed_ref, trans.inverse());
@@ -239,7 +248,7 @@ public:
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>); // Input data for 3D tracking
+
     CloudPtr input_cloud_nan(new Cloud); // Input data for 3D tracking
     CloudPtr input_cloud(new Cloud); // Input data for 3D tracking
     cas.get(VIEW_CLOUD, *input_cloud_rgb); // Fill input data for 3D tracking
@@ -343,11 +352,11 @@ public:
       outInfo("test");
       if (firstRun) {
         visualizer.addPointCloud(particle_cloud, result_color, cloudname);
+
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
                                                     cloudname);
-        //visualizer.addPointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
-        //visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
-        //                                            "tracking_input_cloud");
+        visualizer.addPointCloud(input_cloud_rgb, "original_cloud");
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,"original_cloud");
       } else {
         pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
         std::vector<int> indices;
@@ -361,7 +370,7 @@ public:
         outInfo(particle_cloud_filtered->points[4].z);
         visualizer.updatePointCloud(particle_cloud_filtered, result_color, cloudname);
         //visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
-        //visualizer.updatePointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
+        visualizer.updatePointCloud(input_cloud_rgb, "original_cloud");
       }
     }
     return;
