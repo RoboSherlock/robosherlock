@@ -1,8 +1,0 @@
-annotator:
-  description: adds a detection annotation based on the KNN classifier results
-  implementation: rs_ClassifierDetection
-  name: ClassifierDetection
-capabilities:
-  inputs: []
-  outputs: []
-parameters: {}
