@@ -150,8 +150,7 @@ public:
   TyErrorId reconfigure()
   {
     outInfo("Reconfiguring");
-    AnnotatorContext &ctx = getAnnotatorContext();
-    initialize(ctx);
+    firstExecution = true;
     return UIMA_ERR_NONE;
   }
 
@@ -184,7 +183,6 @@ public:
       outInfo("Input cloud size is " + std::to_string(input_cloud->size()));
       if (firstExecution) {
         target_cloud.reset(new Cloud());
-        // TODO: Get the object cluster from the scene here.
         rs::Scene scene = cas.getScene();
         scene.identifiables.filter(clusters);
 
@@ -237,7 +235,6 @@ public:
         bin_size.pitch = 0.1f;
         bin_size.yaw = 0.1f;
 
-
         //Set all parameters for  KLDAdaptiveParticleFilterOMPTracker
         tracker->setMaximumParticleNum(1000);
         tracker->setDelta(0.99);
@@ -254,7 +251,6 @@ public:
         tracker_->setParticleNum(600);
         tracker_->setResampleLikelihoodThr(0.00);
         tracker_->setUseNormal(false);
-
 
         //Setup coherence object for tracking
         ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr coherence = ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr
@@ -276,14 +272,6 @@ public:
         CloudPtr transed_ref(new Cloud);
         CloudPtr transed_ref_downsampled(new Cloud);
 
-        // TODO: The Particle Tracker won't find the object from the scene on its own. Instead, I need the (inverse of)
-        // TODO: the pose of the object. That way, the tracker will be aware of the initial frame for the object, and
-        // TODO: instead of spawning the particle cloud at 0 0 0, it will spawn it on the target object. Do the following:
-        // TODO:   Instead of the PCD file, use the segmented cluster of the target object from the scene as reference.
-        // TODO:   Otherwise, I might have problems regarding initial pose, which would be tricky to get right.
-        // TODO:   Then, the compute3DCentroid below this will actually get the transform from the object to the camera.
-        // TODO:   Right now, this is 0 0 0, because we are calculating the centroid of the loaded pcd file.
-
         pcl::compute3DCentroid<RefPointType>(*target_cloud, c);
         trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
         pcl::transformPointCloud<RefPointType>(*target_cloud, *transed_ref, trans.inverse());
@@ -301,21 +289,8 @@ public:
         } else {
           CloudConstPtr test_ref = tracker_->getReferenceCloud();
           outInfo("Target cloud size is " + std::to_string(test_ref->size()));
-          outInfo(input_cloud->points[0].x);
-          outInfo(input_cloud->points[0].y);
-          outInfo(input_cloud->points[0].z);
-          outInfo(input_cloud->points[4].x);
-          outInfo(input_cloud->points[4].y);
-          outInfo(input_cloud->points[4].z);
-          outInfo(input_cloud->points[20].x);
-          outInfo(input_cloud->points[20].y);
-          outInfo(input_cloud->points[20].z);
-          outInfo(input_cloud->points[40].x);
-          outInfo(input_cloud->points[40].y);
-          outInfo(input_cloud->points[40].z);
 
           track(input_cloud);
-
 
           // ------------------------------------------------------------------------------- //
           ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
@@ -347,7 +322,7 @@ public:
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
     ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
-    if (!particles->size() > 0) { // TODO: Before going in counter loop: Segfault here because particles is null
+    if (!particles->size() > 0) { // TODO: After restarting the tracker, segfault here when opening visualizer
       outError("Particle result cloud is empty.");
     }
     else {
@@ -364,28 +339,8 @@ public:
 
       pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> result_color(particle_cloud, 255, 255, 255);
       pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> cloud_color(particle_cloud, 255, 40, 20);
-      //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
-      //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
-
 
       const std::string &cloudname = this->name;
-      /**
-      outInfo("Attempting to update visualizer...");
-      pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_xyz;
-      outInfo("1");
-      for(int n = 0; n < input_cloud->size(); n++){ // TODO: Once the PCL error spam occurs: Segfault here, smth wrong with input_cloud
-        outInfo("2.1");
-        pcl::PointXYZ point;
-        outInfo("2.2");
-        point.x = input_cloud->points[n].x;
-        point.y = input_cloud->points[n].y;
-        point.z = input_cloud->points[n].z;
-        outInfo("2.3");
-        input_cloud_xyz->push_back(point);
-      }
-      //pcl::copyPointCloud(*input_cloud, *input_cloud_xyz);
-       **/
-      outInfo("test");
       if (firstRun) {
         visualizer.addPointCloud(particle_cloud, result_color, cloudname);
 
