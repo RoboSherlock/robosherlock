@@ -82,7 +82,10 @@ typedef ParticleFilterTracker<RefPointType, ParticleT> ParticleFilter;
 
 CloudPtr cloud_pass_;
 CloudPtr cloud_pass_downsampled_;
+CloudPtr target_cloud;
+
 boost::mutex mtx_;
+boost::shared_ptr<ParticleFilter> tracker_;
 
 // Convert to string
 #define SSTR( x ) static_cast< std::ostringstream & >( \
@@ -90,8 +93,6 @@ boost::mutex mtx_;
 
 class PCLParticleTrackingAnnotator : public DrawingAnnotator {
 private:
-  boost::shared_ptr<ParticleFilterTracker<RefPointType, ParticleT>> tracker_;
-  CloudPtr target_cloud;
   CloudPtr input_cloud;
   double pointSize;
   int counter = 0;
@@ -125,7 +126,7 @@ public:
     cloud_pass_.reset (new Cloud);
     cloud_pass_downsampled_.reset (new Cloud);
     filterPassThrough (input_cloud, *cloud_pass_);
-    gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, 0.002);
+    gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, 0.005);
     outInfo("Input cloud size after filtering is " + std::to_string(cloud_pass_downsampled_->size()));
 
     if(counter < 0){ // Changed 10 to 0 for testing
@@ -141,7 +142,7 @@ public:
     outInfo("initialize");
     target_cloud.reset(new Cloud());
     if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker_5mm.pcd", *target_cloud) == -1) {
-      outWarn(".pcd-file not found!");
+      outError(".pcd-file not found!");
       return UIMA_ERR_NONE;
     }
     std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
@@ -200,14 +201,17 @@ public:
     Eigen::Vector4f c;
     Eigen::Affine3f trans = Eigen::Affine3f::Identity();
     CloudPtr transed_ref(new Cloud);
+    CloudPtr transed_ref_downsampled (new Cloud);
 
     pcl::compute3DCentroid<RefPointType>(*target_cloud, c);
     trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
     pcl::transformPointCloud<RefPointType>(*target_cloud, *transed_ref, trans.inverse());
+    // Downsampling with gridSampleApprox should not be necessary because the pcd is already donsampled.
+    gridSampleApprox (transed_ref, *transed_ref_downsampled, 0.005);
     outInfo("Target cloud size is " + std::to_string(transed_ref->size()));
 
     //set reference model and trans
-    tracker_->setReferenceCloud(transed_ref);
+    tracker_->setReferenceCloud(transed_ref_downsampled);
     tracker_->setTrans(trans);
 
     return UIMA_ERR_NONE;
@@ -349,7 +353,6 @@ public:
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*particle_cloud, *particle_cloud_filtered, indices);
         outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud_filtered->size()) + " points!");
-        // TODO: These points are too low
         outInfo(particle_cloud_filtered->points[0].x);
         outInfo(particle_cloud_filtered->points[0].y);
         outInfo(particle_cloud_filtered->points[0].z);
