@@ -46,6 +46,7 @@
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/filters/approximate_voxel_grid.h>
 #include <pcl/filters/filter.h>
+#include <pcl/filters/extract_indices.h>
 
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
@@ -96,8 +97,9 @@ private:
   CloudPtr input_cloud;
   double pointSize;
   int counter = 0;
+  bool firstExecution = true;
+  std::vector <rs::ObjectHypothesis> clusters;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb;
-
 public:
   PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1), input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>) {
     //cv::initModule_nonfree();
@@ -142,87 +144,6 @@ public:
 
   TyErrorId initialize(AnnotatorContext &ctx) {
     outInfo("initialize");
-    target_cloud.reset(new Cloud());
-    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker_5mm.pcd", *target_cloud) == -1) {
-      outError(".pcd-file not found!");
-      return UIMA_ERR_NONE;
-    }
-    std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
-    default_step_covariance[3] *= 40.0;
-    default_step_covariance[4] *= 40.0;
-    default_step_covariance[5] *= 40.0;
-
-    std::vector<double> initial_noise_covariance = std::vector<double>(6, 0.00001);
-    std::vector<double> default_initial_mean = std::vector<double>(6, 0.0);
-
-    boost::shared_ptr<KLDAdaptiveParticleFilterOMPTracker<RefPointType, ParticleT> > tracker
-            (new KLDAdaptiveParticleFilterOMPTracker<RefPointType, ParticleT>(8));
-
-    ParticleT bin_size;
-    bin_size.x = 0.1f;
-    bin_size.y = 0.1f;
-    bin_size.z = 0.1f;
-    bin_size.roll = 0.1f;
-    bin_size.pitch = 0.1f;
-    bin_size.yaw = 0.1f;
-
-
-    //Set all parameters for  KLDAdaptiveParticleFilterOMPTracker
-    tracker->setMaximumParticleNum(1000);
-    tracker->setDelta(0.99);
-    tracker->setEpsilon(0.2);
-    tracker->setBinSize(bin_size);
-
-    //Set all parameters for  ParticleFilter
-    tracker_ = tracker;
-    tracker_->setTrans(Eigen::Affine3f::Identity());
-    tracker_->setStepNoiseCovariance(default_step_covariance);
-    tracker_->setInitialNoiseCovariance(initial_noise_covariance);
-    tracker_->setInitialNoiseMean(default_initial_mean);
-    tracker_->setIterationNum(1);
-    tracker_->setParticleNum(600);
-    tracker_->setResampleLikelihoodThr(0.00);
-    tracker_->setUseNormal(false);
-
-
-    //Setup coherence object for tracking
-    ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr coherence = ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr
-            (new ApproxNearestPairPointCloudCoherence<RefPointType>());
-
-    boost::shared_ptr<DistanceCoherence<RefPointType> > distance_coherence
-            = boost::shared_ptr<DistanceCoherence<RefPointType> >(new DistanceCoherence<RefPointType>());
-    coherence->addPointCoherence(distance_coherence);
-
-    boost::shared_ptr<pcl::search::Octree<RefPointType> > search(new pcl::search::Octree<RefPointType>(0.01));
-    coherence->setSearchMethod(search);
-    coherence->setMaximumDistance(0.01);
-
-    tracker_->setCloudCoherence(coherence);
-
-    //prepare the model of tracker's target
-    Eigen::Vector4f c;
-    Eigen::Affine3f trans = Eigen::Affine3f::Identity();
-    CloudPtr transed_ref(new Cloud);
-    CloudPtr transed_ref_downsampled (new Cloud);
-
-    // TODO: The Particle Tracker won't find the object from the scene on its own. Instead, I need the (inverse of)
-    // TODO: the pose of the object. That way, the tracker will be aware of the initial frame for the object, and
-    // TODO: instead of spawning the particle cloud at 0 0 0, it will spawn it on the target object. Do the following:
-    // TODO:   Instead of the PCD file, use the segmented cluster of the target object from the scene as reference.
-    // TODO:   Otherwise, I might have problems regarding initial pose, which would be tricky to get right.
-    // TODO:   Then, the compute3DCentroid below this will actually get the transform from the object to the camera.
-    // TODO:   Right now, this is 0 0 0, because we are calculating the centroid of the loaded pcd file.
-    pcl::compute3DCentroid<RefPointType>(*target_cloud, c);
-    trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
-    pcl::transformPointCloud<RefPointType>(*target_cloud, *transed_ref, trans.inverse());
-    // Downsampling with gridSampleApprox should not be necessary because the pcd is already donsampled.
-    gridSampleApprox (transed_ref, *transed_ref_downsampled, 0.005);
-    outInfo("Target cloud size is " + std::to_string(transed_ref->size()));
-
-    //set reference model and trans
-    tracker_->setReferenceCloud(transed_ref_downsampled);
-    tracker_->setTrans(trans);
-
     return UIMA_ERR_NONE;
   }
 
@@ -245,61 +166,176 @@ public:
   // Processes a frame
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
+
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
 
-    CloudPtr input_cloud_nan(new Cloud); // Input data for 3D tracking
+    //CloudPtr input_cloud_nan(new Cloud); // Input data for 3D tracking
     CloudPtr input_cloud(new Cloud); // Input data for 3D tracking
     cas.get(VIEW_CLOUD, *input_cloud_rgb); // Fill input data for 3D tracking
-    pcl::copyPointCloud(*input_cloud_rgb, *input_cloud_nan);
+    pcl::copyPointCloud(*input_cloud_rgb, *input_cloud);
     std::vector<int> input_indices;
-    pcl::removeNaNFromPointCloud(*input_cloud_nan, *input_cloud, input_indices);
-    if(!input_cloud->size() > 0) {
+    //pcl::removeNaNFromPointCloud(*input_cloud_nan, *input_cloud, input_indices);
+
+    if (!input_cloud->size() > 0) {
       outError("Input cloud is empty.");
-    }
-    else {
+    } else {
       outInfo("Input cloud size is " + std::to_string(input_cloud->size()));
-      if (!target_cloud->size() > 0) {
-        outError("Target cloud is empty.");
-      }
-      else {
-        CloudConstPtr test_ref = tracker_->getReferenceCloud();
-        outInfo("Target cloud size is " + std::to_string(test_ref->size()));
-        outInfo(input_cloud->points[0].x);
-        outInfo(input_cloud->points[0].y);
-        outInfo(input_cloud->points[0].z);
-        outInfo(input_cloud->points[4].x);
-        outInfo(input_cloud->points[4].y);
-        outInfo(input_cloud->points[4].z);
-        outInfo(input_cloud->points[20].x);
-        outInfo(input_cloud->points[20].y);
-        outInfo(input_cloud->points[20].z);
-        outInfo(input_cloud->points[40].x);
-        outInfo(input_cloud->points[40].y);
-        outInfo(input_cloud->points[40].z);
+      if (firstExecution) {
+        target_cloud.reset(new Cloud());
+        // TODO: Get the object cluster from the scene here.
+        rs::Scene scene = cas.getScene();
+        scene.identifiables.filter(clusters);
 
-        track(input_cloud);
-
-
-        // ------------------------------------------------------------------------------- //
-        ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
-        if (particles && input_cloud) {
-          //Set pointCloud with particle's points
-          pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-          for (size_t i = 0; i < particles->points.size(); i++) {
-            pcl::PointXYZ point;
-
-            point.x = particles->points[i].x;
-            point.y = particles->points[i].y;
-            point.z = particles->points[i].z;
-            particle_cloud->points.push_back(point);
-          }
-
-          const std::string &cloudname = this->name;
-          outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+        rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
+        outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
+        if (!cas.getFS("OBJ_ID_TRACK", s)) {
+          outError("Please set OBJ_TO_TRACK before processing with KCFTrackingAnnotator for the first time.");
+          return UIMA_ERR_NONE;
         }
-        // ------------------------------------------------------------------------------- //
+        int obj_id = s.height.get();
+
+        if (clusters.size() <= obj_id) {
+          outError("An object of id " + std::to_string(obj_id) + " does not exist. "
+                                                                 "There are only " + std::to_string(clusters.size())
+                   + " potential objects in the scene.");
+          return UIMA_ERR_NONE;
+        }
+
+        // Get current 3D view from CAS
+
+        // Make point cloud from target object hypothesis
+        rs::ObjectHypothesis &cluster = clusters[obj_id];
+        if (!cluster.points.has()) {
+          outError("Target cluster has no points.");
+          return UIMA_ERR_NONE;
+        }
+        pcl::PointIndicesPtr indices(new pcl::PointIndices());
+        rs::conversion::from(static_cast<rs::ReferenceClusterPoints>(cluster.points.get()).indices.get(), *indices);
+        pcl::ExtractIndices <RefPointType> ei;
+        ei.setInputCloud(input_cloud);
+        ei.setIndices(indices);
+        ei.filter(*target_cloud);
+
+        std::vector<double> default_step_covariance = std::vector<double>(6, 0.015 * 0.015);
+        default_step_covariance[3] *= 40.0;
+        default_step_covariance[4] *= 40.0;
+        default_step_covariance[5] *= 40.0;
+
+        std::vector<double> initial_noise_covariance = std::vector<double>(6, 0.00001);
+        std::vector<double> default_initial_mean = std::vector<double>(6, 0.0);
+
+        boost::shared_ptr <KLDAdaptiveParticleFilterOMPTracker<RefPointType, ParticleT>> tracker
+                (new KLDAdaptiveParticleFilterOMPTracker<RefPointType, ParticleT>(8));
+
+        ParticleT bin_size;
+        bin_size.x = 0.1f;
+        bin_size.y = 0.1f;
+        bin_size.z = 0.1f;
+        bin_size.roll = 0.1f;
+        bin_size.pitch = 0.1f;
+        bin_size.yaw = 0.1f;
+
+
+        //Set all parameters for  KLDAdaptiveParticleFilterOMPTracker
+        tracker->setMaximumParticleNum(1000);
+        tracker->setDelta(0.99);
+        tracker->setEpsilon(0.2);
+        tracker->setBinSize(bin_size);
+
+        //Set all parameters for  ParticleFilter
+        tracker_ = tracker;
+        tracker_->setTrans(Eigen::Affine3f::Identity());
+        tracker_->setStepNoiseCovariance(default_step_covariance);
+        tracker_->setInitialNoiseCovariance(initial_noise_covariance);
+        tracker_->setInitialNoiseMean(default_initial_mean);
+        tracker_->setIterationNum(1);
+        tracker_->setParticleNum(600);
+        tracker_->setResampleLikelihoodThr(0.00);
+        tracker_->setUseNormal(false);
+
+
+        //Setup coherence object for tracking
+        ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr coherence = ApproxNearestPairPointCloudCoherence<RefPointType>::Ptr
+                (new ApproxNearestPairPointCloudCoherence<RefPointType>());
+
+        boost::shared_ptr <DistanceCoherence<RefPointType>> distance_coherence
+                = boost::shared_ptr < DistanceCoherence < RefPointType > > (new DistanceCoherence<RefPointType>());
+        coherence->addPointCoherence(distance_coherence);
+
+        boost::shared_ptr <pcl::search::Octree<RefPointType>> search(new pcl::search::Octree<RefPointType>(0.01));
+        coherence->setSearchMethod(search);
+        coherence->setMaximumDistance(0.01);
+
+        tracker_->setCloudCoherence(coherence);
+
+        //prepare the model of tracker's target
+        Eigen::Vector4f c;
+        Eigen::Affine3f trans = Eigen::Affine3f::Identity();
+        CloudPtr transed_ref(new Cloud);
+        CloudPtr transed_ref_downsampled(new Cloud);
+
+        // TODO: The Particle Tracker won't find the object from the scene on its own. Instead, I need the (inverse of)
+        // TODO: the pose of the object. That way, the tracker will be aware of the initial frame for the object, and
+        // TODO: instead of spawning the particle cloud at 0 0 0, it will spawn it on the target object. Do the following:
+        // TODO:   Instead of the PCD file, use the segmented cluster of the target object from the scene as reference.
+        // TODO:   Otherwise, I might have problems regarding initial pose, which would be tricky to get right.
+        // TODO:   Then, the compute3DCentroid below this will actually get the transform from the object to the camera.
+        // TODO:   Right now, this is 0 0 0, because we are calculating the centroid of the loaded pcd file.
+
+        pcl::compute3DCentroid<RefPointType>(*target_cloud, c);
+        trans.translation().matrix() = Eigen::Vector3f(c[0], c[1], c[2]);
+        pcl::transformPointCloud<RefPointType>(*target_cloud, *transed_ref, trans.inverse());
+        // Downsampling with gridSampleApprox should not be necessary because the pcd is already donsampled.
+        gridSampleApprox(transed_ref, *transed_ref_downsampled, 0.005);
+        outInfo("Target cloud size is " + std::to_string(transed_ref->size()));
+
+        //set reference model and trans
+        tracker_->setReferenceCloud(transed_ref_downsampled);
+        tracker_->setTrans(trans);
+        firstExecution = false;
+      } else {
+        if (!target_cloud->size() > 0) {
+          outError("Target cloud is empty.");
+        } else {
+          CloudConstPtr test_ref = tracker_->getReferenceCloud();
+          outInfo("Target cloud size is " + std::to_string(test_ref->size()));
+          outInfo(input_cloud->points[0].x);
+          outInfo(input_cloud->points[0].y);
+          outInfo(input_cloud->points[0].z);
+          outInfo(input_cloud->points[4].x);
+          outInfo(input_cloud->points[4].y);
+          outInfo(input_cloud->points[4].z);
+          outInfo(input_cloud->points[20].x);
+          outInfo(input_cloud->points[20].y);
+          outInfo(input_cloud->points[20].z);
+          outInfo(input_cloud->points[40].x);
+          outInfo(input_cloud->points[40].y);
+          outInfo(input_cloud->points[40].z);
+
+          track(input_cloud);
+
+
+          // ------------------------------------------------------------------------------- //
+          ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
+          if (particles && input_cloud) {
+            //Set pointCloud with particle's points
+            pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+            for (size_t i = 0; i < particles->points.size(); i++) {
+              pcl::PointXYZ point;
+
+              point.x = particles->points[i].x;
+              point.y = particles->points[i].y;
+              point.z = particles->points[i].z;
+              particle_cloud->points.push_back(point);
+            }
+
+            const std::string &cloudname = this->name;
+            outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+          }
+          // ------------------------------------------------------------------------------- //
+        }
       }
     }
     outInfo("took: " << clock.getTime() << " ms.");
