@@ -48,7 +48,7 @@ private:
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
 
-  std::string source_frame;
+  bool transform_cloud;
   std::string target_frame;
 
   cv::Mat rgb_;
@@ -73,8 +73,8 @@ public:
     ctx.extractValue("minZ", minZ);
     ctx.extractValue("maxZ", maxZ);
 
-    if(ctx.isParameterDefined("source_frame")) {
-        ctx.extractValue("source_frame", source_frame);
+    if(ctx.isParameterDefined("transform_cloud")) {
+        ctx.extractValue("transform_cloud", transform_cloud);
     }if(ctx.isParameterDefined("target_frame")) {
           ctx.extractValue("target_frame", target_frame);
       }
@@ -104,14 +104,13 @@ public:
     pcl::PointCloud<PointT>::Ptr cloud_transformed(new pcl::PointCloud<PointT>);
     tf::StampedTransform transform;
     bool was_transformed = false;
-    if(transformListener.frameExists(source_frame) && transformListener.frameExists(target_frame)) {
-      transformListener.lookupTransform(target_frame, source_frame, ros::Time(0), transform);
+    if(transform_cloud && transformListener.frameExists(target_frame)) {
+      transformListener.lookupTransform(target_frame, cloud_ptr->header.frame_id, ros::Time(0), transform);
       Eigen::Affine3d eigenTransform;
       tf::transformTFToEigen(transform, eigenTransform);
       pcl::transformPointCloud<PointT>(*cloud_ptr, *cloud_transformed, eigenTransform);
       was_transformed = true;
     } else {
-        outWarn("No point cloud transformation");
         cloud_transformed = cloud_ptr;
     }
 
