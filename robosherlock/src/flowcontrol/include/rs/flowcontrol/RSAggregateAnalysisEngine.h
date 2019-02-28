@@ -40,10 +40,9 @@
 #include <unordered_map>
 
 /**
- * @brief The RSAggregateAnalysisEngine class
+ * @brief The RSAggregateAnalysisEngine class enables a flow controller interface for an Aggregate analysis engine;
  * extends the default AAE from uima adding parallel pipeline execution capability and exchange of the internal fixed flow
  * this overrides default uima behaviour since fixed flow originally was not meant to be changed during runtime;
- * In essence this class implements a flow controller interface fro an Aggregate analysis engine;
  */
 class RSAggregateAnalysisEngine : public uima::internal::AggregateEngine
 {
@@ -124,20 +123,24 @@ public:
    */
   void getCurrentAnnotatorFlow(std::vector<std::string> &annotators);
 
-
   /**
    * @brief setDelegateAnnotatorCapabilities set the capabilities of the AEs
    * @param[in] caps mapping from AE name to capabilities;
    */
   void setDelegateAnnotatorCapabilities(std::map < std::string, rs::AnnotatorCapabilities> caps)
   {
-    annotatorCapabilities_ = caps;
+    delegate_annotator_capabilities_ = caps;
   }
 
+  /**
+   * @brief getDelegateAnnotatorCapabilities
+   * @return map of annotator name to its scapabilities
+   */
   std::map < std::string, rs::AnnotatorCapabilities>  getDelegateAnnotatorCapabilities()
   {
-    return annotatorCapabilities_;
+    return delegate_annotator_capabilities_;
   }
+
   /**
    * @brief setParallel
    * @param[in] f flag for parallel execution or not
@@ -158,7 +161,6 @@ public:
    */
   void setContinuousPipelineOrder(std::vector<std::string> annotators);
 
-
   /**
    * @brief getIndexOfAnnotator get the index of an annotator from the flow;
    * @param annotator_name annotator name
@@ -171,7 +173,6 @@ public:
    * @param annotators (ordered) list of annotators to set
    */
   void setPipelineOrdering(std::vector<std::string> annotators);
-
 
   /**
    * @brief planParallelPipelineOrderings plan a new parallel pipeline
@@ -195,7 +196,7 @@ public:
    */
   void set_original_annotators()
   {
-    original_annotators = this->iv_annotatorMgr.iv_vecEntries;
+    delegate_annotators_ = this->iv_annotatorMgr.iv_vecEntries;
   }
 
 public:
@@ -208,14 +209,13 @@ public:
   AnnotatorOrderingIndices currentOrderingIndices;
   RSParallelPipelinePlanner parallelPlanner;
 
-  std::map<std::string, rs::AnnotatorCapabilities> annotatorCapabilities_;
+  std::map<std::string, rs::AnnotatorCapabilities> delegate_annotator_capabilities_;
 
 
 private:
 
   std::vector<std::string> default_pipeline_annotators;
-  uima::internal::AnnotatorManager::TyAnnotatorEntries original_annotators;
-
+  uima::internal::AnnotatorManager::TyAnnotatorEntries delegate_annotators_;
 
   bool parallel_;
 
@@ -224,7 +224,6 @@ private:
 
 protected:
   std::shared_ptr<std::mutex> process_mutex;
-
 };
 
 

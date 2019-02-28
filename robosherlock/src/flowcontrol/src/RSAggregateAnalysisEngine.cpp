@@ -35,7 +35,7 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
     uima::CAS &cas,
     uima::ResultSpecification &resultSpec)
 {
-  if(index < 0 || index >= iv_annotatorMgr.iv_vecEntries.size()) {
+  if(index < 0 || index >= static_cast<int>(iv_annotatorMgr.iv_vecEntries.size())) {
     outError("Provided index is invalid in current annotator flow. Index: " << index << ", flow size: " << iv_annotatorMgr.iv_vecEntries.size());
     return UIMA_ERR_ANNOTATOR_COULD_NOT_FIND;
   }
@@ -157,13 +157,13 @@ bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
     return false;
   }
 
-  if(annotatorCapabilities_.empty() || !success) {
+  if(delegate_annotator_capabilities_.empty() || !success) {
     outWarn("Querying annotators capabilities data was not set! Parallel orderings will not be planned!");
     return false;
   }
 
   parallelPlanner.setAnnotatorList(annotators);
-  parallelPlanner.planPipelineStructure(annotatorCapabilities_);
+  parallelPlanner.planPipelineStructure(delegate_annotator_capabilities_);
 
   parallelPlanner.getPlannedPipeline(orderings);
   parallelPlanner.getPlannedPipelineIndices(orderingIndices);
@@ -219,7 +219,7 @@ void RSAggregateAnalysisEngine::getCurrentAnnotatorFlow(std::vector<std::string>
 
 void RSAggregateAnalysisEngine::resetPipelineOrdering()
 {
-  this->iv_annotatorMgr.iv_vecEntries = original_annotators; // Reset to the original pipeline
+  this->iv_annotatorMgr.iv_vecEntries = delegate_annotators_; // Reset to the original pipeline
   if(parallel_) {
     this->currentOrderings = original_annotator_orderings;
     this->currentOrderingIndices = original_annotator_ordering_indices;
@@ -265,7 +265,7 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
     int idx = getIndexOfAnnotator(annotators.at(i));
     if(idx >= 0) {
       //  2) Add a copy of the respectie EngineEntry from the original_annotators to the new list
-      uima::internal::AnnotatorManager::EngineEntry ee = original_annotators.at(idx);
+      uima::internal::AnnotatorManager::EngineEntry ee = delegate_annotators_.at(idx);
       new_annotators.push_back(ee);
       continue;
     }
