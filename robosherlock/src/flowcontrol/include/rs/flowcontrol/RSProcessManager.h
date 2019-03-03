@@ -33,7 +33,7 @@ public:
   RSAnalysisEngine engine_;
 
 #ifdef WITH_JSON_PROLOG
-  QueryInterface *queryInterface;
+  QueryInterface *query_interface;
 #endif
 
   mongo::client::GlobalInstance instance;

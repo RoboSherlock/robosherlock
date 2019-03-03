@@ -1,6 +1,3 @@
-//
-// Created by alexander on 20.09.18.
-//
 /**
  * Author: Alexander Link <link@uni-bremen.de>
  *
@@ -88,41 +85,45 @@ boost::mutex mtx_;
 #define SSTR( x ) static_cast< std::ostringstream & >( \
 ( std::ostringstream() << std::dec << x ) ).str()
 
-class PCLParticleTrackingAnnotator : public DrawingAnnotator {
+class PCLParticleTrackingAnnotator : public DrawingAnnotator
+{
 private:
   boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
   Cloud::Ptr target_cloud;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud;
-  double pointSize;
+  double point_size;
   int counter = 0;
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1) {
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1)
+  {
     //cv::initModule_nonfree();
   }
 
   //Filter along a specified dimension
-  void filterPassThrough (const CloudConstPtr &cloud, Cloud &result)
+  void filterPassThrough (const CloudConstPtr &CLOUD, Cloud &result)
   {
     pcl::PassThrough<pcl::PointXYZRGBA> pass;
     pass.setFilterFieldName ("z");
     pass.setFilterLimits (0.0, 10.0);
     pass.setKeepOrganized (false);
-    pass.setInputCloud (cloud);
+    pass.setInputCloud (CLOUD);
     pass.filter (result);
   }
 
-  void gridSampleApprox (const CloudConstPtr &cloud, Cloud &result, double leaf_size)
+  void gridSampleApprox (const CloudConstPtr &CLOUD, Cloud &result, double leaf_size)
   {
     pcl::ApproximateVoxelGrid<pcl::PointXYZRGBA> grid;
     grid.setLeafSize (static_cast<float> (leaf_size), static_cast<float> (leaf_size), static_cast<float> (leaf_size));
-    grid.setInputCloud (cloud);
+    grid.setInputCloud (CLOUD);
     grid.filter (result);
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx) {
+  TyErrorId initialize(AnnotatorContext &ctx)
+  {
     outInfo("initialize");
     target_cloud.reset(new Cloud());
-    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker_5mm.pcd", *target_cloud) == -1) {
+    if (pcl::io::loadPCDFile("/home/alex/tracking/SeverinPancakeMaker_5mm.pcd", *target_cloud) == -1)
+    {
       outWarn(".pcd-file not found!");
       return UIMA_ERR_NONE;
     }
@@ -212,21 +213,24 @@ public:
   }
 
   // Processes a frame
-  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &RES_SPEC)
   {
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>); // Input data for 3D tracking
     cas.get(VIEW_CLOUD, *input_cloud); // Fill input data for 3D tracking
-    if(!input_cloud->size() > 0) {
+    if(!input_cloud->size() > 0)
+    {
       outError("Input cloud is empty.");
     }
-    else {
+    else
+      {
       if (!target_cloud->size() > 0) {
         outError("Target cloud is empty.");
       }
-      else {
+      else
+      {
         outInfo("Target cloud size is " + std::to_string(target_cloud->size()));
         //CloudPtr test_ref = tracker_->getReferenceCloud();
         //outInfo("Transformed target cloud size from tracker is " + std::to_string(test_ref->size()));
@@ -253,7 +257,9 @@ public:
 
         if(counter < 10){
           counter++;
-        }else{
+        }
+        else
+        {
           //Track the object
           tracker_->setInputCloud (cloud_pass_downsampled_);
           tracker_->compute();
@@ -263,7 +269,8 @@ public:
         if (particles && input_cloud) {
           //Set pointCloud with particle's points
           pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-          for (size_t i = 0; i < particles->points.size(); i++) {
+          for (size_t i = 0; i < particles->points.size(); i++)
+          {
             pcl::PointXYZ point;
 
             point.x = particles->points[i].x;
@@ -276,7 +283,7 @@ public:
           //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
           //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
-          const std::string &cloudname = this->name;
+          const std::string &CLOUDNAME = this->name;
           outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
         }
         // ------------------------------------------------------------------------------- //
@@ -286,19 +293,24 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  void drawImageWithLock(cv::Mat &disp){
+  void drawImageWithLock(cv::Mat &disp)
+  {
   }
 
-  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool FIRST_RUN)
+  {
     ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
-    if (!particles->size() > 0) {
+    if (!particles->size() > 0)
+    {
       outError("Particle result cloud is empty.");
     }
-    else {
+    else
+    {
       outInfo("Particle result cloud is fine.");
       //Set pointCloud with particle's points
       pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-      for (size_t i = 0; i < particles->points.size(); i++) {
+      for (size_t i = 0; i < particles->points.size(); i++)
+      {
         pcl::PointXYZ point;
 
         point.x = particles->points[i].x;
@@ -312,19 +324,22 @@ public:
       //if (!visualizer.updatePointCloud (particle_cloud, red_color, "particle cloud"))
       //  visualizer.addPointCloud (particle_cloud, red_color, "particle cloud");
 
-      const std::string &cloudname = this->name;
+      const std::string &CLOUDNAME = this->name;
       outInfo("Attempting to update visualizer...");
       pcl::PointCloud<pcl::PointXYZ>::Ptr input_cloud_xyz;
       pcl::copyPointCloud(*input_cloud, *input_cloud_xyz); // TODO: Segfault here. Is this because of the new changes?
       outInfo("test");
-      if (firstRun) {
-        visualizer.addPointCloud(particle_cloud, result_color, cloudname);
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
-                                                    cloudname);
+      if (FIRST_RUN)
+      {
+        visualizer.addPointCloud(particle_cloud, result_color, CLOUDNAME);
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,
+                                                    CLOUDNAME);
         visualizer.addPointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,
                                                     "tracking_input_cloud");
-      } else {
+      }
+      else
+      {
         pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*particle_cloud, *particle_cloud_filtered, indices);
@@ -336,8 +351,8 @@ public:
         outInfo(particle_cloud_filtered->points[4].x);
         outInfo(particle_cloud_filtered->points[4].y);
         outInfo(particle_cloud_filtered->points[4].z);
-        visualizer.updatePointCloud(particle_cloud_filtered, result_color, cloudname);
-        //visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        visualizer.updatePointCloud(particle_cloud_filtered, result_color, CLOUDNAME);
+        //visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size, CLOUDNAME);
         visualizer.updatePointCloud(input_cloud_xyz, cloud_color, "tracking_input_cloud");
       }
     }

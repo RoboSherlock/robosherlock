@@ -1,6 +1,3 @@
-//
-// Created by alexander on 20.09.18.
-//
 /**
  * Author: Alexander Link <link@uni-bremen.de>
  *
@@ -61,7 +58,7 @@ private:
   Ptr<Tracker> tracker = TrackerKCF::create();
   cv::Mat frame; // Input data for 2D tracking
   Rect2d bbox;
-  bool firstExecution = true;
+  bool first_execution = true;
   std::vector <rs::ObjectHypothesis> clusters;
   bool ok = false;
 public:
@@ -76,7 +73,8 @@ public:
   /*
    * Initializes annotator
    */
-  TyErrorId initialize(AnnotatorContext &ctx) {
+  TyErrorId initialize(AnnotatorContext &ctx)
+  {
     outInfo("initialize");
     return UIMA_ERR_NONE;
   }
@@ -85,9 +83,9 @@ public:
   {
     outInfo("Reconfiguring");
     tracker = TrackerKCF::create();
-    firstExecution = true;
-    cv::Mat frameTemp = frame;
-    frame = Mat(frameTemp.rows, frameTemp.cols, CV_32F, 5.0);
+    first_execution = true;
+    cv::Mat frame_temp = frame;
+    frame = Mat(frame_temp.rows, frame_temp.cols, CV_32F, 5.0);
     return UIMA_ERR_NONE;
   }
 
@@ -99,60 +97,63 @@ public:
   }
 
   // Processes a frame
-  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec) {
+  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &RES_SPEC)
+  {
     rs::StopWatch clock;
     outInfo("process begins");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
     cas.get(VIEW_COLOR_IMAGE_HD, frame); // Fill input data
 
-    if (firstExecution) {
+    if (first_execution)
+    {
       scene.identifiables.filter(clusters);
-      if (!frame.rows > 0) {
+      if (!frame.rows > 0)
+      {
         outError("Visual input is empty. Has VIEW_COLOR_IMAGE been filled?");
         return UIMA_ERR_NONE;
       }
 
       rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
       outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
-      if (!cas.getFS("OBJ_ID_TRACK", s)) {
+      if (!cas.getFS("OBJ_ID_TRACK", s))
+      {
         outError("Please set OBJ_TO_TRACK before processing with KCFTrackingAnnotator for the first time.");
         return UIMA_ERR_NONE;
       }
       int obj_id = s.height.get();
 
-      outInfo("Get the ROI of the object that is to be tracked.");
-      if (clusters.size() <= obj_id) {
+      if (clusters.size() <= obj_id)
+      {
         outError("An object of id " + std::to_string(obj_id) + " does not exist. "
                                                                "There are only " + std::to_string(clusters.size())
                                                                + " potential objects in the scene.");
         return UIMA_ERR_NONE;
       }
-      /**
-       * This is not relevant anymore since no redetection is required for the KCF tracker.
-      if(clusters.size() > 1) {
-        outWarn("Found more than one object in the scene. "
-                "It is recommended to run ClosestHypothesisFilter before running KCFTrackingAnnotator. "
-                "Now tracking the object hypothesis of ID 0 by default...");
-      }
-       **/
+
       rs::ImageROI image_roi = clusters[obj_id].rois.get();
       cv::Rect roi;
       rs::conversion::from(image_roi.roi_hires(), roi);
       Rect2d bbox(roi.x, roi.y, roi.width, roi.height); // Manual Rect to Rect2d conversion
-      outInfo("Initializing tracker using current object hypothesis in the scene...");
+
       bool init_ok = tracker->init(frame, bbox);
-      if (init_ok) {
+      if (init_ok)
+      {
         outInfo("Tracker initialized successfully!");
-      } else {
+      }
+      else
+      {
         outError("Tracker initialization failed!");
       }
-      firstExecution = false;
-    } else {
+      first_execution = false;
+    }
+    else
+    {
       outInfo("Updating the tracker...");
       ok = tracker->update(frame, bbox);
       robosherlock_msgs::RSObjectDescriptions result_message;
-      if (ok) {
+      if (ok)
+      {
         outInfo("Tracker updated successfully!");
 
         // TODO: The output is supposed to happen through RSProcessManager's result_pub. To do this, put an
@@ -172,7 +173,9 @@ public:
         result_response.push_back("height: " + std::to_string(bbox.height));
         result_message.obj_descriptions = result_response;
         result_pub.publish(result_message);
-      } else {
+      }
+      else
+      {
         outError("Tracking failed!");
         std::vector<std::string> result_response;
         result_response.push_back("Object lost!");
@@ -192,12 +195,14 @@ public:
   void drawImageWithLock(cv::Mat &disp)
   {
     disp = frame.clone();
-    if(ok) {
+    if(ok)
+    {
       rectangle(disp, bbox, Scalar(255, 0, 0), 2, 1);
     }
   }
 
-  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun) {
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool FIRST_RUN)
+  {
   }
 
 };

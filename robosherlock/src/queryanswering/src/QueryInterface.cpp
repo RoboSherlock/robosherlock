@@ -62,23 +62,23 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
 
   else if(query.HasMember("track"))
   {
-    const rapidjson::Value &valTrack = query["track"];
-    rapidjson::Value::MemberIterator trackIterator = query.FindMember("track");
-    trackIterator->name.SetString("detect", query.GetAllocator());
+    const rapidjson::Value &VAL_TRACK = query["track"];
+    rapidjson::Value::MemberIterator track_iterator = query.FindMember("track");
+    track_iterator->name.SetString("detect", query.GetAllocator());
 
     rapidjson::StringBuffer buffer;
     buffer.Clear();
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     query.Accept(writer);
-    std::string queryDetect(buffer.GetString(), buffer.GetSize());
+    std::string query_detect(buffer.GetString(), buffer.GetSize());
 
-    const rapidjson::Value &valDetect = query["detect"];
+    const rapidjson::Value &VAL_DETECT = query["detect"];
 
-    std::vector<std::string> detPipeline, trackingPipeline;
-    handleDetect(detPipeline, valDetect);
-    handleTrack(trackingPipeline, valTrack);
-    res.push_back(detPipeline);
-    res.push_back(trackingPipeline);
+    std::vector<std::string> detect_pipeline, tracking_pipeline;
+    handleDetect(detect_pipeline, VAL_DETECT);
+    handleTrack(tracking_pipeline, VAL_TRACK);
+    res.push_back(detect_pipeline);
+    res.push_back(tracking_pipeline);
 
     return QueryType::TRACK;
   }
@@ -181,20 +181,14 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
   //res.push_back("StorageWriter");
 
 
+  // KCF tracking pipeline
 /**
   res.push_back("ImagePreprocessor");
   res.push_back("KCFTrackingAnnotator");
-
-
-  // Old PCL pipeline, but it shouldn't need segmented clusters
-  res.push_back("ImagePreprocessor");
-  res.push_back("PlaneAnnotator");
-  res.push_back("PointCloudClusterExtractor");
-  res.push_back("PointCloudDownsampler");
-  res.push_back("PCLParticleTrackingAnnotator");
   **/
 
 
+  // PCL particle tracking pipeline
   res.push_back("ImagePreprocessor");
   res.push_back("PointCloudFilter");
   res.push_back("PointCloudDownsampler");
