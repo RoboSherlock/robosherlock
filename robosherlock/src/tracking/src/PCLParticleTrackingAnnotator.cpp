@@ -92,16 +92,14 @@ boost::shared_ptr<ParticleFilter> tracker_;
 class PCLParticleTrackingAnnotator : public DrawingAnnotator
 {
 private:
-  boost::shared_ptr<ParticleFilterTracker<pcl::PointXYZRGBA, ParticleXYZRPY>> tracker_;
-  Cloud::Ptr target_cloud;
   CloudPtr input_cloud;
   double point_size;
-  int counter = 0;
-  bool firstExecution = true;
+  bool first_execution = true;
   std::vector <rs::ObjectHypothesis> clusters;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb;
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), pointSize(1), input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>) {
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>)
+  {
     //cv::initModule_nonfree();
   }
 
@@ -133,16 +131,12 @@ public:
     gridSampleApprox (cloud_pass_, *cloud_pass_downsampled_, 0.005);
     outInfo("Input cloud size after filtering is " + std::to_string(cloud_pass_downsampled_->size()));
 
-    if(counter < 0){ // Changed 10 to 0 for testing
-      counter++;
-    }else{
-      //Track the object
-      tracker_->setInputCloud (cloud_pass_downsampled_);
-      tracker_->compute();
-    }
+    tracker_->setInputCloud (cloud_pass_downsampled_);
+    tracker_->compute();
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx) {
+  TyErrorId initialize(AnnotatorContext &ctx)
+  {
     outInfo("initialize");
     return UIMA_ERR_NONE;
   }
@@ -150,7 +144,7 @@ public:
   TyErrorId reconfigure()
   {
     outInfo("Reconfiguring");
-    firstExecution = true;
+    first_execution = true;
     return UIMA_ERR_NONE;
   }
 
@@ -158,7 +152,6 @@ public:
   TyErrorId destroy()
   {
     outInfo("destroy");
-
     return UIMA_ERR_NONE;
   }
 
@@ -179,22 +172,25 @@ public:
       outError("Input cloud is empty.");
     }
     else
-      {
+    {
       outInfo("Input cloud size is " + std::to_string(input_cloud->size()));
-      if (firstExecution) {
+      if (first_execution)
+      {
         target_cloud.reset(new Cloud());
         rs::Scene scene = cas.getScene();
         scene.identifiables.filter(clusters);
 
         rs::Size s = rs::create<rs::Size>(tcas); // a hack to get a simple integer (the object ID) from the cas.
         outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
-        if (!cas.getFS("OBJ_ID_TRACK", s)) {
+        if (!cas.getFS("OBJ_ID_TRACK", s))
+        {
           outError("Please set OBJ_TO_TRACK before processing with KCFTrackingAnnotator for the first time.");
           return UIMA_ERR_NONE;
         }
         int obj_id = s.height.get();
 
-        if (clusters.size() <= obj_id) {
+        if (clusters.size() <= obj_id)
+        {
           outError("An object of id " + std::to_string(obj_id) + " does not exist. "
                                                                  "There are only " + std::to_string(clusters.size())
                    + " potential objects in the scene.");
@@ -205,7 +201,8 @@ public:
 
         // Make point cloud from target object hypothesis
         rs::ObjectHypothesis &cluster = clusters[obj_id];
-        if (!cluster.points.has()) {
+        if (!cluster.points.has())
+        {
           outError("Target cluster has no points.");
           return UIMA_ERR_NONE;
         }
@@ -282,11 +279,16 @@ public:
         //set reference model and trans
         tracker_->setReferenceCloud(transed_ref_downsampled);
         tracker_->setTrans(trans);
-        firstExecution = false;
-      } else {
-        if (!target_cloud->size() > 0) {
+        first_execution = false;
+      }
+      else
+      {
+        if (!target_cloud->size() > 0)
+        {
           outError("Target cloud is empty.");
-        } else {
+        }
+        else
+        {
           CloudConstPtr test_ref = tracker_->getReferenceCloud();
           outInfo("Target cloud size is " + std::to_string(test_ref->size()));
 
@@ -294,10 +296,11 @@ public:
 
           // ------------------------------------------------------------------------------- //
           ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
-          if (particles && input_cloud) {
-            //Set pointCloud with particle's points
+          if (particles && input_cloud)
+          {
             pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-            for (size_t i = 0; i < particles->points.size(); i++) {
+            for (size_t i = 0; i < particles->points.size(); i++)
+            {
               pcl::PointXYZ point;
 
               point.x = particles->points[i].x;
@@ -306,10 +309,8 @@ public:
               particle_cloud->points.push_back(point);
             }
 
-            const std::string &cloudname = this->name;
             outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
           }
-          // ------------------------------------------------------------------------------- //
         }
       }
     }
@@ -330,7 +331,6 @@ public:
     }
     else
     {
-      outInfo("Particle result cloud is fine.");
       pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
       for (size_t i = 0; i < particles->points.size(); i++)
       {
@@ -347,12 +347,13 @@ public:
 
       const std::string &CLOUDNAME = this->name;
       if (FIRST_RUN)
-        visualizer.addPointCloud(particle_cloud, result_color, cloudname);
+      {
+        visualizer.addPointCloud(particle_cloud, result_color, CLOUDNAME);
 
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,
-                                                    cloudname);
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,
+                                                    CLOUDNAME);
         visualizer.addPointCloud(input_cloud_rgb, "original_cloud");
-        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize,"original_cloud");
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,"original_cloud");
       }
       else
       {
@@ -360,14 +361,7 @@ public:
         std::vector<int> indices;
         pcl::removeNaNFromPointCloud(*particle_cloud, *particle_cloud_filtered, indices);
         outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud_filtered->size()) + " points!");
-        outInfo(particle_cloud_filtered->points[0].x);
-        outInfo(particle_cloud_filtered->points[0].y);
-        outInfo(particle_cloud_filtered->points[0].z);
-        outInfo(particle_cloud_filtered->points[4].x);
-        outInfo(particle_cloud_filtered->points[4].y);
-        outInfo(particle_cloud_filtered->points[4].z);
-        visualizer.updatePointCloud(particle_cloud_filtered, result_color, cloudname);
-        //visualizer.getPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);
+        visualizer.updatePointCloud(particle_cloud_filtered, result_color, CLOUDNAME);
         visualizer.updatePointCloud(input_cloud_rgb, "original_cloud");
       }
     }
