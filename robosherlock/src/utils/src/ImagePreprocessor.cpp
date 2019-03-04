@@ -606,6 +606,10 @@ private:
     {
       outDebug("create point cloud.");
       rs::DepthImageProcessing::project(depth, color, alpha, lookupX, lookupY, cloud);
+      sensor_msgs::CameraInfo camInfo;
+      cas.get(VIEW_CAMERA_INFO, camInfo);
+      cloud->header.frame_id = camInfo.header.frame_id;
+      cloud->header.stamp = camInfo.header.stamp.toNSec();
       cas.set(VIEW_CLOUD, *cloud);
     }
   }

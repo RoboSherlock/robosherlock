@@ -33,6 +33,7 @@ public:
 
   void getDelegates(vector<string> &delegates_);
   rs::AnnotatorCapabilities getAnnotatorCapabilities();
+  std::vector<rs::AnnotatorCapabilities> getOverwrittenAnnotatorCapabilities();
 
   bool isInAEList(const string value);
 
@@ -122,10 +123,10 @@ private:
 
   bool parseAnnotatorInfo(const YAML::Node &node);
 
-  bool parseConfigParamInfo(const YAML::Node &node);
+  bool generateAnnotatorConfigParamInfo(const YAML::Node &node);
   bool genConfigParamInfo(const YAML::Node &node, const string analysisEngineName);
 
-  bool parseCapabInfo(const YAML::Node &node);
+  bool parseCapabInfo(const YAML::Node &node, std::string annotator_name = "");
   bool genCapabInfo(const YAML::Node &node);
 
 
@@ -133,7 +134,8 @@ private:
   bool genFsIndexCollection();
 
 
-  rs::AnnotatorCapabilities annotCap;
+  rs::AnnotatorCapabilities annotatorCap;
+  std::vector<rs::AnnotatorCapabilities> overwrittenAnnotCaps;
   vector<string> delegates_;
 
 };
