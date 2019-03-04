@@ -29,6 +29,10 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 #include <rs/DrawingAnnotator.h>
+#include <tf_conversions/tf_eigen.h>
+#include <tf/tf.h>
+#include <tf/transform_listener.h>
+#include <pcl/common/transforms.h>
 
 using namespace uima;
 
@@ -44,7 +48,11 @@ private:
   float minX, maxX, minY, maxY, minZ, maxZ;
   Type cloud_type;
 
+  bool transform_cloud;
+  std::string target_frame;
+
   cv::Mat rgb_;
+  tf::TransformListener transformListener;
 
 public:
 
@@ -65,6 +73,12 @@ public:
     ctx.extractValue("minZ", minZ);
     ctx.extractValue("maxZ", maxZ);
 
+    if(ctx.isParameterDefined("transform_cloud")) {
+        ctx.extractValue("transform_cloud", transform_cloud);
+    }if(ctx.isParameterDefined("target_frame")) {
+          ctx.extractValue("target_frame", target_frame);
+      }
+
 
     return UIMA_ERR_NONE;
   }
@@ -81,14 +95,27 @@ public:
     MEASURE_TIME;
     outInfo("process start");
     rs::SceneCas cas(tcas);
+    rs::Scene scene = cas.getScene();
     pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>);
-    (new pcl::PointCloud<PointT>);
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_COLOR_IMAGE, rgb_);
 
+    pcl::PointCloud<PointT>::Ptr cloud_transformed(new pcl::PointCloud<PointT>);
+    tf::StampedTransform transform;
+    bool was_transformed = false;
+    if(transform_cloud && transformListener.frameExists(target_frame)) {
+      transformListener.lookupTransform(target_frame, cloud_ptr->header.frame_id, ros::Time(0), transform);
+      Eigen::Affine3d eigenTransform;
+      tf::transformTFToEigen(transform, eigenTransform);
+      pcl::transformPointCloud<PointT>(*cloud_ptr, *cloud_transformed, eigenTransform);
+      was_transformed = true;
+    } else {
+        cloud_transformed = cloud_ptr;
+    }
+
     pcl::PassThrough<PointT> pass;
-    pass.setInputCloud(cloud_ptr);
+    pass.setInputCloud(cloud_transformed);
     pass.setKeepOrganized(true);
     pass.setFilterLimits(minX, maxX);
     pass.setFilterFieldName("x");
@@ -104,7 +131,18 @@ public:
     pass.setFilterFieldName("z");
     pass.filter(*cloud_filtered);
 
-    cas.set(VIEW_CLOUD, *cloud_filtered);
+    pcl::PointCloud<PointT>::Ptr cloud(new pcl::PointCloud<PointT>);
+    if(was_transformed) {
+        outInfo("Transforming matrix back (this will deeply hurt the CPU...");
+        Eigen::Affine3d eigenTransform;
+        tf::transformTFToEigen(transform.inverse(), eigenTransform);
+        pcl::transformPointCloud<PointT>(*cloud_filtered, *cloud, eigenTransform);
+    } else {
+        cloud = cloud_filtered;
+    }
+    cas.set(VIEW_CLOUD, *cloud);
+
+
 
     return UIMA_ERR_NONE;
   }
