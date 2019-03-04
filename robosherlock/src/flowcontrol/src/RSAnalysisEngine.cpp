@@ -65,6 +65,11 @@ void RSAnalysisEngine::init(const std::string &ae_file, bool parallel, bool perv
 
   YamlToXMLConverter aeConverter(ae_file, YamlToXMLConverter::YAMLType::AAE);
   aeConverter.parseYamlFile();
+  std::vector<rs::AnnotatorCapabilities> delegateCaps = aeConverter.getOverwrittenAnnotatorCapabilities();
+  for(auto d : delegateCaps)
+  {
+    delegateCapabilities_[d.annotatorName] = d;
+  }
 
   std::ofstream xmlOutput;
   xmlOutput.open(AEXMLFile);
@@ -81,7 +86,7 @@ void RSAnalysisEngine::init(const std::string &ae_file, bool parallel, bool perv
   aeConverter.getDelegates(delegates_);
   for(std::string &a : delegates_)
   {
-    std::string genXmlPath = convertYamlToXML(a);
+    std::string genXmlPath = convertAnnotatorYamlToXML(a);
     if(genXmlPath != "")
       delegateMapping[a] = genXmlPath;
     else
@@ -141,7 +146,7 @@ void RSAnalysisEngine::init(const std::string &ae_file, bool parallel, bool perv
   }
 }
 
-std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
+std::string RSAnalysisEngine::convertAnnotatorYamlToXML(std::string annotatorName)
 {
   std::string yamlPath = rs::common::getAnnotatorPath(annotatorName);
   if(yamlPath == "")
@@ -156,7 +161,15 @@ std::string RSAnalysisEngine::convertYamlToXML(std::string annotatorName)
     try
     {
       converter.parseYamlFile();
-      delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
+      if(delegateCapabilities_.find(annotatorName) == delegateCapabilities_.end())
+        delegateCapabilities_[annotatorName] = converter.getAnnotatorCapabilities();
+      else
+      {
+        if(delegateCapabilities_[annotatorName].oTypeValueDomains.empty())
+          delegateCapabilities_[annotatorName].oTypeValueDomains = converter.getAnnotatorCapabilities().oTypeValueDomains;
+        if(delegateCapabilities_[annotatorName].iTypeValueRestrictions.empty())
+          delegateCapabilities_[annotatorName].iTypeValueRestrictions = converter.getAnnotatorCapabilities().iTypeValueRestrictions;
+      }
     }
 
     catch(YAML::ParserException e)
