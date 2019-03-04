@@ -190,8 +190,6 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
 
   // PCL particle tracking pipeline
   res.push_back("ImagePreprocessor");
-  res.push_back("PointCloudFilter");
-  res.push_back("PointCloudDownsampler");
   res.push_back("PCLParticleTrackingAnnotator");
 
 

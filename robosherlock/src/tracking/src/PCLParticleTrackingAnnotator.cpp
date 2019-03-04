@@ -293,24 +293,6 @@ public:
           outInfo("Target cloud size is " + std::to_string(test_ref->size()));
 
           track(input_cloud);
-
-          // ------------------------------------------------------------------------------- //
-          ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles();
-          if (particles && input_cloud)
-          {
-            pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-            for (size_t i = 0; i < particles->points.size(); i++)
-            {
-              pcl::PointXYZ point;
-
-              point.x = particles->points[i].x;
-              point.y = particles->points[i].y;
-              point.z = particles->points[i].z;
-              particle_cloud->points.push_back(point);
-            }
-
-            outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
-          }
         }
       }
     }
@@ -331,19 +313,19 @@ public:
     }
     else
     {
-      pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
+      CloudPtr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
       for (size_t i = 0; i < particles->points.size(); i++)
       {
         pcl::PointXYZ point;
-
         point.x = particles->points[i].x;
         point.y = particles->points[i].y;
         point.z = particles->points[i].z;
         particle_cloud->points.push_back(point);
       }
 
-      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> result_color(particle_cloud, 255, 255, 255);
-      pcl::visualization::PointCloudColorHandlerCustom <pcl::PointXYZ> cloud_color(particle_cloud, 255, 40, 20);
+      outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+
+      pcl::visualization::PointCloudColorHandlerCustom<RefPointType> result_color(particle_cloud, 255, 255, 255);
 
       const std::string &CLOUDNAME = this->name;
       if (FIRST_RUN)
@@ -357,11 +339,8 @@ public:
       }
       else
       {
-        pcl::PointCloud<pcl::PointXYZ>::Ptr particle_cloud_filtered(new pcl::PointCloud<pcl::PointXYZ>());
-        std::vector<int> indices;
-        pcl::removeNaNFromPointCloud(*particle_cloud, *particle_cloud_filtered, indices);
-        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud_filtered->size()) + " points!");
-        visualizer.updatePointCloud(particle_cloud_filtered, result_color, CLOUDNAME);
+        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud->size()) + " points!");
+        visualizer.updatePointCloud(particle_cloud, result_color, CLOUDNAME);
         visualizer.updatePointCloud(input_cloud_rgb, "original_cloud");
       }
     }
