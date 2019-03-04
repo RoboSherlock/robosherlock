@@ -28,6 +28,9 @@
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
 
+
+#include <robosherlock_msgs/RSObjectDescriptions.h>
+
 // PCL
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
@@ -97,11 +100,16 @@ private:
   bool first_execution = true;
   std::vector <rs::ObjectHypothesis> clusters;
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb;
+  ParticleFilter::PointCloudStatePtr particles;
+  CloudPtr particle_cloud;
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb (new pcl::PointCloud<pcl::PointXYZRGBA>)
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb(new pcl::PointCloud<pcl::PointXYZRGBA>), particle_cloud(new Cloud())
   {
     //cv::initModule_nonfree();
   }
+
+  ros::NodeHandle nh_;
+  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   //Filter along a specified dimension
   void filterPassThrough (const CloudConstPtr &CLOUD, Cloud &result)
@@ -293,6 +301,33 @@ public:
           outInfo("Target cloud size is " + std::to_string(test_ref->size()));
 
           track(input_cloud);
+
+          particles = tracker_->getParticles ();
+          if(particles && input_cloud)
+          {
+            particle_cloud->clear();
+            for (size_t i = 0; i < particles->points.size(); i++)
+            {
+              pcl::PointXYZ point;
+              point.x = particles->points[i].x;
+              point.y = particles->points[i].y;
+              point.z = particles->points[i].z;
+              particle_cloud->points.push_back(point);
+            }
+
+            outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
+
+            Eigen::Vector4f centroid;
+            pcl::compute3DCentroid(*particle_cloud, centroid);
+
+            robosherlock_msgs::RSObjectDescriptions result_message;
+            std::vector<std::string> result_response;
+            result_response.push_back("x: " + std::to_string(centroid[0]));
+            result_response.push_back("y: " + std::to_string(centroid[1]));
+            result_response.push_back("z: " + std::to_string(centroid[2]));
+            result_message.obj_descriptions = result_response;
+            result_pub.publish(result_message);
+          }
         }
       }
     }
@@ -306,25 +341,12 @@ public:
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool FIRST_RUN)
   {
-    ParticleFilter::PointCloudStatePtr particles = tracker_->getParticles ();
     if (!particles->size() > 0)
     {
       outError("Particle result cloud is empty.");
     }
     else
     {
-      CloudPtr particle_cloud(new pcl::PointCloud<pcl::PointXYZ>());
-      for (size_t i = 0; i < particles->points.size(); i++)
-      {
-        pcl::PointXYZ point;
-        point.x = particles->points[i].x;
-        point.y = particles->points[i].y;
-        point.z = particles->points[i].z;
-        particle_cloud->points.push_back(point);
-      }
-
-      outInfo("Amount of points in result particle cloud: " + std::to_string(particle_cloud->size()));
-
       pcl::visualization::PointCloudColorHandlerCustom<RefPointType> result_color(particle_cloud, 255, 255, 255);
 
       const std::string &CLOUDNAME = this->name;

@@ -28,7 +28,6 @@
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
 
-// ROS
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
 // PCL
@@ -68,7 +67,7 @@ public:
   }
 
   ros::NodeHandle nh_;
-  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("RoboSherlock/tracking_info"), 1);
+  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   /*
    * Initializes annotator
