@@ -61,6 +61,7 @@ public:
   std::string query_;
 
 
+
 protected:
   RSAggregateAnalysisEngine *engine_;
   uima::CAS *cas_;
@@ -122,7 +123,6 @@ public:
   {
     return cas_;
   }
-
 
   void setPipelineOrdering(std::vector<std::string> order)
   {

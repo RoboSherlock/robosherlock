@@ -1,7 +1,7 @@
 #ifndef __RSPROCESS_MANAGER_H__
 #define __RSPROCESS_MANAGER_H__
 
-#include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/io/visualizer.h>
 
@@ -24,17 +24,22 @@
 #include <pcl_ros/point_cloud.h>
 #include <memory>
 
-//TODO: Make this the ROS communication interface class
+//neded for visualization
+#include <tf_conversions/tf_eigen.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/common/transforms.h>
+
+//TODO: Make this the collection processing engine
 class RSProcessManager
 {
 
 public:
 
-  RSAnalysisEngine engine_;
+
 
   enum class KnowledgeEngineType {JSON_PROLOG, SWI_PROLOG};
 
-
+  RSAggregateAnalysisEngine* engine_;
   KnowledgeEngineType ke_type_;
   QueryInterface *queryInterface;
   std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
@@ -155,7 +160,8 @@ public:
   inline void setUseIdentityResolution(bool useIdentityResoltuion)
   {
     useIdentityResolution_ = useIdentityResoltuion;
-    engine_.useIdentityResolution(useIdentityResoltuion);
+    //TODO: where do we need to set this?
+//    engine_->useIdentityResolution(useIdentityResoltuion);
   }
 
   /**
@@ -164,8 +170,18 @@ public:
    */
   inline std::string getEngineName()
   {
-    return engine_.getCurrentAEName();
+    return engine_->getCurrentAEName();
   }
+
+
+  //draw results on an image
+  template <class T>
+  bool drawResultsOnImage(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                          std::string &requestJson, cv::Mat &resImage);
+
+  template <class T>
+  bool highlightResultsInCloud(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                               std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
   static void signalHandler(int signum)
   {

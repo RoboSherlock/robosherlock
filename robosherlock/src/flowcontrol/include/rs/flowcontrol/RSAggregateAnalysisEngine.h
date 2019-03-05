@@ -20,11 +20,16 @@
 #define __RSAGGREGATED_ANALYSIS_ENGINE_H__
 
 #include <rs/utils/common.h>
-#include <rs/scene_cas.h>
+#include <rs/utils/output.h>
+#include <rs/utils/time.h>
 #include <rs/utils/exception.h>
-#include <rs/flowcontrol/RSXMLParser.h>
 
+#include <rs/scene_cas.h>
+#include <rs/flowcontrol/RSXMLParser.h>
 #include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+#include <rs/flowcontrol/YamlToXMLConverter.h>
+
+#include <rs/queryanswering/ObjectDesignatorFactory.h>
 
 #include <uima/api.hpp>
 #include <uima/internal_aggregate_engine.hpp>
@@ -38,14 +43,19 @@
 #include <mutex>
 #include <assert.h>
 #include <unordered_map>
+#include <pwd.h>
+#include <fstream>
+
+#include <boost/algorithm/string.hpp>
 
 /**
  * @brief The RSAggregateAnalysisEngine class enables a flow controller interface for an Aggregate analysis engine;
- * extends the default AAE from uima adding parallel pipeline execution capability and exchange of the internal fixed flow
+ * extends the default AAE from uima adding parallel pipeline  execution capability and exchange of the internal fixed flow
  * this overrides default uima behaviour since fixed flow originally was not meant to be changed during runtime;
  */
 class RSAggregateAnalysisEngine : public uima::internal::AggregateEngine
 {
+
 public:
 
   /**
@@ -191,6 +201,87 @@ public:
    */
   bool initParallelPipelineManager();
 
+
+  void simpleProcess(std::vector<std::string> &designator_response,
+               std::string queryString){
+      outInfo("executing analisys engine: " << name_);
+      cas_->reset();
+
+      if(queryString != "" || query_ != "")
+      {
+        rs::Query query = rs::create<rs::Query>(*cas_);
+        queryString != "" ? query.query.set(queryString) : query.query.set(query_);
+        rs::SceneCas sceneCas(*cas_);
+        sceneCas.set("QUERY", query);
+      }
+      try
+      {
+        UnicodeString ustrInputText;
+        ustrInputText.fromUTF8(name_);
+        cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
+
+        rs::StopWatch clock;
+        outInfo("processing CAS");
+        try
+        {
+          if(parallel_)
+          {
+            if(querySuccess)
+              this->parallelProcess(*cas_);
+
+            else
+            {
+              outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
+              this->process(*cas_);
+            }
+          }
+          else
+            this->process(*cas_);
+        }
+        catch(const rs::FrameFilterException &)
+        {
+          // we could handle image logging here
+          // handle extra pipeline here->signal thread that we can start processing
+          outError("Got Interrputed with Frame Filter, not time here");
+        }
+
+//        TODO: MOVE THIS OUT OF THE EXECUTION
+        rs::ObjectDesignatorFactory dw(cas_);
+        use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+        dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+        dw.getObjectDesignators(designator_response);
+
+        outInfo("processing finished");
+        outInfo(clock.getTime() << " ms." << std::endl
+                << std::endl
+                << FG_YELLOW
+                << "********************************************************************************"
+                << std::endl);
+      }
+      catch(const rs::Exception &e)
+      {
+        outError("RoboSherlock Exception: " << std::endl << e.what());
+      }
+      catch(const uima::Exception &e)
+      {
+        outError("UIMA Exception: " << std::endl << e);
+      }
+      catch(const std::exception &e)
+      {
+        outError("Standard Exception: " << std::endl << e.what());
+      }
+      catch(...)
+      {
+        outError("Unknown exception!");
+      }
+
+  }
+  void simpleProcess(){
+      std::vector<std::string> desigResponse;
+      this->simpleProcess(desigResponse, query_);
+  }
+
+
   /**
    * @brief set_original_annotators set the original list of annotators
    */
@@ -199,25 +290,105 @@ public:
     delegate_annotators_ = this->iv_annotatorMgr.iv_vecEntries;
   }
 
-public:
+  inline void useIdentityResolution(const bool useIDres)
+  {
+    use_identity_resolution_ = useIDres;
+  }
+
+  inline std::string getCurrentAEName()
+  {
+    return name_;
+  }
+
+  /*set the next order of AEs to be executed*/
+  void setNextPipeline(std::vector<std::string> l)
+  {
+    next_pipeline_order = l;
+  }
+
+  inline void resetCas()
+  {
+    cas_->reset();
+  }
+
+  uima::CAS *get_cas()
+  {
+    return cas_;
+  }
+
+  inline bool isInDelegateList(std::string d)
+  {
+    if(std::find(delegates_.begin(), delegates_.end(), d) != std::end(delegates_))
+      return true;
+    else
+      return false;
+  }
+
+  template < class T >
+  void overwriteParam(const std::string &annotName, const std::string &paramName, T const &param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
+  }
+
+  template < class T >
+  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<T> &param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
+  }
+
+  //Ease case for the user
+  void overwriteParam(const std::string &annotName, const std::string &paramName, std::string const &param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), (UnicodeString) param.c_str());
+  }
+  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<std::string> &param)
+  {
+    uima::AnnotatorContext &annotContext = getAnnotatorContext();
+    UnicodeString ucs_delegate(annotName.c_str());
+    //Convert the std::string vector into UnicodeString and then overwrite with that variable
+    std::vector<UnicodeString> conversionString;
+    for(std::string i : param) {
+      conversionString.push_back(UnicodeString(i.c_str()));
+    }
+    uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
+    cr_context->assignValue(UnicodeString(paramName.c_str()), conversionString);
+  }
 
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
   bool querySuccess;
   bool use_default_pipeline_;
+  bool use_identity_resolution_;
+
+
+  std::string query_;
 
   AnnotatorOrderings currentOrderings;
   AnnotatorOrderingIndices currentOrderingIndices;
   RSParallelPipelinePlanner parallelPlanner;
 
+  uima::CAS *cas_;
   std::map<std::string, rs::AnnotatorCapabilities> delegate_annotator_capabilities_;
 
 
 private:
 
   std::vector<std::string> default_pipeline_annotators;
+  std::vector<std::string> delegates_;
+  std::vector<std::string> next_pipeline_order;
+
   uima::internal::AnnotatorManager::TyAnnotatorEntries delegate_annotators_;
 
   bool parallel_;
+  std::string name_;
 
   RSParallelPipelinePlanner::AnnotatorOrderings original_annotator_orderings;
   RSParallelPipelinePlanner::AnnotatorOrderingIndices original_annotator_ordering_indices;
@@ -229,6 +400,12 @@ protected:
 
 namespace rs
 {
+
+std::string convertAnnotatorYamlToXML(std::string annotatorName, std::map<std::string,rs::AnnotatorCapabilities> &delegate_capabilities);
+
+RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &file, bool parallel = false,
+                                                           bool pervasive = false, std::vector<std::string> contPipeline = {});
+
 RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     uima::ErrorInfo errInfo);
 
