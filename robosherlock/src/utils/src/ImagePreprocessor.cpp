@@ -23,6 +23,7 @@
 // PCL
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
+#include <pcl_conversions/pcl_conversions.h>
 
 // OpenCV
 #include <opencv2/opencv.hpp>
@@ -608,8 +609,7 @@ private:
       rs::DepthImageProcessing::project(depth, color, alpha, lookupX, lookupY, cloud);
       sensor_msgs::CameraInfo camInfo;
       cas.get(VIEW_CAMERA_INFO, camInfo);
-      cloud->header.frame_id = camInfo.header.frame_id;
-      cloud->header.stamp = camInfo.header.stamp.toNSec();
+      pcl_conversions::toPCL(camInfo.header,cloud->header);
       cas.set(VIEW_CLOUD, *cloud);
     }
   }
