@@ -43,7 +43,7 @@ private:
 
   bool trigger;
   int last_trigger_value_;
-//  ros::AsyncSpinner *spinner_;
+  ros::AsyncSpinner *spinner_;
   ros::NodeHandle *nh_;
 
   ros::ServiceServer srv_;
@@ -58,11 +58,11 @@ public:
       ros::init(ros::M_string(), std::string("RS_CollectionReader"));
     }
     nh_ = new ros::NodeHandle("~");
-//    spinner_ = new ros::AsyncSpinner(0);
+    spinner_ = new ros::AsyncSpinner(2);
     joy_sub = nh_->subscribe(std::string("/joy"), 10, &Trigger::joystick_trigger_cb_, this);
     srv_ = nh_->advertiseService("trigger", &Trigger::trigger_service_cb_, this);
 
-//    spinner_->start();
+    spinner_->start();
     rs::Visualizer::trigger = &trigger;
   }
 
@@ -78,8 +78,8 @@ public:
 
     //  delete ros_helper;
     outInfo("destroy");
-//    spinner_->stop();
-    delete /*spinner_,*/ nh_;
+    spinner_->stop();
+    delete spinner_, nh_;
     return (TyErrorId) UIMA_ERR_NONE;
   }
 
