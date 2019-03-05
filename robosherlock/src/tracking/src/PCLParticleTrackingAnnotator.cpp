@@ -102,8 +102,10 @@ private:
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr input_cloud_rgb;
   ParticleFilter::PointCloudStatePtr particles;
   CloudPtr particle_cloud;
+  ParticleT result;
+  CloudPtr result_cloud;
 public:
-  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb(new pcl::PointCloud<pcl::PointXYZRGBA>), particle_cloud(new Cloud())
+  PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb(new pcl::PointCloud<pcl::PointXYZRGBA>), particle_cloud(new Cloud()), result(0,0,0,0,0,0), result_cloud(new Cloud())
   {
     //cv::initModule_nonfree();
   }
@@ -300,12 +302,18 @@ public:
         }
         else
         {
-          CloudConstPtr test_ref = tracker_->getReferenceCloud();
-          outInfo("Target cloud size is " + std::to_string(test_ref->size()));
-
           track(input_cloud);
 
-          particles = tracker_->getParticles ();
+          particles = tracker_->getParticles();
+          result = tracker_->getResult();
+          Eigen::Affine3f transformation = tracker_->toEigenMatrix (result);
+          transformation.translation () += Eigen::Vector3f (0.0f, 0.0f, -0.005f);
+          result_cloud->clear();
+          pcl::transformPointCloud<RefPointType> (*(tracker_->getReferenceCloud ()), *result_cloud, transformation);
+
+          outInfo("Target cloud size is " + std::to_string(tracker_->getReferenceCloud()->size()));
+          outInfo("Target cloud size after transforming is " + std::to_string(result_cloud->size()));
+
           if(particles && input_cloud)
           {
             particle_cloud->clear();
@@ -350,23 +358,29 @@ public:
     }
     else
     {
-      pcl::visualization::PointCloudColorHandlerCustom<RefPointType> result_color(particle_cloud, 255, 255, 255);
+      pcl::visualization::PointCloudColorHandlerCustom<RefPointType> particle_color(particle_cloud, 50, 255, 80);
+      pcl::visualization::PointCloudColorHandlerCustom<RefPointType> result_color(result_cloud, 50, 80, 255);
 
       const std::string &CLOUDNAME = this->name;
       if (FIRST_RUN)
       {
-        visualizer.addPointCloud(particle_cloud, result_color, CLOUDNAME);
+        visualizer.addPointCloud(particle_cloud, particle_color, CLOUDNAME);
 
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,
                                                     CLOUDNAME);
         visualizer.addPointCloud(input_cloud_rgb, "original_cloud");
         visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,"original_cloud");
+        visualizer.addPointCloud(result_cloud, "result_cloud");
+        visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, point_size,"result_cloud");
       }
       else
       {
-        outInfo("Updating visualizer cloud with " + std::to_string(particle_cloud->size()) + " points!");
-        visualizer.updatePointCloud(particle_cloud, result_color, CLOUDNAME);
+        outInfo(std::to_string(particle_cloud->size()) + " points in particle cloud!");
+        visualizer.updatePointCloud(particle_cloud, particle_color, CLOUDNAME);
+        outInfo(std::to_string(input_cloud_rgb->size()) + " points in original cloud!");
         visualizer.updatePointCloud(input_cloud_rgb, "original_cloud");
+        outInfo(std::to_string(result_cloud->size()) + " points in result cloud!");
+        visualizer.updatePointCloud(result_cloud, "result_cloud");
       }
     }
     return;
