@@ -109,7 +109,7 @@ public:
   }
 
   ros::NodeHandle nh_;
-  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  ros::Publisher result_pub;
 
   //Filter along a specified dimension
   void filterPassThrough (const CloudConstPtr &CLOUD, Cloud &result)
@@ -184,6 +184,9 @@ public:
       outInfo("Input cloud size is " + std::to_string(input_cloud->size()));
       if (first_execution)
       {
+        ros::NodeHandle nh_("~"); // Set correct namespace
+        result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+
         target_cloud.reset(new Cloud());
         rs::Scene scene = cas.getScene();
         scene.identifiables.filter(clusters);

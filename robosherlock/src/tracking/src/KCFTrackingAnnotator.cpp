@@ -67,7 +67,7 @@ public:
   }
 
   ros::NodeHandle nh_;
-  ros::Publisher result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  ros::Publisher result_pub;
 
   /*
    * Initializes annotator
@@ -106,6 +106,9 @@ public:
 
     if (first_execution)
     {
+      ros::NodeHandle nh_("~"); // Set correct namespace
+      result_pub = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+
       scene.identifiables.filter(clusters);
       if (!frame.rows > 0)
       {
