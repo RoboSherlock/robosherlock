@@ -196,7 +196,6 @@ public:
 
   void processOnce(std::vector<std::string> &designator_response, std::string queryString);
 
-
   /**
    * @brief set_original_annotators set the original list of annotators
    */
@@ -210,7 +209,7 @@ public:
     use_identity_resolution_ = useIDres;
   }
 
-  std::string getCurrentAEName()
+  std::string getAAEName()
   {
     return name_;
   }
@@ -236,7 +235,6 @@ public:
     currentOrderings = orderings;
     currentOrderingIndices = orderingIndices;
   }
-
 
   uima::CAS *getCas()
   {

@@ -170,7 +170,7 @@ public:
    */
   inline std::string getEngineName()
   {
-    return engine_->getCurrentAEName();
+    return engine_->getAAEName();
   }
 
 
