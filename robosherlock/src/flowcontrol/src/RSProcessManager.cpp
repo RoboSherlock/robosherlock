@@ -128,7 +128,7 @@ void RSProcessManager::run()
       else
       {
         std::vector<std::string> objDescriptions;
-        engine_->simpleProcess(objDescriptions, "");
+        engine_->processOnce(objDescriptions, "");
         robosherlock_msgs::RSObjectDescriptions objDescr;
         objDescr.obj_descriptions = objDescriptions;
         result_pub.publish(objDescr);
@@ -267,7 +267,7 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
     std::lock_guard<std::mutex> lock(processing_mutex_);
     visualizer_.setActiveAnnotators(newPipelineOrder);
     engine_->setPipelineOrdering(newPipelineOrder);
-    engine_->simpleProcess(objDescriptions, "");
+    engine_->processOnce(objDescriptions, "");
     engine_->resetPipelineOrdering();
     engine_->setNextPipeline(lowLvlPipeline_);
     res.object_descriptions.obj_descriptions = objDescriptions;
@@ -304,7 +304,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 
 //      engine_.setNextPipeline(newPipelineOrder);
       engine_->setPipelineOrdering(newPipelineOrder);
-      engine_->simpleProcess(resultDesignators, request);
+      engine_->processOnce(resultDesignators, request);
       engine_->resetPipelineOrdering();
       engine_->setNextPipeline(lowLvlPipeline_);
 
@@ -366,7 +366,7 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
     outError("Filter and results descriptions sizes don't match");
     return false;
   }
-  rs::SceneCas sceneCas(*engine_->get_cas());
+  rs::SceneCas sceneCas(*engine_->getCas());
   rs::Scene scene = sceneCas.getScene();
   cv::Mat rgb = cv::Mat::zeros(480, 640, CV_64FC3);
 
@@ -467,7 +467,7 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
     outError("Filter and results descriptions sizes don't match");
     return false;
   }
-  rs::SceneCas sceneCas(*engine_->get_cas());
+  rs::SceneCas sceneCas(*engine_->getCas());
   rs::Scene scene = sceneCas.getScene();
 
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());

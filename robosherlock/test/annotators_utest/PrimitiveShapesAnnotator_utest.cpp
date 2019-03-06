@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 #include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
@@ -9,12 +9,11 @@
 
 void PrimitiveShapeAnnotator()
 {
-
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor","ClusterMerger","PrimitiveShapeAnnotator"};
-  engine.setPipelineOrdering(engineList);
-  engine.resetCas();
-  engine.process();
-  cas = engine.getCas();
+  engine->setPipelineOrdering(engineList);
+  engine->resetCas();
+  engine->processOnce();
+  cas = engine->getCas();
   
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
@@ -22,8 +21,6 @@ void PrimitiveShapeAnnotator()
   std::vector<rs::ObjectHypothesis> clusters;
   scene.identifiables.filter(clusters);
   EXPECT_TRUE(clusters.size()>0);
-  
-
   
   for (int i = 0; i<clusters.size();i++)
   {
@@ -36,8 +33,6 @@ void PrimitiveShapeAnnotator()
        EXPECT_TRUE(shape_annot[j].shape.get()!="");
     }
   }
-  
-  
 }
 
 TEST(UnitTest,PrimitiveShapeAnnotator)

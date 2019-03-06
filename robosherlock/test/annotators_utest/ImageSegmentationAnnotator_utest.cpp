@@ -1,20 +1,19 @@
 #include <gtest/gtest.h>
 #include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include "../main.h"
-
 
 
 void imageSegmentationAnnotatorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","ImageSegmentationAnnotator"};
-  engine.setPipelineOrdering(engineList);
-  engine.resetCas();
-  engine.process();
-  cas = engine.getCas();
+  engine->setPipelineOrdering(engineList);
+  engine->resetCas();
+  engine->processOnce();
+  cas = engine->getCas();
   rs::SceneCas sceneCas(*cas);
   if (cas == NULL) outError("The CAS is null");
   rs::Scene scene = sceneCas.getScene();
@@ -31,8 +30,6 @@ void imageSegmentationAnnotatorTest()
     EXPECT_TRUE(roi.width>0);
     EXPECT_TRUE(roi.height>0);
   }
-  
-  
 }
 
 TEST(UnitTest,ImageSegmentationAnnotator)

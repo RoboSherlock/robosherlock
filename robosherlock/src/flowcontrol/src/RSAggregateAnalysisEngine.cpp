@@ -33,9 +33,7 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(std::string annotato
   return this->annotatorProcess(index, cas, resultSpec);
 }
 
-uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
-    uima::CAS &cas,
-    uima::ResultSpecification &resultSpec)
+uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index, uima::CAS &cas, uima::ResultSpecification &resultSpec)
 {
   if(index < 0 || index >= static_cast<int>(iv_annotatorMgr.iv_vecEntries.size()))
   {
@@ -60,13 +58,10 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
     std::vector<uima::TypeOrFeature> tofsToBeRemoved;
 
     //this populates the tofsToBeRemoved vector so always call it
-    iv_annotatorMgr.shouldEngineBeCalled(*pCapContainer,
-                                         resultSpec,
-                                         cas.getDocumentAnnotation().getLanguage(),
+    iv_annotatorMgr.shouldEngineBeCalled(*pCapContainer, resultSpec, cas.getDocumentAnnotation().getLanguage(),
                                          tofsToBeRemoved);
 
-    // create ResultSpec for annotator
-    // this must be done because an annotator should only be called with the result spec
+    // create ResultSpec for annotator this must be done because an annotator should only be called with the result spec
     // that its XML file indicates.
     uima::ResultSpecification annResSpec;
     for(auto citTOF = tofsToBeRemoved.begin(); citTOF != tofsToBeRemoved.end(); ++citTOF)
@@ -79,9 +74,7 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(int index,
     utErrorId = ((uima::AnalysisEngine *) pEngine)->process(cas, annResSpec);
 
     if(utErrorId != UIMA_ERR_NONE)
-    {
       return utErrorId; // return the error immediately, do not remove resSpec on AggregateEngine
-    }
 
     // now remove TOFs from ResultSpec
     {
@@ -149,20 +142,16 @@ uima::TyErrorId RSAggregateAnalysisEngine::parallelProcess(uima::CAS &cas, uima:
       }
     }
   }
-
   if(resultSpec.getSize() > 0)
-  {
     outWarn("The pipeline still does not satisfy ResultSpecification! Still has: " << resultSpec.getSize());
-  }
 
   return err;
 }
 
 
-bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
-  std::vector<std::string> &annotators,
-  RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
-  RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices)
+bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(std::vector<std::string> &annotators,
+                                                              RSParallelPipelinePlanner::AnnotatorOrderings &orderings,
+                                                              RSParallelPipelinePlanner::AnnotatorOrderingIndices &orderingIndices)
 {
   bool success = true;
   if(annotators.empty())
@@ -184,7 +173,85 @@ bool RSAggregateAnalysisEngine::planParallelPipelineOrderings(
   parallelPlanner.getPlannedPipelineIndices(orderingIndices);
 
   return success;
+}
 
+void RSAggregateAnalysisEngine::processOnce()
+{
+  std::vector<std::string> desigResponse;
+  this->processOnce(desigResponse, query_);
+}
+
+
+void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator_response, std::string queryString)
+{
+  outInfo("executing analisys engine: " << name_);
+  cas_->reset();
+
+  if(queryString != "" || query_ != "")
+  {
+    rs::Query query = rs::create<rs::Query>(*cas_);
+    queryString != "" ? query.query.set(queryString) : query.query.set(query_);
+    rs::SceneCas sceneCas(*cas_);
+    sceneCas.set("QUERY", query);
+  }
+  try
+  {
+    UnicodeString ustrInputText;
+    ustrInputText.fromUTF8(name_);
+    cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
+    rs::StopWatch clock;
+    outInfo("processing CAS");
+    try
+    {
+      if(parallel_)
+      {
+        if(querySuccess)
+          this->parallelProcess(*cas_);
+        else
+        {
+          outWarn("Query annotator dependency for planning failed! Fall back to linear execution!");
+          this->process(*cas_);
+        }
+      }
+      else
+        this->process(*cas_);
+    }
+    catch(const rs::FrameFilterException &)
+    {
+      // we could handle image logging here
+      // handle extra pipeline here->signal thread that we can start processing
+      outError("Got Interrputed with Frame Filter, not time here");
+    }
+
+    //        TODO: MOVE THIS OUT OF THE EXECUTION
+    rs::ObjectDesignatorFactory dw(cas_);
+    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+    dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+    dw.getObjectDesignators(designator_response);
+
+    outInfo("processing finished");
+    outInfo(clock.getTime() << " ms." << std::endl
+            << std::endl
+            << FG_YELLOW
+            << "********************************************************************************"
+            << std::endl);
+  }
+  catch(const rs::Exception &e)
+  {
+    outError("RoboSherlock Exception: " << std::endl << e.what());
+  }
+  catch(const uima::Exception &e)
+  {
+    outError("UIMA Exception: " << std::endl << e);
+  }
+  catch(const std::exception &e)
+  {
+    outError("Standard Exception: " << std::endl << e.what());
+  }
+  catch(...)
+  {
+    outError("Unknown exception!");
+  }
 }
 
 
@@ -248,7 +315,7 @@ void RSAggregateAnalysisEngine::resetPipelineOrdering()
   // Set default pipeline annotators, if set
   if(use_default_pipeline_)
   {
-    setPipelineOrdering(default_pipeline_annotators);
+    setPipelineOrdering(default_pipeline_annotators_);
   }
 }
 
@@ -256,7 +323,7 @@ void RSAggregateAnalysisEngine::resetPipelineOrdering()
 void RSAggregateAnalysisEngine::setContinuousPipelineOrder(std::vector<std::string> annotators)
 {
   use_default_pipeline_ = true;
-  default_pipeline_annotators = annotators;
+  default_pipeline_annotators_ = annotators;
 }
 
 int RSAggregateAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
@@ -422,7 +489,7 @@ RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae
   aeConverter.getDelegates(delegates_);
   for(std::string &a : delegates_)
   {
-    std::string genXmlPath = convertAnnotatorYamlToXML(a,delegateCapabilities);
+    std::string genXmlPath = convertAnnotatorYamlToXML(a, delegateCapabilities);
     if(genXmlPath != "")
       delegateMapping[a] = genXmlPath;
     else
@@ -456,7 +523,6 @@ RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae
   }
 
   const uima::AnalysisEngineMetaData &data = engine->getAnalysisEngineMetaData();
-  //    data.getName().toUTF8String(name_);
 
   // Get a new CAS
   outInfo("Creating a new CAS");
@@ -484,59 +550,6 @@ RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae
 
 
 RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
-    uima::ErrorInfo errInfo)
-{
-  try
-  {
-    errInfo.reset();
-    if(! uima::ResourceManager::hasInstance())
-    {
-      errInfo.setErrorId(UIMA_ERR_ENGINE_RESMGR_NOT_INITIALIZED);
-      return NULL;
-    }
-
-
-    //parsing AEFile routine, using auto_ptr for auto-garbage collection if method failed
-    uima::XMLParser builder;
-    std::auto_ptr<uima::AnalysisEngineDescription> apTAESpecifier(new uima::AnalysisEngineDescription());
-    if(apTAESpecifier.get() == NULL)
-    {
-      errInfo.setErrorId(UIMA_ERR_ENGINE_OUT_OF_MEMORY);
-      return NULL;
-    }
-
-    builder.parseAnalysisEngineDescription(*apTAESpecifier.get(), aeFile);
-
-    apTAESpecifier->validate();
-    apTAESpecifier->commit();
-
-    std::auto_ptr<uima::AnnotatorContext> apANC(new uima::AnnotatorContext(apTAESpecifier.get()));
-    if(apANC.get() == NULL)
-    {
-      errInfo.setErrorId(UIMA_ERR_ENGINE_OUT_OF_MEMORY);
-      return NULL;
-    }
-
-    std::auto_ptr<uima::internal::CASDefinition> apCASDef(uima::internal::CASDefinition::createCASDefinition(*apANC.get()));
-
-    // release auto_ptrs here because the createTAE transfers ownership to the engine
-    apTAESpecifier.release();
-    RSAggregateAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
-                                         *apCASDef.release(),
-                                         errInfo);
-
-    return pResult;
-  }
-  catch(uima::Exception &rExc)
-  {
-    errInfo = rExc.getErrorInfo();
-  }
-
-  assert(errInfo.getErrorId() != UIMA_ERR_NONE);
-  return NULL;
-}
-
-RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
     const std::unordered_map<std::string, std::string> &delegateEngines,
     uima::ErrorInfo errInfo)
 {
@@ -549,7 +562,6 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const
       return NULL;
     }
 
-
     //parsing AEFile routine, using auto_ptr for auto-garbage collection if method failed
     RSXMLParser builder;
     std::auto_ptr<uima::AnalysisEngineDescription> apTAESpecifier(new uima::AnalysisEngineDescription());
@@ -560,7 +572,6 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const
     }
 
     builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), delegateEngines, aeFile);
-    // builder.parseAnalysisEngineDescription(*(apTAESpecifier.get()), aeFile);
 
     apTAESpecifier->validate();
     apTAESpecifier->commit();
@@ -573,7 +584,6 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const
     }
 
     std::auto_ptr<uima::internal::CASDefinition> apCASDef(uima::internal::CASDefinition::createCASDefinition(*apANC.get()));
-
     // release auto_ptrs here because the createTAE transfers ownership to the engine
     apTAESpecifier.release();
     RSAggregateAnalysisEngine *pResult = rs::createParallelAnalysisEngine(*apANC.release(),
@@ -586,7 +596,6 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const
     errInfo = rExc.getErrorInfo();
     outError(errInfo.asString());
   }
-
   assert(errInfo.getErrorId() != UIMA_ERR_NONE);
   return NULL;
 }
@@ -602,7 +611,6 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &
     // create the engine depending on the framework (UIMACPP or JEDII) or if it is primitive or aggregate.
     uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
     pResult = new RSAggregateAnalysisEngine(rANC, true, true, casDefinition, true);
-
     if(pResult == NULL)
     {
       errInfo.setErrorId(UIMA_ERR_ENGINE_OUT_OF_MEMORY);
@@ -610,22 +618,17 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &
     }
 
     uima::TyErrorId utErrorID = pResult->initialize(crTAESpecifier);
-
-    pResult->set_original_annotators();
+    pResult->backup_original_annotators();
 
     if(utErrorID != UIMA_ERR_NONE)
     {
       uima::ErrorInfo const &crLastError = pResult->getAnnotatorContext().getLogger().getLastError();
       if(crLastError.getErrorId() != UIMA_ERR_NONE)
-      {
         errInfo = crLastError;
-      }
-      // overwrite the error ID
       errInfo.setErrorId(utErrorID);
       delete pResult;
       return NULL;
     }
-
     return  pResult;
   }
   catch(uima::Exception &rExc)
@@ -634,13 +637,11 @@ RSAggregateAnalysisEngine *createParallelAnalysisEngine(uima::AnnotatorContext &
   }
 
   assert(errInfo.getErrorId() != UIMA_ERR_NONE);
-
   //clean up if failed
   if(pResult != NULL)
   {
     delete pResult;
   }
-
   return NULL;
 }
 }

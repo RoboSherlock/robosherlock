@@ -1,7 +1,7 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
@@ -18,7 +18,7 @@ class SegmentationTest : public ::testing::Test
 protected:
 
   std::string engineFile;
-  RSAnalysisEngine engine;
+  RSAggregateAnalysisEngine *engine;
 
   float segment_similarity_threshold;
   float overall_segment_threshold;
@@ -33,24 +33,25 @@ protected:
   virtual void SetUp()
   {
     rs::common::getAEPaths("symmetry_segmentation", engineFile);
-    engine.init(engineFile, false); // do not run parallel for now
+    engine = rs::createRSAggregateAnalysisEngine(engineFile, false); // do not run parallel for now
   }
 
   virtual void TearDown()
   {
     //clean up
-    engine.stop();
+    engine->destroy();
+    delete engine;
   }
 
   //there is no ground truth for this test, so for simply we just test if there are segments
   inline int test()
   {
-    engine.setPipelineOrdering(engineList);
+    engine->setPipelineOrdering(engineList);
 
     //main pipeline execution
-    engine.process();
+    engine->processOnce();
 
-    uima::CAS* tcas = engine.getCas();
+    uima::CAS* tcas = engine->getCas();
     rs::SceneCas cas(*tcas);
     rs::Scene scene = cas.getScene();
 
@@ -65,7 +66,6 @@ protected:
 
 TEST_F(SegmentationTest, SymmetrySegmentationTest1)
 {
-
   int numSegments = test();
   EXPECT_TRUE(numSegments > 0);
 }

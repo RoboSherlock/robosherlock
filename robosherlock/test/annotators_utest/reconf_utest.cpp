@@ -24,7 +24,7 @@
 #include <condition_variable>
 
 #include <ros/ros.h>
-#include <rs/flowcontrol/RSProcessManager.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/utils/common.h>
 #include <rs/io/Storage.h>
 
@@ -47,18 +47,18 @@ void processReconfig()
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   
   std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
-  engine.setPipelineOrdering(engineList);
+  engine->setPipelineOrdering(engineList);
 
 
-  engine.overwriteParam("NormalEstimator","radiusSearch",3.5);
+  engine->overwriteParam("NormalEstimator","radiusSearch",3.5);
   //Overwrite a vector
   std::vector<std::string > overWriteVector;
   overWriteVector.push_back("config_mongodb_playback_utest.ini");
-  engine.overwriteParam("CollectionReader","camera_config_files",overWriteVector);
-  engine.reconfigure();
+  engine->overwriteParam("CollectionReader","camera_config_files",overWriteVector);
+  engine->reconfigure();
 
   UnicodeString ucs_delegate("NormalEstimator");
-  uima::AnnotatorContext &annotContext = engine.getAnnotatorContext();
+  uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
   uima::AnnotatorContext *cr_context = annotContext.getDelegate(ucs_delegate);
   if(cr_context->isParameterDefined("radiusSearch"))
   {
