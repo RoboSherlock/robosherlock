@@ -49,6 +49,7 @@ protected:
     engine->setPipelineOrdering(engineList);
 
     //main pipeline execution
+    engine->resetCas();
     engine->processOnce();
 
     uima::CAS* tcas = engine->getCas();

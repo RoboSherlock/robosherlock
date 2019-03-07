@@ -55,6 +55,7 @@ int processEngine()
 
  try
     {
+      engine->resetCas();
       engine->processOnce();
       cas = engine->getCas();
       rs::SceneCas sceneCas(*cas);

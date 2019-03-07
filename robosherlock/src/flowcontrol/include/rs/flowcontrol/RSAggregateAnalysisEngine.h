@@ -165,6 +165,11 @@ public:
    */
   bool initParallelPipelineManager();
 
+
+  void processOnce();
+
+  void processOnce(std::vector<std::string> &designator_response, std::string queryString);
+
   /**
    * @brief setDelegateAnnotatorCapabilities set the capabilities of the AEs
    * @param[in] caps mapping from AE name to capabilities;
@@ -191,10 +196,6 @@ public:
   {
     parallel_ = f;
   }
-
-  void processOnce();
-
-  void processOnce(std::vector<std::string> &designator_response, std::string queryString);
 
   /**
    * @brief set_original_annotators set the original list of annotators
@@ -291,6 +292,7 @@ public:
   }
 
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
+
   bool querySuccess;
   bool use_default_pipeline_;
   bool use_identity_resolution_;

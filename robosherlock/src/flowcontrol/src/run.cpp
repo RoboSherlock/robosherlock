@@ -134,16 +134,14 @@ int main(int argc, char *argv[])
     outInfo(analysis_engine_file);
   }
 
-  std::string configFile = ros::package::getPath("robosherlock") + "/config/config.yaml";
-
-  RSProcessManager::KnowledgeEngineType keType;
+  rs::KnowledgeEngine::KnowledgeEngineType keType;
   if(knowledge_engine == "SWI_PROLOG")
   {
-    keType = RSProcessManager::KnowledgeEngineType::SWI_PROLOG;
+    keType = rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG;
   }
   else if(knowledge_engine == "KNOWROB")
   {
-    keType = RSProcessManager::KnowledgeEngineType::JSON_PROLOG;
+    keType = rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG;
   }
   else
   {
@@ -155,9 +153,8 @@ int main(int argc, char *argv[])
   {
     RSProcessManager manager(useVisualizer, waitForServiceCall, keType, nh, save_path);
     manager.setUseIdentityResolution(useObjIDRes);
-    manager.init(analysis_engine_file, configFile, pervasive, parallel);
+    manager.init(analysis_engine_file, pervasive, parallel);
     manager.run();
-    manager.stop();
   }
   catch(const rs::Exception &e)
   {

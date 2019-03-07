@@ -39,6 +39,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
 
+#include <rs/io/utils.h>
+
 using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
@@ -50,6 +52,15 @@ class RegionFilter : public DrawingAnnotator
     std::string name;
     std::string type;
   };
+
+  struct SemanticMapItem
+  {
+    std::string name, type;
+    double width, height, depth;
+    tf::Transform transform;
+  };
+  std::vector<SemanticMapItem> semanticMapItems_;
+
 
   typedef pcl::PointXYZRGBA PointT;
 
@@ -94,9 +105,8 @@ public:
     outInfo("initialize");
 
     if(ctx.isParameterDefined("border"))
-    {
       ctx.extractValue("border", border);
-    }
+
     std::vector<std::string *> temp;
     if(ctx.isParameterDefined("defaultRegions"))
     {
@@ -109,30 +119,26 @@ public:
     }
 
     if(ctx.isParameterDefined("enable_change_detection"))
-    {
       ctx.extractValue("enable_change_detection", changeDetection);
-    }
     if(ctx.isParameterDefined("enable_frustum_culling"))
-    {
       ctx.extractValue("enable_frustum_culling", frustumCulling_);
-    }
     if(ctx.isParameterDefined("pixel_threshold"))
-    {
       ctx.extractValue("pixel_threshold", pixelThreshold);
-    }
     if(ctx.isParameterDefined("depth_threshold"))
-    {
-      ctx.extractValue("depth_threshold", depthThreshold);
-    }
+      ctx.extractValue("depth_threshold", depthThreshold);   
     if(ctx.isParameterDefined("global_threshold"))
-    {
       ctx.extractValue("global_threshold", threshold);
-    }
     if(ctx.isParameterDefined("change_timeout"))
     {
       int tmp = 120;
       ctx.extractValue("change_timeout", tmp);
       timeout = tmp;
+    }
+    if(ctx.isParameterDefined("semantic_map_definition"))
+    {
+      std::string file;
+      ctx.extractValue("semantic_map_definition", file);
+      readSemanticMap(file);
     }
     return UIMA_ERR_NONE;
   }
@@ -143,6 +149,47 @@ public:
     return UIMA_ERR_NONE;
   }
 
+  void readSemanticMap(const std::string &file)
+  {
+    const std::string &mapFile = getConfigFilePath(file);
+    if(mapFile.empty())
+    {
+      throw_exception_message("Semantic map file not found: " + file);
+    }
+
+    outInfo("Path to semantic map file: " FG_BLUE << mapFile);
+    cv::FileStorage fs(mapFile, cv::FileStorage::READ);
+    std::vector<std::string> names;
+
+    cv::FileNode n = fs["names"];
+    for(cv::FileNodeIterator it = n.begin(); it != n.end(); ++it)
+    {
+      names.push_back((std::string)(*it));
+    }
+
+    semanticMapItems_.resize(names.size());
+    for(size_t i = 0; i < names.size(); ++i)
+    {
+      SemanticMapItem &item = semanticMapItems_[i];
+      cv::FileNode entry = fs[names[i]];
+
+      item.name = names[i];
+      entry["type"] >> item.type;
+      entry["width"] >> item.height;
+      entry["height"] >> item.depth;
+      entry["depth"] >> item.width;
+
+      cv::Mat m;
+      entry["transform"] >> m;
+
+      tf::Matrix3x3 rot;
+      tf::Vector3 trans;
+      rot.setValue(m.at<double>(0, 0), m.at<double>(0, 1), m.at<double>(0, 2), m.at<double>(1, 0), m.at<double>(1, 1), m.at<double>(1, 2), m.at<double>(2, 0), m.at<double>(2, 1), m.at<double>(2, 2));
+      trans.setValue(m.at<double>(0, 3), m.at<double>(1, 3), m.at<double>(2, 3));
+      item.transform = tf::Transform(rot, trans);
+    }
+  }
+
 private:
   TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
@@ -150,6 +197,22 @@ private:
     outInfo("process begins");
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
+
+    std::vector<rs::SemanticMapObject> semanticMap;
+    semanticMap.reserve(semanticMapItems_.size());
+    for(size_t i = 0; i < semanticMapItems_.size(); ++i)
+    {
+      SemanticMapItem &item = semanticMapItems_[i];
+      rs::SemanticMapObject obj = rs::create<rs::SemanticMapObject>(tcas);
+      obj.name(item.name);
+      obj.typeName(item.type);
+      obj.width(item.width);
+      obj.height(item.height);
+      obj.depth(item.depth);
+      obj.transform(rs::conversion::to(tcas, item.transform));
+      semanticMap.push_back(obj);
+    }
+    cas.set(VIEW_SEMANTIC_MAP, semanticMap);
 
     cas.get(VIEW_CLOUD, *cloud);
     cas.get(VIEW_COLOR_IMAGE, color);
@@ -188,10 +251,10 @@ private:
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes (Maybe save query mode in FS?)
       rapidjson::Pointer framePointerIn("/detect/location");
-     // rapidjson::Pointer framePointerOn("/detect/location/on");
+      // rapidjson::Pointer framePointerOn("/detect/location/on");
 
       rapidjson::Value *frameJson = framePointerIn.Get(jsonDoc);
-//      rapidjson::Value *frameJsonOn = framePointerOn.Get(jsonDoc);
+      //      rapidjson::Value *frameJsonOn = framePointerOn.Get(jsonDoc);
       std::string newLocation;
 
       if(frameJson && frameJson->IsString())
@@ -199,10 +262,10 @@ private:
         newLocation = frameJson->GetString();
       }
 
- //     if(frameJsonOn && frameJsonOn->IsString())
- //     {
- //       newLocation = frameJsonOn->GetString();
- //     }
+      //     if(frameJsonOn && frameJsonOn->IsString())
+      //     {
+      //       newLocation = frameJsonOn->GetString();
+      //     }
 
       outWarn("location set: " << newLocation);
       if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation != "")

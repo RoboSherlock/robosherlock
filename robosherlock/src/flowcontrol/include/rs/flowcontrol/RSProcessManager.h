@@ -16,16 +16,21 @@
 #include <rs/queryanswering/QueryInterface.h>
 #include <rs/queryanswering/SWIPLInterface.h>
 #include <rs/queryanswering/JsonPrologInterface.h>
+#include <rs/io/CamInterface.h>
+#include <rs/feature_structure_proxy.h>
+#include <rs/types/all_types.h>
 
-#include <image_transport/image_transport.h>
+
 #include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 
-#include <pcl_ros/point_cloud.h>
 #include <memory>
 
 //neded for visualization
 #include <tf_conversions/tf_eigen.h>
+
+#include <pcl_ros/point_cloud.h>
 #include <pcl/filters/voxel_grid.h>
 #include <pcl/common/transforms.h>
 
@@ -37,19 +42,22 @@ public:
 
 
 
-  enum class KnowledgeEngineType {JSON_PROLOG, SWI_PROLOG};
-
-  RSAggregateAnalysisEngine* engine_;
-  KnowledgeEngineType ke_type_;
-  QueryInterface *queryInterface;
+  RSAggregateAnalysisEngine *engine_;
   std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
+  QueryInterface *queryInterface;
 
+  CamInterface *cameras;
+
+
+  rs::KnowledgeEngine::KnowledgeEngineType ke_type_;
+
+  //this is needed for legacy mongo interface
   mongo::client::GlobalInstance instance;
 
+  //ROS interface related members
   ros::NodeHandle nh_;
-  ros::ServiceServer setContextService_, queryService_, visService_, setFlowService_;
-
-  ros::Publisher result_pub;
+  ros::ServiceServer setContextService_, queryService_, setFlowService_;
+  ros::Publisher result_pub_;
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
   image_transport::ImageTransport it_;
@@ -57,16 +65,13 @@ public:
 
   bool waitForServiceCall_;
   bool useVisualizer_;
-  bool useIdentityResolution_;
+  bool use_identity_resolution_;
   bool parallel_;
 
   std::mutex processing_mutex_;
 
   rs::Visualizer visualizer_;
-
-  std::string configFile_;
   std::vector<std::string> lowLvlPipeline_;
-
 
   /**
    * @brief RSProcessManager::RSProcessManager constructror: the one and only...for now
@@ -77,7 +82,7 @@ public:
    * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
    */
   RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
-                   RSProcessManager::KnowledgeEngineType keType,
+                   rs::KnowledgeEngine::KnowledgeEngineType keType,
                    ros::NodeHandle n, const std::string &savePath);
 
   /**
@@ -90,19 +95,16 @@ public:
    * @brief RSProcessManager::init initialize the RSProcessManager; The engine and all of it's components need initialization; This method does that;
    * without initialization you can not use the algos in the engine;
    * @param engineFile engine file to load
-   * @param configFile extra config file; Deprecated; will be removed
    * @param pervasive flag to run in pervasive mode; (overrides waitForService)
    * @param parallel flag for parallelizing execution based on I/O definitions of annotators
    */
-  void init(std::string &xmlFile, std::string configFile_, bool pervasive, bool parallel);
+  void init(std::string &xmlFile, bool pervasive, bool parallel);
 
   /**
    * @brief RSProcessManager::run run the pipeline active pipeline defined in the engine
    * in a continuous loop;
    */
   void run();
-
-  void stop();
 
 
   /**
@@ -153,26 +155,15 @@ public:
    */
   bool resetAE(std::string);
 
+
   /**
    * @brief setUseIdentityResolution run identiy resolution for tracking objects over multiple scenes
    * @param useIdentityResoltuion
    */
-  inline void setUseIdentityResolution(bool useIdentityResoltuion)
+  void setUseIdentityResolution(bool useIdentityResoltuion)
   {
-    useIdentityResolution_ = useIdentityResoltuion;
-    //TODO: where do we need to set this?
-//    engine_->useIdentityResolution(useIdentityResoltuion);
+    use_identity_resolution_ = useIdentityResoltuion;
   }
-
-  /**
-   * @brief getEngineName
-   * @return return the name of the loaded Aggregate analysis engine
-   */
-  inline std::string getEngineName()
-  {
-    return engine_->getAAEName();
-  }
-
 
   //draw results on an image
   template <class T>
@@ -185,7 +176,7 @@ public:
 
   static void signalHandler(int signum)
   {
-    outWarn("Interrupt signal "<< signum <<" recevied. Exiting!");
+    outWarn("Interrupt signal " << signum << " recevied. Exiting!");
     exit(signum);
   }
 

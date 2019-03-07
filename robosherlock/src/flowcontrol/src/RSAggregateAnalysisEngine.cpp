@@ -185,15 +185,15 @@ void RSAggregateAnalysisEngine::processOnce()
 void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator_response, std::string queryString)
 {
   outInfo("executing analisys engine: " << name_);
-  cas_->reset();
+//  cas_->reset();
 
-  if(queryString != "" || query_ != "")
-  {
-    rs::Query query = rs::create<rs::Query>(*cas_);
-    queryString != "" ? query.query.set(queryString) : query.query.set(query_);
-    rs::SceneCas sceneCas(*cas_);
-    sceneCas.set("QUERY", query);
-  }
+//  if(queryString != "" || query_ != "")
+//  {
+//    rs::Query query = rs::create<rs::Query>(*cas_);
+//    queryString != "" ? query.query.set(queryString) : query.query.set(query_);
+//    rs::SceneCas sceneCas(*cas_);
+//    sceneCas.set("QUERY", query);
+//  }
   try
   {
     UnicodeString ustrInputText;
@@ -224,10 +224,10 @@ void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator
     }
 
     //        TODO: MOVE THIS OUT OF THE EXECUTION
-    rs::ObjectDesignatorFactory dw(cas_);
-    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
-    dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
-    dw.getObjectDesignators(designator_response);
+//    rs::ObjectDesignatorFactory dw(cas_);
+//    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+//    dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+//    dw.getObjectDesignators(designator_response);
 
     outInfo("processing finished");
     outInfo(clock.getTime() << " ms." << std::endl
@@ -385,6 +385,7 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
 namespace rs
 {
 
+
 std::string convertAnnotatorYamlToXML(std::string annotator_name, std::map<std::string, rs::AnnotatorCapabilities> &delegate_capabilities)
 {
   std::string yamlPath = rs::common::getAnnotatorPath(annotator_name);
@@ -447,7 +448,7 @@ std::string convertAnnotatorYamlToXML(std::string annotator_name, std::map<std::
   return "";
 }
 
-
+//the following three methods are a workaround for the very limited constructors that uima::internal::AggregateEngine offers
 RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae_file, bool parallel,
     bool pervasive, std::vector<std::string> contPipeline)
 {
