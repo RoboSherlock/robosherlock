@@ -1,9 +1,8 @@
 #include <rs/flowcontrol/RSProcessManager.h>
 #include <rs/io/MongoDBBridge.h>
 
-RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, rs::KnowledgeEngine::KnowledgeEngineType keType,
-                                   ros::NodeHandle n, const std::string &savePath):
-  nh_(n), it_(nh_),
+RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string &savePath):
+  nh_("~"), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
   useVisualizer_(useVisualizer), use_identity_resolution_(false),
   visualizer_(savePath, !useVisualizer)
@@ -53,11 +52,6 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   else
     throw rs::Exception("Wrong initialization param for knowledge engine");
 
-  boost::property_tree::ptree pt;
-  boost::property_tree::ini_parser::read_ini("/home/ferenc/work/rs_ws/src/rs_run_configs/config/config_mongodb_webdemo.ini", pt);
-
-//  cameras = new MongoDBBridge(pt);
-
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
   queryInterface = new QueryInterface(knowledgeEngine_);
 }
@@ -96,19 +90,12 @@ void RSProcessManager::run()
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
       if(waitForServiceCall_)
-      {
         usleep(100000);
-      }
       else
       {
         std::vector<std::string> objDescriptions;
         engine_->resetCas();
         outInfo("waiting for all cameras to have new data...");
-
-//        while(!cameras->newData() && ros::ok())
-//          usleep(100);
-//        cameras->setData(*engine_->getCas(), std::numeric_limits<uint64_t>::max());
-
         engine_->processOnce();
         rs::ObjectDesignatorFactory dw(engine_->getCas());
         use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);

@@ -91,11 +91,9 @@ int main(int argc, char *argv[])
 
   nh.param("ae", analysis_engine_names, std::string(""));
   nh.param("analysis_engines", analysis_engine_names, analysis_engine_names);
-
   nh.param("wait", waitForServiceCall, false);
   nh.param("vis", useVisualizer, false);
   nh.param("visualization", useVisualizer, useVisualizer);
-
   nh.param("save_path", save_path, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
   nh.param("parallel", parallel, false);
@@ -109,7 +107,6 @@ int main(int argc, char *argv[])
   nh.deleteParam("pervasive");
   nh.deleteParam("parallel");
   nh.deleteParam("ke");
-
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -151,7 +148,7 @@ int main(int argc, char *argv[])
 
   try
   {
-    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, nh, save_path);
+    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, save_path);
     manager.setUseIdentityResolution(useObjIDRes);
     manager.init(analysis_engine_file, pervasive, parallel);
     manager.run();

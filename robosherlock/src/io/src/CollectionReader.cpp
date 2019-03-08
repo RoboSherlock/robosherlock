@@ -23,7 +23,7 @@
 // RS
 #include <rs/io/TFBroadcasterWrapper.hpp>
 
-#include <rs/io/utils.h>
+#include <rs/io/CollectionReader.h>
 #include <rs/utils/time.h>
 #include <rs/scene_cas.h>
 
@@ -33,15 +33,14 @@
 
 using namespace uima;
 
-class CollectionReader : public Annotator
+class CollectionReaderAnnotator : public Annotator
 {
 
 private:
 
 
-  std::vector<std::shared_ptr<CamInterface>> cameras_;
+  std::vector<CollectionReader> cameras_;
   std::vector<std::string> interfaces_;
-
 
   std::thread thread_;
   TFBroadcasterWrapper broadCasterObject_;
@@ -51,7 +50,7 @@ private:
     return std::stoll(s);
   }
 
-  ~CollectionReader()
+  ~CollectionReaderAnnotator()
   {
     broadCasterObject_.terminate();
     thread_.join();
@@ -70,15 +69,14 @@ public:
       ctx.extractValue("camera_config_files", configs);
       for(size_t i = 0; i < configs.size(); ++i)
       {
-        std::shared_ptr<CamInterface> camInterface;
-        interfaces_.push_back(readConfig(*configs[i], camInterface));
-        cameras_.push_back(camInterface);
+        CollectionReader collRead(*configs[i]);
+        interfaces_.push_back(collRead.interface_type_);
+        cameras_.push_back(collRead);
       }
     }
 
     thread_ = std::thread(&TFBroadcasterWrapper::run, &broadCasterObject_);
     //    thread_.detach();
-
     //this needs to be set in order to rewrite parameters
     setAnnotatorContext(ctx);
 
@@ -99,9 +97,9 @@ public:
       for(size_t i = 0; i < configs.size(); ++i)
       {
         outInfo(*configs[i]);
-        std::shared_ptr<CamInterface> camera;
-        interfaces_.push_back(readConfig(*configs[i], camera));
-        cameras_.push_back(camera);
+        CollectionReader collRead(*configs[i]);
+        interfaces_.push_back(collRead.interface_type_);
+        cameras_.push_back(collRead);
       }
     }
     return UIMA_ERR_NONE;
@@ -136,7 +134,6 @@ public:
       std::string newTS;
       if(tsJson && tsJson->IsString())
       {
-
         newTS = tsJson->GetString();
         newTS = newTS.substr(0, newTS.find_first_of("\""));
         outInfo(newTS);
@@ -151,7 +148,7 @@ public:
     double t1 = clock.getTime();
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
-      while(!cameras_[i]->newData())
+      while(!cameras_[i].cam_interface_->newData())
       {
         usleep(100);
         check_ros();
@@ -161,10 +158,9 @@ public:
 
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
-      bool ret = cameras_[i]->setData(tcas, timestamp);
+      bool ret = cameras_[i].cam_interface_->setData(tcas, timestamp);
       check_expression(ret, "Could not receive data from camera.");
     }
-
 
     if(std::find(interfaces_.begin(), interfaces_.end(), "MongoDB") != interfaces_.end())
     {
@@ -183,4 +179,4 @@ public:
 };
 
 // This macro exports an entry point that is used to create the annotator.
-MAKE_AE(CollectionReader)
+MAKE_AE(CollectionReaderAnnotator)

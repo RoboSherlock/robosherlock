@@ -16,7 +16,8 @@
 #include <rs/queryanswering/QueryInterface.h>
 #include <rs/queryanswering/SWIPLInterface.h>
 #include <rs/queryanswering/JsonPrologInterface.h>
-#include <rs/io/CamInterface.h>
+#include <rs/io/CollectionReader.h>
+
 #include <rs/feature_structure_proxy.h>
 #include <rs/types/all_types.h>
 
@@ -40,14 +41,9 @@ class RSProcessManager
 
 public:
 
-
-
   RSAggregateAnalysisEngine *engine_;
   std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
   QueryInterface *queryInterface;
-
-  CamInterface *cameras;
-
 
   rs::KnowledgeEngine::KnowledgeEngineType ke_type_;
 
@@ -78,12 +74,10 @@ public:
    * @param useVisualizer flag for starting visualization window; If false it runs in headless mode, advertising partial results on a topic
    * @param waitForServiceCall run engine in synchroniouse mode, waiting for queries to arrive
    * @param keType set the knowledge Engine you would like to use. options are knowrob (JSON_PROLOG) or SWI_PROLOG
-   * @param n ros NodeHandle
    * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
    */
   RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
-                   rs::KnowledgeEngine::KnowledgeEngineType keType,
-                   ros::NodeHandle n, const std::string &savePath);
+                   rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string &savePath);
 
   /**
     * @brief destructor

@@ -33,33 +33,27 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
+#include <rs/utils/common.h>
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/exception.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
 
-#include <rs/io/utils.h>
-
 using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
 {
-  struct Region
-  {
-    tf::Transform transform;
-    float width, depth, height;
-    std::string name;
-    std::string type;
-  };
 
   struct SemanticMapItem
   {
+    tf::Transform transform;
     std::string name, type;
     double width, height, depth;
-    tf::Transform transform;
+
   };
   std::vector<SemanticMapItem> semanticMapItems_;
+  std::vector<SemanticMapItem> activeSemanticMapItems_;
 
 
   typedef pcl::PointXYZRGBA PointT;
@@ -72,9 +66,9 @@ class RegionFilter : public DrawingAnnotator
   pcl::IndicesPtr indices;
 
   tf::StampedTransform camToWorld, worldToCam;
-  std::vector<Region> regions;
 
   std::vector<std::string> defaultRegions;
+  std::vector<std::string> regions_to_look_at_;
   //name mapping for queries
   std::map<std::string, std::string> nameMapping;
 
@@ -125,7 +119,7 @@ public:
     if(ctx.isParameterDefined("pixel_threshold"))
       ctx.extractValue("pixel_threshold", pixelThreshold);
     if(ctx.isParameterDefined("depth_threshold"))
-      ctx.extractValue("depth_threshold", depthThreshold);   
+      ctx.extractValue("depth_threshold", depthThreshold);
     if(ctx.isParameterDefined("global_threshold"))
       ctx.extractValue("global_threshold", threshold);
     if(ctx.isParameterDefined("change_timeout"))
@@ -151,11 +145,14 @@ public:
 
   void readSemanticMap(const std::string &file)
   {
-    const std::string &mapFile = getConfigFilePath(file);
+    std::vector<std::string> searchPaths = rs::common::getRSSearchPaths("/config");
+    std::string mapFile;
+    for(auto p : searchPaths)
+      if(boost::filesystem::is_regular_file(boost::filesystem::path(p + "/" + file)))
+        mapFile = p + "/" + file;
+
     if(mapFile.empty())
-    {
       throw_exception_message("Semantic map file not found: " + file);
-    }
 
     outInfo("Path to semantic map file: " FG_BLUE << mapFile);
     cv::FileStorage fs(mapFile, cv::FileStorage::READ);
@@ -206,9 +203,9 @@ private:
       rs::SemanticMapObject obj = rs::create<rs::SemanticMapObject>(tcas);
       obj.name(item.name);
       obj.typeName(item.type);
-      obj.width(item.width);
-      obj.height(item.height);
-      obj.depth(item.depth);
+      obj.width(static_cast<double>(item.width));
+      obj.height(static_cast<double>(item.height));
+      obj.depth(static_cast<double>(item.depth));
       obj.transform(rs::conversion::to(tcas, item.transform));
       semanticMap.push_back(obj);
     }
@@ -237,9 +234,8 @@ private:
 
     //default place to look for objects is counter tops except if we got queried for some different place
     rs::Query qs = rs::create<rs::Query>(tcas);
-    std::vector<std::string> regionsToLookAt;
-    regionsToLookAt.assign(defaultRegions.begin(), defaultRegions.end());
-    regions.clear();
+
+    regions_to_look_at_.assign(defaultRegions.begin(), defaultRegions.end());
 
     if(cas.getFS("QUERY", qs) && qs.query() != "")
     {
@@ -248,31 +244,18 @@ private:
       jsonDoc.Parse(jsonString);
       outWarn("query in CAS : " << jsonString);
 
-      //TODO first level of json is currently only detect, needs to be done differently when there are
-      //multiple modes (Maybe save query mode in FS?)
       rapidjson::Pointer framePointerIn("/detect/location");
-      // rapidjson::Pointer framePointerOn("/detect/location/on");
-
       rapidjson::Value *frameJson = framePointerIn.Get(jsonDoc);
-      //      rapidjson::Value *frameJsonOn = framePointerOn.Get(jsonDoc);
       std::string newLocation;
-
       if(frameJson && frameJson->IsString())
-      {
         newLocation = frameJson->GetString();
-      }
-
-      //     if(frameJsonOn && frameJsonOn->IsString())
-      //     {
-      //       newLocation = frameJsonOn->GetString();
-      //     }
 
       outWarn("location set: " << newLocation);
       if(std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) && newLocation != "")
       {
         outInfo("new location not in default Regions");
-        regionsToLookAt.clear();
-        regionsToLookAt.push_back(newLocation);
+        regions_to_look_at_.clear();
+        regions_to_look_at_.push_back(newLocation);
         if(jsonString.find("scan"))
         {
           outInfo("Scanning action defined: filter location set permanently");
@@ -282,35 +265,15 @@ private:
       }
     }
 
-    if(regions.empty())
+    for(size_t i = 0; i < semanticMapItems_.size(); ++i)
     {
-      std::vector<rs::SemanticMapObject> semanticRegions;
-      getSemanticMapEntries(cas, regionsToLookAt, semanticRegions);
-
-      regions.resize(semanticRegions.size());
-      for(size_t i = 0; i < semanticRegions.size(); ++i)
+      if(frustumCulling(semanticMapItems_[i]) || !frustumCulling_)
       {
-
-        Region &region = regions[i];
-        region.width = semanticRegions[i].width();
-        region.depth = semanticRegions[i].depth();
-        region.height = semanticRegions[i].height();
-        region.name = semanticRegions[i].name();
-        region.type = semanticRegions[i].typeName();
-        rs::conversion::from(semanticRegions[i].transform(), region.transform);
-      }
-    }
-
-    for(size_t i = 0; i < regions.size(); ++i)
-    {
-      if(frustumCulling(regions[i]) || !frustumCulling_)
-      {
-        outInfo("region inside frustum: " << regions[i].name);
-        filterRegion(regions[i]);
-      }
-      else
-      {
-        outInfo("region outside frustum: " << regions[i].name);
+        if(std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), semanticMapItems_[i].name) != regions_to_look_at_.end())
+        {
+          outInfo("region inside frustum: " << semanticMapItems_[i].name);
+          filterRegion(semanticMapItems_[i]);
+        }
       }
     }
 
@@ -334,13 +297,10 @@ private:
       bool change = checkChange() || cas.has("QUERY") || secondsPassed > timeout;
 
       if(!change)
-      {
         ++filtered;
-      }
       else
-      {
         lastTime = camToWorld.stamp_;
-      }
+
       outInfo("filtered frames: " << filtered << " / " << frames << "(" << (filtered / (float)frames) * 100 << "%)");
 
       if(!change)
@@ -388,7 +348,7 @@ private:
     pcl::visualization::getViewFrustum(viewProjectionMatrix, frustum);
   }
 
-  bool frustumCulling(const Region &region)
+  bool frustumCulling(const SemanticMapItem &region)
   {
     double tFrustum[24];
 
@@ -482,23 +442,7 @@ private:
     return diff > threshold;
   }
 
-  void getSemanticMapEntries(rs::SceneCas &cas, const std::vector<std::string> &name, std::vector<rs::SemanticMapObject> &mapObjects)
-  {
-    std::vector<rs::SemanticMapObject> objects;
-    cas.get(VIEW_SEMANTIC_MAP, objects);
-    for(auto n : name)
-    {
-      for(size_t i = 0; i < objects.size(); ++i)
-      {
-        if(objects[i].name() == n)
-        {
-          mapObjects.push_back(objects[i]);
-        }
-      }
-    }
-  }
-
-  void filterRegion(const Region &region)
+  void filterRegion(const SemanticMapItem &region)
   {
     const float minX = -(region.width / 2) + border;
     const float maxX = (region.width / 2) - border;
@@ -601,9 +545,12 @@ private:
     visualizer.addLine(pclOrigin, pclLineY, 0, 1, 0, "lineY");
     visualizer.addLine(pclOrigin, pclLineZ, 0, 0, 1, "lineZ");
 
-    for(int i = 0; i < regions.size(); ++i)
+    for(int i = 0; i < semanticMapItems_.size(); ++i)
     {
-      const Region &region = regions[i];
+
+      const SemanticMapItem &region = semanticMapItems_[i];
+      if(std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), region.name) == regions_to_look_at_.end())
+          continue;
       tf::Transform transform = worldToCam * region.transform;
 
       std::ostringstream oss;
