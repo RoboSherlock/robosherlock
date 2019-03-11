@@ -136,8 +136,7 @@ int main(int argc, char *argv[])
       engine->processOnce();
 
       std::vector<std::string> obj_descriptions;
-      rs::ObjectDesignatorFactory dw(engine->getCas());
-      dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
       dw.getObjectDesignators(obj_descriptions);
       robosherlock_msgs::RSObjectDescriptions objDescr;
       objDescr.obj_descriptions = obj_descriptions;
