@@ -43,6 +43,8 @@
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/io/visualizer.h>
 
+#include <robosherlock_msgs/RSObjectDescriptions.h>
+
 #include <ros/ros.h>
 #include <ros/package.h>
 
@@ -117,6 +119,8 @@ int main(int argc, char *argv[])
   rs::Visualizer vis(save_path, !useVisualizer);
 
   RSAggregateAnalysisEngine *engine;
+  ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+
   try
   {
     //singl
@@ -130,6 +134,15 @@ int main(int argc, char *argv[])
     {
       engine->resetCas();
       engine->processOnce();
+
+      std::vector<std::string> obj_descriptions;
+      rs::ObjectDesignatorFactory dw(engine->getCas());
+      dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+      dw.getObjectDesignators(obj_descriptions);
+      robosherlock_msgs::RSObjectDescriptions objDescr;
+      objDescr.obj_descriptions = obj_descriptions;
+      result_pub_.publish(objDescr);
+
       ros::spinOnce();
     }
 
