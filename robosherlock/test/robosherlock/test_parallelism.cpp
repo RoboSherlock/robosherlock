@@ -2,8 +2,6 @@
 #include <gtest/gtest.h>
 
 #include <uima/api.hpp>
-
-#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
@@ -34,24 +32,25 @@ protected:
     virtual void SetUp()
     {
       rs::common::getAEPaths("u_test",engineFile);
-      engine.init(engineFile, false); // set false for not query from knowrob, we will manually set variables
+      engine = rs::createRSAggregateAnalysisEngine(engineFile, false); // set false for not query from knowrob, we will manually set variables
 
-      engine.setPipelineOrdering(engineList);
-      engine.setParallelOrderings(orderings,orderingIndices);
+      engine->setPipelineOrdering(engineList);
+      engine->setParallelOrderings(orderings,orderingIndices);
     }
 
     virtual void TearDown()
     {
-       engine.stop();
+       engine->destroy();
+       delete engine;
     }
 
     std::string engineFile;
-    RSAnalysisEngine engine;
+    RSAggregateAnalysisEngine *engine;
 };
 
 TEST_F(ParallelismTest, ParallelExecutionTest)
 {
-  uima::TyErrorId error = engine.parallelProcess(*engine.getCas());
+  uima::TyErrorId error = engine->parallelProcess(*engine->getCas());
 
   EXPECT_TRUE(error == UIMA_ERR_NONE);
 }

@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
@@ -30,26 +31,26 @@ void PCLDescriptorExtractorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor","ClusterMerger","PCLDescriptorExtractor"};
-  engine.setPipelineOrdering(engineList);
-  engine.resetCas();
-  engine.overwriteParam("PCLDescriptorExtractor","descriptorType", std::string("VFH"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->setPipelineOrdering(engineList);
+  engine->resetCas();
+  engine->overwriteParam("PCLDescriptorExtractor","descriptorType", std::string("VFH"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processPCL(cas);	
-  engine.resetCas();
-  engine.overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("CVFH"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->resetCas();
+  engine->overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("CVFH"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processPCL(cas);
-  engine.resetCas();
-  engine.overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("OUR-CVFH"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->resetCas();
+  engine->overwriteParam("PCLDescriptorExtractor","descriptorType",std::string("OUR-CVFH"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processPCL(cas);
-  engine.resetCas();
+  engine->resetCas();
   
 }
 

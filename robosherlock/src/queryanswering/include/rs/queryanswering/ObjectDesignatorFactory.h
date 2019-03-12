@@ -46,6 +46,8 @@ public:
 
   ObjectDesignatorFactory(uima::CAS *cas);
 
+  ObjectDesignatorFactory(uima::CAS *cas,rs::ObjectDesignatorFactory::Mode m);
+
   void setCAS(uima::CAS *cas);
   void setMode(ObjectDesignatorFactory::Mode m);
 

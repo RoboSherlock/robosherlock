@@ -33,6 +33,7 @@
 #include <std_msgs/Header.h>
 #include <sensor_msgs/image_encodings.h>
 #include <robosherlock_msgs/RSActiveAnnotatorList.h>
+#include <robosherlock_msgs/RSVisControl.h>
 
 // RS
 #include <rs/DrawingAnnotator.h>
@@ -67,8 +68,9 @@ private:
   std::vector<int> saveParams;
 
   std_msgs::Header header;
-  ros::NodeHandle nh;
+  ros::NodeHandle nh_;
   ros::Publisher pub, pubAnnotList;
+  ros::ServiceServer vis_service_;
 
 public:
   static bool *trigger;
@@ -99,6 +101,10 @@ private:
 
   void saveImage(const cv::Mat &disp);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
+
+  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+      robosherlock_msgs::RSVisControl::Response &res);
+
 };
 
 }

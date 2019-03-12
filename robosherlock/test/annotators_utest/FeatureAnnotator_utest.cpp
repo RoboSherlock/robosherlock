@@ -1,8 +1,9 @@
 #include <gtest/gtest.h>
 #include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+
 #include "../main.h"
 
 void processFeatureCluster(uima::CAS *cas)
@@ -36,32 +37,32 @@ void featureAnnotator()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","ClusterMerger","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor","FeatureAnnotator"};
-  engine.setPipelineOrdering(engineList);
-  engine.resetCas();
-  engine.process();
-  cas = engine.getCas();
+  engine->setPipelineOrdering(engineList);
+  engine->resetCas();
+  engine->processOnce();
+  cas = engine->getCas();
   processFeatureCluster(cas);
   
   
-  engine.overwriteParam("FeatureAnnotator","keypointDetector",std::string("BRISK"));
-  engine.overwriteParam("FeatureAnnotator","featureExtractor",std::string("BRISK")); 
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->overwriteParam("FeatureAnnotator","keypointDetector",std::string("BRISK"));
+  engine->overwriteParam("FeatureAnnotator","featureExtractor",std::string("BRISK"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processFeatureCluster(cas);
   
-  engine.overwriteParam("FeatureAnnotator","keypointDetector",std::string("ORB"));
-  engine.overwriteParam("FeatureAnnotator","featureExtractor",std::string("ORB")); 
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->overwriteParam("FeatureAnnotator","keypointDetector",std::string("ORB"));
+  engine->overwriteParam("FeatureAnnotator","featureExtractor",std::string("ORB"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processFeatureCluster(cas);
   //THESE DO NOT WORK
-  /*engine.overwriteParam("FeatureAnnotator","keypointDetector",std::string("FAST"));
-  engine.overwriteParam("FeatureAnnotator","featureExtractor",std::string("FREAK")); 
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  /*engine->overwriteParam("FeatureAnnotator","keypointDetector",std::string("FAST"));
+  engine->overwriteParam("FeatureAnnotator","featureExtractor",std::string("FREAK"));
+  engine->reconfigure();
+  engine->process();
+  cas = engine->getCas();
   processFeatureCluster(cas);*/		
   
 }
