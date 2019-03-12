@@ -34,11 +34,16 @@
 #include <condition_variable>
 #include <sstream>
 
-#include <uima/api.hpp>
-#include "uima/internal_aggregate_engine.hpp"
-#include "uima/annotator_mgr.hpp"
+//#include <uima/api.hpp>
+//#include "uima/internal_aggregate_engine.hpp"
+//#include <uima/annotator_mgr.hpp>
 
-#include <rs/flowcontrol/RSProcessManager.h>
+#include <mongo/client/dbclient.h>
+
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <rs/io/visualizer.h>
+
+#include <robosherlock_msgs/RSObjectDescriptions.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
@@ -49,16 +54,11 @@
  */
 void help()
 {
-  std::cout << "Usage: rosrun robosherlock run [options] [analysis_engines]" << std::endl
+  std::cout << "Continuously exectue the fixed flow defined in an analysis engine." << std::endl
+            << "Usage: rosrun robosherlock runAAE [options] [analysis_engine]" << std::endl
             << "Options:" << std::endl
             << "               _ae:=engine         Name of analysis enginee for execution" << std::endl
             << "              _vis:=true|false     shorter version for _visualization" << std::endl
-            << "        _save_path:=PATH           Path to where images and point clouds should be stored" << std::endl
-            << "             _wait:=true|false     Enable/Disable waiting for a query before the execution starts" << std::endl
-            << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine xml" << std::endl
-            << "         _parallel:=true|false     Enable/Disable parallel execution of pipeline (json_prolog is required)" << std::endl
-            << "        _withIDRes:=true|false     Enable/Disable running object identity resolution" << std::endl
-            << "               _ke:=ke_type        Set the knowledge engine you want to use; Values are: [SWI_PROLOG, KNOWROB]. Default is SWI_PROLOG." << std::endl
             << std::endl;
 }
 
@@ -87,26 +87,13 @@ int main(int argc, char *argv[])
   ros::NodeHandle nh("~");
 
   std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;
-  bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel;
+  bool useVisualizer;
 
   nh.param("ae", analysis_engine_names, std::string(""));
-  nh.param("analysis_engines", analysis_engine_names, analysis_engine_names);
-  nh.param("wait", waitForServiceCall, false);
   nh.param("vis", useVisualizer, false);
-  nh.param("visualization", useVisualizer, useVisualizer);
-  nh.param("save_path", save_path, std::string(getenv("HOME")));
-  nh.param("pervasive", pervasive, false);
-  nh.param("parallel", parallel, false);
-  nh.param("withIDRes", useObjIDRes, false);
-  nh.param("ke", knowledge_engine, std::string("SWI_PROLOG"));
 
   nh.deleteParam("ae");
   nh.deleteParam("vis");
-  nh.deleteParam("save_path");
-  nh.deleteParam("wait");
-  nh.deleteParam("pervasive");
-  nh.deleteParam("parallel");
-  nh.deleteParam("ke");
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -127,51 +114,55 @@ int main(int argc, char *argv[])
     return -1;
   }
   else
-  {
     outInfo(analysis_engine_file);
-  }
 
-  rs::KnowledgeEngine::KnowledgeEngineType keType;
-  if(knowledge_engine == "SWI_PROLOG")
-  {
-    keType = rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG;
-  }
-  else if(knowledge_engine == "KNOWROB")
-  {
-    keType = rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG;
-  }
-  else
-  {
-    outError("Unsupported Knowledge Engine type! Valid values are: [SWI_PROLOG, JSON_PROLOG]. Exiting.");
-    return 0;
-  }
+  rs::Visualizer vis(save_path, !useVisualizer);
+
+  RSAggregateAnalysisEngine *engine;
+  ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   try
   {
-    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, save_path);
-    manager.setUseIdentityResolution(useObjIDRes);
-    manager.init(analysis_engine_file, pervasive, parallel);
-    manager.run();
+    //singl
+    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+
+    mongo::client::GlobalInstance instance; //this is a stupid thing we did now we suffer the consequences
+
+    engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false, false);
+    vis.start();
+    while(ros::ok())
+    {
+      engine->resetCas();
+      engine->processOnce();
+
+      std::vector<std::string> obj_descriptions;
+      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
+      dw.getObjectDesignators(obj_descriptions);
+      robosherlock_msgs::RSObjectDescriptions objDescr;
+      objDescr.obj_descriptions = obj_descriptions;
+      result_pub_.publish(objDescr);
+
+      ros::spinOnce();
+    }
+
   }
   catch(const rs::Exception &e)
   {
-    outError("Exception: [" << e.what()<<"]");
-    return -1;
+    outError("Exception: [" << e.what() << "]");
   }
   catch(const uima::Exception &e)
   {
     outError("Exception: " << std::endl << e);
-    return -1;
   }
   catch(const std::exception &e)
   {
     outError("Exception: " << std::endl << e.what());
-    return -1;
   }
   catch(...)
   {
     outError("Unknown exception!");
-    return -1;
   }
+  ros::shutdown();
+  delete engine;
   return 0;
 }

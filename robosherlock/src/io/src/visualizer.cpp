@@ -32,12 +32,14 @@ using namespace rs;
 bool *Visualizer::trigger = NULL;
 
 Visualizer::Visualizer(const std::string &savePath, bool headless) : windowImage("Image Viewer"), windowCloud("Cloud Viewer"), annotator(NULL), names(), index(0),
-  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh("~"), headless_(headless)
+  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh_("~")
 {
   this->savePath = savePath;
-  if(this->savePath[this->savePath.size() - 1] != '/') {
+  if(this->savePath[this->savePath.size() - 1] != '/')
     this->savePath += '/';
-  }
+
+  vis_service_ = nh_.advertiseService("vis_command", &Visualizer::visControlCallback, this);
+
 }
 
 Visualizer::~Visualizer()
@@ -58,8 +60,8 @@ bool Visualizer::start()
   //Initially, all annotators are active
   activeAnnotators = names;
 
-  pub = nh.advertise<sensor_msgs::Image>("output_image", 1, true);
-  pubAnnotList = nh.advertise<robosherlock_msgs::RSActiveAnnotatorList>("vis/active_annotators", 1, true);
+  pub = nh_.advertise<sensor_msgs::Image>("output_image", 1, true);
+  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>("vis/active_annotators", 1, true);
 
   index = 0;
   annotator = DrawingAnnotator::getAnnotator(names[index]);
@@ -364,5 +366,25 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   outInfo("saving screenshot: " << oss.str());
   visualizer->saveScreenshot(oss.str());
   ++saveFrameCloud;
+}
+
+bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+    robosherlock_msgs::RSVisControl::Response &res)
+{
+  std::string command = req.command;
+  bool result = true;
+  std::string activeAnnotator = "";
+
+  if(command == "next")
+    activeAnnotator = this->nextAnnotator();
+  else if(command == "previous")
+    activeAnnotator = this->prevAnnotator();
+  else if(command != "")
+    activeAnnotator = this->selectAnnotator(command);
+  if(activeAnnotator == "")
+    result = false;
+  res.success = result;
+  res.active_annotator = activeAnnotator;
+  return result;
 }
 
