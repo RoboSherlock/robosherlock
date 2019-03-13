@@ -27,9 +27,11 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/DrawingAnnotator.h>
-
-
 #include <robosherlock_msgs/RSObjectDescriptions.h>
+
+// TF
+#include "tf/transform_datatypes.h"
+#include "tf_conversions/tf_eigen.h"
 
 // PCL
 #include <pcl/point_cloud.h>
@@ -104,6 +106,7 @@ private:
   CloudPtr particle_cloud;
   ParticleT result;
   CloudPtr result_cloud;
+  tf::Transform tf_transform;
 public:
   PCLParticleTrackingAnnotator() : DrawingAnnotator(__func__), point_size(1), input_cloud_rgb(new pcl::PointCloud<pcl::PointXYZRGBA>), particle_cloud(new Cloud()), result(0,0,0,0,0,0), result_cloud(new Cloud())
   {
@@ -333,9 +336,19 @@ public:
 
             robosherlock_msgs::RSObjectDescriptions result_message;
             std::vector<std::string> result_response;
-            result_response.push_back("x: " + std::to_string(centroid[0]));
-            result_response.push_back("y: " + std::to_string(centroid[1]));
-            result_response.push_back("z: " + std::to_string(centroid[2]));
+            Eigen::Affine3d transformation_double = transformation.cast <double> ();
+            tf::transformEigenToTF(transformation_double, tf_transform);
+            tf::Vector3 translation = tf_transform.getOrigin();
+            tf::Quaternion rotation = tf_transform.getRotation();
+            tf::Matrix3x3 m(rotation);
+            double roll, pitch, yaw;
+            m.getRPY(roll, pitch, yaw);
+            result_response.push_back("x: " + std::to_string(translation.x()));
+            result_response.push_back("y: " + std::to_string(translation.y()));
+            result_response.push_back("z: " + std::to_string(translation.z()));
+            result_response.push_back("roll: " + std::to_string(roll));
+            result_response.push_back("pitch: " + std::to_string(pitch));
+            result_response.push_back("yaw: " + std::to_string(yaw));
             result_message.obj_descriptions = result_response;
             result_pub.publish(result_message);
           }
