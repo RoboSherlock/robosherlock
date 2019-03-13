@@ -27,6 +27,8 @@ protected:
 
 public:
 
+  enum class KnowledgeEngineType {JSON_PROLOG, SWI_PROLOG};
+
   KnowledgeEngine() {}
 
   ~KnowledgeEngine() {}

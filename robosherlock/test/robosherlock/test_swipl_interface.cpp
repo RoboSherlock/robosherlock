@@ -2,8 +2,6 @@
 #include <gtest/gtest.h>
 
 #include <uima/api.hpp>
-
-#include <rs/flowcontrol/RSAnalysisEngine.h>
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/queryanswering/SWIPLInterface.h>
 #include <rs/utils/common.h>
