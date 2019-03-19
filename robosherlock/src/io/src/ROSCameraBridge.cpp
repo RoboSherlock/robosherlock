@@ -38,7 +38,7 @@ ROSCameraBridge::ROSCameraBridge(const boost::property_tree::ptree &pt) : ROSCam
 
 ROSCameraBridge::~ROSCameraBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete sync;
   delete rgbImageSubscriber;
   delete cameraInfoSubscriber;
@@ -48,7 +48,7 @@ void ROSCameraBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<RGBSyncPolicy>(RGBSyncPolicy(10), *rgbImageSubscriber, *cameraInfoSubscriber);
   sync->registerCallback(boost::bind(&ROSCameraBridge::cb_, this, _1, _2));
-  spinner.start();
+//  spinner.start();
 }
 
 void ROSCameraBridge::readConfig(const boost::property_tree::ptree &pt)

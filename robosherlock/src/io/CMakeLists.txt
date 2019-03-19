@@ -11,6 +11,7 @@ add_library(rs_io SHARED
   src/UnrealROSIntegrationVisionBridge.cpp
   src/DataLoaderBridge.cpp
   src/MongoDBBridge.cpp
+  src/TFListenerProxy.cpp
   src/Storage.cpp
   src/visualizer.cpp
 )
