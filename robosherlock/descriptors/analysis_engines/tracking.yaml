@@ -6,7 +6,7 @@ fixedflow:
   - RegionFilter
   - NormalEstimator
   - PlaneAnnotator
-  - ImageSegmentationAnnotator
+#  - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
   - Cluster3DGeometryAnnotator
@@ -15,6 +15,7 @@ fixedflow:
   - PointCloudFilter
   - PointCloudDownsampler
   - PrimitiveShapeAnnotator
+#  - KNNClassifier
   - KCFTrackingAnnotator
   - PCLParticleTrackingAnnotator
   - DrawResultImage

@@ -365,7 +365,7 @@ public:
 
   void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool FIRST_RUN)
   {
-    if (!particles->size() > 0)
+    if (!particle_cloud->size() > 0)
     {
       outError("Particle result cloud is empty.");
     }

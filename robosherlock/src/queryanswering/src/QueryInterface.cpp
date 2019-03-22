@@ -181,15 +181,13 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
   //res.push_back("StorageWriter");
 
 
+    res.push_back("ImagePreprocessor");
   // KCF tracking pipeline
 /**
-  res.push_back("ImagePreprocessor");
   res.push_back("KCFTrackingAnnotator");
   **/
-
-
   // PCL particle tracking pipeline
-  res.push_back("ImagePreprocessor");
+
   res.push_back("PCLParticleTrackingAnnotator");
 
 
