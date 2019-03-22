@@ -63,6 +63,8 @@ public:
 
   bool getQueryConfig();
 
+  rapidjson::Document  &getQueryDocument();
+
   bool parseQuery(std::string query_);
 
   QueryType processQuery(std::vector<std::string> &newPipelineOrder);
