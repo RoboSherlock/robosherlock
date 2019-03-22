@@ -1,7 +1,6 @@
 ae:
   name: demo
 fixedflow:
-  - Trigger
   - CollectionReader
   - ImagePreprocessor
   - PointCloudFilter
@@ -10,6 +9,5 @@ fixedflow:
   - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
-  - Cluster3DGeometryAnnotator
 CollectionReader:
-  camera_config_files: ['config_mongodb_playback.ini']
+  camera_config_files: ['config_kinect_robot.ini']

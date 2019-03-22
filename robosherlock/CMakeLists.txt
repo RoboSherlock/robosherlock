@@ -17,7 +17,6 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
-set(CMAKE_BUILD_TYPE Debug)
 
 # Code Coverage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
@@ -146,6 +145,7 @@ add_definitions(${PCL_DEFINITIONS})
 ################################################################################
 ## catkin specific configuration                                              ##
 ################################################################################
+
 # libraries to export
 set(RS_LIBS
   rs_core

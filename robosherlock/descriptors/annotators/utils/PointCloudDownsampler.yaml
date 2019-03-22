@@ -6,5 +6,5 @@ capabilities:
   inputs: []
   outputs: []
 parameters:
-  leaf_size: 0.01
+  leaf_size: 0.001
   pass_through: true
