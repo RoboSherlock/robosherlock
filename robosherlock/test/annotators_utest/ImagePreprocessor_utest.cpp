@@ -22,6 +22,8 @@
 
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+
 #include "../main.h"
 
 //Variables to be tested
@@ -36,20 +38,20 @@ int preprocessingTest()
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
 
-  //uima::AnnotatorContext &annotContext = engine.getAnnotatorContext();
+  //uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
   //uima::AnnotatorContext::TyMapDelegateAnCs delegates =  annotContext.getDelegates();
 
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator"};
-  engine.setPipelineOrdering(engineList);
+  engine->setPipelineOrdering(engineList);
 
  try
     {
       //we process here
       //uima::CASIterator casIter = engine->processAndOutputNewCASes(*cas);
-      engine.resetCas();
-      engine.process();
-      cas = engine.getCas();
+      engine->resetCas();
+      engine->processOnce();
+      cas = engine->getCas();
       rs::SceneCas sceneCas(*cas);
 //cloud
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_test(new pcl::PointCloud<pcl::PointXYZRGBA>());
@@ -88,7 +90,7 @@ int preprocessingTest()
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr thermal_cloud_test(new pcl::PointCloud<pcl::PointXYZRGBA>());
       exist_thermal_cloud = sceneCas.get(VIEW_THERMAL_CLOUD, *thermal_cloud_test);
 
-      engine.getAnnotatorContext().releaseCAS(*cas);
+      engine->getAnnotatorContext().releaseCAS(*cas);
 
     }
     catch(const rs::FrameFilterException &)
@@ -113,9 +115,9 @@ int preprocessingTest()
   new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs); */
-  engine.reconfigure();
+  engine->reconfigure();
 
-  engine.collectionProcessComplete();
+  engine->collectionProcessComplete();
 
 }
 

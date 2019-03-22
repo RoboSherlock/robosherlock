@@ -41,6 +41,7 @@
   
   <depend>rapidjson_ros		     </depend>
   <depend>yaml-cpp                   </depend>
+  <depend>swi-prolog		     </depend>
   
   <export>
   </export>

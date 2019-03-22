@@ -1,10 +1,7 @@
 #ifndef __RSPROCESS_MANAGER_H__
 #define __RSPROCESS_MANAGER_H__
 
-#include <rs/flowcontrol/RSAnalysisEngine.h>
-#ifdef WITH_JSON_PROLOG
-#include <rs/queryanswering/QueryInterface.h>
-#endif
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <rs/io/visualizer.h>
 
@@ -18,60 +15,71 @@
 
 #include <mongo/client/dbclient.h>
 
-#include <image_transport/image_transport.h>
+#include <rs/queryanswering/QueryInterface.h>
+#include <rs/queryanswering/SWIPLInterface.h>
+#include <rs/queryanswering/JsonPrologInterface.h>
+#include <rs/io/CollectionReader.h>
+
+#include <rs/feature_structure_proxy.h>
+#include <rs/types/all_types.h>
+
+
 #include <cv_bridge/cv_bridge.h>
+#include <image_transport/image_transport.h>
 #include <sensor_msgs/image_encodings.h>
 
-#include <pcl_ros/point_cloud.h>
+#include <memory>
 
-//TODO: Make this the ROS communication interface class
+//neded for visualization
+#include <tf_conversions/tf_eigen.h>
+
+#include <pcl_ros/point_cloud.h>
+#include <pcl/filters/voxel_grid.h>
+#include <pcl/common/transforms.h>
+
+//TODO: Make this the collection processing engine
 class RSProcessManager
 {
 
 public:
 
-  RSAnalysisEngine engine_;
-
-#ifdef WITH_JSON_PROLOG
+  std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
+  RSAggregateAnalysisEngine *engine_;
   QueryInterface *query_interface;
-#endif
 
+  rs::KnowledgeEngine::KnowledgeEngineType ke_type_;
+
+  //this is needed for legacy mongo interface
   mongo::client::GlobalInstance instance;
 
+  //ROS interface related members
   ros::NodeHandle nh_;
-  ros::ServiceServer setContextService_, queryService_, visService_, setFlowService_;
-
-  ros::Publisher result_pub;
+  ros::ServiceServer setContextService_, queryService_, setFlowService_;
+  ros::Publisher result_pub_;
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
   image_transport::ImageTransport it_;
 
 
   bool waitForServiceCall_;
-  bool withQA_;
   bool useVisualizer_;
-  bool useIdentityResolution_;
+  bool use_identity_resolution_;
   bool parallel_;
 
   std::mutex processing_mutex_;
 
   rs::Visualizer visualizer_;
-
-  std::string configFile_;
   std::vector<std::string> lowLvlPipeline_;
-
 
   /**
    * @brief RSProcessManager::RSProcessManager constructror: the one and only...for now
    * @param useVisualizer flag for starting visualization window; If false it runs in headless mode, advertising partial results on a topic
    * @param waitForServiceCall run engine in synchroniouse mode, waiting for queries to arrive
-   * @param run with query answering enabled
-   * @param n ros NodeHandle
+   * @param keType set the knowledge Engine you would like to use. options are knowrob (JSON_PROLOG) or SWI_PROLOG
    * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
-   *
    */
-  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, bool withQnA,
-                   ros::NodeHandle n, const std::string &savePath);
+  RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall,
+                   rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string &savePath);
 
   /**
     * @brief destructor
@@ -83,19 +91,16 @@ public:
    * @brief RSProcessManager::init initialize the RSProcessManager; The engine and all of it's components need initialization; This method does that;
    * without initialization you can not use the algos in the engine;
    * @param engineFile engine file to load
-   * @param configFile extra config file; Deprecated; will be removed
    * @param pervasive flag to run in pervasive mode; (overrides waitForService)
    * @param parallel flag for parallelizing execution based on I/O definitions of annotators
    */
-  void init(std::string &xmlFile, std::string configFile_, bool pervasive, bool parallel);
+  void init(std::string &xmlFile, bool pervasive, bool parallel);
 
   /**
    * @brief RSProcessManager::run run the pipeline active pipeline defined in the engine
    * in a continuous loop;
    */
   void run();
-
-  void stop();
 
 
   /**
@@ -119,7 +124,6 @@ public:
    */
   bool executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
                                robosherlock_msgs::ExecutePipeline::Response &res);
-#ifdef WITH_JSON_PROLOG
 
   /**
    * @brief RSProcessManager::jsonQueryCallback the callback function
@@ -137,7 +141,6 @@ public:
    * @return
    */
   bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
-#endif
 
 
   /**
@@ -148,23 +151,29 @@ public:
    */
   bool resetAE(std::string);
 
+
   /**
    * @brief setUseIdentityResolution run identiy resolution for tracking objects over multiple scenes
    * @param useIdentityResoltuion
    */
-  inline void setUseIdentityResolution(bool useIdentityResoltuion)
+  void setUseIdentityResolution(bool useIdentityResoltuion)
   {
-    useIdentityResolution_ = useIdentityResoltuion;
-    engine_.useIdentityResolution(useIdentityResoltuion);
+    use_identity_resolution_ = useIdentityResoltuion;
   }
 
-  /**
-   * @brief getEngineName
-   * @return return the name of the loaded Aggregate analysis engine
-   */
-  inline std::string getEngineName()
+  //draw results on an image
+  template <class T>
+  bool drawResultsOnImage(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                          std::string &requestJson, cv::Mat &resImage);
+
+  template <class T>
+  bool highlightResultsInCloud(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                               std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
+
+  static void signalHandler(int signum)
   {
-    return engine_.getCurrentAEName();
+    outWarn("Interrupt signal " << signum << " recevied. Exiting!");
+    exit(signum);
   }
 
 };

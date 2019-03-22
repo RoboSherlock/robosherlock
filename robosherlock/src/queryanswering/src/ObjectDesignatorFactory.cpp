@@ -9,15 +9,20 @@ ObjectDesignatorFactory::ObjectDesignatorFactory()
   tcas = NULL;
 }
 
-ObjectDesignatorFactory::~ObjectDesignatorFactory()
-{
-}
-
 ObjectDesignatorFactory::ObjectDesignatorFactory(uima::CAS *cas) : tcas(cas)
 {
   mode = ObjectDesignatorFactory::Mode::CLUSTER;
 }
 
+ObjectDesignatorFactory::ObjectDesignatorFactory(uima::CAS *cas, rs::ObjectDesignatorFactory::Mode m)
+{
+  mode = m;
+  tcas = cas;
+}
+
+ObjectDesignatorFactory::~ObjectDesignatorFactory()
+{
+}
 
 void ObjectDesignatorFactory::setCAS(uima::CAS *cas)
 {
@@ -31,7 +36,8 @@ void ObjectDesignatorFactory::setMode(ObjectDesignatorFactory::Mode m)
 
 bool ObjectDesignatorFactory::getObjectDesignators(std::vector<std::string> &objectDesignators)
 {
-  if(!tcas) {
+  if(!tcas)
+  {
     std::cout << "NULL Pointer in DesignatorWrapper::getDesignatorResponse. tcas is not set! Use DesignatorWrapper::setCAS before calling this method" << std::endl;
     return false;
   }
@@ -40,19 +46,22 @@ bool ObjectDesignatorFactory::getObjectDesignators(std::vector<std::string> &obj
   rs::Scene scene = cas.getScene();
   now = scene.timestamp();
 
-  if(mode == ObjectDesignatorFactory::Mode::CLUSTER) {
+  if(mode == ObjectDesignatorFactory::Mode::CLUSTER)
+  {
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
     std::vector<double> lastSeen;
     lastSeen.resize(clusters.size(), 0.0);
     process(clusters, objectDesignators, lastSeen);
   }
-  else {
+  else
+  {
     std::vector<rs::Object> allObjects, objects;
     cas.get(VIEW_OBJECTS, allObjects);
     outWarn("objects found: " << allObjects.size());
     std::vector<double> lastSeen;
-    for(size_t i = 0; i < allObjects.size(); ++i) {
+    for(size_t i = 0; i < allObjects.size(); ++i)
+    {
       rs::Object &object = allObjects[i];
       lastSeen.push_back((now - (uint64_t)object.lastSeen()) / 1000000000.0);
       //      if(lastSeen == 0)
@@ -67,9 +76,11 @@ bool ObjectDesignatorFactory::getObjectDesignators(std::vector<std::string> &obj
 
 template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements, std::vector<std::string> &objectDesignators, std::vector<double> lastSeen)
 {
-  for(size_t i = 0; i < elements.size(); ++i) {
+  for(size_t i = 0; i < elements.size(); ++i)
+  {
     outDebug("reading object: " << i);
-    if(lastSeen[i] != 0.0) {
+    if(lastSeen[i] != 0.0)
+    {
       objectDesignators.push_back("");
       continue;
     }
@@ -83,34 +94,41 @@ template<class T> void ObjectDesignatorFactory::process(std::vector<T> &elements
     double time = seconds + nsec;
 
     outDebug("time: " << std::setprecision(20) << time);
-    if(std::is_same<T, rs::ObjectHypothesis>::value) {
+    if(std::is_same<T, rs::ObjectHypothesis>::value)
+    {
       objectDesignator.AddMember("id", std::to_string(i), objectDesignator.GetAllocator());
     }
-    else {
+    else
+    {
       objectDesignator.AddMember("id", element.id(), objectDesignator.GetAllocator());
     }
     objectDesignator.AddMember("timestamp", time, objectDesignator.GetAllocator());
-    for(auto annotation : element.annotations) {
+    for(auto annotation : element.annotations)
+    {
       rapidjson::Document annotAsJson(rapidjson::kObjectType);
       rs::conversion::from(annotation, annotAsJson);
 
-      for(rapidjson::Value::MemberIterator it = annotAsJson.MemberBegin(); it != annotAsJson.MemberEnd(); ++it) {
+      for(rapidjson::Value::MemberIterator it = annotAsJson.MemberBegin(); it != annotAsJson.MemberEnd(); ++it)
+      {
         rapidjson::Value key(it->name.GetString(), objectDesignator.GetAllocator());
         rapidjson::Document val(rapidjson::kObjectType);
         val.CopyFrom(it->value, objectDesignator.GetAllocator());
-        if(!objectDesignator.HasMember(it->name.GetString())) {
+        if(!objectDesignator.HasMember(it->name.GetString()))
+        {
           rapidjson::Document array(rapidjson::kArrayType);
           array.PushBack(val, objectDesignator.GetAllocator());
           objectDesignator.AddMember(key, array.Move(), objectDesignator.GetAllocator());
         }
-        else {
+        else
+        {
           objectDesignator[it->name.GetString()].PushBack(val, objectDesignator.GetAllocator());
         }
 
       }
     }
 
-    if(objectDesignator.MemberCount() > 0) {
+    if(objectDesignator.MemberCount() > 0)
+    {
       outDebug("Object as json:");
       outDebug(jsonToString(objectDesignator, true));
       objectDesignators.push_back(jsonToString(objectDesignator));
@@ -127,12 +145,14 @@ void ObjectDesignatorFactory::mergeJson(rapidjson::Document &destination, rapidj
 template<class T> std::string ObjectDesignatorFactory::jsonToString(T &res, bool pretty)
 {
   rapidjson::StringBuffer buffer;
-  if(pretty) {
+  if(pretty)
+  {
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
     writer.SetFormatOptions(rapidjson::PrettyFormatOptions::kFormatSingleLineArray);
     res.Accept(writer);
   }
-  else {
+  else
+  {
     rapidjson::Writer<rapidjson::StringBuffer> writer(buffer);
     res.Accept(writer);
   }

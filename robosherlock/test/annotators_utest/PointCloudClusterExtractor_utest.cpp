@@ -1,7 +1,7 @@
 
 #include <gtest/gtest.h>
 #include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
+#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
@@ -31,24 +31,24 @@ void pointCloudExtractorTest()
 {
 
   std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","NormalEstimator","PointCloudFilter","PlaneAnnotator","PointCloudClusterExtractor"};
-  engine.setPipelineOrdering(engineList);
-  engine.resetCas();
-  engine.overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->setPipelineOrdering(engineList);
+  engine->resetCas();
+  engine->overwriteParam("PointCloudClusterExtractor","mode", std::string("OEC"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processCluster(cas);	
-  engine.resetCas();
-  engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("EC"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->resetCas();
+  engine->overwriteParam("PointCloudClusterExtractor","mode",std::string("EC"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processCluster(cas);
-  engine.resetCas();
-  engine.overwriteParam("PointCloudClusterExtractor","mode",std::string("OEC_prism"));
-  engine.reconfigure();
-  engine.process();
-  cas = engine.getCas();
+  engine->resetCas();
+  engine->overwriteParam("PointCloudClusterExtractor","mode",std::string("OEC_prism"));
+  engine->reconfigure();
+  engine->processOnce();
+  cas = engine->getCas();
   processCluster(cas);
   
   

@@ -58,7 +58,7 @@ public:
       ros::init(ros::M_string(), std::string("RS_CollectionReader"));
     }
     nh_ = new ros::NodeHandle("~");
-    spinner_ = new ros::AsyncSpinner(0);
+    spinner_ = new ros::AsyncSpinner(2);
     joy_sub = nh_->subscribe(std::string("/joy"), 10, &Trigger::joystick_trigger_cb_, this);
     srv_ = nh_->advertiseService("trigger", &Trigger::trigger_service_cb_, this);
 

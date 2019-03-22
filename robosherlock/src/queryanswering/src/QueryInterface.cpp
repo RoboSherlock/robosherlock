@@ -1,6 +1,5 @@
 #include<rs/queryanswering/QueryInterface.h>
 
-#ifdef WITH_JSON_PROLOG
 #include<rs/queryanswering/ObjectDesignatorFactory.h>
 
 // Boost
@@ -13,33 +12,22 @@
 
 bool QueryInterface::parseQuery(std::string query)
 {
-    /**
-    rapidjson::Document d;
-    d.Parse(query);
-    if(d.HasMember("track")){
-        rapidjson::Value o(rapidjson::kObjectType);
-        {
-            rapidjson::Value contacts(rapidjson::kArrayType);
-            // adding elements to contacts array.
-            o.AddMember("contacts", contacts, d.GetAllocator());  // deep clone contacts (may be with lots of allocations)
-            // destruct contacts.
-        }
-    }
-     **/
+  outInfo("parsing query:" << query);
 
-    this->query.Parse(query);
-  return true;
-}
+  rapidjson::Document doc;
+  doc.Parse(query);
+  if(doc.IsObject())
+  {
+    query_.Swap(doc);
+    return true;
+  }
+  else
+    return false;
+  }
 
-
-/**
- * @brief QueryInterface::processQuery
- * @param[out] res vector of planed pipelines;
- * @return
- */
-QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<std::string>> &res)
+QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
 {
-  if(query.HasMember("detect"))
+  if(query_.HasMember("detect"))
   {
     const rapidjson::Value &val = query["detect"];
     std::vector<std::string> detPipeline;
@@ -47,14 +35,12 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
     res.push_back(detPipeline);
     return QueryType::DETECT;
   }
-
-  else if(query.HasMember("inspect"))
+  else if(query_.HasMember("inspect"))
   {
     handleInspect(res);
     return QueryType::INSPECT;
   }
-
-  else if(query.HasMember("scan"))
+  else if(query_.HasMember("scan"))
   {
     handleScan(res);
     return QueryType::SCAN;
@@ -99,22 +85,49 @@ bool QueryInterface::handleInspect(std::vector<std::vector<std::string>> &res)
   return true;
 }
 
-bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
+bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
+    std::vector<std::string> &keys)
 {
+  knowledgeEngine_->retractQueryKvPs();
 
-  const rapidjson::Value &val = rapidJsonValue;
-  rapidjson::StringBuffer strBuff;
-  rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(strBuff);
-  val.Accept(writer);
+  //add the ones that are interpretable to the queriedKeys;
+  for(rapidjson::Value::ConstMemberIterator iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter)
+  {
+    if(knowledgeEngine_->checkValidQueryTerm(iter->name.GetString()))
+    {
+      keys.push_back(iter->name.GetString());
+      //for a select member of keys (type, class, shape, color) let's add value reasoning; TODO: get rid of this somehow;
+      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size"};
+      if(std::find(special_keys.begin(), special_keys.end(),
+                   iter->name.GetString()) != std::end(special_keys))
+      {
+        std::string d = iter->value.GetString();
+        d[0] = std::toupper(d[0]);
+        if(d != "" && !knowledgeEngine_->addNamespace(d))
+        {
+          outWarn("No OWL definitions for " << d << " under any of the known namespaces");
+          continue;
+        }
+        if(!knowledgeEngine_->assertValueForKey(iter->name.GetString(), d))
+          return false;
+      }
+    }
+    else
+      outWarn(iter->name.GetString() << " is not a valid query-language term");
+  }
+  return true;
+}
 
-  std::string req = strBuff.GetString();
 
+bool QueryInterface::handleDetect(std::vector<std::string> &res)
+{
+  rapidjson::Value &val = query_["detect"];
   std::vector<std::string> keys;
   std::vector<std::string> new_pipeline_order;
-  jsonPrologInterface->extractQueryKeysFromDesignator(req, keys);
+  extractQueryKeysFromDesignator(val, keys);
   try
   {
-    jsonPrologInterface->planPipelineQuery(keys, new_pipeline_order);
+    knowledgeEngine_->planPipelineQuery(keys, new_pipeline_order);
   }
   catch(std::exception e)
   {
@@ -138,9 +151,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
   {
     std::vector<std::string>::iterator it = std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ClusterMerger");
     if(it != new_pipeline_order.end())
-    {
       new_pipeline_order.insert(it + 1, "Cluster3DGeometryAnnotator");
-    }
   }
 
   //  for debugging advertise TF
@@ -154,9 +165,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res, const rapidjson
   }
   new_pipeline_order.push_back("StorageWriter");
   res.insert(res.end(), new_pipeline_order.begin(), new_pipeline_order.end());
-
   return true;
-
 }
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
@@ -218,28 +227,24 @@ bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson:
 
 bool QueryInterface::getQueryConfig()
 {
-
   std::vector<std::string> searchPaths;
-
   searchPaths.push_back(ros::package::getPath("robosherlock") + "/config");
   std::vector<std::string> child_packages;
   ros::package::command("depends-on robosherlock", child_packages);
+
   for(size_t i = 0; i < child_packages.size(); ++i)
-  {
     searchPaths.push_back(ros::package::getPath(child_packages[i]) + "/config");
-  }
 
   std::vector<std::string> configPaths;
   for(auto p : searchPaths)
   {
     boost::filesystem::path filePath(p + "/query_specifications.ini");
     if(boost::filesystem::exists(filePath))
-    {
       configPaths.push_back(filePath.string());
-    }
+
   }
 
-  jsonPrologInterface->retractQueryLanguage();
+  knowledgeEngine_->retractQueryLanguage();
 
   std::map <std::string, std::vector<std::string>> queryLangSpecs;
   for(auto p : configPaths)
@@ -264,47 +269,44 @@ bool QueryInterface::getQueryConfig()
         }
         else
         {
-
           std::shared_ptr<QueryTermProperties> qProp;
+
           if(queryTermDefs_.find(property.first) != queryTermDefs_.end())
-          {
             qProp = std::make_shared<QueryTermProperties>(queryTermDefs_[property.first]);
-          }
           else
             qProp = std::make_shared<QueryTermProperties>();
+
           qProp->key = property.first;
           std::string l = pt.get<std::string>(property.first + ".location");
-//          std::string c = pt.get<std::string>(property.first + ".check");
+          //          std::string c = pt.get<std::string>(property.first + ".check");
           std::vector<std::string> locations;
           boost::split(locations, l, boost::is_any_of("|& "), boost::token_compress_on);
-          std::vector<std::string> checks(locations.size(),"ARRAY-VAL-CHECK");
-//          boost::split(checks, c, boost::is_any_of(",|& "), boost::token_compress_on);
+          std::vector<std::string> checks(locations.size(), "ARRAY-VAL-CHECK");
+          //          boost::split(checks, c, boost::is_any_of(",|& "), boost::token_compress_on);
           qProp->location.insert(qProp->location.end(), locations.begin(), locations.end());
           qProp->check.insert(qProp->check.end(), checks.begin(), checks.end());
           queryTermDefs_[property.first] = *qProp;
-
         }
-
-
       }
     }
     catch(boost::property_tree::ini_parser::ini_parser_error &e)
     {
-      throw_exception_message("Error opening config file: " + p);
+      outError("Error opening config file: " << p);
       return false;
     }
   }
 
-  jsonPrologInterface->assertQueryLanguage(queryLangSpecs);
+  knowledgeEngine_->assertQueryLanguage(queryLangSpecs);
   return false;
 }
+
 
 bool QueryInterface::checkSubClass(const std::string &resultValue, const std::string &queryValue)
 {
   bool ok = false;
   try
   {
-    ok = jsonPrologInterface->q_subClassOf(resultValue, queryValue);
+    ok = knowledgeEngine_->q_subClassOf(resultValue, queryValue);
   }
   catch(std::exception &e)
   {
@@ -315,6 +317,7 @@ bool QueryInterface::checkSubClass(const std::string &resultValue, const std::st
   return ok;
 }
 
+
 bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower)
 {
   for(rapidjson::Value::ConstMemberIterator listIt = list.MemberBegin(); listIt != list.MemberEnd(); ++listIt)
@@ -323,23 +326,23 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
     {
       if(!keepLower)
       {
-        if(listIt->value.GetDouble() >= threshold)
+        if(listIt->value.GetDouble() >= static_cast<double>(threshold))
           return true;
       }
-      else if(listIt->value.GetDouble() < threshold)
+      else if(listIt->value.GetDouble() < static_cast<double>(threshold))
         return true;
-
     }
   }
   return false;
 }
 
+
 void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
-                                   std::vector<std::string> &filteredResponse,
-                                   std::vector<bool> &designatorsToKeep)
+    std::vector<std::string> &filteredResponse,
+    std::vector<bool> &designatorsToKeep)
 {
 
-  const rapidjson::Value &detectQuery = query["detect"];
+  const rapidjson::Value &detectQuery = query_["detect"];
   designatorsToKeep.resize(resultDesignators.size(), true);
 
   for(rapidjson::Value::ConstMemberIterator queryIt = detectQuery.MemberBegin(); queryIt != detectQuery.MemberEnd(); ++queryIt)
@@ -418,13 +421,13 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
         else if(check[j] == "ARRAY-VAL-CHECK")
         {
           std::string delimiter = "*";
-          int delLoc = location[j].find(delimiter);
+          size_t delLoc = location[j].find(delimiter);
           std::string prefix = location[j].substr(0, delLoc - 1);
           std::string suffix = location[j].substr(delLoc + 1, location[j].size());
           bool matched = false;
           if(rapidjson::Value *suffixVal = rapidjson::Pointer(prefix).Get(resultJson))
           {
-            for(int i = 0; i < suffixVal->Size(); i ++)
+            for(uint8_t i = 0; i < suffixVal->Size(); i ++)
             {
               std::string newLocation = prefix + "/" + std::to_string(i) + suffix;
               if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
@@ -449,7 +452,7 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
       designatorsToKeep[i] = what & designatorsToKeep[i];
     }
   }
-  for(int i = 0; i < designatorsToKeep.size(); ++i)
+  for(size_t i = 0; i < designatorsToKeep.size(); ++i)
   {
     if(designatorsToKeep[i])
     {
@@ -458,5 +461,3 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
 }
-
-#endif //WITH_JSON_PROLOG
