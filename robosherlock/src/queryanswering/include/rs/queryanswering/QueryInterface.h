@@ -29,11 +29,6 @@ private:
 
   std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
 
-    bool handleDetect(std::vector<std::string> &newPipelineOrder,const rapidjson::Value &rapidJsonVale);
-    bool handleInspect(std::vector<std::vector<std::string>> &newPipelineOrder);
-    bool handleScan(std::vector<std::vector<std::string>> &newPipelineOrder);
-    bool handleTrack(std::vector<std::string> &newPipelineOrder,const rapidjson::Value &rapidJsonVale);
-
   struct QueryTermProperties {
     std::string key;
     std::vector<std::string> location;
@@ -61,18 +56,17 @@ public:
   }
 
   bool handleDetect(std::vector<std::string> &newPipelineOrder);
-
-  bool handleInspect(std::vector<std::string> &newPipelineOrder);
-
-  bool handleScan(std::vector<std::string> &newPipelineOrder);
+  bool handleInspect(std::vector<std::vector<std::string>> &newPipelineOrder);
+  bool handleScan(std::vector<std::vector<std::string>> &newPipelineOrder);
+  bool handleTrack(std::vector<std::string> &newPipelineOrder);
 
   bool getQueryConfig();
 
-  rapidjson::Document  &getQueryDocument();
+  rapidjson::Document &getQueryDocument();
 
   bool parseQuery(std::string query_);
 
-  QueryType processQuery(std::vector<std::vector<std::string>> &newPipelineOrder);
+  QueryType processQuery(std::vector<std::vector<std::string>> &new_pipeline_orders);
 
   void filterResults(std::vector<std::string> &resultDesignators, std::vector<std::string> &filteredResponse, std::vector<bool> &designatorsToKeep);
 

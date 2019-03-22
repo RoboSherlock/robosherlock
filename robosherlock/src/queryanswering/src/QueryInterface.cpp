@@ -28,14 +28,12 @@ bool QueryInterface::parseQuery(std::string query)
 rapidjson::Document& QueryInterface:: getQueryDocument(){
     return query_;
 }
-
-QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
+QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<std::string>> &res)
 {
   if(query_.HasMember("detect"))
   {
-    const rapidjson::Value &val = query["detect"];
     std::vector<std::string> detPipeline;
-    handleDetect(detPipeline, val);
+    handleDetect(detPipeline);
     res.push_back(detPipeline);
     return QueryType::DETECT;
   }
@@ -50,23 +48,20 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
     return QueryType::SCAN;
   }
 
-  else if(query.HasMember("track"))
+  else if(query_.HasMember("track"))
   {
-    const rapidjson::Value &VAL_TRACK = query["track"];
-    rapidjson::Value::MemberIterator track_iterator = query.FindMember("track");
-    track_iterator->name.SetString("detect", query.GetAllocator());
+    rapidjson::Value::MemberIterator track_iterator = query_.FindMember("track");
+    track_iterator->name.SetString("detect", query_.GetAllocator());
 
     rapidjson::StringBuffer buffer;
     buffer.Clear();
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
-    query.Accept(writer);
+    query_.Accept(writer);
     std::string query_detect(buffer.GetString(), buffer.GetSize());
 
-    const rapidjson::Value &VAL_DETECT = query["detect"];
-
     std::vector<std::string> detect_pipeline, tracking_pipeline;
-    handleDetect(detect_pipeline, VAL_DETECT);
-    handleTrack(tracking_pipeline, VAL_TRACK);
+    handleDetect(detect_pipeline);
+    handleTrack(tracking_pipeline);
     res.push_back(detect_pipeline);
     res.push_back(tracking_pipeline);
 
@@ -172,7 +167,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   return true;
 }
 
-bool QueryInterface::handleTrack(std::vector<std::string> &res, const rapidjson::Value &rapidJsonValue)
+bool QueryInterface::handleTrack(std::vector<std::string> &res)
 {
   //res.push_back("CollectionReader"); // Not required because is added manually
   //res.push_back("ImagePreprocessor"); // [REDETECT ONLY]
