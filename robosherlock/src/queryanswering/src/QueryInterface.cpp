@@ -23,7 +23,11 @@ bool QueryInterface::parseQuery(std::string query)
   }
   else
     return false;
-  }
+}
+
+rapidjson::Document& QueryInterface:: getQueryDocument(){
+    return query_;
+}
 
 QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
 {
@@ -338,8 +342,8 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
 
 
 void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
-    std::vector<std::string> &filteredResponse,
-    std::vector<bool> &designatorsToKeep)
+                                   std::vector<std::string> &filteredResponse,
+                                   std::vector<bool> &designatorsToKeep)
 {
 
   const rapidjson::Value &detectQuery = query_["detect"];
