@@ -200,7 +200,7 @@ public:
         outInfo(FG_GREEN << "GETTING OBJ_TO_TRACK");
         if (!cas.getFS("OBJ_ID_TRACK", s))
         {
-          outError("Please set OBJ_TO_TRACK before processing with KCFTrackingAnnotator for the first time.");
+          outError("Please set OBJ_TO_TRACK before processing with PCLParticleTrackingAnnotator for the first time.");
           return UIMA_ERR_NONE;
         }
         int obj_id = s.height.get();
