@@ -5,7 +5,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
   nh_("~"), it_(nh_),
   waitForServiceCall_(waitForServiceCall),
   useVisualizer_(useVisualizer), use_identity_resolution_(false),
-  visualizer_(savePath, !useVisualizer)
+  visualizer_(savePath, !useVisualizer),spinner_(0)
 {
 
   signal(SIGINT, RSProcessManager::signalHandler);
@@ -54,6 +54,7 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitFor
 
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
   queryInterface = new QueryInterface(knowledgeEngine_);
+  spinner_.start();
 }
 
 RSProcessManager::~RSProcessManager()
@@ -84,14 +85,14 @@ void RSProcessManager::init(std::string &engineFile, bool pervasive, bool parall
 
 void RSProcessManager::run()
 {
+  ros::Rate rate(30.0);
   for(; ros::ok();)
   {
+
     signal(SIGINT, RSProcessManager::signalHandler);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if(waitForServiceCall_)
-        usleep(100000);
-      else
+      if(!waitForServiceCall_)
       {
         std::vector<std::string> objDescriptions;
         engine_->resetCas();
@@ -105,8 +106,7 @@ void RSProcessManager::run()
         result_pub_.publish(objDescr);
       }
     }
-    usleep(100000);
-    ros::spinOnce();
+    rate.sleep();
   }
 }
 

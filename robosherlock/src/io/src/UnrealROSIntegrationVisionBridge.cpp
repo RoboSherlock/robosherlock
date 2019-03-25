@@ -31,7 +31,7 @@ UnrealROSIntegrationVisionBridge::UnrealROSIntegrationVisionBridge(const boost::
 
 UnrealROSIntegrationVisionBridge::~UnrealROSIntegrationVisionBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete sync;
   delete rgbImageSubscriber;
   delete depthImageSubscriber;
@@ -42,7 +42,7 @@ void UnrealROSIntegrationVisionBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<RGBDSyncPolicy>(RGBDSyncPolicy(5), *rgbImageSubscriber, *depthImageSubscriber, *cameraInfoSubscriber);
   sync->registerCallback(boost::bind(&UnrealROSIntegrationVisionBridge::cb_, this, _1, _2, _3));
-  spinner.start();
+//  spinner.start();
 }
 
 void UnrealROSIntegrationVisionBridge::readConfig(const boost::property_tree::ptree &pt)

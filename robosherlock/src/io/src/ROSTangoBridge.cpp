@@ -30,7 +30,7 @@ ROSTangoBridge::ROSTangoBridge(const boost::property_tree::ptree &pt) : ROSCamIn
 
 ROSTangoBridge::~ROSTangoBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete colorImageSubscriber;
   delete fisheyeImageSubscriber;
   delete colorInfoSubscriber;
@@ -53,7 +53,7 @@ void ROSTangoBridge::initSpinner()
   fisheyeSync->registerCallback(boost::bind(&ROSTangoBridge::fisheyeCb_, this, _1, _2));
   colorCloudSync->registerCallback(boost::bind(&ROSTangoBridge::cb_, this, _1, _2, _3));
 
-  spinner.start();
+//  spinner.start();
 }
 
 void ROSTangoBridge::readConfig(const boost::property_tree::ptree &pt)

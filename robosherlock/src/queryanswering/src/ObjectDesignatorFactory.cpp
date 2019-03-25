@@ -50,6 +50,7 @@ bool ObjectDesignatorFactory::getObjectDesignators(std::vector<std::string> &obj
   {
     std::vector<rs::ObjectHypothesis> clusters;
     scene.identifiables.filter(clusters);
+    outInfo("Converting "<<clusters.size()<<" hypotheses to json description");
     std::vector<double> lastSeen;
     lastSeen.resize(clusters.size(), 0.0);
     process(clusters, objectDesignators, lastSeen);

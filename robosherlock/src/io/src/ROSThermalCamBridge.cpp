@@ -39,7 +39,7 @@ ROSThermalCamBridge::ROSThermalCamBridge(const boost::property_tree::ptree &pt) 
 
 ROSThermalCamBridge::~ROSThermalCamBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete sync;
   delete thermalImageSubscriber;
   delete thermalRGBImageSubscriber;
@@ -51,7 +51,7 @@ void ROSThermalCamBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<ThermalSyncPolicy>(ThermalSyncPolicy(10), *thermalImageSubscriber, *thermalRGBImageSubscriber, *thermalDepthImageSubscriber, *cameraInfoSubscriber);
   sync->registerCallback(boost::bind(&ROSThermalCamBridge::cb_, this, _1, _2, _3, _4));
-  spinner.start();
+//  spinner.start();
 }
 
 void ROSThermalCamBridge::readConfig(const boost::property_tree::ptree &pt)
