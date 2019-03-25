@@ -52,6 +52,9 @@ public:
 
   //ROS interface related members
   ros::NodeHandle nh_;
+
+  ros::AsyncSpinner spinner_;
+
   ros::ServiceServer setContextService_, queryService_, setFlowService_;
   ros::Publisher result_pub_;
   ros::Publisher pc_pub_;

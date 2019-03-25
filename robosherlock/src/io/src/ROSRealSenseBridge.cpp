@@ -38,7 +38,7 @@ ROSRealSenseBridge::ROSRealSenseBridge(const boost::property_tree::ptree &pt) : 
 
 ROSRealSenseBridge::~ROSRealSenseBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete sync;
   delete rgbImageSubscriber;
   delete depthImageSubscriber;
@@ -49,7 +49,7 @@ void ROSRealSenseBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<RGBDSyncPolicy>(RGBDSyncPolicy(5), *rgbImageSubscriber, *depthImageSubscriber, *cameraInfoSubscriber);
   sync->registerCallback(boost::bind(&ROSRealSenseBridge::cb_, this, _1, _2, _3));
-  spinner.start();
+//  spinner.start();
 }
 
 void ROSRealSenseBridge::readConfig(const boost::property_tree::ptree &pt)
