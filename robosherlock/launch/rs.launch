@@ -3,14 +3,14 @@
   <arg name="ae"               default="demo"/> <!-- Short version for analysis_engines -->
   <arg name="analysis_engines" default="$(arg ae)"/>
   <!-- Enable / disable visualization -->
-  <arg name="vis"              default="true"/> <!-- Short version for visualization -->
+  <arg name="vis"              default="false"/> <!-- Short version for visualization -->
   <arg name="visualization"    default="$(arg vis)"/>
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
   <arg name="withIDRes"        default="false"/>
   <arg name="wait"             default="false"/>
 
-  <arg name="parallel"              default="true"/>
+  <arg name="parallel"              default="false"/>
 
   <!-- Machine on with the nodes should run. -->
   <arg name="machine"          default="localhost"/>
