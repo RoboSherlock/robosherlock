@@ -29,6 +29,7 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/time.h>
 #include <rs/DrawingAnnotator.h>
+#include <rs/io/TFListenerProxy.h>
 #include <tf_conversions/tf_eigen.h>
 #include <tf/tf.h>
 #include <tf/transform_listener.h>
@@ -52,7 +53,7 @@ private:
   std::string target_frame;
 
   cv::Mat rgb_;
-  tf::TransformListener transformListener;
+  rs::TFListenerProxy transformListener;
 
 public:
 
@@ -104,8 +105,9 @@ public:
     pcl::PointCloud<PointT>::Ptr cloud_transformed(new pcl::PointCloud<PointT>);
     tf::StampedTransform transform;
     bool was_transformed = false;
-    if(transform_cloud && transformListener.frameExists(target_frame)) {
-      transformListener.lookupTransform(target_frame, cloud_ptr->header.frame_id, ros::Time(0), transform);
+    if(transform_cloud && transformListener.listener->frameExists(target_frame)) {
+      transformListener.listener->lookupTransform(target_frame, cloud_ptr->header.frame_id, ros::Time(0), transform);
+      outInfo("Transformed pointcloud to: "<<target_frame);
       Eigen::Affine3d eigenTransform;
       tf::transformTFToEigen(transform, eigenTransform);
       pcl::transformPointCloud<PointT>(*cloud_ptr, *cloud_transformed, eigenTransform);

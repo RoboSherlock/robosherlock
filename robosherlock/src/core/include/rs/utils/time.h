@@ -77,7 +77,7 @@ public:
 
   inline ~ScopeTime()
   {
-    OUT_AUX_INT(FG_GREEN, FG_BLUE, OUT_LEVEL_INFO, OUT_STD_STREAM, this->getTime() << " ms.", file, line, function);
+    ROS_INFO_STREAM(FG_GREEN<<file<<FG_BLUE<<"("<<line<<")"<<FG_MAGENTA<<"["<<function<<"]"<<FG_WHITE<<this->getTime()<< " ms.");
   }
 };
 

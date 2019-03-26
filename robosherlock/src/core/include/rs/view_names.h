@@ -31,6 +31,8 @@
 #define VIEW_OBJECT_IMAGE        "object_image"
 #define VIEW_OBJECT_IMAGE_HD     "object_image_hd"
 
+#define VIEW_DISPLAY_IMAGE       "display_image"
+
 #define VIEW_FISHEYE_IMAGE        "fisheye_image"
 #define VIEW_COLOR_CAMERA_INFO    "color_camera_info"
 #define VIEW_FISHEYE_CAMERA_INFO  "fisheye_camera_info"
