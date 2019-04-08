@@ -113,6 +113,8 @@ bool ROSCameraBridge::setData(uima::CAS &tcas, uint64_t ts)
   color = this->color;
   cameraInfo = this->cameraInfo;
   _newData = false;
+  rs::SceneCas cas(tcas);
+  cas.setActiveCamId(this->cam_id_);
   setTransformAndTime(tcas);
 
 

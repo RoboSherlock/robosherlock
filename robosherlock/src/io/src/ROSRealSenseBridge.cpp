@@ -200,6 +200,7 @@ bool ROSRealSenseBridge::setData(uima::CAS &tcas, uint64_t ts)
   }
   _newData = false;
   rs::SceneCas cas(tcas);
+  cas.setActiveCamId(this->cam_id_);
   setTransformAndTime(tcas);
   lock.unlock();
   if(color.cols == 1920) {
