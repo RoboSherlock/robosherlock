@@ -34,8 +34,10 @@
 namespace rs
 {
 
+std::vector<int> SceneCas::cam_ids_ = {};
+
 SceneCas::SceneCas(uima::CAS &cas) :
-  cas(cas)
+  cas(cas), active_cam_id_(0)
 {
   mutex.reset(new std::mutex);
 }
@@ -59,13 +61,16 @@ bool SceneCas::getView(const char *name, uima::CAS *&view)
   return false;
 }
 
-rs::Scene SceneCas::getScene()
+rs::Scene SceneCas::getScene(int cam_id)
 {
   uima::FeatureStructure fs;
-  if(!getFS(VIEW_SCENE, fs))
+
+  std::stringstream ss;
+  ss << VIEW_SCENE << "_" << (cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id));
+  if(!getFS(ss.str().c_str(), fs))
   {
     rs::Scene scene = rs::create<rs::Scene>(cas);
-    setFS(VIEW_SCENE, (uima::FeatureStructure)scene);
+    setFS(ss.str().c_str(), (uima::FeatureStructure)scene);
     return scene;
   }
   return rs::Scene(fs);
