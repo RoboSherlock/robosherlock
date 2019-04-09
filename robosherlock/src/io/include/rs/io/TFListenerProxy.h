@@ -13,13 +13,14 @@ namespace rs
 class TFListenerProxy
 {
 public:
+
   static std::unique_ptr<tf::TransformListener> listener;
 
   TFListenerProxy()
   {
     if (listener == nullptr)
     {
-      listener = std::unique_ptr <tf::TransformListener>();
+      listener = std::unique_ptr <tf::TransformListener>(new tf::TransformListener());
     }
   }
   ~TFListenerProxy()
