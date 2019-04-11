@@ -1,5 +1,5 @@
 ae:
-  name: my_demo
+  name: tracking
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
@@ -21,7 +21,7 @@ fixedflow:
   - DrawResultImage
   - StorageWriter
 CollectionReader:
-  camera_config_files: ['config_kinect_robot_tracking.ini']
+  camera_config_files: ['config_kinect_robot.ini']
 StorageWriter:
   storagedb: 'ScenesAnnotated'
   enableViews: ['color_image_hd','depth_image_hd','camera_info','camera_info_hd','scene']
