@@ -169,52 +169,14 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res)
 {
-  //res.push_back("CollectionReader"); // Not required because is added manually
-  //res.push_back("ImagePreprocessor"); // [REDETECT ONLY]
-  //res.push_back("NormalEstimator");
-  //res.push_back("RegionFilter");
-  // TODO: Currently, the following two are required, even though clusters are only needed for the first tracking process call.
-  // TODO: Instead, find a way to have them available for the first, without having to execute these Annotators every iteration.
-  //res.push_back("PlaneAnnotator"); // Mandatory for using PointCloudClusterExtractor
-  //res.push_back("PointCloudClusterExtractor"); // Have ROI's available for every track iteration
-  //res.push_back("ImageSegmentationAnnotator");
-  //res.push_back("ClusterMerger"); // [REDETECT ONLY]
-  //res.push_back("Cluster3DGeometryAnnotator");
-  //res.push_back("PrimitiveShapeAnnotator");
-  //res.push_back("ClusterColorHistogramAnnotator");
-  //res.push_back("PointCloudFilter"); // 3D tracking
-  //res.push_back("ClosestHypothesisFilter"); // [REDETECT ONLY]
-  //res.push_back("KCFTrackingAnnotator");
-  //res.push_back("PCLParticleTrackingAnnotator"); // 3D tracking
-  //res.push_back("StorageWriter");
-
-
-    res.push_back("ImagePreprocessor");
+  res.push_back("ImagePreprocessor");
   // KCF tracking pipeline
-/**
+  /**
   res.push_back("KCFTrackingAnnotator");
   **/
+
   // PCL particle tracking pipeline
-
   res.push_back("PCLParticleTrackingAnnotator");
-
-
-  // Just for testing/evaluation purposes
-  /**
-  res.push_back("ImagePreprocessor");
-  res.push_back("RegionFilter");
-  res.push_back("PlaneAnnotator");
-  res.push_back("PointCloudClusterExtractor");
-  res.push_back("ClusterMerger");
-  res.push_back("ImageSegmentationAnnotator");
-  res.push_back("Cluster3DGeometryAnnotator");
-  res.push_back("ClusterColorHistogramCalculator");
-  res.push_back("NormalEstimator");
-  res.push_back("PrimitiveShapeAnnotator");
-  res.push_back("ClosestHypothesisFilter");
-  **/
-
-
 
 
   outInfo("Planned tracking pipeline: ");
