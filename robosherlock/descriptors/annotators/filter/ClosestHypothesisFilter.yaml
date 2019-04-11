@@ -4,8 +4,6 @@ annotator:
     of that hypothesis into account.
   implementation: rs_ClosestHypothesisFilter
   name: ClosestHypothesisFilter
-parameters:
-  test_param: 0.01
 capabilities:
   inputs:
   - rs.scene.ObjectHypothesis

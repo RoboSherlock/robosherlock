@@ -1,8 +1,6 @@
 annotator:
   name: KCFTrackingAnnotator
   implementation: rs_KCFTrackingAnnotator
-parameters:
-  test_param: 0.01
 capabilities:
   inputs:
   - rs.cv.Mat
