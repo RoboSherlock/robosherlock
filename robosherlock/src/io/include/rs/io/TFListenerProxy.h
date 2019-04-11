@@ -19,7 +19,7 @@ public:
   {
     if (listener == nullptr)
     {
-      listener = std::unique_ptr <tf::TransformListener>();
+      listener = std::unique_ptr <tf::TransformListener>(new tf::TransformListener());
     }
   }
   ~TFListenerProxy()
