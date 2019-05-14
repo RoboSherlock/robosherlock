@@ -487,4 +487,4 @@ template bool RSProcessManager::highlightResultsInCloud<rs::Object>(const std::v
 
 template bool RSProcessManager::highlightResultsInCloud<rs::ObjectHypothesis>(
   const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators, std::string &requestJson,
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
+pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);

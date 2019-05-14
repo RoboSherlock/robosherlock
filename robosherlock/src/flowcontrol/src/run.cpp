@@ -43,6 +43,9 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
+//needed for sharing query processing's core function
+#include<rs/queryanswering/RSSimpleQueryActionServer.h>
+
 
 /**
  * @brief help description of parameters
@@ -148,10 +151,14 @@ int main(int argc, char *argv[])
 
   try
   {
-    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, save_path);
-    manager.setUseIdentityResolution(useObjIDRes);
-    manager.init(analysis_engine_file, pervasive, parallel);
-    manager.run();
+    //create the perception system
+    RSProcessManager* manager=new RSProcessManager(useVisualizer, waitForServiceCall, keType, save_path);
+    manager->setUseIdentityResolution(useObjIDRes);
+    manager->init(analysis_engine_file, pervasive, parallel);
+    //create,start the query action server and pass the rosnode and perception system to it
+    RSSimpleQueryActionServer actionServer(nh,manager);
+    //start the perception system
+    manager->run();
   }
   catch(const rs::Exception &e)
   {

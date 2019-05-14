@@ -1,0 +1,11 @@
+#This action is dedicated to asynchronous visual question answering
+
+# Goal: query specification (object description)
+
+ObjectDesignator obj
+---
+# Result: list of matching objects
+ObjectDesignator[] res
+---
+# Feedback: query execution's return code
+string status
