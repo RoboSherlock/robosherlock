@@ -50,10 +50,10 @@ check_option(RS_DEBUG_OUTPUT)
 
 
 #mongo client
-find_package(libmongocxx_ros)
+find_package(libmongocxx_ros QUIET)
 if(NOT libmongocxx_ros_FOUND)
   find_package(MongoClientLibrary)
-  if(NOT MongoClientLibrary_FOUND)
+  if(NOT MONGO_CLIENT_LIBRARY_FOUND)
     message(FATAL_ERROR "Mongo not found. Search for libmongocxx_ros or MongoClientLibrary was not successful")
   else()
     message(STATUS "Found System mongo.")
