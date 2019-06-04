@@ -48,14 +48,32 @@ check_option(RS_DEBUG_OUTPUT)
 ## Package dependencies                                                       ##
 ################################################################################
 
+
+#mongo client
+find_package(libmongocxx_ros)
+if(NOT libmongocxx_ros_FOUND)
+  find_package(MongoClientLibrary)
+  if(NOT MongoClientLibrary_FOUND)
+    message(FATAL_ERROR "Mongo not found. Search for libmongocxx_ros or MongoClientLibrary was not successful")
+  else()
+    message(STATUS "Found System mongo.")
+    set(MONGO_SYSTEM ${MongoClientLibrary})
+  endif()
+else()
+  message(STATUS "libmongocxx_ros package found") 
+  set(OPTIONAL_libmongocxx libmongocxx_ros)
+  include_directories(${libmongocxx_ros_INCLUDE_DIRS})
+endif() 
+
 find_package(catkin REQUIRED
  COMPONENTS
  roscpp roslib pcl_ros pcl_conversions pcl_msgs
  tf tf_conversions rostime sensor_msgs std_msgs
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
- robosherlock_msgs std_srvs libmongocxx_ros
- uimacpp_ros rapidjson_ros)
+ robosherlock_msgs std_srvs
+ uimacpp_ros rapidjson_ros
+ ${OPTIONAL_libmongocxx})
 
 
 find_package(Eigen3 QUIET)
@@ -140,6 +158,7 @@ endif()
 ## CMake variables                                                            ##
 ################################################################################
 
+link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
 ################################################################################
@@ -161,10 +180,10 @@ set(RS_LIBS
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS}
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
-  CATKIN_DEPENDS pcl_ros cv_bridge libmongocxx_ros robosherlock_msgs uimacpp_ros rapidjson_ros
-  DEPENDS Boost OpenCV APR PCL ICUUC
+  CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
+  DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
 
