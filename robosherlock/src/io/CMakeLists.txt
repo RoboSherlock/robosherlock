@@ -1,6 +1,7 @@
 project(rs_io)
 
 add_library(rs_io SHARED
+  src/CamInterface.cpp
   src/ROSCamInterface.cpp
   src/ROSKinectBridge.cpp
   src/ROSRealSenseBridge.cpp

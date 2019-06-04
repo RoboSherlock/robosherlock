@@ -36,10 +36,10 @@ protected:
   bool _newData;
 
   int cam_id_;
+  static int id;
 
   CamInterface(const boost::property_tree::ptree& pt) : _newData(false)
   {
-    static int id = 0;
     cam_id_ = id++;
     outInfo("New Camera ID: " FG_BLUE << cam_id_);
     rs::SceneCas::cam_ids_.push_back(cam_id_);
@@ -58,7 +58,11 @@ public:
     return _newData;
   }
 
+  static void resetIdCount()
+  {
+    id = 0;
+  }
+
   virtual bool setData(uima::CAS& tcas, uint64_t ts = 0) = 0;
 };
-
 #endif  // __CAM_INTERFACE_H__
