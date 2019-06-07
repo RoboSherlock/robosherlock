@@ -25,7 +25,7 @@ add_service_files(FILES
   ExecutePipeline.srv
 )
 
-add_action_files(DIRECTORY action FILES RSSimpleQuery.action)
+add_action_files(DIRECTORY action FILES RSQuery.action)
 
 generate_messages(
   DEPENDENCIES

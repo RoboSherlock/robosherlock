@@ -9,8 +9,5 @@ fixedflow:
   - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
-  - Cluster3DGeometryAnnotator
-  - PrimitiveShapeAnnotator
-  - ClusterColorHistogramCalculator
 CollectionReader:
-  camera_config_files: ['config_kinect_robot_modified.ini']
+  camera_config_files: ['config_kinect_robot.ini']
