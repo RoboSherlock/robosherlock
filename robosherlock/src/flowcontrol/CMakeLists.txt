@@ -16,6 +16,3 @@ target_link_libraries(run rs_flowcontrol ${catkin_LIBRARIES})
 
 rs_add_executable(runAAE src/runAAE.cpp)
 target_link_libraries(runAAE rs_flowcontrol ${catkin_LIBRARIES})
-
-
-

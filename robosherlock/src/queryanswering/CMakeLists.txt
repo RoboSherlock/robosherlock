@@ -19,5 +19,3 @@ add_dependencies(rs_prologQueries ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_E
 
 rs_add_executable(RSQueryActionClient src/RSQueryActionClient.cpp)
 target_link_libraries(RSQueryActionClient rs_queryanswering ${catkin_LIBRARIES})
-
-
