@@ -424,13 +424,3 @@ int RSQueryActionServer::run(ros::NodeHandle n, RSProcessManager* rsMngr)
   this->server->start();
   return 0;
 }
-
-int main(int argc, char** argv)
-{
-  ros::init(argc, argv, std::string("rs_query_action_server_").append(getenv("USER")));
-  ros::NodeHandle n;
-  RSProcessManager* rsMngr;
-  RSQueryActionServer actionServer(n, rsMngr);
-  ros::spin();
-  return 0;
-}
