@@ -17,7 +17,7 @@ public:
   /*
    * Constructor
    */
-  RSQueryActionClient(int argc, char** argv);
+  RSQueryActionClient(std::string topicName);
 
   /*
    * Destructor
@@ -53,4 +53,9 @@ public:
    *Action client's Start point
    */
   int run();
+
+  /*
+   *Provide help information about the action client
+   */
+  static void help();
 };

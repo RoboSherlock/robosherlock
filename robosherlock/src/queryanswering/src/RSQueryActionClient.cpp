@@ -4,13 +4,10 @@
  * Constructor
  */
 
-RSQueryActionClient::RSQueryActionClient(int argc, char** argv)
+RSQueryActionClient::RSQueryActionClient(std::string topicName)
 {
-  // ros node
-  ros::init(argc, argv, std::string("rs_query_action_client_").append(getenv("USER")));
-
   // action client + spin(true)
-  client = new Client(std::string("/rs_query_action_").append(getenv("USER")), true);
+  client = new Client(topicName, true);
 }
 
 /*
@@ -100,19 +97,51 @@ int RSQueryActionClient::run()
   boost::function<void()> onActivation = boost::bind(&RSQueryActionClient::getActivation, this);
   client->sendGoal(goal, onResult, onActivation, onFeedback);
 
-  // wait a bit for result
+  // wait a bit for result: just for testing in terminal standalone mode
   client->waitForResult(ros::Duration(25.0));
 
   // print the final state of the query before exiting
   ROS_INFO("\n Current State on Exit: %s!\n", client->getState().toString().c_str());
   return 0;
 }
+
+void RSQueryActionClient::help()
+{
+  std::cout << "Usage: rosrun robosherlock RSQueryActionClient [topic_name]" << std::endl
+            << "topic_name" << std::endl
+            << "               _tn:=topic         Name of topic linking action client and server" << std::endl
+            << std::endl
+            << std::endl;
+}
+
 int main(int argc, char** argv)
 {
-  if (argc > 1)
+  // ros node
+  ros::init(argc, argv, std::string("rs_query_action_client"));
+  ros::NodeHandle nh("~");
+  // parameters
+  std::string topicName;
+
+  nh.param("tn", topicName, std::string(""));
+  nh.deleteParam("tn");
+
+  // if only argument is an tn (nh.param reudces argc)
+  if ((argc < 2 && topicName.empty()) || argc >= 2)
   {
-    ROS_INFO("Query: %s\n", argv[1]);
+    RSQueryActionClient::help();
+    return 0;
   }
-  RSQueryActionClient actionClient(argc, argv);
+  else
+  {
+    const std::string arg = argv[1];
+    if (arg == "-?" || arg == "-h" || arg == "--help")
+    {
+      RSQueryActionClient::help();
+      return 0;
+    }
+  }
+
+  // action client for query answering
+  RSQueryActionClient actionClient(topicName);
   return actionClient.run();
 }

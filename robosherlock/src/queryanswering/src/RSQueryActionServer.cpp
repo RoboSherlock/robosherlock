@@ -419,7 +419,7 @@ void RSQueryActionServer::executeQuery(const robosherlock_msgs::RSQueryGoalConst
 int RSQueryActionServer::run(ros::NodeHandle n, RSProcessManager* rsMngr)
 {
   ROS_INFO("Server was started!");
-  this->server = new Server(n, std::string("/rs_query_action_").append(getenv("USER")),
+  this->server = new Server(n, std::string("query_action"),
                             boost::bind(&(RSQueryActionServer::executeQuery), _1, this, rsMngr), false);
   this->server->start();
   return 0;
