@@ -88,7 +88,11 @@ int processEngine()
     engine->getAnnotatorContext().releaseCAS(*cas);
   }
   catch(const rs::FrameFilterException &){}
+  engine->overwriteParam("CollectionReader","camera_config_files",std::vector<std::string>{"config_data_loader_utest.ini"});
+  engine->reconfigure();
+  engine->resetCas();
   engine->collectionProcessComplete();
+
 }
 
 
