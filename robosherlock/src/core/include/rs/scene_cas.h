@@ -83,13 +83,13 @@ public:
     if (std::find(cam_ids_.begin(), cam_ids_.end(), id) != cam_ids_.end())
       active_cam_id_ = id;
     else
-      throw std::runtime_error("Settin an cam id that does not exist");
+      throw std::runtime_error("Setting a cam id that does not exist");
   }
 
   std::string appendCamIdToViewName(const char* name , int cam_id)
   {
     std::stringstream ss;
-    ss << name << "#" <<(cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id));
+    ss << name << "_cid" <<(cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id));
     return ss.str();
   }
 

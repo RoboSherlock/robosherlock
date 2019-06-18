@@ -161,8 +161,8 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
 void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 {
   std::string viewName = elem.fieldName();
-  if (viewName.find_last_of("#") == std::string::npos)
-    viewName.append("#0");
+  if (viewName.rfind("_cid") == std::string::npos)
+      viewName.append("_cid0");
   uima::CAS *view = nullptr;
   try
   {
