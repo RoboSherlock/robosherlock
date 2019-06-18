@@ -160,7 +160,9 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
 
 void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 {
-  const std::string &viewName = elem.fieldName();
+  std::string viewName = elem.fieldName();
+  if (viewName.find_last_of("#") == std::string::npos)
+    viewName.append("#0");
   uima::CAS *view = nullptr;
   try
   {

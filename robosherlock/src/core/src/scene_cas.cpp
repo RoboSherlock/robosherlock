@@ -64,13 +64,11 @@ bool SceneCas::getView(const char *name, uima::CAS *&view)
 rs::Scene SceneCas::getScene(int cam_id)
 {
   uima::FeatureStructure fs;
-
-  std::stringstream ss;
-  ss << VIEW_SCENE << "_" << (cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id));
-  if(!getFS(ss.str().c_str(), fs))
+  std::string view_name = appendCamIdToViewName(VIEW_SCENE, cam_id);
+  if(!getFS(view_name.c_str(), fs))
   {
     rs::Scene scene = rs::create<rs::Scene>(cas);
-    setFS(ss.str().c_str(), (uima::FeatureStructure)scene);
+    setFS(view_name.c_str(), (uima::FeatureStructure)scene);
     return scene;
   }
   return rs::Scene(fs);
