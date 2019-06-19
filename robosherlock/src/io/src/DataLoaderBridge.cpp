@@ -293,7 +293,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
   outInfo("setData");
 
   rs::SceneCas cas(tcas);
-
+  cas.setActiveCamId(this->cam_id_);
   if(haveCloud)
   {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);

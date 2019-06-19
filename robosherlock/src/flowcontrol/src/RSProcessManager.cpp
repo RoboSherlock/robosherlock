@@ -232,7 +232,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       rs::Query query = rs::create<rs::Query>(*engine_->getCas());
       query.query.set(request);
       rs::SceneCas sceneCas(*engine_->getCas());
-      sceneCas.set("QUERY", query);
+      sceneCas.setFS("QUERY", query);
 
       engine_->setPipelineOrdering(newPipelineOrder);
       engine_->processOnce();

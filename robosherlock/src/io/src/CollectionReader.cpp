@@ -92,6 +92,7 @@ public:
     {
       cameras_.clear();
       interfaces_.clear();
+      CamInterface::resetIdCount();
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);
       for(size_t i = 0; i < configs.size(); ++i)

@@ -160,7 +160,10 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
 
 void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 {
-  const std::string &viewName = elem.fieldName();
+  std::string field_name =  elem.fieldName();
+  std::string viewName = field_name;
+  if (viewName.rfind("#") == std::string::npos)
+      viewName.append("#0");
   uima::CAS *view = nullptr;
   try
   {
@@ -177,7 +180,7 @@ void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
   uima::FeatureStructure fs;
   if(elem.isSimpleType())
   {
-    fs = loadFS(view, viewName, elem.OID());
+    fs = loadFS(view, field_name, elem.OID());
   }
   else
   {

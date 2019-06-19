@@ -24,6 +24,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <numeric>
 
 #include <pcl/point_cloud.h>
 #include <pcl/common/io.h>
