@@ -279,6 +279,7 @@ private:
       {
         size_t index = indices.indices[j];
         cloud_ptr->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
+        cloud_ptr->points[index].a = 255;
       }
     }
 

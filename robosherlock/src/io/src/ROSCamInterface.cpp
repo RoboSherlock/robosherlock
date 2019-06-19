@@ -81,7 +81,7 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
 
 void ROSCamInterface::setTransformAndTime(uima::CAS &tcas)
 {
-  rs::Scene scene = rs::SceneCas(tcas).getScene();
+  rs::Scene scene = rs::SceneCas(tcas).getScene(this->cam_id_);
   if(lookUpViewpoint)
   {
     rs::StampedTransform vp(rs::conversion::to(tcas, transform));
