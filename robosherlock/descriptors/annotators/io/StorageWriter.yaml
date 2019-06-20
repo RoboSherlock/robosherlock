@@ -5,7 +5,7 @@ annotator:
 parameters:
   host: localhost
   storagedb: Scenes
-  enableViews: ['color_image_hd#0', 'depth_image_hd#0', 'camera_info#0', 'camera_info_hd#0', 'scene#0']
+  enableViews: ['color_image_hd', 'depth_image_hd', 'camera_info', 'camera_info_hd', 'scene']
   clearStorageOnStart: true 
   newUniqueDB: false
 capabilities:

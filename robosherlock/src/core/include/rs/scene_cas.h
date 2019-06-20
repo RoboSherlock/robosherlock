@@ -89,7 +89,7 @@ public:
   std::string appendCamIdToViewName(const char* name , int cam_id)
   {
     std::stringstream ss;
-    ss << name << "#" <<(cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id));
+    ss << "cam"<<(cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id))<<"."<< name;
     return ss.str();
   }
 

@@ -40,60 +40,63 @@ public:
   {
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx)
+  TyErrorId initialize(AnnotatorContext& ctx)
   {
-    
     outInfo("initialize");
-    std::vector<std::string *> enableViews;
+    std::vector<std::string*> enableViews;
     bool clearStorageOnStart = false;
     bool unique = false;
-   
-    if(ctx.isParameterDefined("enableViews"))
+
+    if (ctx.isParameterDefined("enableViews"))
     {
       ctx.extractValue("enableViews", enableViews);
     }
-    if(ctx.isParameterDefined("host"))
+    if (ctx.isParameterDefined("host"))
     {
       ctx.extractValue("host", host);
     }
-    if(ctx.isParameterDefined("storagedb"))
+    if (ctx.isParameterDefined("storagedb"))
     {
       ctx.extractValue("storagedb", db);
     }
-    if(ctx.isParameterDefined("clearStorageOnStart"))
+    if (ctx.isParameterDefined("clearStorageOnStart"))
     {
       ctx.extractValue("clearStorageOnStart", clearStorageOnStart);
     }
-    if(ctx.isParameterDefined("newUniqueDB"))
+    if (ctx.isParameterDefined("newUniqueDB"))
     {
       ctx.extractValue("newUniqueDB", unique);
     }
-    
-    if(unique)
+
+    if (unique)
     {
       std::ostringstream oss;
       oss << db << '_' << ros::Time::now().toNSec();
       db = oss.str();
-    }	
-    try{
-    storage = rs::Storage(host, db, clearStorageOnStart);
     }
-    catch(std::exception& e)
-    { //This catches the seg fault when it cannot connect to MongoDB
-      //Please ensure a safe return or kill the program after you write the error message 
-      //Usually it will end itself since it is SIGSEV
+    try
+    {
+      storage = rs::Storage(host, db, clearStorageOnStart);
+    }
+    catch (std::exception& e)
+    {  // This catches the seg fault when it cannot connect to MongoDB
+      // Please ensure a safe return or kill the program after you write the error message
+      // Usually it will end itself since it is SIGSEV
       outError("The Mongodb is not valid");
       outError(e.what());
       return 5;
     }
-    
 
     outInfo("Setting db to: " << db);
     outInfo("Views stored:");
-    for(size_t i = 0; i < enableViews.size(); ++i)
+    for (size_t i = 0; i < enableViews.size(); ++i)
     {
-      storage.enableViewStoring(*enableViews[i], true);
-      outInfo(i << " : " << *enableViews[i]);
+      std::string temp_str = *enableViews[i];
+      if (temp_str.find(".") == std::string::npos)
+        temp_str = "cam0." + temp_str;
+
+      storage.enableViewStoring(temp_str, true);
+      outInfo(i << " : " << temp_str);
     }
 
     return UIMA_ERR_NONE;
@@ -105,7 +108,7 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  TyErrorId process(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId process(CAS& tcas, ResultSpecification const& res_spec)
   {
     MEASURE_TIME;
     outInfo("process begins");
@@ -114,7 +117,7 @@ public:
     rs::Scene scene = cas.getScene();
     const uint64_t timestamp = (uint64_t)scene.timestamp();
 
-    if(scene.id().empty())
+    if (scene.id().empty())
     {
       storage.storeScene(*tcas.getBaseCas(), timestamp);
     }
@@ -123,7 +126,7 @@ public:
       storage.updateScene(*tcas.getBaseCas(), timestamp);
     }
 
-    if(cas.has(VIEW_OBJECTS))
+    if (cas.has(VIEW_OBJECTS))
     {
       outDebug("store persistent objects");
       storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
@@ -134,4 +137,3 @@ public:
 };
 
 MAKE_AE(StorageWriter)
-
