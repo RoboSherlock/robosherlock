@@ -29,6 +29,7 @@
 #include <boost/filesystem.hpp>
 
 #include <opencv/highgui.h>
+#include <opencv2/imgproc.hpp>
 
 #include <ros/package.h>
 
