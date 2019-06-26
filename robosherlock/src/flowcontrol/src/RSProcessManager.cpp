@@ -473,7 +473,7 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool>& filter,
   vg.filter(*dsCloud);
 
   pcl::copyPointCloud(*dsCloud, *cloud);
-  cloud->header.frame_id = camToWorld.child_frame_id_;
+  cloud->header.frame_id = camToWorld.frame_id_;
   return true;
 }
 
