@@ -58,10 +58,9 @@ int planeTest()
     else number_of_points_pcl = false;
   }
 
-
+  engine->resetCas();
   engine->overwriteParam("PlaneAnnotator", "plane_estimation_mode", std::string("MPS"));
   engine->reconfigure();
-
   engine->processOnce();
   cas = engine->getCas();
   rs::SceneCas sceneCas2(*cas);
