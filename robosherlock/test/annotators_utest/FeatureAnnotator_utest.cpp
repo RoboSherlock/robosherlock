@@ -44,6 +44,7 @@ void featureAnnotator()
   processFeatureCluster(cas);
   
   
+  engine->resetCas();
   engine->overwriteParam("FeatureAnnotator","keypointDetector",std::string("BRISK"));
   engine->overwriteParam("FeatureAnnotator","featureExtractor",std::string("BRISK"));
   engine->reconfigure();
@@ -51,6 +52,7 @@ void featureAnnotator()
   cas = engine->getCas();
   processFeatureCluster(cas);
   
+  engine->resetCas();
   engine->overwriteParam("FeatureAnnotator","keypointDetector",std::string("ORB"));
   engine->overwriteParam("FeatureAnnotator","featureExtractor",std::string("ORB"));
   engine->reconfigure();

@@ -218,7 +218,7 @@ private:
           break;
         case FILE:
           outInfo("Loading from File");
-          loadPlaneModel(tcas, scene);
+          loadPlaneModel(tcas, scene, false);
           break;
       }
     }
