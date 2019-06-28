@@ -3,18 +3,17 @@
 // needed for action server
 #include <rs/queryanswering/RSQueryActionServer.h>
 
-RSProcessManager::RSProcessManager(const bool useVisualizer, const bool& waitForServiceCall,
-                                   rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string& savePath)
+RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisualizer,
+                                   rs::KnowledgeEngine::KnowledgeEngineType keType)
   : nh_("~")
+  , spinner_(0)
   , it_(nh_)
-  , waitForServiceCall_(waitForServiceCall)
   , useVisualizer_(useVisualizer)
   , use_identity_resolution_(false)
-  , visualizer_(savePath, !useVisualizer)
-  , spinner_(0)
+  , visualizer_(!useVisualizer)
 {
-  signal(SIGINT, RSProcessManager::signalHandler);
   outInfo("Creating resource manager");
+  signal(SIGINT, RSProcessManager::signalHandler);
   uima::ResourceManager& resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
   switch (OUT_LEVEL)
@@ -31,20 +30,12 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool& waitFor
       break;
   }
 
-  // ROS interface declarations
-  setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
-  setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
-
-  result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
-  image_pub_ = it_.advertise("result_image", 1, true);
-  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
-
   if (keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
   {
     outInfo("Setting KnowRob (through json prolog interface) as the knowledge engine.");
 #if WITH_JSON_PROLOG
     if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
-      knowledgeEngine_ = std::make_shared<rs::JsonPrologInterface>();
+      knowledge_engine_ = std::make_shared<rs::JsonPrologInterface>();
     else
       throw rs::Exception("Json prolog not reachable");
 #else
@@ -52,15 +43,32 @@ RSProcessManager::RSProcessManager(const bool useVisualizer, const bool& waitFor
 #endif
   }
   else if (keType == rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG)
-    knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
+    knowledge_engine_ = std::make_shared<rs::SWIPLInterface>();
   else
     throw rs::Exception("Wrong initialization param for knowledge engine");
 
+  query_interface_ = std::make_shared<QueryInterface>(knowledge_engine_);
+
+  engine_ = rs::createRSAggregateAnalysisEngine(engineFile);
+
+  knowledge_engine_->retractAllAnnotators();
+  knowledge_engine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
+
+  // ROS Service declarations
+  setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
+  setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
-  queryInterface = new QueryInterface(knowledgeEngine_);
-  // action server for query answering
-  actionServer = new RSQueryActionServer(nh_, this);
+
+  //ROS publisher declarations
+  result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  image_pub_ = it_.advertise("result_image", 1, true);
+  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
+
+  //ROS action server for query answering
+//  actionServer = new RSQueryActionServer(nh_, this);
+
   spinner_.start();
+  visualizer_.start();
 }
 
 RSProcessManager::~RSProcessManager()
@@ -73,22 +81,6 @@ RSProcessManager::~RSProcessManager()
   outInfo("RSControledAnalysisEngine Stoped");
 }
 
-void RSProcessManager::init(std::string& engineFile, bool pervasive, bool parallel)
-{
-  outInfo("initializing");
-  signal(SIGINT, RSProcessManager::signalHandler);
-
-  engine_ = rs::createRSAggregateAnalysisEngine(engineFile, parallel, pervasive, lowLvlPipeline_);
-
-  knowledgeEngine_->retractAllAnnotators();
-  knowledgeEngine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
-  parallel_ = parallel;
-  visualizer_.start();
-  if (pervasive)
-    visualizer_.setActiveAnnotators(lowLvlPipeline_);
-  outInfo("done intializing");
-}
-
 void RSProcessManager::run()
 {
   ros::Rate rate(30.0);
@@ -97,7 +89,7 @@ void RSProcessManager::run()
     signal(SIGINT, RSProcessManager::signalHandler);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if (!waitForServiceCall_)
+      if (!wait_for_service_call_)
       {
         std::vector<std::string> objDescriptions;
         engine_->resetCas();
@@ -159,7 +151,10 @@ bool RSProcessManager::resetAE(std::string newAAEName)
     outInfo("Setting new context: " << newAAEName);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      this->init(contextAEPath, false, parallel_);
+      delete engine_;
+      engine_ = rs::createRSAggregateAnalysisEngine(newAAEName);
+      knowledge_engine_->retractAllAnnotators();
+      knowledge_engine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
     }
     return true;
   }
@@ -197,7 +192,6 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
     engine_->setPipelineOrdering(newPipelineOrder);
     engine_->processOnce();
     engine_->resetPipelineOrdering();
-    engine_->setNextPipeline(lowLvlPipeline_);
     engine_->processOnce();
 
     std::vector<std::string> objDescriptions;
@@ -221,9 +215,9 @@ bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Requ
 bool RSProcessManager::handleQuery(std::string& request, std::vector<std::string>& result)
 {
   outInfo("JSON Reuqest: " << request);
-  queryInterface->parseQuery(request);
+  query_interface_->parseQuery(request);
   std::vector<std::string> newPipelineOrder;
-  QueryInterface::QueryType queryType = queryInterface->processQuery(newPipelineOrder);
+  QueryInterface::QueryType queryType = query_interface_->processQuery(newPipelineOrder);
 
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
@@ -241,7 +235,6 @@ bool RSProcessManager::handleQuery(std::string& request, std::vector<std::string
       engine_->setPipelineOrdering(newPipelineOrder);
       engine_->processOnce();
       engine_->resetPipelineOrdering();
-      engine_->setNextPipeline(lowLvlPipeline_);
 
       outInfo("Executing pipeline generated by query: done");
 
@@ -254,7 +247,7 @@ bool RSProcessManager::handleQuery(std::string& request, std::vector<std::string
       std::vector<std::string> filteredResponse;
       std::vector<bool> desigsToKeep;
 
-      queryInterface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
+      query_interface_->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
       cv::Mat resImage;
       pcl::PointCloud<pcl::PointXYZRGB>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGB>());
@@ -332,7 +325,7 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool>& filter,
     outInfo("Undefined behaviour");
     return false;
   }
-  for (int i = 0; i < filter.size(); ++i)
+  for (size_t i = 0; i < filter.size(); ++i)
   {
     if (!filter[i])
       continue;

@@ -41,9 +41,9 @@ class RSQueryActionServer;
 class RSProcessManager
 {
 public:
-  RSAggregateAnalysisEngine* engine_;
-  std::shared_ptr<rs::KnowledgeEngine> knowledgeEngine_;
-  QueryInterface* queryInterface;
+  RSAggregateAnalysisEngine *engine_;
+  std::shared_ptr<rs::KnowledgeEngine> knowledge_engine_;
+  std::shared_ptr<QueryInterface> query_interface_;
 
   rs::KnowledgeEngine::KnowledgeEngineType ke_type_;
 
@@ -64,12 +64,12 @@ public:
   // needed for sharing query processing's core function
 
   // action server for query answering
-  RSQueryActionServer* actionServer;
+//  RSQueryActionServer *actionServer;
 
-  bool waitForServiceCall_;
+  bool wait_for_service_call_;
   bool useVisualizer_;
   bool use_identity_resolution_;
-  bool parallel_;
+  bool parallel_, pervasive_;
 
   std::mutex processing_mutex_;
 
@@ -78,29 +78,17 @@ public:
 
   /**
    * @brief RSProcessManager::RSProcessManager constructror: the one and only...for now
+   * @param aae_name name of the aggregate we want to initialize
    * @param useVisualizer flag for starting visualization window; If false it runs in headless mode, advertising partial
    * results on a topic
-   * @param waitForServiceCall run engine in synchroniouse mode, waiting for queries to arrive
    * @param keType set the knowledge Engine you would like to use. options are knowrob (JSON_PROLOG) or SWI_PROLOG
-   * @param savePath path where to save images to from visualizer to; if emtpy iages are saved to working dir;
    */
-  RSProcessManager(const bool useVisualizer, const bool& waitForServiceCall,
-                   rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string& savePath);
+  RSProcessManager(std::string aae_name, const bool useVisualizer, rs::KnowledgeEngine::KnowledgeEngineType keType);
 
   /**
     * @brief destructor
     */
   ~RSProcessManager();
-
-  /**
-   * @brief RSProcessManager::init initialize the RSProcessManager; The engine and all of it's components need
-   * initialization; This method does that;
-   * without initialization you can not use the algos in the engine;
-   * @param engineFile engine file to load
-   * @param pervasive flag to run in pervasive mode; (overrides waitForService)
-   * @param parallel flag for parallelizing execution based on I/O definitions of annotators
-   */
-  void init(std::string& xmlFile, bool pervasive, bool parallel);
 
   /**
    * @brief RSProcessManager::run run the pipeline active pipeline defined in the engine
@@ -114,10 +102,10 @@ public:
    * @param res no results specified
    * @return true or false
    */
-  bool resetAECallback(robosherlock_msgs::SetRSContext::Request& req, robosherlock_msgs::SetRSContext::Response& res);
+  bool resetAECallback(robosherlock_msgs::SetRSContext::Request &req, robosherlock_msgs::SetRSContext::Response &res);
 
-  bool visControlCallback(robosherlock_msgs::RSVisControl::Request& req,
-                          robosherlock_msgs::RSVisControl::Response& res);
+  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+                          robosherlock_msgs::RSVisControl::Response &res);
 
   /**
    * @brief RSProcessManager::executePipelineCallback execute a s
@@ -126,8 +114,8 @@ public:
    * @param res object descriptions as json;
    * @return true if successfull
    */
-  bool executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request& req,
-                               robosherlock_msgs::ExecutePipeline::Response& res);
+  bool executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
+                               robosherlock_msgs::ExecutePipeline::Response &res);
 
   /**
    * @brief RSProcessManager::jsonQueryCallback the callback function
@@ -135,8 +123,8 @@ public:
    * @param res response array of json descriptions
    * @return
    */
-  bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request& req,
-                         robosherlock_msgs::RSQueryService::Response& res);
+  bool jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
+                         robosherlock_msgs::RSQueryService::Response &res);
 
   /**
    * @brief RSProcessManager::handleQuery
@@ -144,7 +132,7 @@ public:
    * @param result object descriptions in a Json format
    * @return
    */
-  bool virtual handleQuery(std::string& req, std::vector<std::string>& res);
+  bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
 
   /**
    * @brief RSProcessManager::resetAE reset analysis engine that was instantiated; Use this method i
@@ -163,14 +151,41 @@ public:
     use_identity_resolution_ = useIdentityResoltuion;
   }
 
+  /**
+   * @brief setWaitForService set the flag for waiting for a service call; if true, process of the AAE is only
+   * exectued if a query is sent on the action or service interface
+   * @param wait_for_service
+   */
+  void setWaitForService(bool wait_for_service)
+  {
+    wait_for_service_call_ = wait_for_service;
+  }
+
+  void setParallel(bool parallel)
+  {
+    parallel_ = parallel;
+    engine_->setParallel(parallel_);
+  }
+
+  void setPervasive(bool pervasive)
+  {
+    this->pervasive_ = pervasive;
+    if(pervasive)
+    {
+      visualizer_.setActiveAnnotators(lowLvlPipeline_);
+      engine_->setContinuousPipelineOrder(lowLvlPipeline_);
+      engine_->setPipelineOrdering(lowLvlPipeline_);
+    }
+  }
+
   // draw results on an image
   template <class T>
-  bool drawResultsOnImage(const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators,
-                          std::string& requestJson, cv::Mat& resImage);
+  bool drawResultsOnImage(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                          std::string &requestJson, cv::Mat &resImage);
 
   template <class T>
-  bool highlightResultsInCloud(const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators,
-                               std::string& requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud);
+  bool highlightResultsInCloud(const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators,
+                               std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
 
   static void signalHandler(int signum)
   {

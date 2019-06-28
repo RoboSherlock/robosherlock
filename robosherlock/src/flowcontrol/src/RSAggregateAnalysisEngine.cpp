@@ -185,15 +185,6 @@ void RSAggregateAnalysisEngine::processOnce()
 void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator_response, std::string queryString)
 {
   outInfo("executing analisys engine: " << name_);
-//  cas_->reset();
-
-//  if(queryString != "" || query_ != "")
-//  {
-//    rs::Query query = rs::create<rs::Query>(*cas_);
-//    queryString != "" ? query.query.set(queryString) : query.query.set(query_);
-//    rs::SceneCas sceneCas(*cas_);
-//    sceneCas.set("QUERY", query);
-//  }
   try
   {
     UnicodeString ustrInputText;
@@ -218,16 +209,8 @@ void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator
     }
     catch(const rs::FrameFilterException &)
     {
-      // we could handle image logging here
-      // handle extra pipeline here->signal thread that we can start processing
       outError("Got Interrputed with Frame Filter, not time here");
     }
-
-    //        TODO: MOVE THIS OUT OF THE EXECUTION
-//    rs::ObjectDesignatorFactory dw(cas_);
-//    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
-//    dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
-//    dw.getObjectDesignators(designator_response);
 
     outInfo("processing finished");
     outInfo(clock.getTime() << " ms." << std::endl
@@ -449,8 +432,7 @@ std::string convertAnnotatorYamlToXML(std::string annotator_name, std::map<std::
 }
 
 //the following three methods are a workaround for the very limited constructors that uima::internal::AggregateEngine offers
-RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae_file, bool parallel,
-    bool pervasive, std::vector<std::string> contPipeline)
+RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae_file, bool parallel)
 {
   size_t pos = ae_file.rfind('/');
   outInfo("Creating analysis engine: " FG_BLUE << (pos == ae_file.npos ? ae_file : ae_file.substr(pos)));
@@ -501,7 +483,7 @@ RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae
   }
   outInfo("generated XML for annotators");
 
-  RSAggregateAnalysisEngine *engine = (RSAggregateAnalysisEngine *)rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo);
+  RSAggregateAnalysisEngine *engine = (RSAggregateAnalysisEngine*)(rs::createParallelAnalysisEngine(AEXMLFile.c_str(), delegateMapping, errorInfo));
 
   if(engine == nullptr)
   {
@@ -539,13 +521,6 @@ RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &ae
                           uima::ErrorInfo::unrecoverable);
   }
 
-  if(pervasive)
-  {
-    // After all annotators have been initialized, pick the default pipeline
-    engine->setContinuousPipelineOrder(contPipeline);
-    engine->setPipelineOrdering(contPipeline);
-    //      engine->setNextPipeline(cont_pipeline);
-  }
   return engine;
 }
 
