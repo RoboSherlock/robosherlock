@@ -32,14 +32,14 @@ using namespace rs;
 bool *Visualizer::trigger = NULL;
 
 Visualizer::Visualizer(bool headless) : windowImage("Image Viewer"), windowCloud("Cloud Viewer"), annotator(NULL), names(), index(0),
-  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), savePath(savePath), nh_("~")
+  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
-  this->savePath = "./";
+  this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
+  {
     this->savePath += '/';
-
+  }
   vis_service_ = nh_.advertiseService("vis_command", &Visualizer::visControlCallback, this);
-
 }
 
 Visualizer::~Visualizer()
