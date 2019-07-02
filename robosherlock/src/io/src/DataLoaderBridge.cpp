@@ -276,7 +276,7 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   sstr.str(line);
   std::vector<double> cameraDistortion{std::istream_iterator<double>(sstr),
                                        std::istream_iterator<double>()};
-  std::copy(cameraDistortion.begin(), cameraDistortion.end(), this->cameraInfo.D.begin());
+  this->cameraInfo.D.assign(cameraDistortion.begin(), cameraDistortion.end());
 
   this->depth_scaling_factor = pt.get<int>("camera_info.depth_scaling_factor", 1);
 

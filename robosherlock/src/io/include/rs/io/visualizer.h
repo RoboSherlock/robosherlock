@@ -75,7 +75,7 @@ private:
 public:
   static bool *trigger;
 
-  Visualizer(const std::string &savePath, bool headless);
+  Visualizer(bool headless);
   ~Visualizer();
 
   bool start();

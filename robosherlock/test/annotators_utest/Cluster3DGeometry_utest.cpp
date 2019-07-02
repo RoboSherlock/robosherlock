@@ -46,7 +46,7 @@ void cluster3DGeometryTest()
   }
 }
 
-TEST(UnitTest,Cluster3DGeometry)
+TEST(Cluster3DGeometryUnitTest,BoundingBox)
 {
   cluster3DGeometryTest();
 }

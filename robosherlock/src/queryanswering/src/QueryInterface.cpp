@@ -58,6 +58,10 @@ bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
   knowledgeEngine_->retractQueryKvPs();
 
   //add the ones that are interpretable to the queriedKeys;
+  if (!json.IsObject()){
+      outError("Description of object needs to be a json object! Example of an empty query: {\"\detect\":{}}");
+      return false;
+  }
   for(rapidjson::Value::ConstMemberIterator iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter)
   {
     if(knowledgeEngine_->checkValidQueryTerm(iter->name.GetString()))
@@ -248,14 +252,15 @@ bool QueryInterface::checkThresholdOnList(rapidjson::Value &list, const float th
 }
 
 
-void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
+bool QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
                                    std::vector<std::string> &filteredResponse,
                                    std::vector<bool> &designatorsToKeep)
 {
 
   const rapidjson::Value &detectQuery = query_["detect"];
   designatorsToKeep.resize(resultDesignators.size(), true);
-
+  if (!detectQuery.IsObject())
+      return false;
   for(rapidjson::Value::ConstMemberIterator queryIt = detectQuery.MemberBegin(); queryIt != detectQuery.MemberEnd(); ++queryIt)
   {
     std::vector<std::string> location, check;
@@ -371,4 +376,5 @@ void QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
     }
   }
   outInfo("Matching Object Descriptions: " << filteredResponse.size());
+  return true;
 }

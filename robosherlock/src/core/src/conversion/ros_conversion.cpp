@@ -17,7 +17,6 @@
  * limitations under the License.
  */
 
-
 // ROS
 #include <sensor_msgs/CameraInfo.h>
 #include <std_msgs/Header.h>
@@ -30,9 +29,8 @@ namespace rs
 {
 namespace conversion
 {
-
-template<>
-void from(const uima::FeatureStructure &fs, std_msgs::Header &output)
+template <>
+void from(const uima::FeatureStructure& fs, std_msgs::Header& output)
 {
   rs::Header h(fs);
 
@@ -41,8 +39,8 @@ void from(const uima::FeatureStructure &fs, std_msgs::Header &output)
   output.seq = h.seq();
 }
 
-template<>
-uima::FeatureStructure to(uima::CAS &cas, const std_msgs::Header &input)
+template <>
+uima::FeatureStructure to(uima::CAS& cas, const std_msgs::Header& input)
 {
   rs::Header h = rs::create<rs::Header>(cas);
 
@@ -53,8 +51,8 @@ uima::FeatureStructure to(uima::CAS &cas, const std_msgs::Header &input)
   return h;
 }
 
-template<>
-void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo::_roi_type &output)
+template <>
+void from(const uima::FeatureStructure& fs, sensor_msgs::CameraInfo::_roi_type& output)
 {
   rs::ROI roi(fs);
 
@@ -65,8 +63,8 @@ void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo::_roi_type &
   output.do_rectify = (uint8_t)roi.do_rectify.get();
 }
 
-template<>
-uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo::_roi_type &input)
+template <>
+uima::FeatureStructure to(uima::CAS& cas, const sensor_msgs::CameraInfo::_roi_type& input)
 {
   rs::ROI roi = rs::create<rs::ROI>(cas);
 
@@ -79,8 +77,8 @@ uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo::_roi_ty
   return roi;
 }
 
-template<>
-void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo &output)
+template <>
+void from(const uima::FeatureStructure& fs, sensor_msgs::CameraInfo& output)
 {
   std::vector<double> vec;
   std::string tmp;
@@ -91,7 +89,7 @@ void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo &output)
 
   tmp = cam.distortion_model.get();
   output.distortion_model.resize(tmp.size());
-  for(int i = 0; i < tmp.size(); ++i)
+  for (int i = 0; i < tmp.size(); ++i)
   {
     output.distortion_model[i] = tmp[i];
   }
@@ -99,22 +97,25 @@ void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo &output)
   output.height = (uint32_t)cam.height.get();
   output.width = (uint32_t)cam.width.get();
 
-  output.D = cam.d();
+  if (cam.d.has())
+  {
+    output.D = cam.d();
+  }
 
   vec = cam.r.get();
-  for(int i = 0; i < output.R.size() && i < vec.size(); ++i)
+  for (int i = 0; i < output.R.size() && i < vec.size(); ++i)
   {
     output.R[i] = vec[i];
   }
 
   vec = cam.p.get();
-  for(int i = 0; i < output.P.size() && i < vec.size(); ++i)
+  for (int i = 0; i < output.P.size() && i < vec.size(); ++i)
   {
     output.P[i] = vec[i];
   }
 
   vec = cam.k.get();
-  for(int i = 0; i < output.K.size() && i < vec.size(); ++i)
+  for (int i = 0; i < output.K.size() && i < vec.size(); ++i)
   {
     output.K[i] = vec[i];
   }
@@ -125,8 +126,8 @@ void from(const uima::FeatureStructure &fs, sensor_msgs::CameraInfo &output)
   from(cam.roi.get(), output.roi);
 }
 
-template<>
-uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo &input)
+template <>
+uima::FeatureStructure to(uima::CAS& cas, const sensor_msgs::CameraInfo& input)
 {
   std::vector<double> vec;
   std::string tmp;
@@ -136,7 +137,7 @@ uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo &input)
   cam.header.set(to(cas, input.header));
 
   tmp.resize(input.distortion_model.size());
-  for(int i = 0; i < tmp.size(); ++i)
+  for (int i = 0; i < tmp.size(); ++i)
   {
     tmp[i] = input.distortion_model[i];
   }
@@ -148,21 +149,21 @@ uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo &input)
   cam.d.set(input.D);
 
   vec.resize(input.R.size());
-  for(int i = 0; i < input.R.size(); ++i)
+  for (int i = 0; i < input.R.size(); ++i)
   {
     vec[i] = input.R[i];
   }
   cam.r.set(vec);
 
   vec.resize(input.P.size());
-  for(int i = 0; i < input.P.size(); ++i)
+  for (int i = 0; i < input.P.size(); ++i)
   {
     vec[i] = input.P[i];
   }
   cam.p.set(vec);
 
   vec.resize(input.K.size());
-  for(int i = 0; i < input.K.size(); ++i)
+  for (int i = 0; i < input.K.size(); ++i)
   {
     vec[i] = input.K[i];
   }
@@ -176,5 +177,5 @@ uima::FeatureStructure to(uima::CAS &cas, const sensor_msgs::CameraInfo &input)
   return cam;
 }
 
-}
-}
+}  // namespace conversion
+}  // namespace rs
