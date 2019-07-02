@@ -44,6 +44,7 @@ Visualizer::Visualizer(bool headless) : windowImage("Image Viewer"), windowCloud
 
 Visualizer::~Visualizer()
 {
+    stop();
 }
 
 bool Visualizer::start()
