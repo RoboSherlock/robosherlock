@@ -22,7 +22,9 @@ public:
       listener = new tf::TransformListener();
     }
   }
-  ~TFListenerProxy();
+  ~TFListenerProxy(){
+
+  }
 };
 }  // namespace rs
 #endif
