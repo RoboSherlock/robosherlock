@@ -2,4 +2,4 @@
 
 using namespace rs;
 
-std::unique_ptr<tf::TransformListener> TFListenerProxy::listener = nullptr;
+tf::TransformListener *TFListenerProxy::listener  = nullptr;
