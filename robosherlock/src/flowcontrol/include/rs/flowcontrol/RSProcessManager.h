@@ -64,7 +64,7 @@ public:
   // needed for sharing query processing's core function
 
   // action server for query answering
-//  RSQueryActionServer *actionServer;
+  RSQueryActionServer *actionServer;
 
   bool wait_for_service_call_;
   bool useVisualizer_;

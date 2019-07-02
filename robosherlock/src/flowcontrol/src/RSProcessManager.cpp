@@ -59,13 +59,13 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
 
-  //ROS publisher declarations
+  // ROS publisher declarations
   result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
   image_pub_ = it_.advertise("result_image", 1, true);
   pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
 
-  //ROS action server for query answering
-//  actionServer = new RSQueryActionServer(nh_, this);
+  // ROS action server for query answering
+  actionServer = new RSQueryActionServer(nh_, this);
 
   spinner_.start();
   visualizer_.start();
@@ -353,7 +353,7 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool>& filter,
 
   rapidjson::Document request;
   request.Parse(requestJson.c_str());
-  if (request.HasMember("obj-part"))
+  if (request.IsObject() && request.HasMember("obj-part"))
   {
     for (int i = 0; i < clusters.size(); ++i)
     {
@@ -378,7 +378,7 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool>& filter,
       }
     }
   }
-  if (request.HasMember("cad-model"))
+  if (request.IsObject() && request.HasMember("cad-model"))
   {
     if (sceneCas.has("VIEW_DISPLAY_IMAGE"))
     {
