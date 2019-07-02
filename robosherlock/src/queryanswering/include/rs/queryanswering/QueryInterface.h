@@ -69,7 +69,7 @@ public:
 
   QueryType processQuery(std::vector<std::string> &newPipelineOrder);
 
-  void filterResults(std::vector<std::string> &resultDesignators, std::vector<std::string> &filteredResponse, std::vector<bool> &designatorsToKeep);
+  bool filterResults(std::vector<std::string> &resultDesignators, std::vector<std::string> &filteredResponse, std::vector<bool> &designatorsToKeep);
 
   bool checkSubClass(const std::string &resultValue, const std::string &queryValue);
 

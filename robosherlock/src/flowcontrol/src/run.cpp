@@ -91,26 +91,23 @@ int main(int argc, char* argv[])
   ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
   ros::NodeHandle nh("~");
 
-  std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;
+  std::string analysis_engine_names, analysis_engine_file, knowledge_engine;
   bool useVisualizer, waitForServiceCall, useObjIDRes, pervasive, parallel;
 
   nh.param("ae", analysis_engine_names, std::string(""));
-  nh.param("analysis_engines", analysis_engine_names, analysis_engine_names);
   nh.param("wait", waitForServiceCall, false);
   nh.param("vis", useVisualizer, false);
-  nh.param("visualization", useVisualizer, useVisualizer);
-  nh.param("save_path", save_path, std::string(getenv("HOME")));
   nh.param("pervasive", pervasive, false);
   nh.param("parallel", parallel, false);
   nh.param("withIDRes", useObjIDRes, false);
   nh.param("ke", knowledge_engine, std::string("SWI_PROLOG"));
 
   nh.deleteParam("ae");
-  nh.deleteParam("vis");
-  nh.deleteParam("save_path");
   nh.deleteParam("wait");
+  nh.deleteParam("vis");
   nh.deleteParam("pervasive");
   nh.deleteParam("parallel");
+  nh.deleteParam("withIdRes");
   nh.deleteParam("ke");
 
   // if only argument is an AE (nh.param reudces argc)
@@ -154,9 +151,11 @@ int main(int argc, char* argv[])
   try
   {
     // create the perception system
-    RSProcessManager manager(useVisualizer, waitForServiceCall, keType, save_path);
+    RSProcessManager manager(analysis_engine_file, useVisualizer, keType);
     manager.setUseIdentityResolution(useObjIDRes);
-    manager.init(analysis_engine_file, pervasive, parallel);
+    manager.setWaitForService(waitForServiceCall);
+    manager.setParallel(parallel);
+    manager.setPervasive(pervasive);
 
     // start the perception system
     manager.run();

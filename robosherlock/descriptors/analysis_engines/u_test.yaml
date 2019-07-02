@@ -16,7 +16,7 @@ fixedflow:
   - PCLDescriptorExtractor
   - StorageWriter
 ae:
-  name : u_test
+  name: u_test
 CollectionReader:
   camera_config_files : ['config_data_loader_utest.ini']
 StorageWriter:

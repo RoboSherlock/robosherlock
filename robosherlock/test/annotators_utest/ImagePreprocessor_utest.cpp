@@ -121,33 +121,33 @@ int preprocessingTest()
 
 }
 
-TEST(UnitTest,CheckExistingCloud)
+TEST(ImagePreProcessorUnitTest,CheckExistingCloud)
 {
    preprocessingTest();
    EXPECT_EQ(1,exist_cloud);
 
 }
-TEST(UnitTest, CheckExistingColorImage)
+TEST(ImagePreProcessorUnitTest, CheckExistingColorImage)
 {
    EXPECT_EQ(1,exist_color_image);
 }
-TEST(UnitTest, CheckExistingColorImageHD)
+TEST(ImagePreProcessorUnitTest, CheckExistingColorImageHD)
 {
    EXPECT_EQ(1, exist_color_image_HD);
 }
-TEST(UnitTest, CheckExistingDepthImage)
+TEST(ImagePreProcessorUnitTest, CheckExistingDepthImage)
 {
    EXPECT_EQ(1, exist_depth_image);
 }
-TEST(UnitTest, CheckExistingDepthImageHD)
+TEST(ImagePreProcessorUnitTest, CheckExistingDepthImageHD)
 {
    EXPECT_EQ(1, exist_depth_image_HD);
 }
-TEST(UnitTest, CheckExistingMask)
+TEST(ImagePreProcessorUnitTest, CheckExistingMask)
 {
    EXPECT_EQ(1, exist_mask);
 }
-TEST(UnitTest, CheckExistingMaskHD)
+TEST(ImagePreProcessorUnitTest, CheckExistingMaskHD)
 {
    EXPECT_EQ(1, exist_mask_HD);
 }
