@@ -273,7 +273,7 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
 
   line = pt.get<std::string>("camera_info.distortion");
   std::replace(line.begin(), line.end(), ',', ' ');
-  sstr(line);
+  sstr.str(line);
   std::vector<double> cameraDistortion{std::istream_iterator<double>(sstr),
                                        std::istream_iterator<double>()};
   this->cameraInfo.D.assign(cameraDistortion.begin(), cameraDistortion.end());
