@@ -1,5 +1,4 @@
 #include<rs/queryanswering/QueryInterface.h>
-
 #include<rs/queryanswering/ObjectDesignatorFactory.h>
 
 // Boost
@@ -28,6 +27,7 @@ bool QueryInterface::parseQuery(std::string query)
 rapidjson::Document& QueryInterface:: getQueryDocument(){
     return query_;
 }
+
 QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<std::string>> &res)
 {
   if(query_.HasMember("detect"))
@@ -64,10 +64,8 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<s
     handleTrack(tracking_pipeline);
     res.push_back(detect_pipeline);
     res.push_back(tracking_pipeline);
-
     return QueryType::TRACK;
   }
-
   return QueryType::NONE;
 }
 
@@ -173,15 +171,14 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
 
 bool QueryInterface::handleTrack(std::vector<std::string> &res)
 {
+  //TODO: use the knowledge base for this
   res.push_back("ImagePreprocessor");
   // KCF tracking pipeline
   /**
   res.push_back("KCFTrackingAnnotator");
   **/
-
   // PCL particle tracking pipeline
   res.push_back("PCLParticleTrackingAnnotator");
-
 
   outInfo("Planned tracking pipeline: ");
   for(auto const &r:res){

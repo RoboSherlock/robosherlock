@@ -44,6 +44,7 @@ public:
 
   enum class QueryType {NONE, INSPECT, DETECT, SCAN, TRACK};
 
+
   QueryInterface(std::shared_ptr<rs::KnowledgeEngine> ke)
   {
     knowledgeEngine_ = ke;
@@ -56,6 +57,8 @@ public:
   }
 
   bool handleDetect(std::vector<std::string> &newPipelineOrder);
+
+
   bool handleInspect(std::vector<std::vector<std::string>> &newPipelineOrder);
   bool handleScan(std::vector<std::vector<std::string>> &newPipelineOrder);
   bool handleTrack(std::vector<std::string> &newPipelineOrder);
@@ -67,6 +70,7 @@ public:
   bool parseQuery(std::string query_);
 
   QueryType processQuery(std::vector<std::vector<std::string>> &new_pipeline_orders);
+
 
   bool filterResults(std::vector<std::string> &resultDesignators, std::vector<std::string> &filteredResponse, std::vector<bool> &designatorsToKeep);
 

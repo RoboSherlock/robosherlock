@@ -155,14 +155,13 @@ private:
       jsonDoc.Parse(jsonQuery);
       //TODO first level of json is currently only detect, needs to be done differently when there are
       //multiple modes
+
       rapidjson::Value detectQuery;
-      if(jsonDoc.HasMember("detect")){
-          detectQuery = jsonDoc["detect"];
-      }
-      else
-          if(jsonDoc.HasMember("track")){
-              detectQuery = jsonDoc["track"];
-          }
+      if(jsonDoc.HasMember("detect"))
+        detectQuery = jsonDoc["detect"];
+      else if(jsonDoc.HasMember("track"))
+        detectQuery = jsonDoc["track"];
+
       outWarn("json query: " << qs.query());
       if(detectQuery.IsObject())
       {
@@ -171,9 +170,7 @@ private:
         rapidjson::Value::ConstMemberIterator detectionMember = detectQuery.FindMember("detection");
 
         if(colorMember != detectQuery.MemberEnd() || detectionMember != detectQuery.MemberEnd())
-        {
           found = true;
-        }
       }
     }
 
