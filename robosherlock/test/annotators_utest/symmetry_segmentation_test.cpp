@@ -5,6 +5,7 @@
 #include <rs/utils/common.h>
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
+#include <rs/io/CamInterface.h>
 
 #include <rs/utils/array_utils.hpp>
 
@@ -33,12 +34,14 @@ protected:
   virtual void SetUp()
   {
     rs::common::getAEPaths("symmetry_segmentation", engineFile);
+    CamInterface::resetIdCount();
     engine = rs::createRSAggregateAnalysisEngine(engineFile, false); // do not run parallel for now
   }
 
   virtual void TearDown()
   {
     //clean up
+    CamInterface::resetIdCount();
     engine->destroy();
     delete engine;
   }

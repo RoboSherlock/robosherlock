@@ -45,24 +45,26 @@
 
 namespace rs
 {
-
-//typedef std::map<std::string, std::vector<rs::SemanticMapObject>> SemanticMap;
+// typedef std::map<std::string, std::vector<rs::SemanticMapObject>> SemanticMap;
 
 class SceneCas
 {
 private:
-  uima::CAS &cas;
+  uima::CAS& cas;
   std::shared_ptr<std::mutex> mutex;
 
 public:
-  SceneCas(uima::CAS &cas);
+  SceneCas(uima::CAS& cas);
   virtual ~SceneCas();
 
-  rs::Scene getScene();
+  static std::vector<int> cam_ids_;
+  int active_cam_id_;
 
-  bool has(const char *name);
-  bool getFS(const char *name, uima::FeatureStructure &fs);
-  void setFS(const char *name, const uima::FeatureStructure &fs);
+  rs::Scene getScene(int cam_id = -1);
+
+  bool has(const char* name);
+  bool getFS(const char* name, uima::FeatureStructure& fs);
+  void setFS(const char* name, const uima::FeatureStructure& fs);
 
   void reset()
   {
@@ -76,39 +78,60 @@ public:
     cas.setDocumentText(uima::UnicodeStringRef(t.c_str()));
   }
 
-
-  template <class T>
-  bool get(const char *name, T &output)
+  void setActiveCamId(int id)
   {
-    return get(name, output, std::is_base_of<rs::FeatureStructureProxy, T>());
+    if (std::find(cam_ids_.begin(), cam_ids_.end(), id) != cam_ids_.end())
+      active_cam_id_ = id;
+    else
+      throw std::runtime_error("Setting a cam id that does not exist");
+  }
+
+  std::string appendCamIdToViewName(const char* name , int cam_id)
+  {
+    std::stringstream ss;
+    ss << "cam"<<(cam_id==-1 ? std::to_string(active_cam_id_): std::to_string(cam_id))<<"."<< name;
+    return ss.str();
   }
 
   template <class T>
-  void set(const char *name, const T &input)
+  bool get(const char* name, T& output, int cam_id = -1)
   {
-    set(name, input, std::is_base_of<rs::FeatureStructureProxy, T>());
+    std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
+    outInfo("Getting: "<<view_name_with_id);
+    return get(view_name_with_id.c_str(), output, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
   template <class T>
-  bool get(const char *name, std::vector<T> &output)
+  void set(const char* name, const T& input, int cam_id = -1)
   {
-    return get(name, output, std::is_base_of<rs::FeatureStructureProxy, T>());
+    std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
+    outInfo("Getting: "<<view_name_with_id);
+    set(view_name_with_id.c_str(), input, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
   template <class T>
-  void set(const char *name, const std::vector<T> &input)
+  bool get(const char* name, std::vector<T>& output, int cam_id = -1)
   {
-    set(name, input, std::is_base_of<rs::FeatureStructureProxy, T>());
+    std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
+    outInfo("Getting: "<<view_name_with_id);
+    return get(view_name_with_id.c_str(), output, std::is_base_of<rs::FeatureStructureProxy, T>());
+  }
+
+  template <class T>
+  void set(const char* name, const std::vector<T>& input, int cam_id = -1)
+  {
+    std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
+    set(view_name_with_id.c_str(), input, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
 private:
-  bool getView(const char *name, uima::CAS *&view);
+  bool getView(const char* name, uima::CAS*& view);
 
   template <class T>
-  bool get(const char *name, T &output, const std::true_type &)
+  bool get(const char* name, T& output, const std::true_type&)
   {
     uima::FeatureStructure fs;
-    if(getFS(name, fs))
+    if (getFS(name, fs))
     {
       output = T(fs);
       return true;
@@ -117,10 +140,10 @@ private:
   }
 
   template <class T>
-  bool get(const char *name, T &output, const std::false_type &)
+  bool get(const char* name, T& output, const std::false_type&)
   {
     uima::FeatureStructure fs;
-    if(getFS(name, fs))
+    if (getFS(name, fs))
     {
       rs::conversion::from(fs, output);
       return true;
@@ -129,24 +152,24 @@ private:
   }
 
   template <class T>
-  void set(const char *name, const T &input, const std::true_type &)
+  void set(const char* name, const T& input, const std::true_type&)
   {
     setFS(name, (uima::FeatureStructure)input);
   }
 
   template <class T>
-  void set(const char *name, const T &input, const std::false_type &)
+  void set(const char* name, const T& input, const std::false_type&)
   {
     setFS(name, conversion::to(cas, input));
   }
 
   template <class T>
-  bool get(const char *name, std::vector<T> &output, const std::true_type &)
+  bool get(const char* name, std::vector<T>& output, const std::true_type&)
   {
     output.clear();
     uima::FeatureStructure fs;
 
-    if(!getFS(name, fs))
+    if (!getFS(name, fs))
     {
       return false;
     }
@@ -154,7 +177,7 @@ private:
     uima::ArrayFS array(fs);
     output.reserve(array.size());
 
-    for(size_t i = 0; i < array.size(); ++i)
+    for (size_t i = 0; i < array.size(); ++i)
     {
       output.push_back(T(array.get(i)));
     }
@@ -162,11 +185,11 @@ private:
   }
 
   template <class T>
-  bool get(const char *name, std::vector<T> &output, const std::false_type &)
+  bool get(const char* name, std::vector<T>& output, const std::false_type&)
   {
     uima::FeatureStructure fs;
 
-    if(!getFS(name, fs))
+    if (!getFS(name, fs))
     {
       return false;
     }
@@ -174,7 +197,7 @@ private:
     uima::ArrayFS array(fs);
     output.resize(array.size());
 
-    for(size_t i = 0; i < array.size(); ++i)
+    for (size_t i = 0; i < array.size(); ++i)
     {
       rs::conversion::from(array.get(i), output[i]);
     }
@@ -182,11 +205,11 @@ private:
   }
 
   template <class T>
-  void set(const char *name, const std::vector<T> &input, const std::true_type &)
+  void set(const char* name, const std::vector<T>& input, const std::true_type&)
   {
     uima::ArrayFS array = cas.createArrayFS(input.size());
 
-    for(int i = 0; i < input.size(); ++i)
+    for (int i = 0; i < input.size(); ++i)
     {
       array.set(i, (uima::FeatureStructure)input[i]);
     }
@@ -194,11 +217,11 @@ private:
   }
 
   template <class T>
-  void set(const char *name, const std::vector<T> &input, const std::false_type &)
+  void set(const char* name, const std::vector<T>& input, const std::false_type&)
   {
     uima::ArrayFS array = cas.createArrayFS(input.size());
 
-    for(int i = 0; i < input.size(); ++i)
+    for (int i = 0; i < input.size(); ++i)
     {
       array.set(i, conversion::to(cas, input[i]));
     }

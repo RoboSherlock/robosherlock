@@ -1,59 +1,75 @@
 #include <rs/flowcontrol/RSProcessManager.h>
 #include <rs/io/MongoDBBridge.h>
+// needed for action server
+#include <rs/queryanswering/RSQueryActionServer.h>
 
-RSProcessManager::RSProcessManager(const bool useVisualizer, const bool &waitForServiceCall, rs::KnowledgeEngine::KnowledgeEngineType keType, const std::string &savePath):
-  nh_("~"), it_(nh_),
-  waitForServiceCall_(waitForServiceCall),
-  useVisualizer_(useVisualizer), use_identity_resolution_(false),
-  visualizer_(savePath, !useVisualizer)
+RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisualizer,
+                                   rs::KnowledgeEngine::KnowledgeEngineType keType)
+  : nh_("~")
+  , spinner_(0)
+  , it_(nh_)
+  , useVisualizer_(useVisualizer)
+  , use_identity_resolution_(false)
+  , visualizer_(!useVisualizer)
 {
-
-  signal(SIGINT, RSProcessManager::signalHandler);
   outInfo("Creating resource manager");
-  uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+  signal(SIGINT, RSProcessManager::signalHandler);
+  uima::ResourceManager& resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
-  switch(OUT_LEVEL)
+  switch (OUT_LEVEL)
   {
-  case OUT_LEVEL_NOOUT:
-  case OUT_LEVEL_ERROR:
-    resourceManager.setLoggingLevel(uima::LogStream::EnError);
-    break;
-  case OUT_LEVEL_INFO:
-    resourceManager.setLoggingLevel(uima::LogStream::EnWarning);
-    break;
-  case OUT_LEVEL_DEBUG:
-    resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
-    break;
+    case OUT_LEVEL_NOOUT:
+    case OUT_LEVEL_ERROR:
+      resourceManager.setLoggingLevel(uima::LogStream::EnError);
+      break;
+    case OUT_LEVEL_INFO:
+      resourceManager.setLoggingLevel(uima::LogStream::EnWarning);
+      break;
+    case OUT_LEVEL_DEBUG:
+      resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
+      break;
   }
 
-  //ROS interface declarations
-  setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
-  setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
-
-  result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
-  image_pub_ = it_.advertise("result_image", 1, true);
-  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
-
-
-  if(keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
+  if (keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
   {
     outInfo("Setting KnowRob (through json prolog interface) as the knowledge engine.");
 #if WITH_JSON_PROLOG
-    if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
-      knowledgeEngine_ = std::make_shared<rs::JsonPrologInterface>();
+    if (ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
+      knowledge_engine_ = std::make_shared<rs::JsonPrologInterface>();
     else
       throw rs::Exception("Json prolog not reachable");
 #else
     throw rs::Exception("Json prolog was not found at compile time!");
 #endif
   }
-  else if(keType == rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG)
-    knowledgeEngine_ = std::make_shared<rs::SWIPLInterface>();
+  else if (keType == rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG)
+    knowledge_engine_ = std::make_shared<rs::SWIPLInterface>();
   else
     throw rs::Exception("Wrong initialization param for knowledge engine");
 
+  query_interface_ = std::make_shared<QueryInterface>(knowledge_engine_);
+
+  engine_ = rs::createRSAggregateAnalysisEngine(engineFile);
+
+  knowledge_engine_->retractAllAnnotators();
+  knowledge_engine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
+
+  // ROS Service declarations
+  setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
+  setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
-  query_interface = new QueryInterface(knowledgeEngine_);
+
+  // ROS publisher declarations
+  result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  image_pub_ = it_.advertise("result_image", 1, true);
+  pc_pub_ = nh_.advertise<pcl::PointCloud<pcl::PointXYZRGB> >("points", 5);
+
+  // ROS action server for query answering
+  actionServer = new RSQueryActionServer(nh_, this);
+
+  spinner_.start();
+  visualizer_.start();
+
 }
 
 RSProcessManager::~RSProcessManager()
@@ -67,32 +83,15 @@ RSProcessManager::~RSProcessManager()
   outInfo("RSControledAnalysisEngine Stoped");
 }
 
-void RSProcessManager::init(std::string &engineFile, bool pervasive, bool parallel)
-{
-  outInfo("initializing");
-  signal(SIGINT, RSProcessManager::signalHandler);
-
-  engine_ = rs::createRSAggregateAnalysisEngine(engineFile, parallel, pervasive , lowLvlPipeline_);
-
-  knowledgeEngine_->retractAllAnnotators();
-  knowledgeEngine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
-  parallel_ = parallel;
-  visualizer_.start();
-  if(pervasive)
-    visualizer_.setActiveAnnotators(lowLvlPipeline_);
-  outInfo("done intializing");
-}
-
 void RSProcessManager::run()
 {
-  for(; ros::ok();)
+  ros::Rate rate(30.0);
+  for (; ros::ok();)
   {
     signal(SIGINT, RSProcessManager::signalHandler);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      if(waitForServiceCall_)
-        usleep(100000);
-      else
+      if (!wait_for_service_call_)
       {
         std::vector<std::string> objDescriptions;
         outInfo("Resetting CAS...");
@@ -100,45 +99,43 @@ void RSProcessManager::run()
         outInfo("waiting for all cameras to have new data...");
         engine_->processOnce();
         rs::ObjectDesignatorFactory dw(engine_->getCas());
-        use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+        use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+                                   dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
         dw.getObjectDesignators(objDescriptions);
         robosherlock_msgs::RSObjectDescriptions objDescr;
         objDescr.obj_descriptions = objDescriptions;
         result_pub_.publish(objDescr);
       }
     }
-    usleep(100000);
-    ros::spinOnce();
+    rate.sleep();
   }
 }
 
-
-bool RSProcessManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-    robosherlock_msgs::RSVisControl::Response &res)
+bool RSProcessManager::visControlCallback(robosherlock_msgs::RSVisControl::Request& req,
+                                          robosherlock_msgs::RSVisControl::Response& res)
 {
   std::string command = req.command;
   bool result = true;
   std::string activeAnnotator = "";
 
-  if(command == "next")
+  if (command == "next")
     activeAnnotator = visualizer_.nextAnnotator();
-  else if(command == "previous")
+  else if (command == "previous")
     activeAnnotator = visualizer_.prevAnnotator();
-  else if(command != "")
+  else if (command != "")
     activeAnnotator = visualizer_.selectAnnotator(command);
-  if(activeAnnotator == "")
+  if (activeAnnotator == "")
     result = false;
   res.success = result;
   res.active_annotator = activeAnnotator;
   return result;
 }
 
-
-bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request &req,
-                                       robosherlock_msgs::SetRSContext::Response &res)
+bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request& req,
+                                       robosherlock_msgs::SetRSContext::Response& res)
 {
   std::string newContextName = req.newAe;
-  if(resetAE(newContextName))
+  if (resetAE(newContextName))
     return true;
   else
   {
@@ -149,16 +146,18 @@ bool RSProcessManager::resetAECallback(robosherlock_msgs::SetRSContext::Request 
   }
 }
 
-
 bool RSProcessManager::resetAE(std::string newAAEName)
 {
   std::string contextAEPath;
-  if(rs::common::getAEPaths(newAAEName, contextAEPath))
+  if (rs::common::getAEPaths(newAAEName, contextAEPath))
   {
     outInfo("Setting new context: " << newAAEName);
     {
       std::lock_guard<std::mutex> lock(processing_mutex_);
-      this->init(contextAEPath, false, parallel_);
+      delete engine_;
+      engine_ = rs::createRSAggregateAnalysisEngine(newAAEName);
+      knowledge_engine_->retractAllAnnotators();
+      knowledge_engine_->assertAnnotators(engine_->getDelegateAnnotatorCapabilities());
     }
     return true;
   }
@@ -166,17 +165,17 @@ bool RSProcessManager::resetAE(std::string newAAEName)
     return false;
 }
 
-bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request &req,
-    robosherlock_msgs::ExecutePipeline::Response &res)
+bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipeline::Request& req,
+                                               robosherlock_msgs::ExecutePipeline::Response& res)
 {
-  if(req.annotators.empty())
+  if (req.annotators.empty())
     return false;
 
   std::vector<std::string> new_pipeline_order = req.annotators;
   outInfo("Setting new pipeline: ");
   for(auto a : new_pipeline_order)
   {
-    if(!engine_->isInDelegateList(a))
+    if (!engine_->isInDelegateList(a))
     {
       outError(a << " was not initialized in current analysis engine");
       return false;
@@ -187,7 +186,6 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
 
   if(use_identity_resolution_ && std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ObjectIdentityResolution") == new_pipeline_order.end())
     new_pipeline_order.push_back("ObjectIdentityResolution");
-
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
     visualizer_.setActiveAnnotators(new_pipeline_order);
@@ -197,11 +195,12 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
     engine_->processOnce();
     engine_->resetPipelineOrdering();
     engine_->setPipelineOrdering(lowLvlPipeline_);
-    engine_->processOnce();
+
 
     std::vector<std::string> objDescriptions;
     rs::ObjectDesignatorFactory dw(engine_->getCas());
-    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+    use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+                               dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
     dw.getObjectDesignators(objDescriptions);
     res.object_descriptions.obj_descriptions = objDescriptions;
     result_pub_.publish(res.object_descriptions);
@@ -209,24 +208,23 @@ bool RSProcessManager::executePipelineCallback(robosherlock_msgs::ExecutePipelin
   return true;
 }
 
-bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request &req,
-    robosherlock_msgs::RSQueryService::Response &res)
+bool RSProcessManager::jsonQueryCallback(robosherlock_msgs::RSQueryService::Request& req,
+                                         robosherlock_msgs::RSQueryService::Response& res)
 {
-
   handleQuery(req.query, res.answer);
   return true;
 }
 
-bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string> &result)
+bool RSProcessManager::handleQuery(std::string& request, std::vector<std::string>& result)
 {
   outInfo("JSON Reuqest: " << request);
-  query_interface->parseQuery(request);
+  query_interface_->parseQuery(request);
   std::vector<std::vector<std::string>> new_pipeline_orders;
-  QueryInterface::QueryType queryType = query_interface->processQuery(new_pipeline_orders);
+  QueryInterface::QueryType queryType = query_interface_->processQuery(new_pipeline_orders);
   if (!new_pipeline_orders.empty())
   {
     std::lock_guard<std::mutex> lock(processing_mutex_);
-    if(queryType == QueryInterface::QueryType::DETECT)
+    if (queryType == QueryInterface::QueryType::DETECT)
     {
       outInfo(FG_BLUE << "Executing Pipeline # generated by query");
       visualizer_.setActiveAnnotators(new_pipeline_orders[0]);
@@ -236,31 +234,30 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       rs::Query query = rs::create<rs::Query>(*engine_->getCas());
       query.query.set(request);
       rs::SceneCas sceneCas(*engine_->getCas());
-      sceneCas.set("QUERY", query);
+      sceneCas.setFS("QUERY", query);
 
       engine_->setPipelineOrdering(new_pipeline_orders[0]);
       engine_->processOnce();
-      engine_->resetPipelineOrdering();
       engine_->setPipelineOrdering(lowLvlPipeline_);
 
       outInfo("Executing pipeline generated by query: done");
 
       std::vector<std::string> resultDesignators;
       rs::ObjectDesignatorFactory dw(engine_->getCas());
-      use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) : dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
+      use_identity_resolution_ ? dw.setMode(rs::ObjectDesignatorFactory::Mode::OBJECT) :
+                                 dw.setMode(rs::ObjectDesignatorFactory::Mode::CLUSTER);
       dw.getObjectDesignators(resultDesignators);
 
       std::vector<std::string> filteredResponse;
       std::vector<bool> desigsToKeep;
-
-      query_interface->filterResults(resultDesignators, filteredResponse, desigsToKeep);
+      query_interface_->filterResults(resultDesignators, filteredResponse, desigsToKeep);
 
       cv::Mat resImage;
       pcl::PointCloud<pcl::PointXYZRGB>::Ptr dispCloud(new pcl::PointCloud<pcl::PointXYZRGB>());
 
-      if(use_identity_resolution_)
+      if (use_identity_resolution_)
       {
-        //TODO:Move these to the interface class
+        // TODO:Move these to the interface class
         drawResultsOnImage<rs::Object>(desigsToKeep, resultDesignators, request, resImage);
         highlightResultsInCloud<rs::Object>(desigsToKeep, resultDesignators, request, dispCloud);
       }
@@ -286,7 +283,7 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
       return true;
     }
 
-    else if(queryType == QueryInterface::QueryType::INSPECT)
+    else if (queryType == QueryInterface::QueryType::INSPECT)
     {
       outInfo("Inspection is not implemented");
       return true;
@@ -401,7 +398,6 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
         engine_->setPipelineOrdering(new_pipeline_orders[1]);
         //engine_->changeLowLevelPipeline(new_pipeline_orders[1]);
         this->waitForServiceCall_=false;
-
         result.push_back("Tracking started.");
         return true;
       }
@@ -411,11 +407,11 @@ bool RSProcessManager::handleQuery(std::string &request, std::vector<std::string
 }
 
 template <class T>
-bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
-    const std::vector<std::string> &resultDesignators, std::string &requestJson,
-    cv::Mat &outImg)
+bool RSProcessManager::drawResultsOnImage(const std::vector<bool>& filter,
+                                          const std::vector<std::string>& resultDesignators, std::string& requestJson,
+                                          cv::Mat& outImg)
 {
-  if(filter.size() != resultDesignators.size())
+  if (filter.size() != resultDesignators.size())
   {
     outError("Filter and results descriptions sizes don't match");
     return false;
@@ -430,7 +426,7 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
   sceneCas.get(VIEW_CAMERA_INFO, cam_info);
 
   std::vector<T> clusters;
-  if(std::is_same<T, rs::ObjectHypothesis>::value)
+  if (std::is_same<T, rs::ObjectHypothesis>::value)
   {
     scene.identifiables.filter(clusters);
   }
@@ -441,21 +437,21 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if(clusters.size() != resultDesignators.size())
+  if (clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
   }
-  for(int i = 0; i < filter.size(); ++i)
+  for (size_t i = 0; i < filter.size(); ++i)
   {
-    if(!filter[i])
+    if (!filter[i])
       continue;
 
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
 
-    if(desig.HasMember("id"))
+    if (desig.HasMember("id"))
     {
       std::string cID(desig["id"].GetString());
 
@@ -474,34 +470,34 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
 
   rapidjson::Document request;
   request.Parse(requestJson.c_str());
-  if(request.HasMember("obj-part"))
+  if (request.IsObject() && request.HasMember("obj-part"))
   {
-    for(int i = 0; i < clusters.size(); ++i)
+    for (int i = 0; i < clusters.size(); ++i)
     {
-      rs::ObjectHypothesis &cluster = clusters[i];
+      rs::ObjectHypothesis& cluster = clusters[i];
       std::vector<rs::ClusterPart> parts;
       cluster.annotations.filter(parts);
-      for(int pIdx = 0; pIdx < parts.size(); ++pIdx)
+      for (int pIdx = 0; pIdx < parts.size(); ++pIdx)
       {
-        rs::ClusterPart &part = parts[pIdx];
-        if(part.name() == request["obj-part"] || request["obj-part"] == "")
+        rs::ClusterPart& part = parts[pIdx];
+        if (part.name() == request["obj-part"] || request["obj-part"] == "")
         {
           pcl::PointIndices indices;
           rs::conversion::from(part.indices(), indices);
-          for(int iIdx = 0; iIdx < indices.indices.size(); ++iIdx)
+          for (int iIdx = 0; iIdx < indices.indices.size(); ++iIdx)
           {
             int idx = indices.indices[iIdx];
             rgb.at<cv::Vec3b>(cv::Point(idx % cam_info.width, idx / cam_info.width)) =
-              rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
+                rs::common::cvVec3bColors[pIdx % rs::common::numberOfColors];
           }
           colorIdx++;
         }
       }
     }
   }
-  if(request.HasMember("cad-model"))
+  if (request.IsObject() && request.HasMember("cad-model"))
   {
-    if(sceneCas.has("VIEW_DISPLAY_IMAGE"))
+    if (sceneCas.has("VIEW_DISPLAY_IMAGE"))
     {
       outInfo("Scene has a display image");
       sceneCas.get("VIEW_DISPLAY_IMAGE", rgb);
@@ -512,11 +508,11 @@ bool RSProcessManager::drawResultsOnImage(const std::vector<bool> &filter,
 }
 
 template <class T>
-bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
-    const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud)
+bool RSProcessManager::highlightResultsInCloud(const std::vector<bool>& filter,
+                                               const std::vector<std::string>& resultDesignators,
+                                               std::string& requestJson, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud)
 {
-  if(filter.size() != resultDesignators.size())
+  if (filter.size() != resultDesignators.size())
   {
     outError("Filter and results descriptions sizes don't match");
     return false;
@@ -532,31 +528,31 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
 
   std::vector<T> clusters;
   std::is_same<T, rs::ObjectHypothesis>::value ? scene.identifiables.filter(clusters) :
-  sceneCas.get(VIEW_OBJECTS, clusters);
+                                                 sceneCas.get(VIEW_OBJECTS, clusters);
 
   outInfo("Clusters size: " << clusters.size() << "Designator size: " << resultDesignators.size());
   int colorIdx = 0;
-  if(clusters.size() != resultDesignators.size())
+  if (clusters.size() != resultDesignators.size())
   {
     outInfo("Undefined behaviour");
     return false;
   }
 
-  for(int i = 0; i < filter.size(); ++i)
+  for (int i = 0; i < filter.size(); ++i)
   {
-    if(!filter[i])
+    if (!filter[i])
       continue;
 
     std::string desigString = resultDesignators[i];
     rapidjson::Document desig;
     desig.Parse(desigString.c_str());
-    if(desig.HasMember("id"))
+    if (desig.HasMember("id"))
     {
       pcl::PointIndicesPtr inliers(new pcl::PointIndices());
-      if(clusters[i].points.has())
+      if (clusters[i].points.has())
       {
         rs::conversion::from(((rs::ReferenceClusterPoints)clusters[i].points()).indices(), *inliers);
-        for(unsigned int idx = 0; idx < inliers->indices.size(); ++idx)
+        for (unsigned int idx = 0; idx < inliers->indices.size(); ++idx)
         {
           dispCloud->points[inliers->indices[idx]].rgba = rs::common::colors[colorIdx % rs::common::numberOfColors];
           dispCloud->points[inliers->indices[idx]].a = 255;
@@ -568,7 +564,7 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
 
   tf::StampedTransform camToWorld;
   camToWorld.setIdentity();
-  if(scene.viewPoint.has())
+  if (scene.viewPoint.has())
   {
     rs::conversion::from(scene.viewPoint.get(), camToWorld);
   }
@@ -587,23 +583,23 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
   vg.filter(*dsCloud);
 
   pcl::copyPointCloud(*dsCloud, *cloud);
-  cloud->header.frame_id = camToWorld.child_frame_id_;
+  cloud->header.frame_id = camToWorld.frame_id_;
   return true;
 }
 
-template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,
-    const std::vector<std::string> &resultDesignators,
-    std::string &requestJson, cv::Mat &resImage);
+template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool>& filter,
+                                                               const std::vector<std::string>& resultDesignators,
+                                                               std::string& requestJson, cv::Mat& resImage);
 
 template bool RSProcessManager::drawResultsOnImage<rs::ObjectHypothesis>(
-  const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators, std::string &requestJson,
-  cv::Mat &resImage);
+    const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators, std::string& requestJson,
+    cv::Mat& resImage);
 
-template bool RSProcessManager::highlightResultsInCloud<rs::Object>(const std::vector<bool> &filter,
-    const std::vector<std::string> &resultDesignators,
-    std::string &requestJson,
-    pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
+template bool RSProcessManager::highlightResultsInCloud<rs::Object>(const std::vector<bool>& filter,
+                                                                    const std::vector<std::string>& resultDesignators,
+                                                                    std::string& requestJson,
+                                                                    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud);
 
 template bool RSProcessManager::highlightResultsInCloud<rs::ObjectHypothesis>(
-  const std::vector<bool> &filter, const std::vector<std::string> &resultDesignators, std::string &requestJson,
-  pcl::PointCloud<pcl::PointXYZRGB>::Ptr &cloud);
+    const std::vector<bool>& filter, const std::vector<std::string>& resultDesignators, std::string& requestJson,
+    pcl::PointCloud<pcl::PointXYZRGB>::Ptr& cloud);

@@ -1,6 +1,7 @@
 project(rs_io)
 
 add_library(rs_io SHARED
+  src/CamInterface.cpp
   src/ROSCamInterface.cpp
   src/ROSKinectBridge.cpp
   src/ROSRealSenseBridge.cpp
@@ -11,6 +12,7 @@ add_library(rs_io SHARED
   src/UnrealROSIntegrationVisionBridge.cpp
   src/DataLoaderBridge.cpp
   src/MongoDBBridge.cpp
+  src/TFListenerProxy.cpp
   src/Storage.cpp
   src/visualizer.cpp
 )

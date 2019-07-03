@@ -26,22 +26,43 @@
 // Boost
 #include <boost/property_tree/ptree.hpp>
 
+// RS
+#include <rs/utils/output.h>
+#include <rs/scene_cas.h>
+
 class CamInterface
 {
 protected:
   bool _newData;
 
-  CamInterface(const boost::property_tree::ptree &pt) : _newData(false) {}
+  int cam_id_;
+  static int id;
+
+  CamInterface(const boost::property_tree::ptree& pt) : _newData(false)
+  {
+    cam_id_ = id++;
+    outInfo("New Camera ID: " FG_BLUE << cam_id_);
+    rs::SceneCas::cam_ids_.push_back(cam_id_);
+  }
 
 public:
-  virtual ~CamInterface() {}
+  virtual ~CamInterface()
+  {
+    std::vector<int>::iterator it = std::find(rs::SceneCas::cam_ids_.begin(), rs::SceneCas::cam_ids_.end(), cam_id_);
+    if (it != rs::SceneCas::cam_ids_.end())
+      rs::SceneCas::cam_ids_.erase(it);
+  }
 
   bool newData() const
   {
     return _newData;
   }
 
-  virtual bool setData(uima::CAS &tcas, uint64_t ts = 0) = 0;
-};
+  static void resetIdCount()
+  {
+    id = 0;
+  }
 
-#endif // __CAM_INTERFACE_H__
+  virtual bool setData(uima::CAS& tcas, uint64_t ts = 0) = 0;
+};
+#endif  // __CAM_INTERFACE_H__

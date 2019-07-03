@@ -43,7 +43,7 @@
 /**
  * TypeTrait allows to access the name of a type as string at runtime.
  */
-template<class T>
+template <class T>
 struct TypeTrait
 {
   /* this will cause compile errors for types without TypeTrait specialization
@@ -60,26 +60,25 @@ struct TypeTrait
 /**
  * Macro to define a TypeTrait specialization for a type.
  */
-#define TYPE_TRAIT(TYPE,NAME) \
-  template<> \
-  struct TypeTrait<TYPE > \
-  { \
-    static const char* name() \
-    { \
-      static const char* value = NAME; \
-      \
-      return value; \
-    } \
+#define TYPE_TRAIT(TYPE, NAME)                                                                                         \
+  template <>                                                                                                          \
+  struct TypeTrait<TYPE>                                                                                               \
+  {                                                                                                                    \
+    static const char* name()                                                                                          \
+    {                                                                                                                  \
+      static const char* value = NAME;                                                                                 \
+                                                                                                                       \
+      return value;                                                                                                    \
+    }                                                                                                                  \
   };
 
 namespace rs
 {
-
 /**
  * Gets the uima::Type for the type T from the typesystem of the given uima::CAS.
  */
-template<typename T>
-uima::Type type(uima::CAS &cas)
+template <typename T>
+uima::Type type(uima::CAS& cas)
 {
   return cas.getTypeSystem().getType(TypeTrait<T>::name());
 }
@@ -88,8 +87,8 @@ uima::Type type(uima::CAS &cas)
  * Creates a new instance of T passing a newly created uima::FeatureStructure to the ctor.
  * The type of the uima::FeatureStructure is determined by a call to rs::type<T>(cas).
  */
-template<typename T>
-T create(uima::CAS &cas)
+template <typename T>
+T create(uima::CAS& cas)
 {
   return T(cas.createFS(type<T>(cas)));
 }
@@ -102,13 +101,13 @@ T create(uima::CAS &cas)
  */
 class FeatureStructureProxy
 {
-  template<typename T>
+  template <typename T>
   friend class FeatureStructureEntry;
-  template<typename T>
+  template <typename T>
   friend class ComplexFeatureStructureEntry;
-  template<typename T, typename TAllocator>
+  template <typename T, typename TAllocator>
   friend class ArrayFeatureStructureEntry;
-  template<typename T, typename TAllocator>
+  template <typename T, typename TAllocator>
   friend class ListFeatureStructureEntry;
 
 private:
@@ -116,19 +115,17 @@ private:
   uima::FeatureStructure fs_;
 
 protected:
-
   FeatureStructureProxy()
   {
-
   }
 
-  template<typename T>
+  template <typename T>
   T create()
   {
     return rs::create<T>(this->fs_.getCAS());
   }
 
-  template<typename T>
+  template <typename T>
   uima::Type gettype()
   {
     return rs::type<T>(fs_.getCAS());
@@ -141,7 +138,7 @@ public:
     fs_ = fs;
   }
 
-  FeatureStructureProxy(const FeatureStructureProxy &other)
+  FeatureStructureProxy(const FeatureStructureProxy& other)
   {
     type_ = other.type_;
     fs_ = other.fs_;
@@ -157,12 +154,12 @@ public:
     return fs_;
   }
 
-  operator uima::FeatureStructure &()
+  operator uima::FeatureStructure&()
   {
     return fs_;
   }
 
-  operator const uima::FeatureStructure &() const
+  operator const uima::FeatureStructure&() const
   {
     return fs_;
   }
@@ -172,14 +169,14 @@ public:
  * FeatureStructureEntry allows easy access to the value of a UIMA feature having a
  * primitive type. It uses rs::util::Accessor.
  */
-template<typename T>
+template <typename T>
 class FeatureStructureEntry
 {
 protected:
   uima::Feature feature_;
-  FeatureStructureProxy *parent_;
+  FeatureStructureProxy* parent_;
 
-  uima::FeatureStructure &fs() const
+  uima::FeatureStructure& fs() const
   {
     return parent_->fs_;
   }
@@ -189,15 +186,16 @@ public:
   {
   }
 
-  void init(FeatureStructureProxy *parent, const char *name)
+  void init(FeatureStructureProxy* parent, const char* name)
   {
     parent_ = parent;
     feature_ = parent->type_.getFeatureByBaseName(name);
-    if(!feature_.isValid())
+    if (!feature_.isValid())
     {
-      outError("Error: invalid feature when initializing! check your typesystem.xml file!" << std::endl
+      outError("Error: invalid feature when initializing! check your typesystem.xml file!"
+               << std::endl
                << "       feature name: " << name);
-      if(parent_->fs_.isValid())
+      if (parent_->fs_.isValid())
       {
         outError("       parent  type name: " << parent_->type_.getName());
       }
@@ -213,7 +211,7 @@ public:
     return accessor::Accessor<T>::get(this->fs(), feature_);
   }
 
-  virtual void set(const T &value)
+  virtual void set(const T& value)
   {
     accessor::Accessor<T>::set(this->fs(), feature_, value);
   }
@@ -223,7 +221,7 @@ public:
     return get();
   }
 
-  void operator()(const T &value)
+  void operator()(const T& value)
   {
     set(value);
   }
@@ -233,7 +231,7 @@ public:
  * ComplexFeatureStructureEntry allows easy access to the value of a UIMA feature having an
  * other UIMA type. T has to be a subclass of FeatureStructureProxy.
  */
-template<typename T>
+template <typename T>
 class ComplexFeatureStructureEntry : public FeatureStructureEntry<T>
 {
 private:
@@ -241,6 +239,7 @@ private:
   {
     return this->fs().getFSValue(this->feature_);
   }
+
 public:
   virtual ~ComplexFeatureStructureEntry()
   {
@@ -277,13 +276,13 @@ public:
   /**
    * gets the value, if it is 'null' it is allocated
    */
-  //template <class TT>
+  // template <class TT>
   T get()
   {
     uima::FeatureStructure fs = _get();
 
     // invalid child
-    if(!fs.isValid())
+    if (!fs.isValid())
     {
       T result = create<T>(fs.getCAS());
       set(result);
@@ -296,7 +295,7 @@ public:
     }
   }
 
-  virtual void set(const T &value)
+  virtual void set(const T& value)
   {
     this->fs().setFSValue(this->feature_, (uima::FeatureStructure)value);
   }
@@ -307,8 +306,8 @@ public:
  * array type. The element type of the array can be any type (primitive, subclass of FeatureStructureProxy, ...).
  * It uses the rs::util::ArrayFSHelper* classes.
  */
-template<typename T, typename TAllocator = std::allocator<T> >
-class ArrayFeatureStructureEntry : public FeatureStructureEntry<std::vector<T, TAllocator> >
+template <typename T, typename TAllocator = std::allocator<T>>
+class ArrayFeatureStructureEntry : public FeatureStructureEntry<std::vector<T, TAllocator>>
 {
 private:
   typedef accessor::ArrayFSTrait<T> trait;
@@ -325,6 +324,7 @@ private:
   {
     return h1.create(this->fs(), size);
   }
+
 public:
   ArrayFeatureStructureEntry()
   {
@@ -334,7 +334,7 @@ public:
   {
   }
 
-  virtual ArrayFeatureStructureEntry<T, TAllocator> &allocate(size_t size)
+  virtual ArrayFeatureStructureEntry<T, TAllocator>& allocate(size_t size)
   {
     this->fs().setFSValue(this->feature_, _create(size * trait::Factor));
 
@@ -366,10 +366,9 @@ public:
     return h2.get(_get(), idx);
   }
 
-  virtual void set(const std::vector<T, TAllocator> &value)
+  virtual void set(const std::vector<T, TAllocator>& value)
   {
-
-    if(!has() || size() < value.size())
+    if (!has() || size() < value.size())
     {
       allocate(value.size());
     }
@@ -377,28 +376,28 @@ public:
     h2.set(_get(), value);
   }
 
-  virtual void set(size_t idx, const T &value)
+  virtual void set(size_t idx, const T& value)
   {
     h2.set(_get(), idx, value);
   }
 
-  template<typename TargetT>
-  bool filter(std::vector<TargetT> &result)
+  template <typename TargetT>
+  bool filter(std::vector<TargetT>& result)
   {
     bool success = false;
 
-    if(has())
+    if (has())
     {
       typename trait::ArrayFSType arrayfs = _get();
       result.reserve(arrayfs.size());
 
       uima::Type type = rs::type<TargetT>(this->fs().getCAS());
 
-      for(size_t idx = 0; idx < arrayfs.size(); ++idx)
+      for (size_t idx = 0; idx < arrayfs.size(); ++idx)
       {
         uima::FeatureStructure fs = arrayfs.get(idx);
 
-        if(fs.getType() == type)
+        if (fs.getType() == type)
         {
           success = true;
           TargetT elem(fs);
@@ -420,37 +419,44 @@ public:
    *    Explanation:
    *
    *    1.  std::vectorrs::ObjectHypothesis class_clust;
-   *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
+   *        This is the vector containing all the clusters that are found in the containing list that have the specified
+   * kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the
+   * functionality of the function it has to be a type that can contain annotations - otherwise nothing will be
+   * returned.
    *
    *    2.  std::vector<std::vector<rs::Classification>> class_anno;
-   *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors since every cluster can have multiple annotations of the same type. The vector of annotations at index 0 corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be anything, but in order to get a result they have to be some type of annotations.
+   *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors
+   * since every cluster can have multiple annotations of the same type. The vector of annotations at index 0
+   * corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be
+   * anything, but in order to get a result they have to be some type of annotations.
    *
    *    3.  scene.identifiables.filter(class_clust, class_anno);
-   *        This is the call, filtering out all of the clusters containing annotations of type Classification and the annotations they have from the list scene.identifiables
+   *        This is the call, filtering out all of the clusters containing annotations of type Classification and the
+   * annotations they have from the list scene.identifiables
    */
-  template<typename TargetT, typename AnnotT>
-  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots)
+  template <typename TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT>& result, std::vector<std::vector<AnnotT>>& annots)
   {
     bool success = false;
 
-    if(has())
+    if (has())
     {
       typename trait::ArrayFSType arrayfs = _get();
       result.reserve(arrayfs.size());
 
       uima::Type type = rs::type<TargetT>(this->fs().getCAS());
 
-      for(size_t idx = 0; idx < arrayfs.size(); ++idx)
+      for (size_t idx = 0; idx < arrayfs.size(); ++idx)
       {
         uima::FeatureStructure fs = arrayfs.get(idx);
 
-        if(fs.getType() == type)
+        if (fs.getType() == type)
         {
           std::vector<AnnotT> clustannots;
           TargetT cluster(fs);
           cluster.annotations.filter(clustannots);
 
-          if(clustannots.size() > 0)
+          if (clustannots.size() > 0)
           {
             success = true;
             result.push_back(cluster);
@@ -464,17 +470,17 @@ public:
   }
 };
 
-template<typename T, typename TAllocator>
+template <typename T, typename TAllocator>
 accessor::ArrayFSHelper1<T> ArrayFeatureStructureEntry<T, TAllocator>::h1;
 
-template<typename T, typename TAllocator>
-accessor::ArrayFSHelper2<T, TAllocator, ArrayFeatureStructureEntry<T, TAllocator>::trait::Optimize> ArrayFeatureStructureEntry <
-T, TAllocator >::h2;
+template <typename T, typename TAllocator>
+accessor::ArrayFSHelper2<T, TAllocator, ArrayFeatureStructureEntry<T, TAllocator>::trait::Optimize>
+    ArrayFeatureStructureEntry<T, TAllocator>::h2;
 
 /**
  * Implementation for ListFSTrait specializations
  */
-template<typename ListT, typename ListElementT>
+template <typename ListT, typename ListElementT>
 struct ListFSTraitImpl
 {
   /**
@@ -492,7 +498,7 @@ struct ListFSTraitImpl
  * ListFSTrait provides information about the uima::BasicListFS subclass, which can store
  * elements of type T.
  */
-template<typename T>
+template <typename T>
 struct ListFSTrait : public ListFSTraitImpl<uima::ListFS, uima::FeatureStructure>
 {
 };
@@ -501,17 +507,17 @@ struct ListFSTrait : public ListFSTraitImpl<uima::ListFS, uima::FeatureStructure
  * ListFSTrait specializations for int, float and std::string
  */
 
-template<>
+template <>
 struct ListFSTrait<int> : public ListFSTraitImpl<uima::IntListFS, int>
 {
 };
 
-template<>
+template <>
 struct ListFSTrait<float> : public ListFSTraitImpl<uima::FloatListFS, float>
 {
 };
 
-template<>
+template <>
 struct ListFSTrait<std::string> : public ListFSTraitImpl<uima::StringListFS, uima::UnicodeStringRef>
 {
 };
@@ -519,21 +525,20 @@ struct ListFSTrait<std::string> : public ListFSTraitImpl<uima::StringListFS, uim
 /**
  * std::iterator implementation for uima::*ListFS.
  */
-template<typename T>
+template <typename T>
 class ListFSIterator : std::iterator<std::input_iterator_tag, T>
 {
 private:
   typedef ListFSTrait<T> list_trait;
 
   typename list_trait::ListType list_;
+
 public:
-  ListFSIterator(typename list_trait::ListType list) :
-    list_(list)
+  ListFSIterator(typename list_trait::ListType list) : list_(list)
   {
   }
 
-  ListFSIterator(const ListFSIterator<T> &other) :
-    list_(other.list_)
+  ListFSIterator(const ListFSIterator<T>& other) : list_(other.list_)
   {
   }
 
@@ -541,33 +546,33 @@ public:
   ListFSIterator<T> operator++(int)
   {
     ListFSIterator<T> tmp(*this);
-    operator ++();
+    operator++();
     return tmp;
   }
 
   // prefix, e.g. ++it
-  ListFSIterator<T> &operator++()
+  ListFSIterator<T>& operator++()
   {
     list_ = list_.getTail();
     return *this;
   }
 
-  bool operator==(const ListFSIterator<T> &other)
+  bool operator==(const ListFSIterator<T>& other)
   {
     return
-      // ensures both lists are at the same position (this is the standard case)
-      (this->list_ == other.list_) ||
-      // if we are invalid or empty or other is invalid or empty, we consider us equal
-      (
-        // we are invalid or empty
-        (!this->list_.isValid() || this->list_.isEmpty()) &&
-        // other is invalid or empty
-        (!other.list_.isValid() || other.list_.isEmpty()));
+        // ensures both lists are at the same position (this is the standard case)
+        (this->list_ == other.list_) ||
+        // if we are invalid or empty or other is invalid or empty, we consider us equal
+        (
+            // we are invalid or empty
+            (!this->list_.isValid() || this->list_.isEmpty()) &&
+            // other is invalid or empty
+            (!other.list_.isValid() || other.list_.isEmpty()));
   }
 
-  bool operator!=(const ListFSIterator<T> &other)
+  bool operator!=(const ListFSIterator<T>& other)
   {
-    return !(this->operator ==(other));
+    return !(this->operator==(other));
   }
 
   T operator*()
@@ -581,8 +586,8 @@ public:
  * list type. The list element type has to be a int, float, string or a subclass of
  * FeatureStructureProxy or uima::FeatureStructure.
  */
-template<typename T, typename TAllocator = std::allocator<T> >
-class ListFeatureStructureEntry : public FeatureStructureEntry<std::vector<T, TAllocator> >
+template <typename T, typename TAllocator = std::allocator<T>>
+class ListFeatureStructureEntry : public FeatureStructureEntry<std::vector<T, TAllocator>>
 {
 private:
   typedef ListFSTrait<T> trait;
@@ -596,6 +601,7 @@ private:
   {
     this->fs().setFSValue(this->feature_, list);
   }
+
 public:
   typedef ListFSIterator<T> iterator;
 
@@ -614,7 +620,7 @@ public:
   {
     std::vector<T> l;
 
-    for(iterator it = begin(); it != end(); it++)
+    for (iterator it = begin(); it != end(); it++)
     {
       l.push_back(*it);
     }
@@ -622,12 +628,12 @@ public:
     return l;
   }
 
-  virtual void set(const std::vector<T> &value)
+  virtual void set(const std::vector<T>& value)
   {
     // create new empty list
     allocate();
 
-    for(typename std::vector<T>::const_iterator it = value.begin(); it != value.end(); ++it)
+    for (typename std::vector<T>::const_iterator it = value.begin(); it != value.end(); ++it)
     {
       append(*it);
     }
@@ -653,10 +659,10 @@ public:
     return _get().getLength();
   }
 
-  void append(const T &value)
+  void append(const T& value)
   {
     // workaround weird UIMA behavior :(
-    if(empty())
+    if (empty())
     {
       _set(_get().addLast(accessor::convert<T, typename trait::ListElementType>(value)));
     }
@@ -666,42 +672,44 @@ public:
     }
   }
 
-  void append(std::vector<T> &values)
+  void append(std::vector<T>& values)
   {
-    for(int i = 0; i < values.size(); ++i)
+    for (int i = 0; i < values.size(); ++i)
     {
       append(values[i]);
     }
   }
 
-  void prepend(const T &value)
+  void prepend(const T& value)
   {
     // workaround weird UIMA behavior :(
     _set(_get().addFirst(accessor::convert<T, typename trait::ListElementType>(value)));
   }
 
-  void remove(const T &value)
+  void remove(const T& value)
   {
     // TODO: check if this behaves as stupid as append(...)
     _get().removeElement(accessor::convert<T, typename trait::ListElementType>(value));
   }
 
-  template<typename TargetT>
-  bool filter(std::vector<TargetT> &result)
+  template <typename TargetT>
+  bool filter(std::vector<TargetT>& result)
   {
     bool success = false;
 
-    if(!empty())
+    if (!empty())
     {
       typename trait::ListType listfs = _get();
 
       uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+      std::vector<uima::Type> subTypes;
+      type.getDirectSubTypes(subTypes);
 
-      while(!listfs.isEmpty())
+      while (!listfs.isEmpty())
       {
         uima::FeatureStructure fs = listfs.getHead();
 
-        if(fs.getType() == type)
+        if (fs.getType() == type || std::find(subTypes.begin(), subTypes.end(),fs.getType())!=subTypes.end())
         {
           success = true;
           TargetT elem(fs);
@@ -725,36 +733,43 @@ public:
    *    Explanation:
    *
    *    1.  std::vectorrs::ObjectHypothesis class_clust;
-   *        This is the vector containing all the clusters that are found in the containing list that have the specified kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the functionality of the function it has to be a type that can contain annotations - otherwise nothing will be returned.
+   *        This is the vector containing all the clusters that are found in the containing list that have the specified
+   * kind of annotation. Generally the type used for the result vector can be of any kind, but in order to use the
+   * functionality of the function it has to be a type that can contain annotations - otherwise nothing will be
+   * returned.
    *
    *    2.  std::vector<std::vector<rs::Classification>> class_anno;
-   *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors since every cluster can have multiple annotations of the same type. The vector of annotations at index 0 corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be anything, but in order to get a result they have to be some type of annotations.
+   *        This is the vector of vectors for all the annotations of the clusters. It has to be a vector of vectors
+   * since every cluster can have multiple annotations of the same type. The vector of annotations at index 0
+   * corresponds to the cluster at index 0 and so on. As with the clusters above, the type of the vectors can be
+   * anything, but in order to get a result they have to be some type of annotations.
    *
    *    3.  scene.identifiables.filter(class_clust, class_anno);
-   *        This is the call, filtering out all of the clusters containing annotations of type Classification and the annotations they have from the list scene.identifiables
+   *        This is the call, filtering out all of the clusters containing annotations of type Classification and the
+   * annotations they have from the list scene.identifiables
    */
-  template<typename TargetT, typename AnnotT>
-  bool filter(std::vector<TargetT> &result, std::vector<std::vector<AnnotT>> &annots)
+  template <typename TargetT, typename AnnotT>
+  bool filter(std::vector<TargetT>& result, std::vector<std::vector<AnnotT>>& annots)
   {
     bool success = false;
 
-    if(!empty())
+    if (!empty())
     {
       typename trait::ListType listfs = _get();
 
       uima::Type type = rs::type<TargetT>(this->fs().getCAS());
 
-      while(!listfs.isEmpty())
+      while (!listfs.isEmpty())
       {
         uima::FeatureStructure fs = listfs.getHead();
 
-        if(fs.getType() == type)
+        if (fs.getType() == type)
         {
           std::vector<AnnotT> clustannots;
           TargetT cluster(fs);
           cluster.annotations.filter(clustannots);
 
-          if(clustannots.size() > 0)
+          if (clustannots.size() > 0)
           {
             success = true;
             result.push_back(cluster);
@@ -769,22 +784,22 @@ public:
     return success;
   }
 
-  template<typename TargetT>
-  bool getFirst(TargetT &result)
+  template <typename TargetT>
+  bool getFirst(TargetT& result)
   {
     bool success = false;
 
-    if(!empty())
+    if (!empty())
     {
       typename trait::ListType listfs = _get();
 
       uima::Type type = rs::type<TargetT>(this->fs().getCAS());
 
-      while(!listfs.isEmpty())
+      while (!listfs.isEmpty())
       {
         uima::FeatureStructure fs = listfs.getHead();
 
-        if(fs.getType() == type)
+        if (fs.getType() == type)
         {
           success = true;
           result = fs;
@@ -796,7 +811,6 @@ public:
 
     return success;
   }
-
 };
 
 /**
@@ -804,22 +818,22 @@ public:
  * list type. The list element type has to be a int, float, string or a subclass of
  * FeatureStructureProxy or uima::FeatureStructure.
  */
-template<>
-class ListFeatureStructureEntry<std::string, std::allocator<std::string> > : public FeatureStructureEntry<std::vector<std::string> >
+template <>
+class ListFeatureStructureEntry<std::string, std::allocator<std::string>>
+  : public FeatureStructureEntry<std::vector<std::string>>
 {
 private:
-
   uima::StringListFS _get(void) const
   {
     uima::StringListFS list = this->fs().getStringListFSValue(this->feature_);
-    if(!list.isValid())
+    if (!list.isValid())
     {
       list = this->fs().getCAS().createStringListFS();
     }
     return list;
   }
 
-  void _set(const uima::StringListFS &list) const
+  void _set(const uima::StringListFS& list) const
   {
     this->fs().setFSValue(this->feature_, list);
   }
@@ -841,7 +855,7 @@ public:
   {
     std::vector<std::string> l;
 
-    for(iterator it = begin(); it != end(); it++)
+    for (iterator it = begin(); it != end(); it++)
     {
       l.push_back(*it);
     }
@@ -849,7 +863,7 @@ public:
     return l;
   }
 
-  virtual void set(const std::vector<std::string> &value)
+  virtual void set(const std::vector<std::string>& value)
   {
     _set(this->fs().getCAS().createStringListFS());
     append(value);
@@ -875,7 +889,7 @@ public:
     return _get().getLength();
   }
 
-  void append(const std::string &value)
+  void append(const std::string& value)
   {
     uima::StringListFS list = _get();
 
@@ -884,10 +898,10 @@ public:
     _set(list);
   }
 
-  void append(const std::vector<std::string> &value)
+  void append(const std::vector<std::string>& value)
   {
     uima::StringListFS list = _get();
-    for(int i = 0; i < value.size(); ++i)
+    for (int i = 0; i < value.size(); ++i)
     {
       UnicodeString ustr = UnicodeString::fromUTF8(value[i]);
       list.addLast(ustr);
@@ -895,7 +909,7 @@ public:
     _set(list);
   }
 
-  void prepend(const std::string &value)
+  void prepend(const std::string& value)
   {
     uima::StringListFS list = _get();
     UnicodeString ustr = UnicodeString::fromUTF8(value);
@@ -903,7 +917,7 @@ public:
     _set(list);
   }
 
-  void remove(const std::string &value)
+  void remove(const std::string& value)
   {
     uima::StringListFS list = _get();
     UnicodeString ustr = UnicodeString::fromUTF8(value);
@@ -911,14 +925,14 @@ public:
     _set(list);
   }
 
-  template<typename TargetT>
-  bool filter(std::vector<TargetT> &result)
+  template <typename TargetT>
+  bool filter(std::vector<TargetT>& result)
   {
     outError("filter is not implemented for StringListFS! Filtering different types seems to be useless.");
     return false;
   }
 };
-}
+}  // namespace rs
 
 TYPE_TRAIT(rs::FeatureStructureProxy, "uima.cas.TOP")
 

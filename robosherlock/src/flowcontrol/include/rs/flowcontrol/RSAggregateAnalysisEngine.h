@@ -190,10 +190,15 @@ public:
 
   /**
    * @brief setParallel
-   * @param[in] f flag for parallel execution or not
+   * @param[in] f flag for parallel execution or not; if set to true initialize the pipeline planner
    */
   inline void setParallel(bool f)
   {
+    if(f)
+    {
+      initParallelPipelineManager();
+      parallelPlanner.print();
+    }
     parallel_ = f;
   }
 
@@ -205,26 +210,28 @@ public:
     delegate_annotators_ = this->iv_annotatorMgr.iv_vecEntries;
   }
 
+  /**
+   * @brief setUseIdentityResolutio set true if you want identity resolution
+   * to be asserted at the end of every flow
+   * @param useIDres
+   */
   void setUseIdentityResolution(const bool useIDres)
   {
     use_identity_resolution_ = useIDres;
   }
 
+  /**
+   * @brief getAAEName
+   * @return return the name of the AAE
+   */
   std::string getAAEName()
   {
     return name_;
   }
 
-  /*set the next order of AEs to be executed*/
   /**
-   * @brief setNextPipeline
-   * @param l
+   * @brief resetCas reset the CAS deleting everything stored in it;
    */
-  void setNextPipeline(std::vector<std::string> next_pipeline_order)
-  {
-    this->next_pipeline_order = next_pipeline_order;
-  }
-
   inline void resetCas()
   {
     cas_->reset();
@@ -237,50 +244,77 @@ public:
     currentOrderingIndices = orderingIndices;
   }
 
+
+  /**
+   * @brief getCas
+   * @return  returns a pointer to the CAS;
+   */
   uima::CAS *getCas()
   {
     return cas_;
   }
 
-  inline bool isInDelegateList(std::string d)
+  /**
+   * @brief isInDelegateList
+   * @param delegate_name name of the delegate AE as defined in the meta file
+   * @return true if found
+   */
+  inline bool isInDelegateList(std::string delegate_name)
   {
-    if(std::find(delegates_.begin(), delegates_.end(), d) != std::end(delegates_))
+    if(std::find(delegates_.begin(), delegates_.end(), delegate_name) != std::end(delegates_))
       return true;
     else
       return false;
   }
 
+  /**
+   * @brief overwriteParam overwrite a parameter defined in the descriptor of an AE.
+   * @param ae_name The name of the ae
+   * @param param_name name of the parameter
+   * @param param the new value for the parameter
+   */
   template < class T >
-  void overwriteParam(const std::string &annotName, const std::string &paramName, T const &param)
+  void overwriteParam(const std::string &ae_name, const std::string &param_name, T const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(annotName.c_str());
+    UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
+    cr_context->assignValue(UnicodeString(param_name.c_str()), param);
   }
 
+  /**
+   * @brief overwriteParam overwrite an array parameter defined in the descriptor of an AE.
+   * @param ae_name The name of the ae
+   * @param param_name name of the parameter
+   * @param param the new value for the parameter
+   */
   template < class T >
-  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<T> &param)
+  void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<T> &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(annotName.c_str());
+    UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()), param);
+    cr_context->assignValue(UnicodeString(param_name.c_str()), param);
   }
 
-  //Ease case for the user
-  void overwriteParam(const std::string &annotName, const std::string &paramName, std::string const &param)
+  /**
+   * @brief overwriteParam specific case for strings because of uima working with UnicodeStrings
+   * @param ae_ame
+   * @param param_name
+   * @param param
+   */
+  void overwriteParam(const std::string &ae_name, const std::string &param_name, std::string const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(annotName.c_str());
+    UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()), (UnicodeString) param.c_str());
+    cr_context->assignValue(UnicodeString(param_name.c_str()), (UnicodeString) param.c_str());
   }
 
-  void overwriteParam(const std::string &annotName, const std::string &paramName, const std::vector<std::string> &param)
+  void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<std::string> &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(annotName.c_str());
+    UnicodeString ucs_delegate(ae_name.c_str());
     //Convert the std::string vector into UnicodeString and then overwrite with that variable
     std::vector<UnicodeString> conversionString;
     for(std::string i : param)
@@ -288,7 +322,7 @@ public:
       conversionString.push_back(UnicodeString(i.c_str()));
     }
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(paramName.c_str()), conversionString);
+    cr_context->assignValue(UnicodeString(param_name.c_str()), conversionString);
   }
 
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
@@ -313,7 +347,7 @@ private:
   //store different AE orders
   std::vector<std::string> default_pipeline_annotators_;
   std::vector<std::string> delegates_;
-  std::vector<std::string> next_pipeline_order;
+
 
   uima::internal::AnnotatorManager::TyAnnotatorEntries delegate_annotators_;
 
@@ -334,8 +368,7 @@ namespace rs
 
 std::string convertAnnotatorYamlToXML(std::string annotatorName, std::map<std::string, rs::AnnotatorCapabilities> &delegate_capabilities);
 
-RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &file, bool parallel = false,
-    bool pervasive = false, std::vector<std::string> contPipeline = {});
+RSAggregateAnalysisEngine *createRSAggregateAnalysisEngine(const std::string &file, bool parallel = false);
 
 //RSAggregateAnalysisEngine *createParallelAnalysisEngine(icu::UnicodeString const &aeFile,
 //    uima::ErrorInfo errInfo);

@@ -6,6 +6,6 @@ parameters:
   host: localhost
   storagedb: Scenes
   enableViews: ['color_image_hd', 'depth_image_hd', 'camera_info', 'camera_info_hd', 'scene']
-  clearStorageOnStart: false
+  clearStorageOnStart: true 
   newUniqueDB: false
 capabilities:

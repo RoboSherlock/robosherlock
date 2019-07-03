@@ -38,36 +38,42 @@ using namespace rs;
 /******************************************************************************
  * Defines
  *****************************************************************************/
-#define DB_CAS      "cas"
-#define DB_SCRIPTS  "system.js"
+#define DB_CAS "cas"
+#define DB_SCRIPTS "system.js"
 #define DB_CAS_TIME "_timestamp"
-#define SCRIPT_EXT  ".js"
+#define SCRIPT_EXT ".js"
 
 /******************************************************************************
  * Storage
  *****************************************************************************/
 
-Storage::Storage() : dbHost(DB_HOST), dbName(DB_NAME), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS), first(true)
+Storage::Storage()
+  : dbHost(DB_HOST)
+  , dbName(DB_NAME)
+  , dbBase(dbName + ".")
+  , dbCAS(dbBase + DB_CAS)
+  , dbScripts(dbBase + DB_SCRIPTS)
+  , first(true)
 {
 }
 
-Storage::Storage(const Storage &other)
+Storage::Storage(const Storage& other)
 {
-  this->operator =(other);
+  this->operator=(other);
 }
 
-Storage::Storage(const std::string &dbHost, const std::string &dbName, const bool clear, const bool setupScripts) : dbHost(dbHost), dbName(dbName), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS)
+Storage::Storage(const std::string& dbHost, const std::string& dbName, const bool clear, const bool setupScripts)
+  : dbHost(dbHost), dbName(dbName), dbBase(dbName + "."), dbCAS(dbBase + DB_CAS), dbScripts(dbBase + DB_SCRIPTS)
 {
-
   db.connect(dbHost);
 
-  if(clear)
+  if (clear)
   {
     std::list<std::string> names = db.getCollectionNames(dbName);
     std::list<std::string>::const_iterator it = names.begin(), end = names.end();
-    for(; it != end; ++it)
+    for (; it != end; ++it)
     {
-      if(it->find(dbBase + "system") != 0)
+      if (it->find(dbBase + "system") != 0)
       {
         outDebug("removing collection '" << *it << "' from mongoDB...");
         db.dropCollection(dbBase + *it);
@@ -80,7 +86,7 @@ Storage::~Storage()
 {
 }
 
-Storage &Storage::operator=(const Storage &other)
+Storage& Storage::operator=(const Storage& other)
 {
   dbHost = other.dbHost;
   dbName = other.dbName;
@@ -93,14 +99,15 @@ Storage &Storage::operator=(const Storage &other)
   return *this;
 }
 
-bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCAS, const mongo::OID &casOID, const std::string &sofaId, const std::string &dbCollection)
+bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder& builderCAS, const mongo::OID& casOID,
+                          const std::string& sofaId, const std::string& dbCollection)
 {
   uima::ArrayFS array;
   try
   {
     array = uima::ArrayFS(fs);
   }
-  catch(...)
+  catch (...)
   {
     return false;
   }
@@ -108,7 +115,7 @@ bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &buil
   std::vector<mongo::BSONObj> objects(array.size());
   std::vector<mongo::OID> objectIds(array.size());
 
-  for(size_t i = 0; i < array.size(); ++i)
+  for (size_t i = 0; i < array.size(); ++i)
   {
     mongo::BSONObj object = rs::conversion::fromFeatureStructure(array.get(i), casOID);
     objects[i] = object;
@@ -124,16 +131,17 @@ bool Storage::readArrayFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &buil
   return true;
 }
 
-bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCAS, const mongo::OID &casOID, const std::string &sofaId, const std::string &dbCollection)
+bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder& builderCAS, const mongo::OID& casOID,
+                     const std::string& sofaId, const std::string& dbCollection)
 {
   mongo::BSONObj object = rs::conversion::fromFeatureStructure(fs, casOID);
 
-  if(first)
+  if (first)
   {
     mongo::BSONElement elem;
     object.getObjectID(elem);
     builderCAS.append(sofaId, elem.OID());
-    if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
+    if (sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
     {
       camInfoOIDs[sofaId] = elem.OID();
     }
@@ -142,7 +150,7 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
     return true;
   }
 
-  if(sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
+  if (sofaId.compare(0, std::string("camera_info").length(), "camera_info") == 0)
   {
     builderCAS.append(sofaId, camInfoOIDs[sofaId]);
   }
@@ -158,16 +166,20 @@ bool Storage::readFS(uima::FeatureStructure fs, mongo::BSONObjBuilder &builderCA
   return true;
 }
 
-void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
+void Storage::loadView(uima::CAS& cas, const mongo::BSONElement& elem)
 {
-  const std::string &viewName = elem.fieldName();
-  uima::CAS *view = nullptr;
+  std::string field_name = elem.fieldName();
+  std::string viewName = field_name;
+  if (viewName.find(".") == std::string::npos)
+    viewName = "cam0." + viewName;
+
+  uima::CAS* view = nullptr;
   try
   {
     outDebug("try to get view " << viewName);
     view = cas.getView(UnicodeString::fromUTF8(viewName));
   }
-  catch(...)
+  catch (...)
   {
     outDebug("create view " << viewName);
     view = cas.createView(UnicodeString::fromUTF8(viewName));
@@ -175,15 +187,15 @@ void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
 
   outDebug("getting referenced object...");
   uima::FeatureStructure fs;
-  if(elem.isSimpleType())
+  if (elem.isSimpleType())
   {
-    fs = loadFS(view, viewName, elem.OID());
+    fs = loadFS(view, field_name, elem.OID());
   }
   else
   {
-    const std::vector<mongo::BSONElement> &elems = elem.Array();
+    const std::vector<mongo::BSONElement>& elems = elem.Array();
     std::vector<mongo::OID> ids(elems.size());
-    for(size_t i = 0; i < elems.size(); ++i)
+    for (size_t i = 0; i < elems.size(); ++i)
     {
       ids[i] = elems[i].OID();
     }
@@ -195,14 +207,15 @@ void Storage::loadView(uima::CAS &cas, const mongo::BSONElement &elem)
   view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
 }
 
-uima::FeatureStructure Storage::loadArrayFS(uima::CAS *view, const std::string &viewName, const std::vector<mongo::OID> &ids)
+uima::FeatureStructure Storage::loadArrayFS(uima::CAS* view, const std::string& viewName,
+                                            const std::vector<mongo::OID>& ids)
 {
   mongo::Query query(BSON("_id" << BSON("$in" << ids)));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, ids.size());
 
   uima::ArrayFS array = view->createArrayFS(ids.size());
   size_t i = 0;
-  while(cursor->more())
+  while (cursor->more())
   {
     array.set(i++, rs::conversion::to(*view, cursor->next()));
   }
@@ -211,32 +224,32 @@ uima::FeatureStructure Storage::loadArrayFS(uima::CAS *view, const std::string &
   return array;
 }
 
-uima::FeatureStructure Storage::loadFS(uima::CAS *view, const std::string &viewName, const mongo::OID &id)
+uima::FeatureStructure Storage::loadFS(uima::CAS* view, const std::string& viewName, const mongo::OID& id)
 {
   mongo::Query query(BSON("_id" << id));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbBase + viewName, query, 1);
 
-  if(cursor->more())
+  if (cursor->more())
   {
     return rs::conversion::to(*view, cursor->next());
   }
   return uima::FeatureStructure();
 }
 
-void Storage::removeView(const mongo::BSONElement &elem)
+void Storage::removeView(const mongo::BSONElement& elem)
 {
-  const std::string &viewName = elem.fieldName();
+  const std::string& viewName = elem.fieldName();
   const std::string dbCollection = dbBase + viewName;
 
-  if(elem.isSimpleType())
+  if (elem.isSimpleType())
   {
     db.remove(dbCollection, mongo::Query(BSON("_id" << elem.OID())));
   }
   else
   {
-    const std::vector<mongo::BSONElement> &elems = elem.Array();
+    const std::vector<mongo::BSONElement>& elems = elem.Array();
     std::vector<mongo::OID> ids(elems.size());
-    for(size_t i = 0; i < elems.size(); ++i)
+    for (size_t i = 0; i < elems.size(); ++i)
     {
       ids[i] = elems[i].OID();
     }
@@ -245,33 +258,33 @@ void Storage::removeView(const mongo::BSONElement &elem)
   }
 }
 
-void Storage::enableViewStoring(const std::string &viewName, const bool enable)
+void Storage::enableViewStoring(const std::string& viewName, const bool enable)
 {
   storeViews[viewName] = enable;
 }
 
-void Storage::enableViewLoading(const std::string &viewName, const bool enable)
+void Storage::enableViewLoading(const std::string& viewName, const bool enable)
 {
   loadViews[viewName] = enable;
 }
 
-void Storage::getScenes(std::vector<uint64_t> &timestamps)
+void Storage::getScenes(std::vector<uint64_t>& timestamps)
 {
   timestamps.clear();
 
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, mongo::Query());
 
-  while(cursor->more())
+  while (cursor->more())
   {
-    const mongo::BSONObj &object = cursor->next();
+    const mongo::BSONObj& object = cursor->next();
     std::vector<mongo::BSONElement> elems;
     object.elems(elems);
 
-    for(size_t i = 0; i < elems.size(); ++i)
+    for (size_t i = 0; i < elems.size(); ++i)
     {
-      const mongo::BSONElement &elem = elems[i];
-      const std::string &name = elem.fieldName();
-      if(name == DB_CAS_TIME)
+      const mongo::BSONElement& elem = elems[i];
+      const std::string& name = elem.fieldName();
+      if (name == DB_CAS_TIME)
       {
         timestamps.push_back(elem.Long());
       }
@@ -279,7 +292,7 @@ void Storage::getScenes(std::vector<uint64_t> &timestamps)
   }
 }
 
-bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
+bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
 {
   outDebug("converting CAS Views to BSON and writing to mongoDB...");
   mongo::BSONObjBuilder builder;
@@ -287,16 +300,16 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
   builder.append(DB_CAS_TIME, (long long)timestamp);
   mongo::BSONElement elemOID;
   builder.asTempObj().getObjectID(elemOID);
-  const mongo::OID &casOID = elemOID.OID();
+  const mongo::OID& casOID = elemOID.OID();
 
   uima::FSIterator it = cas.getSofaIterator();
-  for(; it.isValid(); it.moveToNext())
+  for (; it.isValid(); it.moveToNext())
   {
     uima::SofaFS sofa(it.get());
 
     const std::string sofaId = sofa.getSofaID().asUTF8();
 
-    if(!storeViews[sofaId])
+    if (!storeViews[sofaId])
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
@@ -313,29 +326,29 @@ bool Storage::storeScene(uima::CAS &cas, const uint64_t &timestamp)
 
   outDebug("storing CAS information to " << DB_CAS << ".");
   db.insert(dbCAS, builder.obj());
-  if(first)
+  if (first)
   {
     first = false;
   }
   return true;
 }
 
-bool Storage::removeScene(const uint64_t &timestamp)
+bool Storage::removeScene(const uint64_t& timestamp)
 {
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
 
-  if(cursor->more())
+  if (cursor->more())
   {
-    const mongo::BSONObj &object = cursor->next();
+    const mongo::BSONObj& object = cursor->next();
     std::vector<mongo::BSONElement> elems;
     object.elems(elems);
 
-    for(size_t i = 0; i < elems.size(); ++i)
+    for (size_t i = 0; i < elems.size(); ++i)
     {
-      const mongo::BSONElement &elem = elems[i];
-      const std::string &name = elem.fieldName();
-      if(name[0] != '_')
+      const mongo::BSONElement& elem = elems[i];
+      const std::string& name = elem.fieldName();
+      if (name[0] != '_')
       {
         outDebug("removing view: " << name);
 
@@ -351,29 +364,29 @@ bool Storage::removeScene(const uint64_t &timestamp)
   return true;
 }
 
-bool Storage::updateScene(uima::CAS &cas, const uint64_t &timestamp)
+bool Storage::updateScene(uima::CAS& cas, const uint64_t& timestamp)
 {
   removeScene(timestamp);
   return storeScene(cas, timestamp);
 }
 
-bool Storage::loadScene(uima::CAS &cas, const uint64_t &timestamp)
+bool Storage::loadScene(uima::CAS& cas, const uint64_t& timestamp)
 {
   const bool loadAll = loadViews.empty();
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
 
-  if(cursor->more())
+  if (cursor->more())
   {
-    const mongo::BSONObj &object = cursor->next();
+    const mongo::BSONObj& object = cursor->next();
     std::vector<mongo::BSONElement> elems;
     object.elems(elems);
 
-    for(size_t i = 0; i < elems.size(); ++i)
+    for (size_t i = 0; i < elems.size(); ++i)
     {
-      const mongo::BSONElement &elem = elems[i];
-      const std::string &name = elem.fieldName();
-      if((loadAll && name[0] != '_') || (!loadAll && loadViews[name]))
+      const mongo::BSONElement& elem = elems[i];
+      const std::string& name = elem.fieldName();
+      if ((loadAll && name[0] != '_') || (!loadAll && loadViews[name]))
       {
         outDebug("loading view: " << name);
         loadView(cas, elem);
@@ -387,14 +400,14 @@ bool Storage::loadScene(uima::CAS &cas, const uint64_t &timestamp)
   return true;
 }
 
-void Storage::removeCollection(const std::string &collection)
+void Storage::removeCollection(const std::string& collection)
 {
   outDebug("removing collection '" << collection << "' from mongoDB...");
   const std::string dbCollection = dbBase + collection;
   db.dropCollection(dbCollection);
 }
 
-void Storage::storeCollection(uima::CAS &cas, const std::string &view, const std::string &collection)
+void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
 {
   outDebug("storing CAS View as Collection to mongoDB...");
   mongo::BSONObjBuilder builder;
@@ -404,38 +417,38 @@ void Storage::storeCollection(uima::CAS &cas, const std::string &view, const std
   db.remove(dbCollection, mongo::Query());
   try
   {
-    uima::CAS *_view = cas.getView(UnicodeString::fromUTF8(view));
+    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view));
     uima::FeatureStructure fs = _view->getSofaDataArray();
     readArrayFS(fs, builder, casOID, view, dbCollection) || readFS(fs, builder, casOID, view, dbCollection);
   }
-  catch(uima::CASException e)
+  catch (uima::CASException e)
   {
     outInfo("No Sofa named: " << view);
   }
 }
 
-void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection)
+void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
 {
   const std::string dbCollection = dbBase + collection;
   mongo::Query query;
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, query);
   std::vector<mongo::OID> ids;
 
-  while(cursor->more())
+  while (cursor->more())
   {
-    const mongo::BSONObj &object = cursor->next();
+    const mongo::BSONObj& object = cursor->next();
     mongo::BSONElement elem;
     object.getObjectID(elem);
     ids.push_back(elem.OID());
   }
 
-  uima::CAS *_view = nullptr;
+  uima::CAS* _view = nullptr;
   try
   {
     outDebug("try to get view " << view);
     _view = cas.getView(UnicodeString::fromUTF8(view));
   }
-  catch(...)
+  catch (...)
   {
     outDebug("create view " << view);
     _view = cas.createView(UnicodeString::fromUTF8(view));
@@ -448,25 +461,26 @@ void Storage::loadCollection(uima::CAS &cas, const std::string &view, const std:
   _view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
 }
 
-std::vector<rs::ObjectHypothesis> Storage::getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids)
+std::vector<rs::ObjectHypothesis> Storage::getClusters(uima::CAS& cas, const std::string& collection,
+                                                       std::vector<std::string> ids)
 {
   const std::string dbCollection = dbBase + collection;
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, mongo::Query());
 
   std::vector<rs::ObjectHypothesis> clusters;
 
-  while(cursor->more())
+  while (cursor->more())
   {
-    const mongo::BSONObj &object = cursor->next();
+    const mongo::BSONObj& object = cursor->next();
     std::vector<mongo::BSONElement> elements = object["identifiables"].Array();
 
-    for(std::vector<mongo::BSONElement>::iterator it = elements.begin(); it != elements.end(); ++it)
+    for (std::vector<mongo::BSONElement>::iterator it = elements.begin(); it != elements.end(); ++it)
     {
       mongo::BSONObj identifiable = it->embeddedObject();
       mongo::BSONElement elem;
       identifiable.getObjectID(elem);
 
-      if(std::any_of(ids.begin(), ids.end(), std::bind2nd(std::equal_to<std::string>(), elem.OID().toString())))
+      if (std::any_of(ids.begin(), ids.end(), std::bind2nd(std::equal_to<std::string>(), elem.OID().toString())))
       {
         clusters.push_back(rs::ObjectHypothesis(rs::conversion::toFeatureStructure(cas, identifiable)));
       }
@@ -474,4 +488,3 @@ std::vector<rs::ObjectHypothesis> Storage::getClusters(uima::CAS &cas, const std
   }
   return clusters;
 }
-

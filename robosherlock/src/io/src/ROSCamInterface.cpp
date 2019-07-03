@@ -24,9 +24,9 @@
 // Implementation
 
 ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
-  : CamInterface(pt), spinner(0), nodeHandle("~")
+  : CamInterface(pt), /*spinner(0),*/ nodeHandle("~")
 {
-  listener = new tf::TransformListener(nodeHandle, ros::Duration(10.0));
+  listener = new rs::TFListenerProxy();
   tfFrom = pt.get<std::string>("tf.from");
   tfTo = pt.get<std::string>("tf.to");
   lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
@@ -44,7 +44,6 @@ ROSCamInterface::ROSCamInterface(const boost::property_tree::ptree &pt)
 
 ROSCamInterface::~ROSCamInterface()
 {
-  delete listener;
 }
 
 bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
@@ -54,8 +53,8 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
     try
     {
       //outDebug("lookup viewpoint: " << timestamp);
-      listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(2));
-      listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
+      listener->listener->waitForTransform(tfTo, tfFrom, timestamp, ros::Duration(2));
+      listener->listener->lookupTransform(tfTo, tfFrom, timestamp, transform);
     }
     catch(tf::TransformException &ex)
     {
@@ -82,7 +81,7 @@ bool ROSCamInterface::lookupTransform(const ros::Time &timestamp)
 
 void ROSCamInterface::setTransformAndTime(uima::CAS &tcas)
 {
-  rs::Scene scene = rs::SceneCas(tcas).getScene();
+  rs::Scene scene = rs::SceneCas(tcas).getScene(this->cam_id_);
   if(lookUpViewpoint)
   {
     rs::StampedTransform vp(rs::conversion::to(tcas, transform));

@@ -50,7 +50,7 @@ int processEngine()
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
   
-  std::vector<std::string> engineList = {"CollectionReader","StorageWriter"};
+  std::vector<std::string> engineList = {"CollectionReader","ImagePreprocessor","StorageWriter"};
   engine->setPipelineOrdering(engineList);
 
  try
@@ -63,6 +63,8 @@ int processEngine()
       sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
       initial_image_width = colorImg.size().width;
       initial_image_height = colorImg.size().height;
+      
+      outInfo("Initial image_width = "<<initial_image_width);
       engine->getAnnotatorContext().releaseCAS(*cas);
     }
     catch(const rs::FrameFilterException &)
@@ -70,22 +72,27 @@ int processEngine()
       outError("There is an error in the rs");
     }
 
-  engine->overwriteParam("CollectionReader","camera_config_files","config_mongodb_playback_utest.ini");
+  engine->overwriteParam("CollectionReader","camera_config_files",std::vector<std::string>{"config_mongodb_playback_utest.ini"});
   engine->reconfigure();
-  
+  engine->resetCas(); 
   try
   {
-  engine->processOnce();
-  cas = engine->getCas();
-  rs::SceneCas sceneCas(*cas);
-  cv::Mat colorImg;
-  sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
-  db_image_width = colorImg.size().width;
-  db_image_height = colorImg.size().height;
-  engine->getAnnotatorContext().releaseCAS(*cas);
+    engine->processOnce();
+    cas = engine->getCas();
+    rs::SceneCas sceneCas(*cas);
+    cv::Mat colorImg;
+    sceneCas.get(VIEW_COLOR_IMAGE_HD,colorImg);
+    db_image_width = colorImg.size().width;
+    db_image_height = colorImg.size().height;
+    outInfo("DB image_width = "<<db_image_width);
+    engine->getAnnotatorContext().releaseCAS(*cas);
   }
   catch(const rs::FrameFilterException &){}
+  engine->overwriteParam("CollectionReader","camera_config_files",std::vector<std::string>{"config_data_loader_utest.ini"});
+  engine->reconfigure();
+  engine->resetCas();
   engine->collectionProcessComplete();
+
 }
 
 

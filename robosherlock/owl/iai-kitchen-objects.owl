@@ -135,6 +135,7 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#CupEcoOrange">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Cup"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
@@ -149,6 +150,7 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
@@ -556,6 +558,11 @@
     
 
 
+    <!-- http://knowrob.org/kb/knowrob.owl#Bowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Bowl"/>
+
+
     <!-- http://knowrob.org/kb/knowrob.owl#Bowl-Mixing -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Bowl-Mixing"/>
@@ -614,6 +621,10 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
     
+
+    <!-- http://knowrob.org/kb/knowrob.owl#DrinkingMug -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Cup"/>
 
 
     <!-- http://knowrob.org/kb/knowrob.owl#ElectricalHouseholdAppliance -->

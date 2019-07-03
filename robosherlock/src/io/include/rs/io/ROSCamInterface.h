@@ -28,7 +28,9 @@
 #include <tf/transform_listener.h>
 
 // RS
+#include <rs/utils/common.h>
 #include <rs/io/CamInterface.h>
+#include <rs/io/TFListenerProxy.h>
 
 // STL
 #include <mutex>
@@ -38,10 +40,10 @@ class ROSCamInterface : public CamInterface
 private:
 
 protected:
-  tf::TransformListener *listener;
+  rs::TFListenerProxy *listener;
   std::string tfFrom, tfTo;
   bool lookUpViewpoint, onlyStableViewpoints;
-  ros::AsyncSpinner spinner;
+//  ros::AsyncSpinner spinner;
   ros::NodeHandle nodeHandle;
   tf::StampedTransform transform, lastTransform;
   ros::Time timestamp;

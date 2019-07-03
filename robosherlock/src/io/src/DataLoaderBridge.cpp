@@ -276,7 +276,7 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
   sstr.str(line);
   std::vector<double> cameraDistortion{std::istream_iterator<double>(sstr),
                                        std::istream_iterator<double>()};
-  std::copy(cameraDistortion.begin(), cameraDistortion.end(), this->cameraInfo.D.begin());
+  this->cameraInfo.D.assign(cameraDistortion.begin(), cameraDistortion.end());
 
   this->depth_scaling_factor = pt.get<int>("camera_info.depth_scaling_factor", 1);
 
@@ -293,7 +293,7 @@ bool DataLoaderBridge::setData(uima::CAS &tcas, uint64_t ts)
   outInfo("setData");
 
   rs::SceneCas cas(tcas);
-
+  cas.setActiveCamId(this->cam_id_);
   if(haveCloud)
   {
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);

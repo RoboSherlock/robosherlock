@@ -38,7 +38,7 @@ ROSKinectBridge::ROSKinectBridge(const boost::property_tree::ptree &pt) : ROSCam
 
 ROSKinectBridge::~ROSKinectBridge()
 {
-  spinner.stop();
+//  spinner.stop();
   delete sync;
   delete rgbImageSubscriber;
   delete depthImageSubscriber;
@@ -49,7 +49,7 @@ void ROSKinectBridge::initSpinner()
 {
   sync = new message_filters::Synchronizer<RGBDSyncPolicy>(RGBDSyncPolicy(5), *rgbImageSubscriber, *depthImageSubscriber, *cameraInfoSubscriber);
   sync->registerCallback(boost::bind(&ROSKinectBridge::cb_, this, _1, _2, _3));
-  spinner.start();
+//  spinner.start();
 }
 
 void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
@@ -242,24 +242,24 @@ bool ROSKinectBridge::setData(uima::CAS &tcas, uint64_t ts)
 
   if(scale && color.cols >= 1280)
   {
-    cas.set(VIEW_COLOR_IMAGE_HD, color);
-    cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
+    cas.set(VIEW_COLOR_IMAGE_HD, color, cam_id_);
+    cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD, cam_id_);
   }
   else
   {
-    cas.set(VIEW_COLOR_IMAGE, color);
+    cas.set(VIEW_COLOR_IMAGE, color, cam_id_);
   }
 
   if(scale && depth.cols >= 1280)
   {
-    cas.set(VIEW_DEPTH_IMAGE_HD, depth);
+    cas.set(VIEW_DEPTH_IMAGE_HD, depth, cam_id_);
   }
   else
   {
-    cas.set(VIEW_DEPTH_IMAGE, depth);
+    cas.set(VIEW_DEPTH_IMAGE, depth, cam_id_);
   }
 
-  cas.set(VIEW_CAMERA_INFO, cameraInfo);
+  cas.set(VIEW_CAMERA_INFO, cameraInfo, cam_id_);
 
   return true;
 }
