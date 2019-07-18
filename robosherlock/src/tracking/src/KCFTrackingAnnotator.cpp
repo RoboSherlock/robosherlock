@@ -47,10 +47,6 @@ using namespace cv;
 using namespace std;
 using namespace uima;
 
-// Convert to string
-#define SSTR( x ) static_cast< std::ostringstream & >( \
-( std::ostringstream() << std::dec << x ) ).str()
-
 class KCFTrackingAnnotator : public DrawingAnnotator
 {
 private:
@@ -132,7 +128,8 @@ public:
                                                                + " potential objects in the scene.");
         return UIMA_ERR_NONE;
       }
-
+      
+      //surround with a try catch block 
       rs::ImageROI image_roi = clusters[obj_id].rois.get();
       cv::Rect roi;
       rs::conversion::from(image_roi.roi_hires(), roi);
