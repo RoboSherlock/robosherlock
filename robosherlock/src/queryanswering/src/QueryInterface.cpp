@@ -1,4 +1,13 @@
 #include<rs/queryanswering/QueryInterface.h>
+#include<rs/queryanswering/ObjectDesignatorFactory.h>
+
+// Boost
+#include <boost/property_tree/ptree.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
+//RapidJson
+#include "rapidjson/pointer.h"
+#include "rapidjson/writer.h"
 
 bool QueryInterface::parseQuery(std::string query)
 {
@@ -19,11 +28,13 @@ rapidjson::Document& QueryInterface:: getQueryDocument(){
     return query_;
 }
 
-QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> &res)
+QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::vector<std::string>> &res)
 {
   if(query_.HasMember("detect"))
   {
-    handleDetect(res);
+    std::vector<std::string> detPipeline;
+    handleDetect(detPipeline);
+    res.push_back(detPipeline);
     return QueryType::DETECT;
   }
   else if(query_.HasMember("inspect"))
@@ -36,17 +47,36 @@ QueryInterface::QueryType QueryInterface::processQuery(std::vector<std::string> 
     handleScan(res);
     return QueryType::SCAN;
   }
+
+  else if(query_.HasMember("track"))
+  {
+    rapidjson::Value::MemberIterator track_iterator = query_.FindMember("track");
+    track_iterator->name.SetString("detect", query_.GetAllocator());
+
+    rapidjson::StringBuffer buffer;
+    buffer.Clear();
+    rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(buffer);
+    query_.Accept(writer);
+    std::string query_detect(buffer.GetString(), buffer.GetSize());
+
+    std::vector<std::string> detect_pipeline, tracking_pipeline;
+    handleDetect(detect_pipeline);
+    handleTrack(tracking_pipeline);
+    res.push_back(detect_pipeline);
+    res.push_back(tracking_pipeline);
+    return QueryType::TRACK;
+  }
   return QueryType::NONE;
 }
 
 
-bool QueryInterface::handleScan(std::vector<std::string> &res)
+bool QueryInterface::handleScan(std::vector<std::vector<std::string>> &res)
 {
   //TODO implement logic here
   return true;
 }
 
-bool QueryInterface::handleInspect(std::vector<std::string> &res)
+bool QueryInterface::handleInspect(std::vector<std::vector<std::string>> &res)
 {
   outInfo("Inspecting an object: [needs implementation]");
   return true;
@@ -102,7 +132,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   }
   catch(std::exception e)
   {
-    outError("calling json_prolog was not successfull. Is the node running?");
+    outError("calling json_prolog was not successful. Is the node running?");
     return false;
   }
 
@@ -139,6 +169,23 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   return true;
 }
 
+bool QueryInterface::handleTrack(std::vector<std::string> &res)
+{
+  //TODO: use the knowledge base for this
+  res.push_back("ImagePreprocessor");
+  // KCF tracking pipeline
+  /**
+  res.push_back("KCFTrackingAnnotator");
+  **/
+  // PCL particle tracking pipeline
+  res.push_back("PCLParticleTrackingAnnotator");
+
+  outInfo("Planned tracking pipeline: ");
+  for(auto const &r:res){
+    outInfo(r);
+  }
+  return true;
+}
 
 bool QueryInterface::getQueryConfig()
 {

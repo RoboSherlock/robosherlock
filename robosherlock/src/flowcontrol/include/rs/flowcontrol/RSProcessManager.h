@@ -5,6 +5,8 @@
 
 #include <rs/io/visualizer.h>
 
+#include <rs/scene_cas.h>
+
 #include <robosherlock_msgs/SetRSContext.h>
 #include <robosherlock_msgs/RSQueryService.h>
 #include <robosherlock_msgs/RSObjectDescriptions.h>
@@ -41,6 +43,7 @@ class RSQueryActionServer;
 class RSProcessManager
 {
 public:
+
   RSAggregateAnalysisEngine *engine_;
   std::shared_ptr<rs::KnowledgeEngine> knowledge_engine_;
   std::shared_ptr<QueryInterface> query_interface_;
