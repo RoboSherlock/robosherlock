@@ -544,16 +544,6 @@
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
 </owl:Class>
 
-<!-- http://knowrob.org/kb/rs_components.owl#ClassifierDetection -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#ClassifierDetection">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RecognitionComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#KNNClassifier -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#KNNClassifier">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RecognitionComponent"/>
-</owl:Class>
-
 <!-- http://knowrob.org/kb/rs_components.owl#MLNInferencer -->
 <owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#MLNInferencer">
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RecognitionComponent"/>
@@ -770,6 +760,12 @@
         <owl:Restriction>
             <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualOutput"/>
             <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsAnnotationPose"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualOutput"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsAnnotationSemanticsize"/>
         </owl:Restriction>
     </rdfs:subClassOf>
 </owl:Class>
@@ -1024,6 +1020,23 @@
     </rdfs:subClassOf>
 </owl:Class>
 
+<!-- http://knowrob.org/kb/rs_components.owl#KCFTrackingAnnotator -->
+<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#KCFTrackingAnnotator">
+    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#TrackerComponent"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualInputRequired"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsCvMat"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualInputRequired"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsSceneMergedcluster"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+</owl:Class>
+
 <!-- http://knowrob.org/kb/rs_components.owl#ClusterTracker -->
 <owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#ClusterTracker">
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#TrackerComponent"/>
@@ -1037,6 +1050,17 @@
         <owl:Restriction>
             <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualOutput"/>
             <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsAnnotationTracking"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+</owl:Class>
+
+<!-- http://knowrob.org/kb/rs_components.owl#PCLParticleTrackingAnnotator -->
+<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#PCLParticleTrackingAnnotator">
+    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#TrackerComponent"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualInputRequired"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsPclPointcloud"/>
         </owl:Restriction>
     </rdfs:subClassOf>
 </owl:Class>
@@ -1237,13 +1261,25 @@
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
 </owl:Class>
 
-<!-- http://knowrob.org/kb/rs_components.owl#GetRenderedViews -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#GetRenderedViews">
+<!-- http://knowrob.org/kb/rs_components.owl#SimtrackDetection -->
+<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#SimtrackDetection">
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualInputRequired"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsPclPointcloud"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
+    <rdfs:subClassOf>
+        <owl:Restriction>
+            <owl:onProperty rdf:resource="http://knowrob.org/kb/rs_components.owl#perceptualOutput"/>
+            <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsAnnotationDetection"/>
+        </owl:Restriction>
+    </rdfs:subClassOf>
 </owl:Class>
 
-<!-- http://knowrob.org/kb/rs_components.owl#SimatrackDetection -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#SimatrackDetection">
+<!-- http://knowrob.org/kb/rs_components.owl#GetRenderedViews -->
+<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#GetRenderedViews">
     <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
 </owl:Class>
 
@@ -1310,41 +1346,6 @@
             <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/rs_components.owl#RsAnnotationClassification"/>
         </owl:Restriction>
     </rdfs:subClassOf>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#ProductCounter -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#ProductCounter">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#ShelfDetector -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#ShelfDetector">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#BarcodeScanner -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#BarcodeScanner">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#MisplacedItemDetection -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#MisplacedItemDetection">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#SeparatorScanner -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#SeparatorScanner">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#SaveClusterCloudsAndImages -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#SaveClusterCloudsAndImages">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
-</owl:Class>
-
-<!-- http://knowrob.org/kb/rs_components.owl#MoveTurnTable -->
-<owl:Class rdf:about="http://knowrob.org/kb/rs_components.owl#MoveTurnTable">
-    <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent"/>
 </owl:Class>
 
 <!-- http://knowrob.org/kb/rs_components.owl#Perceive3DDepthCapability -->
@@ -1558,4 +1559,4 @@
 
 </rdf:RDF>
 
-<!-- Generated by generateOWLDescription from the RoboSherlock project 15/01/2019-->
+<!-- Generated by generateOWLDescription from the RoboSherlock project 19/07/2019-->

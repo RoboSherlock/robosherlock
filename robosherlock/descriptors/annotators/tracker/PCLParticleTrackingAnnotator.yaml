@@ -4,4 +4,3 @@ annotator:
 capabilities:
   inputs:
   - rs.pcl.PointCloud
-  outputs:
