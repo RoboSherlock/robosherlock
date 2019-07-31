@@ -359,6 +359,8 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cameraInfo.D.resize(5, 0.0);
 
   // setting cas
+  // start with current cam id
+  cas.setActiveCamId(this->cam_id_);
 
   if(packet.header.width == 640 || packet.header.width == 960)
   {
