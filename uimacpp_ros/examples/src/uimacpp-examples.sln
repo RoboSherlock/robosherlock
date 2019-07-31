@@ -1,0 +1,61 @@
+Microsoft Visual Studio Solution File, Format Version 9.00
+# Visual Studio 2005
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DaveDetector", "DaveDetector.vcproj", "{69C8A769-7CEC-4D2A-B189-FE19606577B7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ExampleApplication", "ExampleApplication.vcproj", "{9F230EC0-DB18-46AC-BB02-DC1E6974A463}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SofaDataAnnotator", "SofaDataAnnotator.vcproj", "{9CA1DB8D-3BB2-408B-B688-026F6080AFFE}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SofaExampleAnnotator", "SofaExampleAnnotator.vcproj", "{8EA7B6FE-FC33-42C7-9B44-8E0E569D4D42}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SofaExampleApplication", "SofaExampleApplication.vcproj", "{7D1DBE6C-B61C-43C3-8552-EE86ECB44D48}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SofaStreamHandlerFile", "SofaStreamHandlerFile.vcproj", "{FFEC50AB-7A77-4D51-BDB8-45B3EB3274C7}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "XCasWriterCasConsumer", "XCasWriterCasConsumer.vcproj", "{8A5CE38D-90C6-4B31-9BCF-D1E1E6037546}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimpleTextSegmenter", "SimpleTextSegmenter.vcproj", "{A9981C3E-6DFD-4204-9C4D-3DF7FE5BBB8C}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{69C8A769-7CEC-4D2A-B189-FE19606577B7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{69C8A769-7CEC-4D2A-B189-FE19606577B7}.Debug|Win32.Build.0 = Debug|Win32
+		{69C8A769-7CEC-4D2A-B189-FE19606577B7}.Release|Win32.ActiveCfg = Release|Win32
+		{69C8A769-7CEC-4D2A-B189-FE19606577B7}.Release|Win32.Build.0 = Release|Win32
+		{9F230EC0-DB18-46AC-BB02-DC1E6974A463}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9F230EC0-DB18-46AC-BB02-DC1E6974A463}.Debug|Win32.Build.0 = Debug|Win32
+		{9F230EC0-DB18-46AC-BB02-DC1E6974A463}.Release|Win32.ActiveCfg = Release|Win32
+		{9F230EC0-DB18-46AC-BB02-DC1E6974A463}.Release|Win32.Build.0 = Release|Win32
+		{9CA1DB8D-3BB2-408B-B688-026F6080AFFE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9CA1DB8D-3BB2-408B-B688-026F6080AFFE}.Debug|Win32.Build.0 = Debug|Win32
+		{9CA1DB8D-3BB2-408B-B688-026F6080AFFE}.Release|Win32.ActiveCfg = Release|Win32
+		{9CA1DB8D-3BB2-408B-B688-026F6080AFFE}.Release|Win32.Build.0 = Release|Win32
+		{8EA7B6FE-FC33-42C7-9B44-8E0E569D4D42}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8EA7B6FE-FC33-42C7-9B44-8E0E569D4D42}.Debug|Win32.Build.0 = Debug|Win32
+		{8EA7B6FE-FC33-42C7-9B44-8E0E569D4D42}.Release|Win32.ActiveCfg = Release|Win32
+		{8EA7B6FE-FC33-42C7-9B44-8E0E569D4D42}.Release|Win32.Build.0 = Release|Win32
+		{7D1DBE6C-B61C-43C3-8552-EE86ECB44D48}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7D1DBE6C-B61C-43C3-8552-EE86ECB44D48}.Debug|Win32.Build.0 = Debug|Win32
+		{7D1DBE6C-B61C-43C3-8552-EE86ECB44D48}.Release|Win32.ActiveCfg = Release|Win32
+		{7D1DBE6C-B61C-43C3-8552-EE86ECB44D48}.Release|Win32.Build.0 = Release|Win32
+		{FFEC50AB-7A77-4D51-BDB8-45B3EB3274C7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FFEC50AB-7A77-4D51-BDB8-45B3EB3274C7}.Debug|Win32.Build.0 = Debug|Win32
+		{FFEC50AB-7A77-4D51-BDB8-45B3EB3274C7}.Release|Win32.ActiveCfg = Release|Win32
+		{FFEC50AB-7A77-4D51-BDB8-45B3EB3274C7}.Release|Win32.Build.0 = Release|Win32
+		{8A5CE38D-90C6-4B31-9BCF-D1E1E6037546}.Debug|Win32.ActiveCfg = Debug|Win32
+		{8A5CE38D-90C6-4B31-9BCF-D1E1E6037546}.Debug|Win32.Build.0 = Debug|Win32
+		{8A5CE38D-90C6-4B31-9BCF-D1E1E6037546}.Release|Win32.ActiveCfg = Release|Win32
+		{8A5CE38D-90C6-4B31-9BCF-D1E1E6037546}.Release|Win32.Build.0 = Release|Win32
+		{A9981C3E-6DFD-4204-9C4D-3DF7FE5BBB8C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A9981C3E-6DFD-4204-9C4D-3DF7FE5BBB8C}.Debug|Win32.Build.0 = Debug|Win32
+		{A9981C3E-6DFD-4204-9C4D-3DF7FE5BBB8C}.Release|Win32.ActiveCfg = Release|Win32
+		{A9981C3E-6DFD-4204-9C4D-3DF7FE5BBB8C}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

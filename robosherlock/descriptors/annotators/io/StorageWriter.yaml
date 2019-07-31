@@ -1,0 +1,11 @@
+annotator:
+  name: StorageWriter
+  implementation: rs_StorageWriter
+  description: 'Persistent storage for clusters.'
+parameters:
+  host: localhost
+  storagedb: Scenes
+  enableViews: ['color_image_hd', 'depth_image_hd', 'camera_info', 'camera_info_hd', 'scene']
+  clearStorageOnStart: true 
+  newUniqueDB: false
+capabilities:

@@ -1,43 +1,38 @@
 sudo: required
-dist: trusty
+dist: xenial
 
 language: cpp
 
 cache:
   ccache: true
   directories:
-  - $HOME/local/src/mongo-cxx-driver/
-  - $HOME/local/src/uimacpp/
   - apt
+
+services: mongodb
 
 addons:
   apt:
     packages:
-    - automake
     - libicu-dev
-    - scons
     - libboost-all-dev
 
 env:
   global:
-    - ROS_DISTRO=indigo
+    - ROS_DISTRO=kinetic
     - ROS_CI_DESKTOP="`lsb_release -cs`"  # e.g. [precise|trusty|...]
-    - ROS_PARALLEL_JOBS='-j4 -l4'
+    - ROS_PARALLEL_JOBS='-j5 -l3'
     - CI_SOURCE_PATH=$(pwd)
-    - CATKIN_OPTIONS=$CI_SOURCE_PATH/catkin.options
-    - UIMA_HOME=$HOME/local/src/uimacpp/
-    - MONGO_HOME=$HOME/local/src/mongo-cxx-driver/
+    - CATKIN_OPTIONS=$CI_SOURCE_PATH/robosherlock/catkin.options
 
 before_install:
   - sudo sh -c "echo \"deb http://packages.ros.org/ros/ubuntu $ROS_CI_DESKTOP main\" > /etc/apt/sources.list.d/ros-latest.list"
   - wget http://packages.ros.org/ros.key -O - | sudo apt-key add -
-  - pip install --user cpp-coveralls
   - sudo apt-get update -qq
-  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-indigo-catkin libxerces-c-dev libapr1-dev mongodb protobuf-compiler --force-yes
+  - sudo apt-get install -y python-catkin-pkg python-rosdep python-wstool ros-kinetic-catkin ros-kinetic-libmongocxx-ros libxerces-c-dev libapr1-dev mongodb protobuf-compiler lcov swi-prolog --force-yes
   - source /opt/ros/$ROS_DISTRO/setup.bash
   - sudo rosdep init
   - rosdep update
-  - echo "source /opt/ros/indigo/setup.bash" >> ~/.bashrc
+  - echo "source /opt/ros/kinetic/setup.bash" >> ~/.bashrc
   - echo "export PYTHON_EXECUTABLE=/usr/bin/python" >> ~/.bashrc
   - echo "export PYTHONPATH=$PYTHONPATH:/usr/lib/python2.7/dist-packages" >> ~/.bashrc
   - source ~/.bashrc
@@ -46,7 +41,7 @@ install:
   - mkdir -p ~/catkin_ws/src
   - cd ~/catkin_ws/src
   - catkin_init_workspace
-  - cd ~/catkin_ws
+  - cd ../
   - catkin_make
   - source devel/setup.bash
   - cd ~/catkin_ws/src
@@ -55,20 +50,6 @@ install:
 before_script:
   - cd ~/catkin_ws
   - rosdep install -y --from-paths src --ignore-src --rosdistro $ROS_DISTRO
-  - mkdir -p ~/local/src && cd ~/local/src/
-  - if [[ -z "$(ls -A ~/local/src/uimacpp)" ]] ; then git clone https://github.com/robosherlock/uima-uimacpp.git uimacpp ; fi
-  - cd ~/local/src/uimacpp
-  - ./autogen.sh
-  - ./configure --without-activemq --with-jdk=/usr/lib/jvm/java-7-openjdk-amd64/include --prefix=/usr/local --with-icu=/usr
-  - make -j8
-  - sudo make install
-  - ls /usr/local/lib
-  - cd ~/local/src/
-  - if [[ -z "$(ls -A ~/local/src/mongo-cxx-driver)" ]] ; then git clone https://github.com/mongodb/mongo-cxx-driver.git ; fi
-  - cd ~/local/src/mongo-cxx-driver/
-  - git checkout 26compat
-  - sudo scons --jobs=8 --full --use-system-boost --prefix=/usr/local --ssl --sharedclient install-mongoclient
-  - ls /usr/local/lib
   - echo "export APR_HOME=/usr" >> ~/.bashrc
   - echo "export ICU_HOME=/usr" >> ~/.bashrc
   - echo "export XERCES_HOME=/usr" >> ~/.bashrc
@@ -78,11 +59,21 @@ before_script:
 script:
   - cd ~/catkin_ws
   - source devel/setup.bash
-  - ls /home/travis/catkin_ws/src/robosherlock/src/recognition/include
-  - find -L /home/travis/catkin_ws/src/robosherlock  -name include -type d
+  - find -L /home/travis/catkin_ws/src/robosherlock/robosherlock  -name include -type d
   - catkin_make "$( [ -f $CATKIN_OPTIONS ] && cat $CATKIN_OPTIONS )"
   - source devel/setup.bash
+  - cd ~/catkin_ws/src/robosherlock
+  - lcov -c -i -d ~/catkin_ws -o coverage_base.info
+  - cd ~/catkin_ws
+  - roscore& 
   - catkin_make run_tests_robosherlock
+  - catkin_test_results
 
 after_script:
-  - coveralls -E ".*external.*" -E ".*CMakeFiles.*" -E ".*test/.*.cpp.*"
+  - cd ~/catkin_ws/src/robosherlock
+  - lcov --directory ~/catkin_ws/ --capture --output-file coverage_test.info
+  - lcov -a coverage_base.info -a coverage_test.info -o ~/catkin_ws/src/robosherlock/coverage_total.info
+  - lcov --remove coverage_total.info '/usr/*' --output-file coverage_total.info 
+  - lcov --extract coverage_total.info '*robosherlock*' --output-file coverage_total.info
+  - lcov --list coverage_total.info
+  - bash <(curl -s https://codecov.io/bash) -X gcov -f ~/catkin_ws/src/robosherlock/coverage_total.info || echo "Codecov did not collect coverage reports"

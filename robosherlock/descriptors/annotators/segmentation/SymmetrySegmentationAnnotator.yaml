@@ -1,0 +1,121 @@
+annotator:
+  description: Segment objects from complex scenes using symmetric methods.
+  implementation: rs_symmetrySegmentationAnnotator
+  name: SymmetrySegmentationAnnotator
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+#-----------------OverSegmenter Parameters-----------------#
+  minNormalThreshold: 0.13 # Normal Threshold range for multiple segmentation instances
+  maxNormalThreshold: 0.15
+
+  curvatureThreshold: 0.5 # RegionGrowing params
+  overlapThreshold: 0.8 # criteria for merging similar segments
+
+  minClusterSize: 120 # criteria for discard segments with size out of this range
+  maxClusterSize: 1000000
+
+  neighborNumber: 5 # number of nearest neighbor to find
+  numSegmentation: 2 # number of segmentation instances
+
+#-----------------RotationalSymmetryExtractor Parameters-----------------#
+  boundaryAngleThreshold: 2.356 # params for extracting boundary points of segments
+  boundaryRadiusSearch: 0.01
+
+  rotSymAnn_dist_map_resolution: 0.005 # resolution for distance map of points
+
+  rotSymAnn_max_fit_angle: 1.047 # parammeters regulate which symmetry to keep based on symmetry scoring
+  rotSymAnn_max_occlusion_dist: 0.03
+  rotSymAnn_max_occlusion_score: 0.012
+  rotSymAnn_max_perpendicular_score: 0.6
+  rotSymAnn_max_sym_score: 0.02
+  rotSymAnn_min_coverage_score: 0.3
+  rotSymAnn_min_fit_angle: 0.175
+  rotSymAnn_min_occlusion_dist: 0.01
+
+  max_angle_diff: 0.174 # criteria for merging similar rotational symmetries
+  max_dist_diff: 0.01
+
+#-----------------RotationalSymmetrySegmenter Parameters-----------------#
+  downsample_leaf_size: 0.005 # leaf size for downsampling the cloud to speed up computation
+  rotSymSeg_isDownsampled: true # toggle downsampling or not
+
+  rotSymSeg_dist_map_resolution: 0.005 # resolution for distance map of points
+
+  rotSymSeg_adjacency_sigma_concave: 0.15 # parammeters for foreground segmentation based on symmetry score
+  rotSymSeg_adjacency_sigma_convex: 2.0
+  rotSymSeg_adjacency_radius: 0.01
+  rotSymSeg_adjacency_weight_factor: 3.0
+  rotSymSeg_num_adjacency_neighbors: 9
+  rotSymSeg_bg_weight_factor: 1.0
+  rotSymSeg_fg_weight_factor: 2.0
+
+  rotSymSeg_max_cut_score: 0.3 # parammeters regulate which segment to keep based on symmetry scoring
+  rotSymSeg_max_fit_angle: 1.155
+  rotSymSeg_max_occlusion_dist: 0.155
+  rotSymSeg_max_occlusion_score: 0.03
+  rotSymSeg_max_perpendicular_angle: 1.255
+  rotSymSeg_max_sym_score: 0.4
+  rotSymSeg_min_fit_angle: 0.0
+  rotSymSeg_min_occlusion_dist: 0.005
+  rotSymSeg_min_segment_size: 400
+
+  rotSymSeg_overlap_threshold: 0.3 # criteria for merging similar segments
+
+#-----------------BilateralSymemtryExtractor Parameters-----------------#
+  angle_division: 2 # resolution to generate naive symmetry plane based on PCA
+  naive_detection: true # toggle naive symemtry plane detection
+
+  bilSymAnn_downsample_voxel_size: 0.005
+  bilSymAnn_isDownsampled: true #toggle downsampling or not
+
+  bilSymAnn_dist_map_resolution: 0.005 # resolution for distance map of points
+
+  refine_max_inlier_sym_score: 0.232  # parammeters to refine symmetry poses
+  refine_max_iteration: 20
+  refine_min_inlier_sym_score: 0.174
+  bilSymAnn_min_occlusion_dist: 0.01
+  bilSymAnn_max_occlusion_score: 0.05
+  bilSymAnn_correspondence_max_sym_reflected_dist: 0.01
+  correspondence_max_normal_fit_error: 0.174
+  correspondence_min_sym_dist: 0.02
+  correspondence_search_radius: 0.01
+
+  bilSymAnn_max_occlusion_dist: 0.03 # parammeters regulate which symmetry to keep based on symmetry scoring
+  min_corres_inlier_score: 0.7
+  min_segment_inlier_score: 0.2
+
+  sym_angle_diff: 0.2 # criteria for merging similar bilateral symmetries
+  sym_dist_diff: 0.05
+
+#-----------------BilateralSymemtrySegmenter Parameters-----------------#
+  bilSymSeg_downsample_voxel_size: 0.005
+  bilSymSeg_isDownsampled: true #toggle downsampling or not
+
+  bilSymSeg_dist_map_resolution: 0.005 # resolution for distance map of points
+
+  bilSymSeg_adjacency_sigma_concave: 0.15 # parammeters for foreground segmentation based on symmetry score
+  bilSymSeg_adjacency_sigma_convex: 2.0
+  bilSymSeg_adjacency_radius: 0.01
+  bilSymSeg_adjacency_weight_factor: 5.0
+  bilSymSeg_bg_weight_factor: 2.0
+  bilSymSeg_fg_weight_factor: 1.0
+  symmetric_weight_factor: 1.0
+  bilSymSeg_num_adjacency_neighbors: 9
+
+  bilSymSeg_max_fit_angle: 0.785 # parammeters for scoring each segment based on bilater symmetries
+  bilSymSeg_max_occlusion_dist: 0.03
+  bilSymSeg_max_perpendicular_angle: 1.396
+  bilSymSeg_min_fit_angle: 0.174
+  bilSymSeg_min_occlusion_dist: 0.01
+  bilSymSeg_min_perpendicular_angle: 0.785
+  bilSymSeg_correspondence_max_sym_reflected_dist: 0.01
+
+  bilSymSeg_max_cut_score: 0.55  # parammeters regulate which segment to keep based on symmetry scoring
+  bilSymSeg_max_occlusion_score: 0.1
+  bilSymSeg_max_sym_score: 0.5
+  bilSymSeg_min_segment_size: 300
+  min_sym_sypport_overlap: 0.1
+
+  bilSymSeg_overlap_threshold: 0.3 # criteria for merging similar segments

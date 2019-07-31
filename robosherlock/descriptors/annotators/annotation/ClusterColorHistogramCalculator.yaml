@@ -1,0 +1,18 @@
+annotator:
+  description: RequiresPerceiveColorCapability
+  implementation: rs_ClusterColorHistogramCalculator
+  name: ClusterColorHistogramCalculator
+capabilities:
+  inputs:
+  - rs.scene.MergedHypothesis
+  outputs:
+  - rs.annotation.ColorHistogram
+  - rs.annotation.SemanticColor: [yellow, blue, black, white, red, green, cyan, magenta]
+  domain: [yellow, blue, black, white, red, green, cyan, magenta]
+parameters:
+  histogramCols: 16
+  histogramRows: 16
+  maxValueBlack: 60
+  minSaturationColor: 60
+  minValueColor: 60
+  minValueWhite: 120

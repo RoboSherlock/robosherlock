@@ -1,0 +1,8 @@
+annotator:
+  implementation: rs_pclDescriptorExtractor
+  name: PCLDescriptorExtractor
+capabilities:
+  inputs: ['rs.scene.MergedHypothesis','rs.pcl.NormalsCloud']
+  outputs: ['rs.annotation.Features']
+parameters:
+  descriptorType: VFH

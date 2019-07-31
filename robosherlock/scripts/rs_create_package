@@ -1,0 +1,102 @@
+#!/bin/bash
+
+if [ "$#" -ne 1 ];
+    then echo "No package name given. Terminating. Syntax is rs_create_package.sh <package_name>"
+    exit;
+fi
+DIR=$1
+
+if [[ $DIR = */* ]]
+    then echo "Package name must NOT end with /"
+    exit;
+fi
+
+if  [ -d "$DIR" ] && [ "$(ls -A $DIR)" ]; then
+     echo "$DIR already exists in this workspace. $DIR is not Empty"
+     exit;
+fi
+
+echo 'Creating RoboSherlock package in:' + `pwd`
+
+catkin_create_pkg $DIR robosherlock
+cd $DIR
+mkdir -p descriptors/annotators descriptors/analysis_engines descriptors/typesystem
+mkdir -p include/$DIR/types src
+
+CMakefile='CMakeLists.txt'
+
+#clear content of CMakeLists
+rm $CMakefile && touch $CMakefile
+#fill the CMakeLists with necessaryinformation
+echo 'cmake_minimum_required(VERSION 2.8.3)'> $CMakefile
+echo 'project('$DIR')'>> $CMakefile
+echo 'find_package(catkin REQUIRED robosherlock)'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Constants for project                                                      ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo 'set(NAMESPACE '$DIR')'>> $CMakefile
+echo 'set(TYPESYSTEM_CPP_PATH ${PROJECT_SOURCE_DIR}/include/'$DIR'/types)'>> $CMakefile
+echo 'set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)'>> $CMakefile
+echo 'set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)'>> $CMakefile
+echo 'set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)'>> $CMakefile
+echo 'set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Configure project configuration files                                      ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo 'configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Find all include directories                                               ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo 'find_include_dirs(RS_INCLUDE_DIRS_LIST)'>> $CMakefile
+echo 'catkin_package('>> $CMakefile
+echo '   CFG_EXTRAS ${PROJECT_NAME}_config.cmake'>> $CMakefile
+echo '   )'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Package dependencies                                                       ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '#Add required catkin packages here'>> $CMakefile
+echo '#find_package(catkin REQUIRED COMPONENTS xxx)'>> $CMakefile
+echo '#Add required system packages here'>> $CMakefile
+echo '#find_package(xxx)'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Build                                                                      ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Specify additional locations of header files'>> $CMakefile
+echo '## Your package locations should be listed before other locations'>> $CMakefile
+echo 'include_directories('>> $CMakefile
+echo '        ${RS_INCLUDE_DIRS_LIST}'>> $CMakefile
+echo '        ${catkin_INCLUDE_DIRS}'>> $CMakefile
+echo '        )'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Update analysis engines, typesystem and include all relevant files         ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## generate classes from the typesystem xml files'>> $CMakefile
+echo 'generate_type_system(robosherlock)'>> $CMakefile
+echo '#find all relevant files'>> $CMakefile
+echo 'find_additional_files()'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '## Sub Projects                                                               ##'>> $CMakefile
+echo '################################################################################'>> $CMakefile
+echo '#If you want to divide your projects into subprojects include the subdirectories'>> $CMakefile
+echo '#each containing a CMakeLists.txt here'>> $CMakefile
+echo '#add_subdirectory(src/xxx)'>> $CMakefile
+
+
+cd descriptors/typesystem
+touch all_types.xml
+
+ts_file_name=all_types.xml
+
+echo '<?xml version="1.0" encoding="UTF-8"?>' > $ts_file_name
+echo '<typeSystemDescription xmlns = "http://uima.apache.org/resourceSpecifier">' >> $ts_file_name
+echo '  <name>'$DIR'</name>' >> $ts_file_name
+echo '  <description/>' >> $ts_file_name
+echo '  <version>1.0</version>' >> $ts_file_name
+echo '  <vendor/>' >> $ts_file_name
+echo '  <imports>' >> $ts_file_name
+echo '      <!--WILL BE AUTOGENERATED-->' >> $ts_file_name
+echo '  </imports>' >> $ts_file_name
+echo '</typeSystemDescription>' >> $ts_file_name
+
+cd ../..
+#rospack profile

@@ -1,0 +1,19 @@
+annotator:
+  description: 2D Image segmentation
+  implementation: rs_ImageSegmentationAnnotator
+  name: ImageSegmentationAnnotator
+capabilities:
+  inputs:
+  - rs.pcl.PointCloud
+  - rs.annotation.Plane
+  - rs.pcl.FilteredPointCloud
+  outputs:
+  - rs.scene.ObjectHypothesis
+parameters:
+  cannyEdgeSegmentation: true
+  hsvFilter: true
+  hsvThreshold: 100.0
+  minHoleSize: 40000
+  minSize: 1200
+  segmMode: INVBINARY
+  threshold: 75.0

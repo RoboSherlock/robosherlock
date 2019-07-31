@@ -1,0 +1,8 @@
+annotator:
+  description: Publishes TF-s for the objects that are recognized in camera frame
+  implementation: rs_TFBroadcaster
+  name: TFBroadcaster
+capabilities:
+  inputs: []
+  outputs: []
+parameters: {}

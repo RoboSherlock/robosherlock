@@ -1,0 +1,10 @@
+annotator:
+  implementation: rs_ClusterTracker
+  name: ClusterTracker
+capabilities:
+  inputs:
+  - rs.scene.ObjectHypothesis
+  outputs:
+  - rs.annotation.Tracking
+parameters:
+  min_dist: 0.01
