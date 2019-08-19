@@ -28,8 +28,8 @@
   <!-- launch robosherlock with the pipeline defined in demo.xml-->
   <node name="RoboSherlock" pkg="robosherlock"  machine="$(arg machine)" type="run" output="screen"
         launch-prefix="$(arg launch-prefix)">
-    <param name="ae" type="str"  value="$(arg ae)"/>
-    <param name="vis"    type="bool" value="$(arg vis)"/>
+    <param name="ae"               type="str"  value="$(arg ae)"/>
+    <param name="vis"              type="bool" value="$(arg vis)"/>
     <param name="parallel"         type="bool" value="$(arg parallel)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
     <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
