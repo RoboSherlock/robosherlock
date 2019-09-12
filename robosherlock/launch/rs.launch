@@ -4,7 +4,7 @@
   <arg name="ae"               default="demo"/> <!-- Short version for analysis_engines -->
   <arg name="analysis_engines" default="$(arg ae)"/>
   <!-- Enable / disable visualization -->
-  <arg name="vis"              default="true"/> <!-- Short version for visualization -->
+  <arg name="vis"              default="false"/> <!-- Short version for visualization -->
   <arg name="visualization"    default="$(arg vis)"/>
   <!-- Path to where images and point clouds should be stored -->
   <arg name="save_path"        default=""/>
@@ -28,8 +28,8 @@
   <!-- launch robosherlock with the pipeline defined in demo.xml-->
   <node name="RoboSherlock" pkg="robosherlock"  machine="$(arg machine)" type="run" output="screen"
         launch-prefix="$(arg launch-prefix)">
-    <param name="analysis_engines" type="str"  value="$(arg analysis_engines)"/>
-    <param name="visualization"    type="bool" value="$(arg visualization)"/>
+    <param name="ae"               type="str"  value="$(arg ae)"/>
+    <param name="vis"              type="bool" value="$(arg vis)"/>
     <param name="parallel"         type="bool" value="$(arg parallel)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
     <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
