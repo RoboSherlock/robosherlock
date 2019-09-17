@@ -60,6 +60,7 @@ private:
 
     std::string semanticSize;
     tf::Stamped<tf::Pose> poseCam, poseWorld;
+    cv::Rect rect_;
   };
 
   cv::Mat disp;
@@ -116,7 +117,7 @@ public:
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     dispCloud = cloud_ptr;
-    cas.get(VIEW_COLOR_IMAGE_HD, disp);
+    cas.get(VIEW_COLOR_IMAGE, disp);
 
     scene.annotations.filter(planes);
     if(planes.empty())
@@ -156,6 +157,7 @@ public:
       }
       pcl::PointIndicesPtr indices(new pcl::PointIndices());
       rs::conversion::from(static_cast<rs::ReferenceClusterPoints>(cluster.points.get()).indices.get(), *indices);
+
       pcl::PointCloud<PointT>::Ptr cluster_cloud(new pcl::PointCloud<PointT>());
       pcl::PointCloud<PointT>::Ptr cluster_transformed(new pcl::PointCloud<PointT>());
       pcl::ExtractIndices<PointT> ei;
@@ -178,6 +180,7 @@ public:
       pcl::transformPointCloud<PointT>(*cluster_cloud, *cluster_transformed, eigenTransform);
 
       OrientedBoundingBox &box = orientedBoundingBoxes[i];
+      rs::conversion::from(cluster.rois().roi.get(),box.rect_);
 
       //computeBoundingBoxPCA(cluster_transformed, box);
       computeBoundingBoxMinArea(cluster_transformed, box);
@@ -185,6 +188,7 @@ public:
 
       computeSemnaticSize(box);
       computePose(box);
+      drawImage(box);
     }
 
     for(size_t i = 0; i < clusters.size(); ++i)
@@ -456,6 +460,12 @@ public:
     //compute camera and world pose
     box.poseCam = tf::Stamped<tf::Pose>(worldToCam * box.objectToWorld, camToWorld.stamp_, camToWorld.child_frame_id_);
     box.poseWorld = tf::Stamped<tf::Pose>(box.objectToWorld, camToWorld.stamp_, camToWorld.frame_id_);
+  }
+
+  void drawImage(OrientedBoundingBox &box)
+  {
+    cv::rectangle(disp, box.rect_,cv::Scalar(0,0,255));
+    cv::putText(disp,box.semanticSize,cv::Point(box.rect_.x,box.rect_.y-10),CV_FONT_HERSHEY_SIMPLEX,0.7,cv::Scalar(255,255,255));
   }
 
   void drawImageWithLock(cv::Mat &d)

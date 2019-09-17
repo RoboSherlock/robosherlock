@@ -8,8 +8,8 @@ capabilities:
   outputs:
   - rs.annotation.ColorHistogram
   - rs.annotation.SemanticColor: [yellow, blue, black, white, red, green, cyan, magenta]
-  domain: [yellow, blue, black, white, red, green, cyan, magenta]
 parameters:
+  semantic_label: false
   histogramCols: 16
   histogramRows: 16
   maxValueBlack: 60
