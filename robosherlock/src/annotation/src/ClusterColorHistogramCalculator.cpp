@@ -58,6 +58,7 @@ private:
   int histogram_rows_;
 
   const double color_range_;
+
   std::vector<int> color_positions_;
 
   std::vector<cv::Scalar> colors_;
@@ -69,8 +70,11 @@ private:
 
   cv::Mat color_mat_;
 
+  bool semantic_label_;
+
 public:
-  ClusterColorHistogramCalculator() : DrawingAnnotator(__func__), min_value_color_(60), min_saturation_color_(60), max_value_black_(60), min_value_white_(120), histogram_cols_(16), histogram_rows_(16), color_range_(256.0 / 6.0)
+  ClusterColorHistogramCalculator() : DrawingAnnotator(__func__), min_value_color_(60), min_saturation_color_(60), max_value_black_(60), min_value_white_(120), histogram_cols_(16),
+    histogram_rows_(16), color_range_(256.0 / 6.0), semantic_label_(false)
   {
     color_positions_.resize(6);
     for(size_t i = 0; i < 6; ++i)
@@ -126,6 +130,11 @@ public:
     if(ctx.isParameterDefined("histogramRows"))
     {
       ctx.extractValue("histogramRows", histogram_rows_);
+    }
+
+    if(ctx.isParameterDefined("semantic_label"))
+    {
+      ctx.extractValue("semantic_label", semantic_label_);
     }
     return UIMA_ERR_NONE;
   }
@@ -201,7 +210,7 @@ private:
       countColors(hsv, mask, colorCount, sum);
 
       //======================= Calculate Semantic Color ==========================
-      if(found)
+      if(found || semantic_label_)
       {
         std::vector<std::tuple<int, int>> colorsVec(COUNT);
         for(int i = 0; i < COUNT; ++i)
@@ -209,18 +218,33 @@ private:
           colorsVec[i] = std::tuple<int, int>(i, colorCount[i]);
         }
 
+        std::sort(colorsVec.begin(), colorsVec.end(), [](const std::tuple<int, int> &a, const std::tuple<int, int> &b)
+        {
+          return std::get<1>(a) > std::get<1>(b);
+        });
+
+        std::vector<int> &ids = color_ids_[idx];
+        std::vector<float> &ratios = color_ratios_[idx];
+        std::vector<std::string> colors(COUNT);
+
+
         for(size_t i = 0; i < COUNT; ++i)
         {
-          int id, pixelCount;
-          std::tie(id, pixelCount) = colorsVec[i];
+          int id,ratio_i;
+          std::tie(id, ratio_i) = colorsVec[i];
+          ids[i] = id;
+          colors[i] = color_names_[id];
 
           std::string color = color_names_[id];
-          float ratio = (float)(pixelCount / (double)sum);
-          if(ratio > 0.2)
+
+          float ratio_f = (float)(ratio_i / (double)sum);
+          ratios[i] = ratio_f;
+
+          if(ratio_f > 0.2)
           {
             rs::SemanticColor colorAnnotation = rs::create<rs::SemanticColor>(tcas);
             colorAnnotation.color.set(color);
-            colorAnnotation.ratio.set(ratio);
+            colorAnnotation.ratio.set(ratio_f);
             clusters[idx].annotations.append(colorAnnotation);
           }
         }
