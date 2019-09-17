@@ -292,7 +292,7 @@ void Storage::getScenes(std::vector<uint64_t>& timestamps)
   }
 }
 
-bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
+bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp, bool multi_cam)
 {
   outDebug("converting CAS Views to BSON and writing to mongoDB...");
   mongo::BSONObjBuilder builder;
@@ -307,13 +307,18 @@ bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
   {
     uima::SofaFS sofa(it.get());
 
-    const std::string sofaId = sofa.getSofaID().asUTF8();
+    std::string sofaId = sofa.getSofaID().asUTF8();
 
     if (!storeViews[sofaId])
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
     }
+
+    std::string sofaName = sofaId;
+    if (!multi_cam)
+      sofaId = sofaId.substr(sofaId.find(".") + 1);
+
 
     const std::string dbCollection = dbBase + sofaId;
 
@@ -333,7 +338,7 @@ bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
   return true;
 }
 
-bool Storage::removeScene(const uint64_t& timestamp)
+bool Storage::removeScene(const uint64_t& timestamp, bool multi_cam)
 {
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
@@ -347,9 +352,11 @@ bool Storage::removeScene(const uint64_t& timestamp)
     for (size_t i = 0; i < elems.size(); ++i)
     {
       const mongo::BSONElement& elem = elems[i];
-      const std::string& name = elem.fieldName();
+      std::string name = elem.fieldName();
       if (name[0] != '_')
       {
+        if (!multi_cam)
+          name = name.substr(name.find(".") + 1);
         outDebug("removing view: " << name);
 
         removeView(elem);
@@ -364,10 +371,10 @@ bool Storage::removeScene(const uint64_t& timestamp)
   return true;
 }
 
-bool Storage::updateScene(uima::CAS& cas, const uint64_t& timestamp)
+bool Storage::updateScene(uima::CAS& cas, const uint64_t& timestamp, bool multi_cam)
 {
-  removeScene(timestamp);
-  return storeScene(cas, timestamp);
+  removeScene(timestamp, multi_cam);
+  return storeScene(cas, timestamp,multi_cam);
 }
 
 bool Storage::loadScene(uima::CAS& cas, const uint64_t& timestamp)
