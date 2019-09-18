@@ -131,10 +131,10 @@ public:
       storage.updateScene(*tcas.getBaseCas(), timestamp, multi_cam_);
     }
 
-    if (cas.has(VIEW_OBJECTS))
+    if (cas.has("cam0.objects"))
     {
       outDebug("store persistent objects");
-      storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
+      storage.storeCollection(tcas, "cam0.objects", "persistent_objects");
     }
 
     return UIMA_ERR_NONE;
