@@ -8,4 +8,5 @@ parameters:
   enableViews: ['color_image_hd', 'depth_image_hd', 'camera_info', 'camera_info_hd', 'scene']
   clearStorageOnStart: true 
   newUniqueDB: false
+  multi_cam: false 
 capabilities:

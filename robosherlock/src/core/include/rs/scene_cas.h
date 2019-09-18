@@ -63,6 +63,8 @@ public:
   rs::Scene getScene(int cam_id = -1);
 
   bool has(const char* name);
+  bool hasObjets();
+
   bool getFS(const char* name, uima::FeatureStructure& fs);
   void setFS(const char* name, const uima::FeatureStructure& fs);
 
