@@ -185,13 +185,13 @@ private:
     }
 
     outDebug("load objects");
-    storage.loadCollection(tcas, "cam0.objects", "persistent_objects");
+    storage.loadCollection(tcas, VIEW_OBJECTS, "persistent_objects");
 
     outDebug("process clusters");
     processClusters(tcas);
 
     outDebug("store persistent objects");
-    storage.storeCollection(tcas, "cam0.objects", "persistent_objects");
+    storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");
 
     return UIMA_ERR_NONE;
   }

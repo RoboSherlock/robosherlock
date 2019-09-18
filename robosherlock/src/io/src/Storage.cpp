@@ -414,9 +414,11 @@ void Storage::removeCollection(const std::string& collection)
   db.dropCollection(dbCollection);
 }
 
-void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
+void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std::string& collection, int cam_id)
 {
   outDebug("storing CAS View as Collection to mongoDB...");
+  std::stringstream view_name;
+  view_name<<"cam"<<cam_id<<"."<<view;
   mongo::BSONObjBuilder builder;
   const mongo::OID casOID;
   const std::string dbCollection = dbBase + collection;
@@ -424,23 +426,25 @@ void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std
   db.remove(dbCollection, mongo::Query());
   try
   {
-    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view));
+    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
     uima::FeatureStructure fs = _view->getSofaDataArray();
-    readArrayFS(fs, builder, casOID, view, dbCollection) || readFS(fs, builder, casOID, view, dbCollection);
+    readArrayFS(fs, builder, casOID, view_name.str(), dbCollection) || readFS(fs, builder, casOID, view_name.str(), dbCollection);
   }
   catch (uima::CASException e)
   {
-    outInfo("No Sofa named: " << view);
+    outInfo("No Sofa named: " << view_name.str());
   }
 }
 
-void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
+void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std::string& collection, int cam_id)
 {
   const std::string dbCollection = dbBase + collection;
   mongo::Query query;
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, query);
   std::vector<mongo::OID> ids;
 
+  std::stringstream view_name;
+  view_name<<"cam"<<cam_id<<"."<<view;
   while (cursor->more())
   {
     const mongo::BSONObj& object = cursor->next();
@@ -453,12 +457,12 @@ void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std:
   try
   {
     outDebug("try to get view " << view);
-    _view = cas.getView(UnicodeString::fromUTF8(view));
+    _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
   }
   catch (...)
   {
     outDebug("create view " << view);
-    _view = cas.createView(UnicodeString::fromUTF8(view));
+    _view = cas.createView(UnicodeString::fromUTF8(view_name.str()));
   }
 
   outDebug("getting referenced object...");
