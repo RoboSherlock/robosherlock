@@ -89,9 +89,9 @@ public:
 
   void getScenes(std::vector<uint64_t> &timestamps);
 
-  bool storeScene(uima::CAS &cas, const uint64_t &timestamp);
-  bool removeScene(const uint64_t &timestamp);
-  bool updateScene(uima::CAS &cas, const uint64_t &timestamp);
+  bool storeScene(uima::CAS &cas, const uint64_t &timestamp,bool multi_cam=true);
+  bool removeScene(const uint64_t &timestamp, bool multi_cam=true);
+  bool updateScene(uima::CAS &cas, const uint64_t &timestamp, bool multi_cam=true);
   bool loadScene(uima::CAS &cas, const uint64_t &timestamp);
 
   void removeCollection(const std::string &collection);
