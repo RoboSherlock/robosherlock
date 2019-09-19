@@ -629,6 +629,7 @@ if __name__ == "__main__":
     owl_manager.addOWLClass(OWLClass("VisualAppearance", OWLSubClassOf("") ))
     # The meta types of visual appearances:
     owl_manager.addOWLClass(OWLClass("Size", OWLSubClassOf("VisualAppearance") ))
+    owl_manager.addOWLClass(OWLClass("Material", OWLSubClassOf("VisualAppearance") ))
     owl_manager.addOWLClass(OWLClass("Logo", OWLSubClassOf("VisualAppearance") ))
     owl_manager.addOWLClass(OWLClass("TextOnObject", OWLSubClassOf("VisualAppearance") ))
     owl_manager.addOWLClass(OWLClass("Shape", OWLSubClassOf("VisualAppearance") ))
@@ -639,6 +640,9 @@ if __name__ == "__main__":
     owl_manager.addOWLClass(OWLClass("Medium", OWLSubClassOf("Size") ))
     owl_manager.addOWLClass(OWLClass("Big", OWLSubClassOf("Size") ))
 
+    
+    owl_manager.addOWLClass(OWLClass("Metal", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Carton", OWLSubClassOf("Material") ))
 
     owl_manager.addOWLClass(OWLClass("Handle", OWLSubClassOf("ObjectPart") ))
 
