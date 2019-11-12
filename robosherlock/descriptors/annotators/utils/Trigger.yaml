@@ -5,4 +5,5 @@ annotator:
 capabilities:
   inputs: []
   outputs: []
-parameters: {}
+parameters:
+  joystick_trigger_button: 9 
