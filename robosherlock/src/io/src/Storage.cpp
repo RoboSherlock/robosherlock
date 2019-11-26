@@ -292,7 +292,7 @@ void Storage::getScenes(std::vector<uint64_t>& timestamps)
   }
 }
 
-bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
+bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp, bool multi_cam)
 {
   outDebug("converting CAS Views to BSON and writing to mongoDB...");
   mongo::BSONObjBuilder builder;
@@ -307,13 +307,18 @@ bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
   {
     uima::SofaFS sofa(it.get());
 
-    const std::string sofaId = sofa.getSofaID().asUTF8();
+    std::string sofaId = sofa.getSofaID().asUTF8();
 
     if (!storeViews[sofaId])
     {
       outInfo("skipping sofa \"" << sofaId << "\".");
       continue;
     }
+
+    std::string sofaName = sofaId;
+    if (!multi_cam)
+      sofaId = sofaId.substr(sofaId.find(".") + 1);
+
 
     const std::string dbCollection = dbBase + sofaId;
 
@@ -333,7 +338,7 @@ bool Storage::storeScene(uima::CAS& cas, const uint64_t& timestamp)
   return true;
 }
 
-bool Storage::removeScene(const uint64_t& timestamp)
+bool Storage::removeScene(const uint64_t& timestamp, bool multi_cam)
 {
   mongo::Query query(BSON(DB_CAS_TIME << (long long)timestamp));
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCAS, query, 1);
@@ -347,9 +352,11 @@ bool Storage::removeScene(const uint64_t& timestamp)
     for (size_t i = 0; i < elems.size(); ++i)
     {
       const mongo::BSONElement& elem = elems[i];
-      const std::string& name = elem.fieldName();
+      std::string name = elem.fieldName();
       if (name[0] != '_')
       {
+        if (!multi_cam)
+          name = name.substr(name.find(".") + 1);
         outDebug("removing view: " << name);
 
         removeView(elem);
@@ -364,10 +371,10 @@ bool Storage::removeScene(const uint64_t& timestamp)
   return true;
 }
 
-bool Storage::updateScene(uima::CAS& cas, const uint64_t& timestamp)
+bool Storage::updateScene(uima::CAS& cas, const uint64_t& timestamp, bool multi_cam)
 {
-  removeScene(timestamp);
-  return storeScene(cas, timestamp);
+  removeScene(timestamp, multi_cam);
+  return storeScene(cas, timestamp,multi_cam);
 }
 
 bool Storage::loadScene(uima::CAS& cas, const uint64_t& timestamp)
@@ -407,9 +414,11 @@ void Storage::removeCollection(const std::string& collection)
   db.dropCollection(dbCollection);
 }
 
-void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
+void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std::string& collection, int cam_id)
 {
   outDebug("storing CAS View as Collection to mongoDB...");
+  std::stringstream view_name;
+  view_name<<"cam"<<cam_id<<"."<<view;
   mongo::BSONObjBuilder builder;
   const mongo::OID casOID;
   const std::string dbCollection = dbBase + collection;
@@ -417,23 +426,25 @@ void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std
   db.remove(dbCollection, mongo::Query());
   try
   {
-    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view));
+    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
     uima::FeatureStructure fs = _view->getSofaDataArray();
-    readArrayFS(fs, builder, casOID, view, dbCollection) || readFS(fs, builder, casOID, view, dbCollection);
+    readArrayFS(fs, builder, casOID, view_name.str(), dbCollection) || readFS(fs, builder, casOID, view_name.str(), dbCollection);
   }
   catch (uima::CASException e)
   {
-    outInfo("No Sofa named: " << view);
+    outInfo("No Sofa named: " << view_name.str());
   }
 }
 
-void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std::string& collection)
+void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std::string& collection, int cam_id)
 {
   const std::string dbCollection = dbBase + collection;
   mongo::Query query;
   std::auto_ptr<mongo::DBClientCursor> cursor = db.query(dbCollection, query);
   std::vector<mongo::OID> ids;
 
+  std::stringstream view_name;
+  view_name<<"cam"<<cam_id<<"."<<view;
   while (cursor->more())
   {
     const mongo::BSONObj& object = cursor->next();
@@ -446,12 +457,12 @@ void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std:
   try
   {
     outDebug("try to get view " << view);
-    _view = cas.getView(UnicodeString::fromUTF8(view));
+    _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
   }
   catch (...)
   {
     outDebug("create view " << view);
-    _view = cas.createView(UnicodeString::fromUTF8(view));
+    _view = cas.createView(UnicodeString::fromUTF8(view_name.str()));
   }
 
   outDebug("getting referenced object...");

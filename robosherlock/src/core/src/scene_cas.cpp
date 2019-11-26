@@ -80,6 +80,15 @@ bool SceneCas::has(const char *name)
   return getView(name, view);
 }
 
+bool SceneCas::hasObjets()
+{
+  uima::CAS *view;
+  std::stringstream name;
+  name<<"cam"<<active_cam_id_<<"."<<VIEW_OBJECTS;
+  return getView(name.str().c_str(), view);
+}
+
+
 bool SceneCas::getFS(const char *name, uima::FeatureStructure &fs)
 {
   uima::CAS *view;

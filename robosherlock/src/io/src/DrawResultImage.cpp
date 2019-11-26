@@ -33,6 +33,8 @@
 #include <rs/scene_cas.h>
 #include <rs/utils/output.h>
 
+#include <rs/DrawingAnnotator.h>
+
 #define DEBUG_OUTPUT 1
 
 using namespace uima;
@@ -49,18 +51,17 @@ bool my_predicate(const char c)
   return true;
 }
 
-class DrawResultImage : public Annotator
+class DrawResultImage : public DrawingAnnotator
 {
 
 private:
   std::map<std::string, std::string> locationMapping;
   cv::Mat dispRgb;
 
-  std::string savePath_;
 
 public:
 
-  DrawResultImage(): savePath_("./")
+  DrawResultImage(): DrawingAnnotator(__func__)
   {
     locationMapping["kitchen_counter_island_top"] = "table";
   }
@@ -68,14 +69,6 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
-    if(ctx.isParameterDefined("save_path")) {
-      ctx.extractValue("save_path", savePath_);
-      if(!boost::filesystem::exists(savePath_)) {
-        outWarn("The save path set does not exist. Saving in workdir.");
-        savePath_ = "./";
-      }
-    }
-
     return UIMA_ERR_NONE;
   }
 
@@ -86,7 +79,7 @@ public:
     return  UIMA_ERR_NONE;
   }
 
-  TyErrorId process(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
   {
     outInfo("process start");
     rs::SceneCas cas(tcas);
@@ -186,10 +179,6 @@ public:
 
     }
 
-    uint64_t ts =  scene.timestamp.get();
-    std::stringstream filename;
-    filename << savePath_ << "/scene_" << ts << ".png";
-    cv::imwrite(filename.str(), dispRgb);
 
     return  UIMA_ERR_NONE;
   }
@@ -227,6 +216,11 @@ private:
       cv::Size textSize = cv::getTextSize(atoms[i], cv::FONT_HERSHEY_PLAIN, 0.9, 1, &baseLine);
       cv::putText(dispRgb, atoms[i], cv::Point(rect.x + (rect.width - textSize.width) / 2, rect.y - offset - textSize.height - i * 17), cv::FONT_HERSHEY_PLAIN, 0.8, CV_RGB(255, 255, 200), 1.0);
     }
+  }
+
+  void drawImageWithLock(cv::Mat &disp)
+  {
+    disp=dispRgb.clone();
   }
 };
 

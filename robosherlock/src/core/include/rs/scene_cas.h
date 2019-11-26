@@ -63,6 +63,8 @@ public:
   rs::Scene getScene(int cam_id = -1);
 
   bool has(const char* name);
+  bool hasObjets();
+
   bool getFS(const char* name, uima::FeatureStructure& fs);
   void setFS(const char* name, const uima::FeatureStructure& fs);
 
@@ -97,7 +99,6 @@ public:
   bool get(const char* name, T& output, int cam_id = -1)
   {
     std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
-    outInfo("Getting: "<<view_name_with_id);
     return get(view_name_with_id.c_str(), output, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
@@ -105,7 +106,6 @@ public:
   void set(const char* name, const T& input, int cam_id = -1)
   {
     std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
-    outInfo("Getting: "<<view_name_with_id);
     set(view_name_with_id.c_str(), input, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 
@@ -113,7 +113,6 @@ public:
   bool get(const char* name, std::vector<T>& output, int cam_id = -1)
   {
     std::string view_name_with_id = appendCamIdToViewName(name, cam_id);
-    outInfo("Getting: "<<view_name_with_id);
     return get(view_name_with_id.c_str(), output, std::is_base_of<rs::FeatureStructureProxy, T>());
   }
 

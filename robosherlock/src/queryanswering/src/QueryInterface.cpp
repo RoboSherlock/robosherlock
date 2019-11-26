@@ -98,7 +98,7 @@ bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
     {
       keys.push_back(iter->name.GetString());
       //for a select member of keys (type, class, shape, color) let's add value reasoning; TODO: get rid of this somehow;
-      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size"};
+      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size", "material"};
       if(std::find(special_keys.begin(), special_keys.end(),
                    iter->name.GetString()) != std::end(special_keys))
       {

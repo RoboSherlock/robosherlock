@@ -34,9 +34,10 @@ private:
   std::string host;
   std::string db;
   rs::Storage storage;
+  bool multi_cam_;
 
 public:
-  StorageWriter() : host(DB_HOST), db(DB_NAME)
+  StorageWriter() : host(DB_HOST), db(DB_NAME), multi_cam_(true)
   {
   }
 
@@ -66,6 +67,10 @@ public:
     if (ctx.isParameterDefined("newUniqueDB"))
     {
       ctx.extractValue("newUniqueDB", unique);
+    }
+    if (ctx.isParameterDefined("multi_cam"))
+    {
+      ctx.extractValue("multi_cam", multi_cam_);
     }
 
     if (unique)
@@ -119,14 +124,14 @@ public:
 
     if (scene.id().empty())
     {
-      storage.storeScene(*tcas.getBaseCas(), timestamp);
+      storage.storeScene(*tcas.getBaseCas(), timestamp, multi_cam_);
     }
     else
     {
-      storage.updateScene(*tcas.getBaseCas(), timestamp);
+      storage.updateScene(*tcas.getBaseCas(), timestamp, multi_cam_);
     }
 
-    if (cas.has(VIEW_OBJECTS))
+    if (cas.hasObjets())
     {
       outDebug("store persistent objects");
       storage.storeCollection(tcas, VIEW_OBJECTS, "persistent_objects");

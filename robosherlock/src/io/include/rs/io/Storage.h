@@ -89,14 +89,14 @@ public:
 
   void getScenes(std::vector<uint64_t> &timestamps);
 
-  bool storeScene(uima::CAS &cas, const uint64_t &timestamp);
-  bool removeScene(const uint64_t &timestamp);
-  bool updateScene(uima::CAS &cas, const uint64_t &timestamp);
+  bool storeScene(uima::CAS &cas, const uint64_t &timestamp,bool multi_cam=true);
+  bool removeScene(const uint64_t &timestamp, bool multi_cam=true);
+  bool updateScene(uima::CAS &cas, const uint64_t &timestamp, bool multi_cam=true);
   bool loadScene(uima::CAS &cas, const uint64_t &timestamp);
 
   void removeCollection(const std::string &collection);
-  void storeCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
-  void loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection);
+  void storeCollection(uima::CAS &cas, const std::string &view, const std::string &collection, int cam_id=0);
+  void loadCollection(uima::CAS &cas, const std::string &view, const std::string &collection, int cam_id=0);
 
   std::vector<ObjectHypothesis> getClusters(uima::CAS &cas, const std::string &collection, std::vector<std::string> ids);
 };

@@ -17,9 +17,7 @@
  * limitations under the License.
  */
 
-
 #include <uima/api.hpp>
-
 
 #include <ros/ros.h>
 #include <std_msgs/String.h>
@@ -36,24 +34,23 @@
 
 using namespace uima;
 
-class Trigger: public Annotator
+class Trigger : public Annotator
 {
-
 private:
-
   bool trigger;
   int last_trigger_value_;
-  ros::AsyncSpinner *spinner_;
-  ros::NodeHandle *nh_;
+
+  int joystick_trigger_button_;
+  ros::AsyncSpinner* spinner_;
+  ros::NodeHandle* nh_;
 
   ros::ServiceServer srv_;
   ros::Subscriber joy_sub;
 
 public:
-
-  Trigger(): trigger(false), last_trigger_value_(0)
+  Trigger() : trigger(false), last_trigger_value_(0), joystick_trigger_button_(9)
   {
-    if(!ros::ok())
+    if (!ros::ok())
     {
       ros::init(ros::M_string(), std::string("RS_CollectionReader"));
     }
@@ -66,39 +63,42 @@ public:
     rs::Visualizer::trigger = &trigger;
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx)
+  TyErrorId initialize(AnnotatorContext& ctx)
   {
     outInfo("initialize");
-    return (TyErrorId) UIMA_ERR_NONE;
-  }
 
+    ctx.extractValue("joystick_trigger_button", joystick_trigger_button_);
+    if (joystick_trigger_button_ < 0)
+    {
+      outError("joystick_trigger_button must be a positive number");
+    }
+    return (TyErrorId)UIMA_ERR_NONE;
+  }
 
   TyErrorId destroy()
   {
-
     //  delete ros_helper;
     outInfo("destroy");
     spinner_->stop();
     delete spinner_, nh_;
-    return (TyErrorId) UIMA_ERR_NONE;
+    return (TyErrorId)UIMA_ERR_NONE;
   }
 
-
-  TyErrorId process(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId process(CAS& tcas, ResultSpecification const& res_spec)
   {
     MEASURE_TIME;
     outInfo("process start");
 
     outInfo("waiting for trigger!");
-    while(!(got_trigger()))
+    while (!(got_trigger()))
     {
       usleep(100);
       check_ros();
     }
-    return (TyErrorId) UIMA_ERR_NONE;
+    return (TyErrorId)UIMA_ERR_NONE;
   }
 
-  bool trigger_service_cb_(std_srvs::TriggerRequest &req, std_srvs::TriggerResponse &res)
+  bool trigger_service_cb_(std_srvs::TriggerRequest& req, std_srvs::TriggerResponse& res)
   {
     outDebug("Triggered from Service");
     trigger = true;
@@ -107,19 +107,21 @@ public:
     return true;
   }
 
-  void joystick_trigger_cb_(const sensor_msgs::Joy::ConstPtr &joy_msg)
+  void joystick_trigger_cb_(const sensor_msgs::Joy::ConstPtr& joy_msg)
   {
-    if(joy_msg->buttons[9] == 1 && last_trigger_value_ == 0)
+    if(joystick_trigger_button_>= joy_msg->buttons.size())
+      outError("joystick_trigger_button parameter is out of bounds");
+    if (joy_msg->buttons[joystick_trigger_button_] == 1 && last_trigger_value_ == 0)
     {
-      outDebug("TRIGGERED FROM JOYSTICK");
+      outInfo("TRIGGERED FROM JOYSTICK");
       trigger = true;
     }
-    last_trigger_value_ = joy_msg->buttons[9];
+    last_trigger_value_ = joy_msg->buttons[joystick_trigger_button_];
   }
 
   bool got_trigger()
   {
-    if(trigger)
+    if (trigger)
     {
       outInfo("GOT TRIGGER...PROCESSING!");
       trigger = false;
@@ -128,9 +130,6 @@ public:
 
     return false;
   }
-
-
-
 };
 
 MAKE_AE(Trigger)
