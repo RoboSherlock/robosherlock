@@ -102,7 +102,7 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   }
   if(!addNamespace(parent))
   {
-    outWarn(child << " is not found under any of the namespaces");
+    outWarn(parent << " is not found under any of the namespaces");
     return false;
   }
   std::lock_guard<std::mutex> lock(lock_);
