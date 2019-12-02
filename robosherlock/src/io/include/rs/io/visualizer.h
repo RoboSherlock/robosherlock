@@ -44,6 +44,8 @@ namespace rs
 class Visualizer
 {
 private:
+  std::string aeName_;
+
   const std::string windowImage;
   const std::string windowCloud;
 
@@ -72,10 +74,14 @@ private:
   ros::Publisher pub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
+  // drawingAnnotators handled by this class
+  std::map<std::string, DrawingAnnotator *> drawingAnnotators;
+
+
 public:
   static bool *trigger;
 
-  Visualizer(bool headless);
+  Visualizer(bool headless, std::string aeName = std::string());
   ~Visualizer();
 
   bool start();
@@ -84,6 +90,13 @@ public:
   std::string nextAnnotator();
   std::string prevAnnotator();
   std::string selectAnnotator(std::string annotator);
+
+  // This method will copy all pointers p from DrawingAnnotator::annotators
+  // into this class' drawingAnnotators property.
+  // DrawingAnnotator::annotators will be emptied after the copy process
+  //
+  // Returns: The number of elements copied
+  int consumeRecentDrawingAnnotators();
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
@@ -104,6 +117,9 @@ private:
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
+
+  void getAnnotatorNames(std::vector<std::string> &names);
+  DrawingAnnotator *getAnnotator(const std::string &name);
 
 };
 

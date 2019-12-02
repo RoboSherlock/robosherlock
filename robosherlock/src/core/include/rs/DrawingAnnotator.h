@@ -58,6 +58,9 @@ public:
 
   static void getAnnotatorNames(std::vector<std::string> &names);
   static DrawingAnnotator *getAnnotator(const std::string &name);
+  static void clearAnnotatorList();
+  // clear inMap and copy the list of current DrawingAnnotators into inMap
+  static int copyAnnotatorList(std::map<std::string, DrawingAnnotator *> &inMap);
 
   uima::TyErrorId process(uima::CAS &tcas, uima::ResultSpecification const &res_spec);
 

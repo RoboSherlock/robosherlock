@@ -31,15 +31,17 @@ using namespace rs;
 
 bool *Visualizer::trigger = NULL;
 
-Visualizer::Visualizer(bool headless) : windowImage("Image Viewer"), windowCloud("Cloud Viewer"), annotator(NULL), names(), index(0),
-  running(false), updateImage(true), updateCloud(true), changedAnnotator(true), save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
+Visualizer::Visualizer(bool headless, std::string aeName) : aeName_(aeName),
+    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
+    annotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
+    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
   {
     this->savePath += '/';
   }
-  vis_service_ = nh_.advertiseService("vis_command", &Visualizer::visControlCallback, this);
+  vis_service_ = nh_.advertiseService(aeName_ + "/vis_command", &Visualizer::visControlCallback, this);
 }
 
 Visualizer::~Visualizer()
@@ -50,22 +52,26 @@ Visualizer::~Visualizer()
 bool Visualizer::start()
 {
   outInfo("start");
+  consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this Visualizer
+
 
   saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
   saveParams.push_back(9);
 
-  DrawingAnnotator::getAnnotatorNames(names);
+//  DrawingAnnotator::getAnnotatorNames(names);
+  getAnnotatorNames(names);
   if(names.empty()) {
     return false;
   }
   //Initially, all annotators are active
   activeAnnotators = names;
 
-  pub = nh_.advertise<sensor_msgs::Image>("output_image", 1, true);
-  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>("vis/active_annotators", 1, true);
+  pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
 
   index = 0;
-  annotator = DrawingAnnotator::getAnnotator(names[index]);
+//  annotator = DrawingAnnotator::getAnnotator(names[index]);
+  annotator = getAnnotator(names[index]);
 
   imageViewerThread = std::thread(&Visualizer::imageViewer, this);
   if(!headless_)
@@ -149,7 +155,8 @@ std::string Visualizer::nextAnnotator()
     std::lock_guard<std::mutex> lock_guard(lock);
     if(activeAnnotators.empty()) return "";
     index = (index + 1) % activeAnnotators.size();
-    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+//    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+    annotator = getAnnotator(activeAnnotators[index]);
     annotator->update = false;
     updateImage = true;
     updateCloud = true;
@@ -165,7 +172,8 @@ std::string Visualizer::prevAnnotator()
     std::lock_guard<std::mutex> lock_guard(lock);
     if(activeAnnotators.empty()) return "";
     index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
-    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+//    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+    annotator = getAnnotator(activeAnnotators[index]);
     annotator->update = false;
     updateImage = true;
     updateCloud = true;
@@ -182,7 +190,8 @@ std::string Visualizer::selectAnnotator(std::string anno)
   index = pos;
   if(index >= activeAnnotators.size())
     return "";
-  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+//  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
+  annotator = getAnnotator(activeAnnotators[index]);
   annotator->update = false;
   updateImage = true;
   updateCloud = true;
@@ -251,7 +260,7 @@ void Visualizer::imageViewer()
 void Visualizer::cloudViewer()
 {
   const std::string annotatorName = "annotatorName";
-  pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer("Cloud Viewer"));
+  pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer(windowCloud));
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
 
   //visualizer->addCoordinateSystem(0.1, 0);
@@ -390,5 +399,32 @@ bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &re
   res.success = result;
   res.active_annotator = activeAnnotator;
   return result;
+}
+
+int Visualizer::consumeRecentDrawingAnnotators() {
+  int copiedElements = DrawingAnnotator::copyAnnotatorList(drawingAnnotators);
+  DrawingAnnotator::clearAnnotatorList();
+  return copiedElements;
+}
+
+void Visualizer::getAnnotatorNames(std::vector<std::string> &names) {
+  std::map<std::string, DrawingAnnotator *>::const_iterator it;
+  names.clear();
+  names.reserve(drawingAnnotators.size());
+
+  for(it = drawingAnnotators.begin(); it != drawingAnnotators.end(); ++it)
+  {
+    names.push_back(it->first);
+  }
+}
+
+DrawingAnnotator *Visualizer::getAnnotator(const std::string &name) {
+  std::map<std::string, DrawingAnnotator *>::const_iterator it;
+  it = drawingAnnotators.find(name);
+  if(it != drawingAnnotators.end())
+  {
+    return it->second;
+  }
+  return NULL;
 }
 

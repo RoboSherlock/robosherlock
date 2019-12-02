@@ -162,3 +162,14 @@ void DrawingAnnotator::drawImageWithLock(cv::Mat &disp)
 {
   disp = cv::Mat::zeros(480, 640, CV_8UC3);
 }
+
+int DrawingAnnotator::copyAnnotatorList(std::map<std::string, DrawingAnnotator *> &inMap) {
+    inMap.clear();
+    inMap.insert(annotators.begin(), annotators.end());
+
+    return inMap.size();
+}
+
+void DrawingAnnotator::clearAnnotatorList() {
+    annotators.clear();
+}

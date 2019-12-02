@@ -122,9 +122,11 @@ int main(int argc, char *argv[])
   else
     outInfo(analysis_engine_file);
 
-  rs::Visualizer vis(!useVisualizer);
+
+//  rs::Visualizer vis2(!useVisualizer);
 
   RSAggregateAnalysisEngine *engine;
+  RSAggregateAnalysisEngine *engine2;
   ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
   try
@@ -136,6 +138,8 @@ int main(int argc, char *argv[])
     ros::AsyncSpinner spinner(0);
 
     engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false);
+    rs::Visualizer vis(!useVisualizer, engine->getAAEName());
+
     spinner.start();
     vis.start();
 
