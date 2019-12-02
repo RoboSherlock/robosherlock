@@ -299,7 +299,10 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 #else
   key = cv::waitKey(10);
 #endif
-  if(key == 0) {
+  // Not sure if key == 0 is there for legacy reasons, but according to
+  // https://docs.opencv.org/3.4/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
+  // -1 denotes 'no key was pressed'
+  if(key == 0 || key == -1) {
     return;
   }
   switch(key) {
