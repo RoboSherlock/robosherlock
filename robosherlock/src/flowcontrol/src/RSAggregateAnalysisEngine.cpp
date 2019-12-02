@@ -10,6 +10,10 @@ RSAggregateAnalysisEngine::RSAggregateAnalysisEngine(uima::AnnotatorContext &rAN
   uima::internal::AggregateEngine(rANC, bOwnsANC, bOwnsTAESpecififer, casDefs, ownsCasDefs), parallel_(false)
 {
   process_mutex.reset(new std::mutex);
+
+  // Extract and set the name of the analysis engine/pipeline
+  uima::AnalysisEngineDescription const &crTAESpecifier = rANC.getTaeSpecifier();
+  crTAESpecifier.getAnalysisEngineMetaData()->getName().toUTF8String(name_);
 }
 
 RSAggregateAnalysisEngine::~RSAggregateAnalysisEngine()
