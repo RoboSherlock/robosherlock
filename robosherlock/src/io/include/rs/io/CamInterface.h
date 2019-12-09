@@ -36,21 +36,23 @@ protected:
   bool _newData;
 
   int cam_id_;
-  static int id;
+//  static int id;
+  bool camera_id_registered_ = false;
+  std::string aae_name_;
 
   CamInterface(const boost::property_tree::ptree& pt) : _newData(false)
   {
-    cam_id_ = id++;
-    outInfo("New Camera ID: " FG_BLUE << cam_id_);
-    rs::SceneCas::cam_ids_.push_back(cam_id_);
+    // TODO still something todo here?
+//    cam_id_ = id++;
+//    outInfo("New Camera ID: " FG_BLUE << cam_id_);
+//    rs::SceneCas::cam_ids_.push_back(cam_id_);
   }
 
 public:
   virtual ~CamInterface()
   {
-    std::vector<int>::iterator it = std::find(rs::SceneCas::cam_ids_.begin(), rs::SceneCas::cam_ids_.end(), cam_id_);
-    if (it != rs::SceneCas::cam_ids_.end())
-      rs::SceneCas::cam_ids_.erase(it);
+    if(camera_id_registered_)
+      rs::SceneCas::unregisterCameraInCAS(aae_name_, cam_id_);
   }
 
   bool newData() const
@@ -58,9 +60,21 @@ public:
     return _newData;
   }
 
-  static void resetIdCount()
-  {
-    id = 0;
+  inline int getCameraId(){
+    return cam_id_;
+  }
+
+  inline bool cameraIdAlreadyRegistered(){
+    return camera_id_registered_;
+  }
+
+//  static void resetIdCount()
+//  {
+//    id = 0;
+//  }
+
+  void registerCameraInCAS(std::string analysis_engine_name) {
+    cam_id_ = rs::SceneCas::registerCameraInCAS(analysis_engine_name);
   }
 
   virtual bool setData(uima::CAS& tcas, uint64_t ts = 0) = 0;
