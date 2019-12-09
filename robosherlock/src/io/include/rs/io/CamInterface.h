@@ -75,6 +75,7 @@ public:
 
   void registerCameraInCAS(std::string analysis_engine_name) {
     cam_id_ = rs::SceneCas::registerCameraInCAS(analysis_engine_name);
+    camera_id_registered_ = true;
   }
 
   virtual bool setData(uima::CAS& tcas, uint64_t ts = 0) = 0;

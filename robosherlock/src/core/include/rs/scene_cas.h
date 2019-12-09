@@ -77,6 +77,7 @@ public:
   //       of the list, but rather the first free camera id.
   // TODO: The current state of methods will also be imperfect if only some of the loaded CamInterfaces are deleted
   //       and then new ones are added.
+  // TODO: Have a mutex when going for multithreading
   static int registerCameraInCAS(std::string analysis_engine_name){
     // Append camera id and check for camera id
     int current_id_to_assign = camera_ids_in_aae_[analysis_engine_name].size();
@@ -85,6 +86,7 @@ public:
   }
 
   // Returns true if camera id has been found , else otherwise
+  // TODO: Have a mutex when going for multithreading
   static bool unregisterCameraInCAS(std::string analysis_engine_name, int camera_id){
     auto cams_in_ae = camera_ids_in_aae_[analysis_engine_name];
 
