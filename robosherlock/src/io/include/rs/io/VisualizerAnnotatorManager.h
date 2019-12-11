@@ -37,12 +37,11 @@
 
 // RS
 #include <rs/DrawingAnnotator.h>
-#include "VisualizerAnnotatorManager.h"
 
 namespace rs
 {
 
-class Visualizer
+class VisualizerAnnotatorManager
 {
 private:
   std::string aeName_;
@@ -55,8 +54,8 @@ private:
   std::vector<std::string> activeAnnotators;
   size_t index;
 
-  std::thread imageViewerThread;
-  std::thread cloudViewerThread;
+//  std::thread imageViewerThread;
+//  std::thread cloudViewerThread;
   std::mutex lock;
 
   bool running;
@@ -82,8 +81,8 @@ private:
 public:
   static bool *trigger;
 
-  Visualizer(bool headless, std::string aeName = std::string());
-  ~Visualizer();
+  VisualizerAnnotatorManager(bool headless, std::string aeName = std::string());
+  ~VisualizerAnnotatorManager();
 
   bool start();
   void stop();
@@ -105,16 +104,14 @@ private:
   void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
 
   void checkAnnotator();
-  void shutdown();
+//  void shutdown();
 
-  void imageViewer();
-  void cloudViewer();
 
   void keyboardEventImageViewer(const cv::Mat &disp);
   void keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *);
 
-  void saveImage(const cv::Mat &disp);
-  void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
+//  void saveImage(const cv::Mat &disp);
+//  void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
