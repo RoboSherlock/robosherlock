@@ -36,6 +36,7 @@
 #include <rs/utils/common.h>
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/exception.h>
+#include <rs/io/TFListenerProxy.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
@@ -47,6 +48,7 @@ class RegionFilter : public DrawingAnnotator
   struct SemanticMapItem
   {
     tf::Transform transform;
+    std::string reference_frame;
     std::string name, type;
     double width, height, depth;
     cv::Vec4f plane_eq;
@@ -83,6 +85,8 @@ class RegionFilter : public DrawingAnnotator
   // for frustum culling
   sensor_msgs::CameraInfo cameraInfo;
   pcl::visualization::Camera camera;
+
+  rs::TFListenerProxy listener_;
   double frustum[24];
 
 public:
@@ -185,6 +189,7 @@ public:
       entry["width"] >> item.height;
       entry["height"] >> item.depth;
       entry["depth"] >> item.width;
+      entry["reference_frame"] >>item.reference_frame;
       cv::Vec4f mod_coeffs;
 
       for (cv::FileNodeIterator fit = entry.begin(); fit != entry.end(); ++fit)
@@ -539,6 +544,13 @@ private:
     }
 
     tf::Transform transform;
+    outInfo(region.name<<" is defined in "<<region.reference_frame);
+    if (region.reference_frame !="map")
+    {
+        outInfo("Looking up transfrom from: "<<cameraInfo.header.frame_id<<"to "<<region.reference_frame);
+        listener_.listener->waitForTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),ros::Duration(2.0));
+        listener_.listener->lookupTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),camToWorld);
+    }
     transform = region.transform.inverse() * camToWorld;
 
     Eigen::Affine3d eigenTransform;
