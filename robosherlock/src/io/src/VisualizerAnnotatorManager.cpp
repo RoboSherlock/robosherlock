@@ -32,8 +32,8 @@ using namespace rs;
 bool *VisualizerAnnotatorManager::trigger = NULL;
 
 VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) : aeName_(aeName),
-    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
-    annotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
+//    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
+    currentDrawingAnnotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
     save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
@@ -52,30 +52,30 @@ VisualizerAnnotatorManager::~VisualizerAnnotatorManager()
 bool VisualizerAnnotatorManager::start()
 {
   outInfo("start");
-//  consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
+  consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
 //
 //
 //  saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
 //  saveParams.push_back(9);
 //
 ////  DrawingAnnotator::getAnnotatorNames(names);
-//  getAnnotatorNames(names);
-//  if(names.empty()) {
-//    return false;
-//  }
-//  //Initially, all annotators are active
-//  activeAnnotators = names;
+  getAnnotatorNames(names);
+  if(names.empty()) {
+    return false;
+  }
+  //Initially, all annotators are active
+  activeAnnotators = names;
 //
 //  pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
   pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
 //
-//  index = 0;
+  index = 0;
 ////  annotator = DrawingAnnotator::getAnnotator(names[index]);
-//  annotator = getAnnotator(names[index]);
+  currentDrawingAnnotator = getAnnotator(names[index]);
 //
 //
   running = true;
-//  return true;
+  return true;
 }
 
 void VisualizerAnnotatorManager::stop()
@@ -100,12 +100,12 @@ void VisualizerAnnotatorManager::callbackMouse(const int event, const int x, con
 void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
 {
   try {
-    bool needupdate_img = annotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
+    bool needupdate_img = currentDrawingAnnotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
     updateImage = needupdate_img | updateImage;
     updateCloud = needupdate_img | updateCloud;
   }
   catch(...) {
-    outError("Exception in " << annotator->name << "::callbackMouse!");
+    outError("Exception in " << currentDrawingAnnotator->name << "::callbackMouse!");
   }
 }
 
@@ -119,12 +119,12 @@ void VisualizerAnnotatorManager::callbackKeyHandler(const char key, const Drawin
     return;
   }
   try {
-    bool needupdate_img = annotator->callbackKey(key, source);
+    bool needupdate_img = currentDrawingAnnotator->callbackKey(key, source);
     updateImage = needupdate_img | updateImage;
     updateCloud = needupdate_img | updateCloud;
   }
   catch(...) {
-    outError("Exception in " << annotator->name << "::callbackKey!");
+    outError("Exception in " << currentDrawingAnnotator->name << "::callbackKey!");
   }
 }
 
@@ -154,8 +154,8 @@ std::string VisualizerAnnotatorManager::nextAnnotator()
     if(activeAnnotators.empty()) return "";
     index = (index + 1) % activeAnnotators.size();
 //    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-    annotator = getAnnotator(activeAnnotators[index]);
-    annotator->update = false;
+    currentDrawingAnnotator = getAnnotator(activeAnnotators[index]);
+    currentDrawingAnnotator->update = false;
     updateImage = true;
     updateCloud = true;
     changedAnnotator = true;
@@ -171,8 +171,8 @@ std::string VisualizerAnnotatorManager::prevAnnotator()
     if(activeAnnotators.empty()) return "";
     index = (activeAnnotators.size() + index - 1) % activeAnnotators.size();
 //    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-    annotator = getAnnotator(activeAnnotators[index]);
-    annotator->update = false;
+    currentDrawingAnnotator = getAnnotator(activeAnnotators[index]);
+    currentDrawingAnnotator->update = false;
     updateImage = true;
     updateCloud = true;
     changedAnnotator = true;
@@ -189,8 +189,8 @@ std::string VisualizerAnnotatorManager::selectAnnotator(std::string anno)
   if(index >= activeAnnotators.size())
     return "";
 //  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-  annotator = getAnnotator(activeAnnotators[index]);
-  annotator->update = false;
+  currentDrawingAnnotator = getAnnotator(activeAnnotators[index]);
+  currentDrawingAnnotator->update = false;
   updateImage = true;
   updateCloud = true;
   changedAnnotator = true;
@@ -202,8 +202,8 @@ std::string VisualizerAnnotatorManager::selectAnnotator(std::string anno)
 void VisualizerAnnotatorManager::checkAnnotator()
 {
   std::lock_guard<std::mutex> lock_guard(lock);
-  if(annotator->update) {
-    annotator->update = false;
+  if(currentDrawingAnnotator->update) {
+    currentDrawingAnnotator->update = false;
     updateImage = true;
     updateCloud = true;
   }

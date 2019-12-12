@@ -46,10 +46,10 @@ class VisualizerAnnotatorManager
 private:
   std::string aeName_;
 
-  const std::string windowImage;
-  const std::string windowCloud;
+//  const std::string windowImage;
+//  const std::string windowCloud;
 
-  DrawingAnnotator *annotator;
+  DrawingAnnotator *currentDrawingAnnotator;
   std::vector<std::string> names;
   std::vector<std::string> activeAnnotators;
   size_t index;
@@ -97,8 +97,9 @@ public:
   //
   // Returns: The number of elements copied
   int consumeRecentDrawingAnnotators();
+  void getAnnotatorNames(std::vector<std::string> &names);
+  DrawingAnnotator *getAnnotator(const std::string &name);
 
-private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
   void callbackMouseHandler(const int event, const int x, const int y);
   void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
@@ -116,8 +117,7 @@ private:
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
-  void getAnnotatorNames(std::vector<std::string> &names);
-  DrawingAnnotator *getAnnotator(const std::string &name);
+
 
 };
 

@@ -47,6 +47,7 @@ class Visualizer
 private:
   std::string aeName_;
 
+
   const std::string windowImage;
   const std::string windowCloud;
 
@@ -77,7 +78,7 @@ private:
 
   // drawingAnnotators handled by this class
   std::map<std::string, DrawingAnnotator *> drawingAnnotators;
-
+  VisualizerAnnotatorManager visualizerAnnotatorManager_;
 
 public:
   static bool *trigger;

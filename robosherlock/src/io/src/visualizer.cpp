@@ -34,7 +34,8 @@ bool *Visualizer::trigger = NULL;
 Visualizer::Visualizer(bool headless, std::string aeName) : aeName_(aeName),
     windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
     annotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
-    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
+    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~"),
+    visualizerAnnotatorManager_(headless, aeName)
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -52,6 +53,7 @@ Visualizer::~Visualizer()
 bool Visualizer::start()
 {
   outInfo("start");
+//  visualizerAnnotatorManager_.start();
   consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this Visualizer
 
 
