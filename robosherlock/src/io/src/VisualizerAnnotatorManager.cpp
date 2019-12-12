@@ -30,7 +30,7 @@
 using namespace rs;
 
 bool *VisualizerAnnotatorManager::trigger = NULL;
-
+// TODO remove headless
 VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) : aeName_(aeName),
 //    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
     currentDrawingAnnotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
@@ -53,12 +53,7 @@ bool VisualizerAnnotatorManager::start()
 {
   outInfo("start");
   consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
-//
-//
-//  saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
-//  saveParams.push_back(9);
-//
-////  DrawingAnnotator::getAnnotatorNames(names);
+
   getAnnotatorNames(names);
   if(names.empty()) {
     outInfo("No annotators do visualize. Aborting Visualizer start.");
@@ -69,12 +64,10 @@ bool VisualizerAnnotatorManager::start()
 //
 //  pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
   pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
-//
   index = 0;
-////  annotator = DrawingAnnotator::getAnnotator(names[index]);
+
   currentDrawingAnnotator = getAnnotator(names[index]);
-//
-//
+
   running = true;
   return true;
 }

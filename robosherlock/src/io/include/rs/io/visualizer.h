@@ -42,6 +42,12 @@
 namespace rs
 {
 
+/*
+ * This visualizer can be run with only one AAE running or also in MultiAAE setups.
+ * Please note that the MultiAAE features are new and experimental.
+ * If you want to use them, instantiate the RSVisualizer with multiAAEVisualizer=true and
+ * add the DrawingAnnotators per Engien with the TODO method.
+ */
 class Visualizer
 {
 private:
@@ -55,6 +61,7 @@ private:
   std::mutex lock;
 
   bool running;
+  bool multiAAEVisualizer_;
 
   bool save, headless_;
   size_t saveFrameImage;
@@ -67,12 +74,14 @@ private:
   ros::Publisher pub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
-  VisualizerAnnotatorManager visualizerAnnotatorManager_;
+//  VisualizerAnnotatorManager visualizerAnnotatorManager_;
+
+  std::map<std::string, std::shared_ptr<VisualizerAnnotatorManager>> visualizerAnnotatorManagers_;
 
 public:
   static bool *trigger;
 
-  Visualizer(bool headless, std::string aeName = std::string());
+  Visualizer(bool headless, std::string aeName = std::string(), bool multiAAEVisualizer=false);
   ~Visualizer();
 
   bool start();
@@ -80,10 +89,21 @@ public:
 
   // TODO change this interfaces so it doesn't break the current api
   // RS ProcessManager is calling this from the outside
+  // Note: When running in MultiAAE mode, this will only affect the first
+  // AAE (or in more detail: rs::Visualizer::visualizerAnnotatorManagers_.begin().second
   void setActiveAnnotators(std::vector<std::string> annotators);
   std::string nextAnnotator();
   std::string prevAnnotator();
   std::string selectAnnotator(std::string annotator);
+
+  // Add a Visualizer for a given identifier.
+  // Please do this directly after creating a new RSAAE.
+  // This create an VisualizerAnnotatorManager that takes care of the drawing state
+  // of the different AAEs that might be run.
+  //
+  // @param identifier Is right now the name of the AAE. In the future, we want to extend this to a more general
+  //                   concept of Drawing classes so not only annotators can draw into Visualizers
+  void addVisualizerManager(std::string identifier);
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);

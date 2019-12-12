@@ -138,9 +138,10 @@ int main(int argc, char *argv[])
     ros::AsyncSpinner spinner(0);
 
     engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false);
-    rs::Visualizer vis(!useVisualizer, engine->getAAEName());
+    rs::Visualizer vis(!useVisualizer, engine->getAAEName(), false);
 
     spinner.start();
+//    vis.addVisualizerManager("demo");
     vis.start();
 
     ros::Rate rate(30.0);

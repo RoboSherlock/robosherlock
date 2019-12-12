@@ -31,11 +31,10 @@ using namespace rs;
 
 bool *Visualizer::trigger = NULL;
 
-Visualizer::Visualizer(bool headless, std::string aeName) : aeName_(aeName),
+Visualizer::Visualizer(bool headless, std::string aeName, bool multiAAEVisualizer) : aeName_(aeName),
     windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
-    running(false),
-    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~"),
-    visualizerAnnotatorManager_(headless, aeName)
+    running(false), multiAAEVisualizer_(multiAAEVisualizer),
+    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -50,16 +49,39 @@ Visualizer::~Visualizer()
     stop();
 }
 
+// TODO think of having headless in the VisualizerAnnotatorManager so some pipelines can be headless
+void Visualizer::addVisualizerManager(std::string identifier)
+{
+  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizerAnnotatorManager>(new VisualizerAnnotatorManager(false, identifier));
+}
+
 bool Visualizer::start()
 {
   outInfo("start");
-  visualizerAnnotatorManager_.start();
-
   saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
   saveParams.push_back(9);
 
-  pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+  if(!multiAAEVisualizer_){
+    outInfo("Using Legacy Visualizer functionality");
+    // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
+    // Add the first visualizerAnnotatorManagers_ for the user
+    addVisualizerManager(aeName_);
+
+    auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+    firstVizAnnoMgrAnnotator->start();
+
+    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+  } else{
+    outInfo("Using MultiAAE Visualizer functionality");
+    for(auto v : visualizerAnnotatorManagers_)
+      v.second->start();
+
+    // TODO this should be moved into the VAMs
+    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+  }
+
 
   imageViewerThread = std::thread(&Visualizer::imageViewer, this);
   if(!headless_)
@@ -76,8 +98,11 @@ void Visualizer::stop()
     imageViewerThread.join();
     if(!headless_)
       cloudViewerThread.join();
-    pub.shutdown();
-    pubAnnotList.shutdown();
+
+    if(!multiAAEVisualizer_) {
+      pub.shutdown();
+      pubAnnotList.shutdown();
+    }
   }
   outInfo("visualizer stopped!");
 }
@@ -104,8 +129,11 @@ void Visualizer::callbackMouse(const int event, const int x, const int y, const 
 //  }
 //}
 
+// TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
 void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
 {
+  assert(visualizerAnnotatorManagers_.size()>0);
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   // Catch space for triggering
   if(key == ' ') {
     if(trigger) {
@@ -114,33 +142,63 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
     return;
   }
   try {
-    bool needupdate_img = visualizerAnnotatorManager_.currentDrawingAnnotator->callbackKey(key, source);
-    visualizerAnnotatorManager_.updateImage = needupdate_img | visualizerAnnotatorManager_.updateImage;
-    visualizerAnnotatorManager_.updateCloud = needupdate_img | visualizerAnnotatorManager_.updateCloud;
+    bool needupdate_img;
+
+
+
+    needupdate_img = firstVizAnnoMgrAnnotator->currentDrawingAnnotator->callbackKey(key, source);
+    firstVizAnnoMgrAnnotator->updateImage = needupdate_img | firstVizAnnoMgrAnnotator->updateImage;
+    firstVizAnnoMgrAnnotator->updateCloud = needupdate_img | firstVizAnnoMgrAnnotator->updateCloud;
+
+//    if(multiAAEVisualizer_)
+//    {
+//
+//      // Just use the first window / annotator manager for now
+//      assert(visualizerAnnotatorManagers_.size()>0);
+//      auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+//      needupdate_img = firstVizAnnoMgrAnnotator->currentDrawingAnnotator->callbackKey(key, source);
+//      visualizerAnnotatorManager_.updateImage = needupdate_img | firstVizAnnoMgrAnnotator->updateImage;
+//      visualizerAnnotatorManager_.updateCloud = needupdate_img | firstVizAnnoMgrAnnotator->updateCloud;
+//    }else {
+//      needupdate_img = visualizerAnnotatorManager_.currentDrawingAnnotator->callbackKey(key, source);
+//      visualizerAnnotatorManager_.updateImage = needupdate_img | visualizerAnnotatorManager_.updateImage;
+//      visualizerAnnotatorManager_.updateCloud = needupdate_img | visualizerAnnotatorManager_.updateCloud;
+//    }
+
   }
   catch(...) {
-    outError("Exception in " << visualizerAnnotatorManager_.getCurrentAnnotatorName() << "::callbackKey!");
+    outError("Exception in " << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << "::callbackKey!");
   }
 }
 
 void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
 {
-  visualizerAnnotatorManager_.setActiveAnnotators(annotators);
+  assert(visualizerAnnotatorManagers_.size()>0);
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+
+  firstVizAnnoMgrAnnotator->setActiveAnnotators(annotators);
 }
 
 std::string Visualizer::nextAnnotator()
 {
-  return visualizerAnnotatorManager_.nextAnnotator();
+  assert(visualizerAnnotatorManagers_.size()>0);
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+
+  return firstVizAnnoMgrAnnotator->nextAnnotator();
 }
 
 std::string Visualizer::prevAnnotator()
 {
-  return visualizerAnnotatorManager_.prevAnnotator();
+  assert(visualizerAnnotatorManagers_.size()>0);
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+  return firstVizAnnoMgrAnnotator->prevAnnotator();
 }
 
 std::string Visualizer::selectAnnotator(std::string anno)
 {
-  return visualizerAnnotatorManager_.selectAnnotator(anno);
+  assert(visualizerAnnotatorManagers_.size()>0);
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+  return firstVizAnnoMgrAnnotator->selectAnnotator(anno);
 }
 
 void Visualizer::shutdown()
@@ -158,18 +216,30 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
+//  // Initialize Windows for every AAE
+//  if(!headless)
+//  {
+//    for(auto vam : visualizerAnnotatorManagers_)
+//    {
+//
+//
+//
+//    }
+//  }
+
   if(!headless_) {
     cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
     //cv::moveWindow(windowImage, 0, 0);
     cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
   }
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   for(; ros::ok();) {
-    visualizerAnnotatorManager_.checkAnnotator();
+    firstVizAnnoMgrAnnotator->checkAnnotator();
 
-    if(visualizerAnnotatorManager_.updateImage) {
-      visualizerAnnotatorManager_.updateImage = false;
-      visualizerAnnotatorManager_.currentDrawingAnnotator->drawImage(disp);
-      cv::putText(disp, "Annotator: " + visualizerAnnotatorManager_.getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
+    if(firstVizAnnoMgrAnnotator->updateImage) {
+      firstVizAnnoMgrAnnotator->updateImage = false;
+      firstVizAnnoMgrAnnotator->currentDrawingAnnotator->drawImage(disp);
+      cv::putText(disp, "Annotator: " + firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
       if(!headless_)
         cv::imshow(windowImage, disp);
 
@@ -191,6 +261,7 @@ void Visualizer::imageViewer()
 
 void Visualizer::cloudViewer()
 {
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   const std::string annotatorName = "annotatorName";
   pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer(windowCloud));
   pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
@@ -201,23 +272,23 @@ void Visualizer::cloudViewer()
   visualizer->setBackgroundColor(0, 0, 0);
   visualizer->registerKeyboardCallback(&Visualizer::keyboardEventCloudViewer, *this);
 
-  visualizer->addText(visualizerAnnotatorManager_.getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+  visualizer->addText(firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
 
   visualizer->spinOnce();
   visualizer->setSize(1280, 960);
 
   while(ros::ok()) {
-    visualizerAnnotatorManager_.checkAnnotator();
+    firstVizAnnoMgrAnnotator->checkAnnotator();
 
-    if(visualizerAnnotatorManager_.updateCloud) {
-      if(visualizerAnnotatorManager_.changedAnnotator) {
+    if(firstVizAnnoMgrAnnotator->updateCloud) {
+      if(firstVizAnnoMgrAnnotator->changedAnnotator) {
         visualizer->removeAllPointClouds();
         visualizer->removeAllShapes();
-        visualizer->addText(visualizerAnnotatorManager_.getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+        visualizer->addText(firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
       }
-      if(visualizerAnnotatorManager_.currentDrawingAnnotator->fillVisualizer(*visualizer, visualizerAnnotatorManager_.changedAnnotator)) {
-        visualizerAnnotatorManager_.updateCloud = false;
-        visualizerAnnotatorManager_.changedAnnotator = false;
+      if(firstVizAnnoMgrAnnotator->currentDrawingAnnotator->fillVisualizer(*visualizer, firstVizAnnoMgrAnnotator->changedAnnotator)) {
+        firstVizAnnoMgrAnnotator->updateCloud = false;
+        firstVizAnnoMgrAnnotator->changedAnnotator = false;
       }
     }
     if(save) {
@@ -233,7 +304,7 @@ void Visualizer::cloudViewer()
 
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
-
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   int key;
 #if CV_MAJOR_VERSION==3
   key = cv::waitKeyEx(10);
@@ -248,10 +319,10 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
   }
   switch(key) {
   case 110: // next (n)
-    visualizerAnnotatorManager_.nextAnnotator();
+    firstVizAnnoMgrAnnotator->nextAnnotator();
     break;
   case 112: // previous (p)
-    visualizerAnnotatorManager_.prevAnnotator();
+    firstVizAnnoMgrAnnotator->prevAnnotator();
     break;
   case 99: // insert
     saveImage(disp);
@@ -269,12 +340,13 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 
 void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
 {
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   if(event.keyUp()) {
     if(event.getKeySym() == "Left") {
-      visualizerAnnotatorManager_.nextAnnotator();
+      firstVizAnnoMgrAnnotator->nextAnnotator();
     }
     else if(event.getKeySym() == "Right") {
-      visualizerAnnotatorManager_.prevAnnotator();
+      firstVizAnnoMgrAnnotator->prevAnnotator();
     }
     else if(event.getKeySym() == "Escape") {
       shutdown();
@@ -288,11 +360,13 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
   }
 }
 
+// TODO this method has to know which AAE/VAM to pick
 void Visualizer::saveImage(const cv::Mat &disp)
 {
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << visualizerAnnotatorManager_.getCurrentAnnotatorName() << ".png";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
 
   outInfo("saving image: " << oss.str());
   cv::imwrite(oss.str(), disp, saveParams);
@@ -301,10 +375,11 @@ void Visualizer::saveImage(const cv::Mat &disp)
 
 void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,  pcl::visualization::PCLVisualizer::Ptr &visualizer)
 {
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss, oss_cloud;
-  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << visualizerAnnotatorManager_.getCurrentAnnotatorName() << ".pcd";
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << visualizerAnnotatorManager_.getCurrentAnnotatorName() << ".png";
+  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".pcd";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
 
   outInfo("saving cloud: " << oss_cloud.str());
   //  pcl::io::savePCDFileASCII(oss.str(), *cloud);
@@ -316,16 +391,17 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
 bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
     robosherlock_msgs::RSVisControl::Response &res)
 {
+  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   std::string command = req.command;
   bool result = true;
   std::string activeAnnotator = "";
 
   if(command == "next")
-    activeAnnotator = visualizerAnnotatorManager_.nextAnnotator();
+    activeAnnotator = firstVizAnnoMgrAnnotator->nextAnnotator();
   else if(command == "previous")
-    activeAnnotator = visualizerAnnotatorManager_.prevAnnotator();
+    activeAnnotator = firstVizAnnoMgrAnnotator->prevAnnotator();
   else if(command != "")
-    activeAnnotator = visualizerAnnotatorManager_.selectAnnotator(command);
+    activeAnnotator = firstVizAnnoMgrAnnotator->selectAnnotator(command);
   if(activeAnnotator == "")
     result = false;
   res.success = result;
