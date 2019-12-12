@@ -138,10 +138,12 @@ int main(int argc, char *argv[])
     ros::AsyncSpinner spinner(0);
 
     engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false);
-    rs::Visualizer vis(!useVisualizer, engine->getAAEName(), false);
+    rs::Visualizer vis(!useVisualizer, engine->getAAEName(), true);
 
     spinner.start();
-//    vis.addVisualizerManager("demo");
+    vis.addVisualizerManager("demo");
+    engine2 = rs::createRSAggregateAnalysisEngine("YOUR PATH to demo2", false);
+    vis.addVisualizerManager("demo2");
     vis.start();
 
     ros::Rate rate(30.0);
@@ -152,12 +154,14 @@ int main(int argc, char *argv[])
       engine->resetCas();
       engine->processOnce();
 
-      std::vector<std::string> obj_descriptions;
-      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
-      dw.getObjectDesignators(obj_descriptions);
-      robosherlock_msgs::RSObjectDescriptions objDescr;
-      objDescr.obj_descriptions = obj_descriptions;
-      result_pub_.publish(objDescr);
+//      std::vector<std::string> obj_descriptions;
+//      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
+//      dw.getObjectDesignators(obj_descriptions);
+//      robosherlock_msgs::RSObjectDescriptions objDescr;
+//      objDescr.obj_descriptions = obj_descriptions;
+//      result_pub_.publish(objDescr);
+      engine2->resetCas();
+      engine2->processOnce();
 
       rate.sleep(); 
     }

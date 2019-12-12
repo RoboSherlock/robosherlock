@@ -53,8 +53,8 @@ class Visualizer
 private:
   std::string aeName_;
 
-  const std::string windowImage;
-  const std::string windowCloud;
+//  const std::string windowImage;
+//  const std::string windowCloud;
 
   std::thread imageViewerThread;
   std::thread cloudViewerThread;
@@ -124,6 +124,12 @@ private:
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
+  inline const std::string imageWindowName(VisualizerAnnotatorManager &vam){
+    return vam.getAEName() + "/Image Viewer";
+  }
+  inline const std::string cloudWindowName(VisualizerAnnotatorManager &vam){
+    return vam.getAEName() + "/Cloud Viewer";
+  }
 };
 
 }

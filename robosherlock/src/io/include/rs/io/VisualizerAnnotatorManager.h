@@ -47,6 +47,8 @@ class VisualizerAnnotatorManager
 public:
   std::string aeName_;
 
+
+
 //  const std::string windowImage;
 //  const std::string windowCloud;
 
@@ -82,7 +84,7 @@ public:
 
   static bool *trigger;
 
-  VisualizerAnnotatorManager(bool headless, std::string aeName = std::string());
+  VisualizerAnnotatorManager(bool headless, std::string aeName);
   ~VisualizerAnnotatorManager();
 
   bool start();
@@ -119,6 +121,7 @@ public:
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
+  const std::string &getAEName() const;
 
 
 };

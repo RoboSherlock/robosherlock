@@ -32,7 +32,7 @@ using namespace rs;
 bool *Visualizer::trigger = NULL;
 
 Visualizer::Visualizer(bool headless, std::string aeName, bool multiAAEVisualizer) : aeName_(aeName),
-    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
+//    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
     running(false), multiAAEVisualizer_(multiAAEVisualizer),
     save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
@@ -52,7 +52,8 @@ Visualizer::~Visualizer()
 // TODO think of having headless in the VisualizerAnnotatorManager so some pipelines can be headless
 void Visualizer::addVisualizerManager(std::string identifier)
 {
-  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizerAnnotatorManager>(new VisualizerAnnotatorManager(false, identifier));
+  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizerAnnotatorManager>(false, identifier);
+  visualizerAnnotatorManagers_[identifier]->start();
 }
 
 bool Visualizer::start()
@@ -67,15 +68,15 @@ bool Visualizer::start()
     // Add the first visualizerAnnotatorManagers_ for the user
     addVisualizerManager(aeName_);
 
-    auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-    firstVizAnnoMgrAnnotator->start();
+//    auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+//    firstVizAnnoMgrAnnotator->start();
 
     pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
     pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   } else{
     outInfo("Using MultiAAE Visualizer functionality");
-    for(auto v : visualizerAnnotatorManagers_)
-      v.second->start();
+//    for(auto v : visualizerAnnotatorManagers_)
+
 
     // TODO this should be moved into the VAMs
     pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
@@ -216,94 +217,117 @@ void Visualizer::imageViewer()
   const int lineText = 1;
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
-//  // Initialize Windows for every AAE
-//  if(!headless)
-//  {
-//    for(auto vam : visualizerAnnotatorManagers_)
-//    {
-//
-//
-//
-//    }
-//  }
-
-  if(!headless_) {
-    cv::namedWindow(windowImage, CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
-    //cv::moveWindow(windowImage, 0, 0);
-    cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
+  // Initialize Windows for every AAE
+  if(!headless_)
+  {
+    for(auto vam : visualizerAnnotatorManagers_)
+    {
+      auto& VisualizationAnnotatorMgr = vam.second;
+      cv::namedWindow( imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
+      //cv::moveWindow(windowImage, 0, 0);
+//    TODO bring back cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
+    }
   }
+
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   for(; ros::ok();) {
-    firstVizAnnoMgrAnnotator->checkAnnotator();
+    for(auto vam : visualizerAnnotatorManagers_)
+    {
+      auto& VisualizationAnnotatorMgr = vam.second;
+      VisualizationAnnotatorMgr->checkAnnotator();
+      if(VisualizationAnnotatorMgr->updateImage) {
+        VisualizationAnnotatorMgr->updateImage = false;
+        VisualizationAnnotatorMgr->currentDrawingAnnotator->drawImage(disp);
+        cv::putText(disp, "Annotator: " + VisualizationAnnotatorMgr->getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
+        if(!headless_)
+          cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
 
-    if(firstVizAnnoMgrAnnotator->updateImage) {
-      firstVizAnnoMgrAnnotator->updateImage = false;
-      firstVizAnnoMgrAnnotator->currentDrawingAnnotator->drawImage(disp);
-      cv::putText(disp, "Annotator: " + firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
-      if(!headless_)
-        cv::imshow(windowImage, disp);
-
-      sensor_msgs::Image image_msg;
-      cv_bridge::CvImage cv_image;
-      cv_image.image = disp;
-      cv_image.encoding = "bgr8";
-      cv_image.toImageMsg(image_msg);
-      pub.publish(image_msg);
-    }
+        // TODO bring back ros publishing
+//        sensor_msgs::Image image_msg;
+//        cv_bridge::CvImage cv_image;
+//        cv_image.image = disp;
+//        cv_image.encoding = "bgr8";
+//        cv_image.toImageMsg(image_msg);
+//        pub.publish(image_msg);
+      }
+    } // end of visualizerAnnotatorManagers_ iteration
     if(!headless_)
       keyboardEventImageViewer(disp);
     usleep(100);
   }
-  if(!headless_)
-    cv::destroyWindow(windowImage);
+  if(!headless_) {
+    for (auto vam : visualizerAnnotatorManagers_) {
+      auto &VisualizationAnnotatorMgr = vam.second;
+      cv::destroyWindow(imageWindowName(*VisualizationAnnotatorMgr));
+
+    }
+  }
   cv::waitKey(100);
 }
 
 void Visualizer::cloudViewer()
 {
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-  const std::string annotatorName = "annotatorName";
-  pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer(windowCloud));
-  pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+  std::map<std::string, pcl::visualization::PCLVisualizer::Ptr> visualizers;
 
-  //visualizer->addCoordinateSystem(0.1, 0);
-  visualizer->initCameraParameters();
-  visualizer->setCameraPosition(0, 0, 0, 0, -1, 0);
-  visualizer->setBackgroundColor(0, 0, 0);
-  visualizer->registerKeyboardCallback(&Visualizer::keyboardEventCloudViewer, *this);
+  for(auto vam : visualizerAnnotatorManagers_) {
+    auto &VisualizationAnnotatorMgr = vam.second;
+    const std::string annotatorName = "annotatorName-" + vam.first;
+    visualizers[vam.first] = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
+//    pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
 
-  visualizer->addText(firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+    auto &visualizer = visualizers[vam.first];
+    visualizer->initCameraParameters();
+    visualizer->setCameraPosition(0, 0, 0, 0, -1, 0);
+    visualizer->setBackgroundColor(0, 0, 0);
+    // TODO change to support multiple callback handlers
+    visualizer->registerKeyboardCallback(&Visualizer::keyboardEventCloudViewer, *this);
 
-  visualizer->spinOnce();
-  visualizer->setSize(1280, 960);
+    visualizer->addText(VisualizationAnnotatorMgr->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+
+    visualizer->spinOnce();
+    visualizer->setSize(1280, 960);
+  }
 
   while(ros::ok()) {
-    firstVizAnnoMgrAnnotator->checkAnnotator();
+    for(auto vam : visualizerAnnotatorManagers_)
+    {
+      auto &VisualizationAnnotatorMgr = vam.second;
+      auto &visualizer = visualizers[vam.first];
 
-    if(firstVizAnnoMgrAnnotator->updateCloud) {
-      if(firstVizAnnoMgrAnnotator->changedAnnotator) {
-        visualizer->removeAllPointClouds();
-        visualizer->removeAllShapes();
-        visualizer->addText(firstVizAnnoMgrAnnotator->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
-      }
-      if(firstVizAnnoMgrAnnotator->currentDrawingAnnotator->fillVisualizer(*visualizer, firstVizAnnoMgrAnnotator->changedAnnotator)) {
-        firstVizAnnoMgrAnnotator->updateCloud = false;
-        firstVizAnnoMgrAnnotator->changedAnnotator = false;
-      }
-    }
-    if(save) {
-      save = false;
-      saveCloud(cloud, visualizer);
-    }
+      VisualizationAnnotatorMgr->checkAnnotator();
 
+      if(VisualizationAnnotatorMgr->updateCloud) {
+        if(VisualizationAnnotatorMgr->changedAnnotator) {
+          visualizer->removeAllPointClouds();
+          visualizer->removeAllShapes();
+          const std::string annotatorName = "annotatorName-" + vam.first;
+          visualizer->addText(VisualizationAnnotatorMgr->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+        }
+        if(VisualizationAnnotatorMgr->currentDrawingAnnotator->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedAnnotator)) {
+          VisualizationAnnotatorMgr->updateCloud = false;
+          VisualizationAnnotatorMgr->changedAnnotator = false;
+        }
+      }
+      visualizer->spinOnce(10);
+    }
+    // TODO check WHICH visualizer has been saved
+//    if(save) {
+//      save = false;
+//      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>()); // this was in the initialization before, i'm not sure if it's really needed there.
+//      saveCloud(cloud, visualizer);
+//    }
+
+  } // end of ros::ok while loop
+  for(auto vam : visualizerAnnotatorManagers_) {
+    auto &visualizer = visualizers[vam.first];
+    visualizer->close();
     visualizer->spinOnce(10);
   }
-  visualizer->close();
-  visualizer->spinOnce(10);
 }
 
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
+
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   int key;
 #if CV_MAJOR_VERSION==3

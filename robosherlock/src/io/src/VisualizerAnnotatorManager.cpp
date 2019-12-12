@@ -31,10 +31,11 @@ using namespace rs;
 
 bool *VisualizerAnnotatorManager::trigger = NULL;
 // TODO remove headless
-VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) : aeName_(aeName),
-//    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
-    currentDrawingAnnotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
-    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
+
+VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) :
+  aeName_(aeName),
+  currentDrawingAnnotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
+  save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -51,7 +52,7 @@ VisualizerAnnotatorManager::~VisualizerAnnotatorManager()
 
 bool VisualizerAnnotatorManager::start()
 {
-  outInfo("start");
+  outInfo("start with AE=" << aeName_);
   consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
 
   getAnnotatorNames(names);
@@ -312,4 +313,8 @@ DrawingAnnotator *VisualizerAnnotatorManager::getAnnotator(const std::string &na
 
 std::string VisualizerAnnotatorManager::getCurrentAnnotatorName(){
   return currentDrawingAnnotator->name;
+}
+
+const std::string &VisualizerAnnotatorManager::getAEName() const {
+  return aeName_;
 }
