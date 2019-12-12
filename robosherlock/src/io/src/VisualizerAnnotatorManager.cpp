@@ -61,6 +61,7 @@ bool VisualizerAnnotatorManager::start()
 ////  DrawingAnnotator::getAnnotatorNames(names);
   getAnnotatorNames(names);
   if(names.empty()) {
+    outInfo("No annotators do visualize. Aborting Visualizer start.");
     return false;
   }
   //Initially, all annotators are active
@@ -92,10 +93,10 @@ void VisualizerAnnotatorManager::stop()
   outInfo("VisualizerAnnotatorManager stopped!");
 }
 
-void VisualizerAnnotatorManager::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
-{
-  ((VisualizerAnnotatorManager *)object)->callbackMouseHandler(event, x, y);
-}
+//void VisualizerAnnotatorManager::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
+//{
+//  ((VisualizerAnnotatorManager *)object)->callbackMouseHandler(event, x, y);
+//}
 
 void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
 {
@@ -316,3 +317,6 @@ DrawingAnnotator *VisualizerAnnotatorManager::getAnnotator(const std::string &na
   return NULL;
 }
 
+std::string VisualizerAnnotatorManager::getCurrentAnnotatorName(){
+  return currentDrawingAnnotator->name;
+}

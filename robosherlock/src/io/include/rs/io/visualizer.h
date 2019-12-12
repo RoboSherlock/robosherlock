@@ -51,19 +51,19 @@ private:
   const std::string windowImage;
   const std::string windowCloud;
 
-  DrawingAnnotator *annotator;
-  std::vector<std::string> names;
-  std::vector<std::string> activeAnnotators;
-  size_t index;
+//  DrawingAnnotator *annotator;
+//  std::vector<std::string> names;
+//  std::vector<std::string> activeAnnotators;
+//  size_t index;
 
   std::thread imageViewerThread;
   std::thread cloudViewerThread;
   std::mutex lock;
 
   bool running;
-  bool updateImage;
-  bool updateCloud;
-  bool changedAnnotator;
+//  bool updateImage;
+//  bool updateCloud;
+//  bool changedAnnotator;
 
   bool save, headless_;
   size_t saveFrameImage;
@@ -77,7 +77,7 @@ private:
   ros::ServiceServer vis_service_;
 
   // drawingAnnotators handled by this class
-  std::map<std::string, DrawingAnnotator *> drawingAnnotators;
+//  std::map<std::string, DrawingAnnotator *> drawingAnnotators;
   VisualizerAnnotatorManager visualizerAnnotatorManager_;
 
 public:
@@ -88,6 +88,9 @@ public:
 
   bool start();
   void stop();
+
+  // TODO change this interfaces so it doesn't break the current api
+  // RS ProcessManager is calling this from the outside
   void setActiveAnnotators(std::vector<std::string> annotators);
   std::string nextAnnotator();
   std::string prevAnnotator();
@@ -98,14 +101,14 @@ public:
   // DrawingAnnotator::annotators will be emptied after the copy process
   //
   // Returns: The number of elements copied
-  int consumeRecentDrawingAnnotators();
+//  int consumeRecentDrawingAnnotators();
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
   void callbackMouseHandler(const int event, const int x, const int y);
   void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
 
-  void checkAnnotator();
+//  void checkAnnotator();
   void shutdown();
 
   void imageViewer();
@@ -120,8 +123,8 @@ private:
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
-  void getAnnotatorNames(std::vector<std::string> &names);
-  DrawingAnnotator *getAnnotator(const std::string &name);
+//  void getAnnotatorNames(std::vector<std::string> &names);
+//  DrawingAnnotator *getAnnotator(const std::string &name);
 
 };
 

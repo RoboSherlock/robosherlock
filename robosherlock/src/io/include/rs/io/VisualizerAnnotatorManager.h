@@ -43,7 +43,8 @@ namespace rs
 
 class VisualizerAnnotatorManager
 {
-private:
+  // TODO change to private and make Visualizer a friend
+public:
   std::string aeName_;
 
 //  const std::string windowImage;
@@ -78,7 +79,7 @@ private:
   std::map<std::string, DrawingAnnotator *> drawingAnnotators;
 
 
-public:
+
   static bool *trigger;
 
   VisualizerAnnotatorManager(bool headless, std::string aeName = std::string());
@@ -99,8 +100,9 @@ public:
   int consumeRecentDrawingAnnotators();
   void getAnnotatorNames(std::vector<std::string> &names);
   DrawingAnnotator *getAnnotator(const std::string &name);
+  std::string getCurrentAnnotatorName();
 
-  static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
+//  static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
   void callbackMouseHandler(const int event, const int x, const int y);
   void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
 
