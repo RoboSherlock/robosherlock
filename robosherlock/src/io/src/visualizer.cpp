@@ -340,10 +340,8 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
     vamInteractedWith = visualizerAnnotatorManagers_.begin()->second;
   }
-
-
-
-  switch(key) {
+  int lowerByteOfKey = key & 0xFF;
+  switch(lowerByteOfKey) {
   case 110: // next (n)
     vamInteractedWith->nextAnnotator();
     break;
@@ -351,18 +349,15 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     vamInteractedWith->prevAnnotator();
     break;
   case 99: // insert
-    // TODO how to handle that
-    saveImage(disp);
+    saveImage(disp, vamInteractedWith);
     break;
   }
-
-  if((key & 0xFF) == 27) { //Escape
+  if(lowerByteOfKey == 27) { //Escape
     shutdown();
   }
   else {
-    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER, vamInteractedWith);
+    callbackKeyHandler(lowerByteOfKey, DrawingAnnotator::IMAGE_VIEWER, vamInteractedWith);
   }
-
 }
 
 void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
@@ -391,19 +386,16 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
       saveVisualizerWithIdentifier = vamInteractedWith->getAEName();
     }
     else if(event.getKeyCode() > 0) {
-      // TODO pass the right VAM
       callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, vamInteractedWith);
     }
   }
 }
 
-// TODO this method has to know which AAE/VAM to pick
-void Visualizer::saveImage(const cv::Mat &disp)
+void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam)
 {
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << vam->getCurrentAnnotatorName() << ".png";
 
   outInfo("saving image: " << oss.str());
   cv::imwrite(oss.str(), disp, saveParams);

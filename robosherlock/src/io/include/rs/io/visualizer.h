@@ -121,7 +121,7 @@ private:
   void keyboardEventImageViewer(const cv::Mat &disp);
   void keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *);
 
-  void saveImage(const cv::Mat &disp);
+  void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
