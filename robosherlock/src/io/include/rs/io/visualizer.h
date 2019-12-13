@@ -150,7 +150,7 @@ private:
   std::string getActiveWindowTitle();
 
   // Returns true if the active window could be mapped to a VisualizerAnnotatorManager.
-  std::shared_ptr<VisualizerAnnotatorManager>  getAnnotatorManagerForActiveImageWindow(bool &success);
+  std::shared_ptr<VisualizerAnnotatorManager> getAnnotatorManagerForActiveWindow(bool &success, const DrawingAnnotator::Source windowType);
 
 
 };

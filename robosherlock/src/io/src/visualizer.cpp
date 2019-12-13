@@ -341,7 +341,7 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     return;
   }
   bool success=false;
-  auto vamInteractedWith = getAnnotatorManagerForActiveImageWindow(success);
+  auto vamInteractedWith = getAnnotatorManagerForActiveWindow(success, DrawingAnnotator::IMAGE_VIEWER);
   if(!success){
     //We couldn't guess the active annotator from the window titles. We'll
     //use the first VAM as a fallback
@@ -375,13 +375,21 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 
 void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
 {
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+  bool success=false;
+  auto vamInteractedWith = getAnnotatorManagerForActiveWindow(success, DrawingAnnotator::CLOUD_VIEWER);
+  if(!success){
+    //We couldn't guess the active annotator from the window titles. We'll
+    //use the first VAM as a fallback
+    outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
+    vamInteractedWith = visualizerAnnotatorManagers_.begin()->second;
+  }
+
   if(event.keyUp()) {
     if(event.getKeySym() == "Left") {
-      firstVizAnnoMgrAnnotator->nextAnnotator();
+      vamInteractedWith->nextAnnotator();
     }
     else if(event.getKeySym() == "Right") {
-      firstVizAnnoMgrAnnotator->prevAnnotator();
+      vamInteractedWith->prevAnnotator();
     }
     else if(event.getKeySym() == "Escape") {
       shutdown();
@@ -391,7 +399,7 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
     }
     else if(event.getKeyCode() > 0) {
       // TODO pass the right VAM
-      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, firstVizAnnoMgrAnnotator);
+      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, vamInteractedWith);
     }
   }
 }
@@ -450,14 +458,20 @@ std::string Visualizer::getActiveWindowTitle()
   return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
 }
 
-std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveImageWindow(bool &success) {
+std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const DrawingAnnotator::Source windowType) {
   success = false;
   std::string active_window_title = getActiveWindowTitle();
 
   for(auto vam: visualizerAnnotatorManagers_)
   {
     // Check if the active window title starts with the name of the window names the different VAMs should have
-    if(active_window_title.rfind(imageWindowName(*(vam.second)),0) == 0 )
+    if(windowType == DrawingAnnotator::IMAGE_VIEWER && active_window_title.rfind(imageWindowName(*(vam.second)),0) == 0 )
+    {
+      success = true;
+      return vam.second;
+    }
+
+    if(windowType == DrawingAnnotator::CLOUD_VIEWER && active_window_title.rfind(cloudWindowName(*(vam.second)),0) == 0 )
     {
       success = true;
       return vam.second;
