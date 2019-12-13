@@ -34,8 +34,9 @@ bool *VisualizerAnnotatorManager::trigger = NULL;
 
 VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) :
   aeName_(aeName),
-  currentDrawingAnnotator(NULL), names(), index(0), running(false), updateImage(true), updateCloud(true), changedAnnotator(true),
-  save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
+  currentDrawingAnnotator(NULL), names(), index(0), running(false),
+  save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~"),
+  updateImage(true), updateCloud(true), changedAnnotator(true)
 {
   this->savePath = std::string(getenv("USER")) +"./ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -92,36 +93,36 @@ void VisualizerAnnotatorManager::stop()
 //  ((VisualizerAnnotatorManager *)object)->callbackMouseHandler(event, x, y);
 //}
 
-void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
-{
-  try {
-    bool needupdate_img = currentDrawingAnnotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
-    updateImage = needupdate_img | updateImage;
-    updateCloud = needupdate_img | updateCloud;
-  }
-  catch(...) {
-    outError("Exception in " << currentDrawingAnnotator->name << "::callbackMouse!");
-  }
-}
-
-void VisualizerAnnotatorManager::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
-{
-  // Catch space for triggering
-  if(key == ' ') {
-    if(trigger) {
-      *trigger = true;
-    }
-    return;
-  }
-  try {
-    bool needupdate_img = currentDrawingAnnotator->callbackKey(key, source);
-    updateImage = needupdate_img | updateImage;
-    updateCloud = needupdate_img | updateCloud;
-  }
-  catch(...) {
-    outError("Exception in " << currentDrawingAnnotator->name << "::callbackKey!");
-  }
-}
+//void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
+//{
+//  try {
+//    bool needupdate_img = currentDrawingAnnotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
+//    updateImage = needupdate_img | updateImage;
+//    updateCloud = needupdate_img | updateCloud;
+//  }
+//  catch(...) {
+//    outError("Exception in " << currentDrawingAnnotator->name << "::callbackMouse!");
+//  }
+//}
+//
+//void VisualizerAnnotatorManager::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
+//{
+//  // Catch space for triggering
+//  if(key == ' ') {
+//    if(trigger) {
+//      *trigger = true;
+//    }
+//    return;
+//  }
+//  try {
+//    bool needupdate_img = currentDrawingAnnotator->callbackKey(key, source);
+//    updateImage = needupdate_img | updateImage;
+//    updateCloud = needupdate_img | updateCloud;
+//  }
+//  catch(...) {
+//    outError("Exception in " << currentDrawingAnnotator->name << "::callbackKey!");
+//  }
+//}
 
 void VisualizerAnnotatorManager::setActiveAnnotators(std::vector<std::string> annotators)
 {
@@ -204,64 +205,64 @@ void VisualizerAnnotatorManager::checkAnnotator()
   }
 }
 
-void VisualizerAnnotatorManager::keyboardEventImageViewer(const cv::Mat &disp)
-{
-    // TODO maybe forward the stuff in this class to the actual annotator
+//void VisualizerAnnotatorManager::keyboardEventImageViewer(const cv::Mat &disp)
+//{
+//    // TODO maybe forward the stuff in this class to the actual annotator
+////
+////  int key;
+////#if CV_MAJOR_VERSION==3
+////  key = cv::waitKeyEx(10);
+////#else
+////  key = cv::waitKey(10);
+////#endif
+////  // Not sure if key == 0 is there for legacy reasons, but according to
+////  // https://docs.opencv.org/3.4/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
+////  // -1 denotes 'no key was pressed'
+////  if(key == 0 || key == -1) {
+////    return;
+////  }
+////  switch(key) {
+////  case 110: // next (n)
+////    nextAnnotator();
+////    break;
+////  case 112: // previous (p)
+////    prevAnnotator();
+////    break;
+////  case 99: // insert
+////    saveImage(disp);
+////    break;
+////  }
+////
+////  if((key & 0xFF) == 27) { //Escape
+////    shutdown();
+////  }
+////  else {
+////    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
+////  }
 //
-//  int key;
-//#if CV_MAJOR_VERSION==3
-//  key = cv::waitKeyEx(10);
-//#else
-//  key = cv::waitKey(10);
-//#endif
-//  // Not sure if key == 0 is there for legacy reasons, but according to
-//  // https://docs.opencv.org/3.4/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
-//  // -1 denotes 'no key was pressed'
-//  if(key == 0 || key == -1) {
-//    return;
-//  }
-//  switch(key) {
-//  case 110: // next (n)
-//    nextAnnotator();
-//    break;
-//  case 112: // previous (p)
-//    prevAnnotator();
-//    break;
-//  case 99: // insert
-//    saveImage(disp);
-//    break;
-//  }
-//
-//  if((key & 0xFF) == 27) { //Escape
-//    shutdown();
-//  }
-//  else {
-//    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
-//  }
+//}
 
-}
-
-void VisualizerAnnotatorManager::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
-{
-    // TODO maybe forward the stuff in this class to the actual annotator
-//  if(event.keyUp()) {
-//    if(event.getKeySym() == "Left") {
-//      nextAnnotator();
-//    }
-//    else if(event.getKeySym() == "Right") {
-//      prevAnnotator();
-//    }
-//    else if(event.getKeySym() == "Escape") {
-//      shutdown();
-//    }
-//    else if(event.getKeySym() == "Insert") {
-//      save = true;
-//    }
-//    else if(event.getKeyCode() > 0) {
-//      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER);
-//    }
-//  }
-}
+//void VisualizerAnnotatorManager::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
+//{
+//    // TODO maybe forward the stuff in this class to the actual annotator
+////  if(event.keyUp()) {
+////    if(event.getKeySym() == "Left") {
+////      nextAnnotator();
+////    }
+////    else if(event.getKeySym() == "Right") {
+////      prevAnnotator();
+////    }
+////    else if(event.getKeySym() == "Escape") {
+////      shutdown();
+////    }
+////    else if(event.getKeySym() == "Insert") {
+////      save = true;
+////    }
+////    else if(event.getKeyCode() > 0) {
+////      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER);
+////    }
+////  }
+//}
 
 
 bool VisualizerAnnotatorManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
@@ -317,4 +318,8 @@ std::string VisualizerAnnotatorManager::getCurrentAnnotatorName(){
 
 const std::string &VisualizerAnnotatorManager::getAEName() const {
   return aeName_;
+}
+
+DrawingAnnotator *VisualizerAnnotatorManager::getCurrentDrawingAnnotator() const {
+  return currentDrawingAnnotator;
 }

@@ -44,33 +44,26 @@ namespace rs
 class VisualizerAnnotatorManager
 {
   // TODO change to private and make Visualizer a friend
-public:
+private:
   std::string aeName_;
 
-
-
-//  const std::string windowImage;
-//  const std::string windowCloud;
-
   DrawingAnnotator *currentDrawingAnnotator;
+
+
   std::vector<std::string> names;
   std::vector<std::string> activeAnnotators;
   size_t index;
 
-//  std::thread imageViewerThread;
-//  std::thread cloudViewerThread;
   std::mutex lock;
 
   bool running;
-  bool updateImage;
-  bool updateCloud;
-  bool changedAnnotator;
+
 
   bool save, headless_;
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
-  std::vector<int> saveParams;
+//  std::vector<int> saveParams;
 
   std_msgs::Header header;
   ros::NodeHandle nh_;
@@ -80,10 +73,9 @@ public:
   // drawingAnnotators handled by this class
   std::map<std::string, DrawingAnnotator *> drawingAnnotators;
 
-
-
   static bool *trigger;
 
+public:
   VisualizerAnnotatorManager(bool headless, std::string aeName);
   ~VisualizerAnnotatorManager();
 
@@ -104,25 +96,17 @@ public:
   DrawingAnnotator *getAnnotator(const std::string &name);
   std::string getCurrentAnnotatorName();
 
-//  static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
-  void callbackMouseHandler(const int event, const int x, const int y);
-  void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
-
   void checkAnnotator();
-//  void shutdown();
-
-
-  void keyboardEventImageViewer(const cv::Mat &disp);
-  void keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *);
-
-//  void saveImage(const cv::Mat &disp);
-//  void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
   const std::string &getAEName() const;
+  DrawingAnnotator *getCurrentDrawingAnnotator() const;
 
+  bool updateImage;
+  bool updateCloud;
+  bool changedAnnotator;
 
 };
 

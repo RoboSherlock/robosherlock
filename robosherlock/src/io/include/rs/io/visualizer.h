@@ -124,8 +124,8 @@ private:
   void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
-  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-      robosherlock_msgs::RSVisControl::Response &res);
+//  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+//      robosherlock_msgs::RSVisControl::Response &res);
 
   inline const std::string imageWindowName(VisualizerAnnotatorManager &vam){
     return vam.getAEName() + "/Image Viewer";

@@ -32,7 +32,6 @@ using namespace rs;
 bool *Visualizer::trigger = NULL;
 
 Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
-//    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
     running(false), multiAAEVisualizer_(multiAAEVisualizer),
     save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
@@ -41,9 +40,6 @@ Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
   {
     this->savePath += '/';
   }
-
-  // TODO reenable the service in the VAMs
-//  vis_service_ = nh_.advertiseService(aeName_ + "/vis_command", &Visualizer::visControlCallback, this);
 }
 
 Visualizer::~Visualizer()
@@ -147,9 +143,7 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
   try {
     bool needupdate_img;
 
-
-    // TODO use right annotator
-    needupdate_img = activeVAM->currentDrawingAnnotator->callbackKey(key, source);
+    needupdate_img = activeVAM->getCurrentDrawingAnnotator()->callbackKey(key, source);
     activeVAM->updateImage = needupdate_img | activeVAM->updateImage;
     activeVAM->updateCloud = needupdate_img | activeVAM->updateCloud;
   }
@@ -210,8 +204,8 @@ void Visualizer::imageViewer()
     {
       auto& VisualizationAnnotatorMgr = vam.second;
       cv::namedWindow( imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
-      //cv::moveWindow(windowImage, 0, 0);
-//    TODO bring back cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
+
+      //TODO bring back cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
     }
   }
 
@@ -223,7 +217,7 @@ void Visualizer::imageViewer()
       VisualizationAnnotatorMgr->checkAnnotator();
       if(VisualizationAnnotatorMgr->updateImage) {
         VisualizationAnnotatorMgr->updateImage = false;
-        VisualizationAnnotatorMgr->currentDrawingAnnotator->drawImage(disp);
+        VisualizationAnnotatorMgr->getCurrentDrawingAnnotator()->drawImage(disp);
         cv::putText(disp, "Annotator: " + VisualizationAnnotatorMgr->getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
         if(!headless_)
           cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
@@ -287,7 +281,7 @@ void Visualizer::cloudViewer()
           const std::string annotatorName = "annotatorName-" + vam.first;
           visualizer->addText(VisualizationAnnotatorMgr->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
         }
-        if(VisualizationAnnotatorMgr->currentDrawingAnnotator->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedAnnotator)) {
+        if(VisualizationAnnotatorMgr->getCurrentDrawingAnnotator()->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedAnnotator)) {
           VisualizationAnnotatorMgr->updateCloud = false;
           VisualizationAnnotatorMgr->changedAnnotator = false;
         }
@@ -410,35 +404,33 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".pcd";
   oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
 
-  auto x = oss_cloud.str();
-  auto y = oss.str();
   outInfo("saving cloud: " << oss_cloud.str());
   //  pcl::io::savePCDFileASCII(oss.str(), *cloud);
   outInfo("saving screenshot: " << oss.str());
   visualizer->saveScreenshot(oss.str());
   ++saveFrameCloud;
 }
-
-bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-    robosherlock_msgs::RSVisControl::Response &res)
-{
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-  std::string command = req.command;
-  bool result = true;
-  std::string activeAnnotator = "";
-
-  if(command == "next")
-    activeAnnotator = firstVizAnnoMgrAnnotator->nextAnnotator();
-  else if(command == "previous")
-    activeAnnotator = firstVizAnnoMgrAnnotator->prevAnnotator();
-  else if(command != "")
-    activeAnnotator = firstVizAnnoMgrAnnotator->selectAnnotator(command);
-  if(activeAnnotator == "")
-    result = false;
-  res.success = result;
-  res.active_annotator = activeAnnotator;
-  return result;
-}
+//
+//bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+//    robosherlock_msgs::RSVisControl::Response &res)
+//{
+//  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+//  std::string command = req.command;
+//  bool result = true;
+//  std::string activeAnnotator = "";
+//
+//  if(command == "next")
+//    activeAnnotator = firstVizAnnoMgrAnnotator->nextAnnotator();
+//  else if(command == "previous")
+//    activeAnnotator = firstVizAnnoMgrAnnotator->prevAnnotator();
+//  else if(command != "")
+//    activeAnnotator = firstVizAnnoMgrAnnotator->selectAnnotator(command);
+//  if(activeAnnotator == "")
+//    result = false;
+//  res.success = result;
+//  res.active_annotator = activeAnnotator;
+//  return result;
+//}
 
 std::string Visualizer::getActiveWindowTitle()
 {
