@@ -108,7 +108,10 @@ public:
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
   void callbackMouseHandler(const int event, const int x, const int y);
-  void callbackKeyHandler(const char key, const DrawingAnnotator::Source source);
+
+  //
+  // @param activeVAM The Associated VisualizerAnnotatorManager in which window the detected key has been pressed
+  void callbackKeyHandler(const char key, const DrawingAnnotator::Source source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM);
 
   void shutdown();
 
@@ -130,6 +133,26 @@ private:
   inline const std::string cloudWindowName(VisualizerAnnotatorManager &vam){
     return vam.getAEName() + "/Cloud Viewer";
   }
+
+  // https://stackoverflow.com/a/478960
+  std::string exec(const char* cmd) {
+    std::array<char, 128> buffer;
+    std::string result;
+    std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+    if (!pipe) {
+      throw std::runtime_error("popen() failed!");
+    }
+    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr) {
+      result += buffer.data();
+    }
+    return result;
+  }
+  std::string getActiveWindowTitle();
+
+  // Returns true if the active window could be mapped to a VisualizerAnnotatorManager.
+  std::shared_ptr<VisualizerAnnotatorManager>  getAnnotatorManagerForActiveImageWindow(bool &success);
+
+
 };
 
 }

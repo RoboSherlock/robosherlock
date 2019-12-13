@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 
     spinner.start();
     vis.addVisualizerManager("demo");
-    engine2 = rs::createRSAggregateAnalysisEngine("YOUR PATH to demo2", false);
+    engine2 = rs::createRSAggregateAnalysisEngine("demo2.yaml", false);
     vis.addVisualizerManager("demo2");
     vis.start();
 

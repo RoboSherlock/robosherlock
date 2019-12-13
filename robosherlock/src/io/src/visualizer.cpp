@@ -68,15 +68,10 @@ bool Visualizer::start()
     // Add the first visualizerAnnotatorManagers_ for the user
     addVisualizerManager(aeName_);
 
-//    auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-//    firstVizAnnoMgrAnnotator->start();
-
     pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
     pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   } else{
     outInfo("Using MultiAAE Visualizer functionality");
-//    for(auto v : visualizerAnnotatorManagers_)
-
 
     // TODO this should be moved into the VAMs
     pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
@@ -84,6 +79,10 @@ bool Visualizer::start()
   }
 
 
+  // Creating threads for the visualizations
+  // Please note that GUI handling is in general not very multi-thread friendly
+  // This is also the reason why we only have ONE thread for
+  // handling,for example, OpenCV Windows.
   imageViewerThread = std::thread(&Visualizer::imageViewer, this);
   if(!headless_)
     cloudViewerThread = std::thread(&Visualizer::cloudViewer, this);
@@ -131,10 +130,10 @@ void Visualizer::callbackMouse(const int event, const int x, const int y, const 
 //}
 
 // TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
-void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
+// @assert activeVAM is not NULL
+void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM)
 {
-  assert(visualizerAnnotatorManagers_.size()>0);
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+//  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   // Catch space for triggering
   if(key == ' ') {
     if(trigger) {
@@ -146,10 +145,10 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
     bool needupdate_img;
 
 
-
-    needupdate_img = firstVizAnnoMgrAnnotator->currentDrawingAnnotator->callbackKey(key, source);
-    firstVizAnnoMgrAnnotator->updateImage = needupdate_img | firstVizAnnoMgrAnnotator->updateImage;
-    firstVizAnnoMgrAnnotator->updateCloud = needupdate_img | firstVizAnnoMgrAnnotator->updateCloud;
+    // TODO use right annotator
+    needupdate_img = activeVAM->currentDrawingAnnotator->callbackKey(key, source);
+    activeVAM->updateImage = needupdate_img | activeVAM->updateImage;
+    activeVAM->updateCloud = needupdate_img | activeVAM->updateCloud;
 
 //    if(multiAAEVisualizer_)
 //    {
@@ -168,7 +167,7 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
 
   }
   catch(...) {
-    outError("Exception in " << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << "::callbackKey!");
+    outError("Exception in " << activeVAM->getCurrentAnnotatorName() << "::callbackKey!");
   }
 }
 
@@ -328,7 +327,7 @@ void Visualizer::cloudViewer()
 void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
 {
 
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+
   int key;
 #if CV_MAJOR_VERSION==3
   key = cv::waitKeyEx(10);
@@ -341,14 +340,26 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
   if(key == 0 || key == -1) {
     return;
   }
+  bool success=false;
+  auto vamInteractedWith = getAnnotatorManagerForActiveImageWindow(success);
+  if(!success){
+    //We couldn't guess the active annotator from the window titles. We'll
+    //use the first VAM as a fallback
+    outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
+    vamInteractedWith = visualizerAnnotatorManagers_.begin()->second;
+  }
+
+
+
   switch(key) {
   case 110: // next (n)
-    firstVizAnnoMgrAnnotator->nextAnnotator();
+    vamInteractedWith->nextAnnotator();
     break;
   case 112: // previous (p)
-    firstVizAnnoMgrAnnotator->prevAnnotator();
+    vamInteractedWith->prevAnnotator();
     break;
   case 99: // insert
+    // TODO how to handle that
     saveImage(disp);
     break;
   }
@@ -357,7 +368,7 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     shutdown();
   }
   else {
-    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
+    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER, vamInteractedWith);
   }
 
 }
@@ -379,7 +390,8 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
       save = true;
     }
     else if(event.getKeyCode() > 0) {
-      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER);
+      // TODO pass the right VAM
+      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, firstVizAnnoMgrAnnotator);
     }
   }
 }
@@ -431,4 +443,26 @@ bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &re
   res.success = result;
   res.active_annotator = activeAnnotator;
   return result;
+}
+
+std::string Visualizer::getActiveWindowTitle()
+{
+  return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
+}
+
+std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveImageWindow(bool &success) {
+  success = false;
+  std::string active_window_title = getActiveWindowTitle();
+
+  for(auto vam: visualizerAnnotatorManagers_)
+  {
+    // Check if the active window title starts with the name of the window names the different VAMs should have
+    if(active_window_title.rfind(imageWindowName(*(vam.second)),0) == 0 )
+    {
+      success = true;
+      return vam.second;
+    }
+  }
+
+  return NULL;
 }
