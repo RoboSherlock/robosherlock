@@ -36,7 +36,7 @@ Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
     running(false), multiAAEVisualizer_(multiAAEVisualizer),
     save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
-  this->savePath = std::string(getenv("USER")) +"./ros/";
+  this->savePath = std::string(getenv("HOME")) +"/.ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
   {
     this->savePath += '/';
@@ -137,7 +137,6 @@ void Visualizer::callbackMouse(const int event, const int x, const int y, const 
 // @assert activeVAM is not NULL
 void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM)
 {
-//  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   // Catch space for triggering
   if(key == ' ') {
     if(trigger) {
@@ -153,22 +152,6 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
     needupdate_img = activeVAM->currentDrawingAnnotator->callbackKey(key, source);
     activeVAM->updateImage = needupdate_img | activeVAM->updateImage;
     activeVAM->updateCloud = needupdate_img | activeVAM->updateCloud;
-
-//    if(multiAAEVisualizer_)
-//    {
-//
-//      // Just use the first window / annotator manager for now
-//      assert(visualizerAnnotatorManagers_.size()>0);
-//      auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-//      needupdate_img = firstVizAnnoMgrAnnotator->currentDrawingAnnotator->callbackKey(key, source);
-//      visualizerAnnotatorManager_.updateImage = needupdate_img | firstVizAnnoMgrAnnotator->updateImage;
-//      visualizerAnnotatorManager_.updateCloud = needupdate_img | firstVizAnnoMgrAnnotator->updateCloud;
-//    }else {
-//      needupdate_img = visualizerAnnotatorManager_.currentDrawingAnnotator->callbackKey(key, source);
-//      visualizerAnnotatorManager_.updateImage = needupdate_img | visualizerAnnotatorManager_.updateImage;
-//      visualizerAnnotatorManager_.updateCloud = needupdate_img | visualizerAnnotatorManager_.updateCloud;
-//    }
-
   }
   catch(...) {
     outError("Exception in " << activeVAM->getCurrentAnnotatorName() << "::callbackKey!");
@@ -262,7 +245,6 @@ void Visualizer::imageViewer()
     for (auto vam : visualizerAnnotatorManagers_) {
       auto &VisualizationAnnotatorMgr = vam.second;
       cv::destroyWindow(imageWindowName(*VisualizationAnnotatorMgr));
-
     }
   }
   cv::waitKey(100);
@@ -276,7 +258,6 @@ void Visualizer::cloudViewer()
     auto &VisualizationAnnotatorMgr = vam.second;
     const std::string annotatorName = "annotatorName-" + vam.first;
     visualizers[vam.first] = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
-//    pcl::visualization::PCLVisualizer::Ptr visualizer(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
 
     auto &visualizer = visualizers[vam.first];
     visualizer->initCameraParameters();
@@ -313,12 +294,19 @@ void Visualizer::cloudViewer()
       }
       visualizer->spinOnce(10);
     }
-    // TODO check WHICH visualizer has been saved
-//    if(save) {
-//      save = false;
-//      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>()); // this was in the initialization before, i'm not sure if it's really needed there.
-//      saveCloud(cloud, visualizer);
-//    }
+
+    if(save) {
+      // TODO should be put a mutex here if you try to save multiple clouds very quickly?
+      save = false;
+      if(visualizerAnnotatorManagers_.count(saveVisualizerWithIdentifier)==0)
+      {
+        outError("Trying to save a cloud but we can't map the entered input from the window to a Visualizer.");
+        break;
+      }
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>()); // this was in the initialization before, i'm not sure if it's really needed there.
+      saveCloud(cloud, visualizers[saveVisualizerWithIdentifier]);
+      saveVisualizerWithIdentifier = "";
+    }
 
   } // end of ros::ok while loop
   for(auto vam : visualizerAnnotatorManagers_) {
@@ -400,6 +388,7 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
     }
     else if(event.getKeySym() == "Insert") {
       save = true;
+      saveVisualizerWithIdentifier = vamInteractedWith->getAEName();
     }
     else if(event.getKeyCode() > 0) {
       // TODO pass the right VAM
@@ -429,6 +418,8 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".pcd";
   oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
 
+  auto x = oss_cloud.str();
+  auto y = oss.str();
   outInfo("saving cloud: " << oss_cloud.str());
   //  pcl::io::savePCDFileASCII(oss.str(), *cloud);
   outInfo("saving screenshot: " << oss.str());
@@ -462,6 +453,7 @@ std::string Visualizer::getActiveWindowTitle()
   return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
 }
 
+// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VAM in visualizerAnnotatorManagers_
 std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const DrawingAnnotator::Source windowType) {
   success = false;
   std::string active_window_title = getActiveWindowTitle();

@@ -64,6 +64,7 @@ private:
   bool multiAAEVisualizer_;
 
   bool save, headless_;
+  std::string saveVisualizerWithIdentifier;
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
@@ -74,6 +75,7 @@ private:
   ros::Publisher pub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
+  // Map that relates an identifier (or in our case right now: the AAE name
   std::map<std::string, std::shared_ptr<VisualizerAnnotatorManager>> visualizerAnnotatorManagers_;
 
 public:
