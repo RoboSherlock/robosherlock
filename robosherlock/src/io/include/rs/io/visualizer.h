@@ -51,7 +51,7 @@ namespace rs
 class Visualizer
 {
 private:
-  std::string aeName_;
+//  std::string aeName_;
 
 //  const std::string windowImage;
 //  const std::string windowCloud;
@@ -74,14 +74,12 @@ private:
   ros::Publisher pub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
-//  VisualizerAnnotatorManager visualizerAnnotatorManager_;
-
   std::map<std::string, std::shared_ptr<VisualizerAnnotatorManager>> visualizerAnnotatorManagers_;
 
 public:
   static bool *trigger;
 
-  Visualizer(bool headless, std::string aeName = std::string(), bool multiAAEVisualizer=false);
+  Visualizer(bool headless, bool multiAAEVisualizer=false);
   ~Visualizer();
 
   bool start();

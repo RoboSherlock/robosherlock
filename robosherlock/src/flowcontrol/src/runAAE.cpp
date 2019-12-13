@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
 
   nh.deleteParam("ae");
   nh.deleteParam("vis");
+  std::vector<std::string> analysis_engine_name_list;
 
   //if only argument is an AE (nh.param reudces argc)
   if(argc == 2)
@@ -112,23 +113,38 @@ int main(int argc, char *argv[])
     }
     analysis_engine_names = argv[1];
   }
-  rs::common::getAEPaths(analysis_engine_names, analysis_engine_file);
 
-  if(analysis_engine_file.empty())
+  std::stringstream ss(analysis_engine_names);
+  while(ss.good())
   {
-    outError("analysis engine \"" << analysis_engine_file << "\" not found.");
-    return -1;
+    std::string substring;
+    std::getline(ss, substring,',');
+    if(substring!=""){
+      analysis_engine_name_list.push_back(substring);
+    }
   }
-  else
-    outInfo(analysis_engine_file);
 
+  std::vector<std::string> analysis_engine_file_paths;
+  for(auto ae_name : analysis_engine_name_list)
+  {
+    rs::common::getAEPaths(ae_name, analysis_engine_file);
 
-//  rs::Visualizer vis2(!useVisualizer);
+    if(analysis_engine_file.empty())
+    {
+      outError("analysis engine \"" << ae_name << "\" not found.");
+      return -1;
+    }
+    else
+    {
+      outInfo(analysis_engine_file);
+      analysis_engine_file_paths.push_back(analysis_engine_file);
+    }
+  }
 
-  RSAggregateAnalysisEngine *engine;
-  RSAggregateAnalysisEngine *engine2;
-  ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  // TODO put into VAM
+  //ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
 
+  std::vector<RSAggregateAnalysisEngine*> rsaaes;
   try
   {
     //singl
@@ -137,22 +153,28 @@ int main(int argc, char *argv[])
     mongo::client::GlobalInstance instance; //this is a stupid thing we did now we suffer the consequences 
     ros::AsyncSpinner spinner(0);
 
-    engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false);
-    rs::Visualizer vis(!useVisualizer, engine->getAAEName(), true);
 
+    rs::Visualizer vis(!useVisualizer, true);
     spinner.start();
-    vis.addVisualizerManager("demo");
-    engine2 = rs::createRSAggregateAnalysisEngine("demo2.yaml", false);
-    vis.addVisualizerManager("demo2");
+    for(auto ae_path : analysis_engine_file_paths)
+    {
+      RSAggregateAnalysisEngine* engine = rs::createRSAggregateAnalysisEngine(ae_path);
+      rsaaes.push_back(engine);
+      vis.addVisualizerManager(engine->getAAEName());
+    }
     vis.start();
 
     ros::Rate rate(30.0);
     while(ros::ok())
     {
       signal(SIGINT, signalHandler);
-
-      engine->resetCas();
-      engine->processOnce();
+      for(auto rsaae: rsaaes)
+      {
+        rsaae->resetCas();
+        rsaae->processOnce();
+      }
+//      engine->resetCas();
+//      engine->processOnce();
 
 //      std::vector<std::string> obj_descriptions;
 //      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
@@ -160,8 +182,8 @@ int main(int argc, char *argv[])
 //      robosherlock_msgs::RSObjectDescriptions objDescr;
 //      objDescr.obj_descriptions = obj_descriptions;
 //      result_pub_.publish(objDescr);
-      engine2->resetCas();
-      engine2->processOnce();
+//      engine2->resetCas();
+//      engine2->processOnce();
 
       rate.sleep(); 
     }
@@ -184,6 +206,8 @@ int main(int argc, char *argv[])
     outError("Unknown exception!");
   }
   ros::shutdown();
-  delete engine;
+  for(auto rsaae : rsaaes)
+    delete rsaae;
+
   return 0;
 }

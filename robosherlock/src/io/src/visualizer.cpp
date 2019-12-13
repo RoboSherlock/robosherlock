@@ -31,7 +31,7 @@ using namespace rs;
 
 bool *Visualizer::trigger = NULL;
 
-Visualizer::Visualizer(bool headless, std::string aeName, bool multiAAEVisualizer) : aeName_(aeName),
+Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
 //    windowImage(aeName + "/Image Viewer"), windowCloud(aeName +"/Cloud Viewer"),
     running(false), multiAAEVisualizer_(multiAAEVisualizer),
     save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
@@ -41,7 +41,9 @@ Visualizer::Visualizer(bool headless, std::string aeName, bool multiAAEVisualize
   {
     this->savePath += '/';
   }
-  vis_service_ = nh_.advertiseService(aeName_ + "/vis_command", &Visualizer::visControlCallback, this);
+
+  // TODO reenable the service in the VAMs
+//  vis_service_ = nh_.advertiseService(aeName_ + "/vis_command", &Visualizer::visControlCallback, this);
 }
 
 Visualizer::~Visualizer()
@@ -66,16 +68,18 @@ bool Visualizer::start()
     outInfo("Using Legacy Visualizer functionality");
     // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
     // Add the first visualizerAnnotatorManagers_ for the user
-    addVisualizerManager(aeName_);
+    // TODO get the AEName without breaking the API?
+    addVisualizerManager("");
 
-    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+    // TODO move into VAM
+//    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+//    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   } else{
     outInfo("Using MultiAAE Visualizer functionality");
 
     // TODO this should be moved into the VAMs
-    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+//    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+//    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   }
 
 
