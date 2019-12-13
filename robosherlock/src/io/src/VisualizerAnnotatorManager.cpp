@@ -64,7 +64,7 @@ bool VisualizerAnnotatorManager::start()
   //Initially, all annotators are active
   activeAnnotators = names;
 //
-//  pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
+  outputImagePub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
   pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   index = 0;
 
@@ -322,4 +322,13 @@ const std::string &VisualizerAnnotatorManager::getAEName() const {
 
 DrawingAnnotator *VisualizerAnnotatorManager::getCurrentDrawingAnnotator() const {
   return currentDrawingAnnotator;
+}
+
+void VisualizerAnnotatorManager::publishOutputImage(cv::Mat &disp) {
+  sensor_msgs::Image image_msg;
+  cv_bridge::CvImage cv_image;
+  cv_image.image = disp;
+  cv_image.encoding = "bgr8";
+  cv_image.toImageMsg(image_msg);
+  outputImagePub.publish(image_msg);
 }

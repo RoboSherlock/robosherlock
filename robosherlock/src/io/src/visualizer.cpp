@@ -222,6 +222,7 @@ void Visualizer::imageViewer()
         if(!headless_)
           cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
 
+        VisualizationAnnotatorMgr->publishOutputImage(disp);
         // TODO bring back ros publishing
 //        sensor_msgs::Image image_msg;
 //        cv_bridge::CvImage cv_image;

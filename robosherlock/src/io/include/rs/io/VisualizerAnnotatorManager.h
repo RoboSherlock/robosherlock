@@ -67,7 +67,7 @@ private:
 
   std_msgs::Header header;
   ros::NodeHandle nh_;
-  ros::Publisher pub, pubAnnotList;
+  ros::Publisher outputImagePub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
   // drawingAnnotators handled by this class
@@ -103,6 +103,8 @@ public:
 
   const std::string &getAEName() const;
   DrawingAnnotator *getCurrentDrawingAnnotator() const;
+
+  void publishOutputImage(cv::Mat &disp);
 
   bool updateImage;
   bool updateCloud;
