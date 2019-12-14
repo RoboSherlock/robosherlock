@@ -111,7 +111,7 @@ private:
 
   //
   // @param activeVAM The Associated VisualizerAnnotatorManager in which window the detected key has been pressed
-  void callbackKeyHandler(const char key, const DrawingAnnotator::Source source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM);
+  void callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM);
 
   void shutdown();
 
@@ -150,7 +150,7 @@ private:
   std::string getActiveWindowTitle();
 
   // Returns true if the active window could be mapped to a VisualizerAnnotatorManager.
-  std::shared_ptr<VisualizerAnnotatorManager> getAnnotatorManagerForActiveWindow(bool &success, const DrawingAnnotator::Source windowType);
+  std::shared_ptr<VisualizerAnnotatorManager> getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType);
 
 
 };

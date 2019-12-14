@@ -131,7 +131,7 @@ void Visualizer::callbackMouse(const int event, const int x, const int y, const 
 
 // TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
 // @assert activeVAM is not NULL
-void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Source source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM)
+void Visualizer::callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM)
 {
   // Catch space for triggering
   if(key == ' ') {
@@ -143,12 +143,12 @@ void Visualizer::callbackKeyHandler(const char key, const DrawingAnnotator::Sour
   try {
     bool needupdate_img;
 
-    needupdate_img = activeVAM->getCurrentDrawingAnnotator()->callbackKey(key, source);
+    needupdate_img = activeVAM->getCurrentVisualizable()->callbackKey(key, source);
     activeVAM->updateImage = needupdate_img | activeVAM->updateImage;
     activeVAM->updateCloud = needupdate_img | activeVAM->updateCloud;
   }
   catch(...) {
-    outError("Exception in " << activeVAM->getCurrentAnnotatorName() << "::callbackKey!");
+    outError("Exception in " << activeVAM->getCurrentVisualizableName() << "::callbackKey!");
   }
 }
 
@@ -214,11 +214,11 @@ void Visualizer::imageViewer()
     for(auto vam : visualizerAnnotatorManagers_)
     {
       auto& VisualizationAnnotatorMgr = vam.second;
-      VisualizationAnnotatorMgr->checkAnnotator();
+      VisualizationAnnotatorMgr->checkVisualizable();
       if(VisualizationAnnotatorMgr->updateImage) {
         VisualizationAnnotatorMgr->updateImage = false;
-        VisualizationAnnotatorMgr->getCurrentDrawingAnnotator()->drawImage(disp);
-        cv::putText(disp, "Annotator: " + VisualizationAnnotatorMgr->getCurrentAnnotatorName(), pos, font, sizeText, color, lineText, CV_AA);
+        VisualizationAnnotatorMgr->getCurrentVisualizable()->drawImage(disp);
+        cv::putText(disp, "Annotator: " + VisualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText, color, lineText, CV_AA);
         if(!headless_)
           cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
 
@@ -254,7 +254,7 @@ void Visualizer::cloudViewer()
     // TODO change to support multiple callback handlers
     visualizer->registerKeyboardCallback(&Visualizer::keyboardEventCloudViewer, *this);
 
-    visualizer->addText(VisualizationAnnotatorMgr->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+    visualizer->addText(VisualizationAnnotatorMgr->getCurrentVisualizableName(), 2, 20, 12, 1, 1, 1, annotatorName);
 
     visualizer->spinOnce();
     visualizer->setSize(1280, 960);
@@ -266,18 +266,18 @@ void Visualizer::cloudViewer()
       auto &VisualizationAnnotatorMgr = vam.second;
       auto &visualizer = visualizers[vam.first];
 
-      VisualizationAnnotatorMgr->checkAnnotator();
+      VisualizationAnnotatorMgr->checkVisualizable();
 
       if(VisualizationAnnotatorMgr->updateCloud) {
-        if(VisualizationAnnotatorMgr->changedAnnotator) {
+        if(VisualizationAnnotatorMgr->changedVisualizable) {
           visualizer->removeAllPointClouds();
           visualizer->removeAllShapes();
           const std::string annotatorName = "annotatorName-" + vam.first;
-          visualizer->addText(VisualizationAnnotatorMgr->getCurrentAnnotatorName(), 2, 20, 12, 1, 1, 1, annotatorName);
+          visualizer->addText(VisualizationAnnotatorMgr->getCurrentVisualizableName(), 2, 20, 12, 1, 1, 1, annotatorName);
         }
-        if(VisualizationAnnotatorMgr->getCurrentDrawingAnnotator()->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedAnnotator)) {
+        if(VisualizationAnnotatorMgr->getCurrentVisualizable()->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedVisualizable)) {
           VisualizationAnnotatorMgr->updateCloud = false;
-          VisualizationAnnotatorMgr->changedAnnotator = false;
+          VisualizationAnnotatorMgr->changedVisualizable = false;
         }
       }
       visualizer->spinOnce(10);
@@ -383,7 +383,7 @@ void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnota
 {
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << vam->getCurrentAnnotatorName() << ".png";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << vam->getCurrentVisualizableName() << ".png";
 
   outInfo("saving image: " << oss.str());
   cv::imwrite(oss.str(), disp, saveParams);
@@ -395,8 +395,8 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss, oss_cloud;
-  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".pcd";
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentAnnotatorName() << ".png";
+  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".pcd";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".png";
 
   outInfo("saving cloud: " << oss_cloud.str());
   //  pcl::io::savePCDFileASCII(oss.str(), *cloud);
@@ -411,7 +411,7 @@ std::string Visualizer::getActiveWindowTitle()
 }
 
 // TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VAM in visualizerAnnotatorManagers_
-std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const DrawingAnnotator::Source windowType) {
+std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType) {
   success = false;
   std::string active_window_title = getActiveWindowTitle();
 

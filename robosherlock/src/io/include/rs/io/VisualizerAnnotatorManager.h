@@ -36,7 +36,8 @@
 #include <robosherlock_msgs/RSVisControl.h>
 
 // RS
-#include <rs/DrawingAnnotator.h>
+//#include <rs/DrawingAnnotator.h>
+#include <rs/io/Visualizable.h>
 
 namespace rs
 {
@@ -47,11 +48,11 @@ class VisualizerAnnotatorManager
 private:
   std::string identifier_;
 
-  DrawingAnnotator *currentDrawingAnnotator;
+  Visualizable *currentVisualizable;
 
 
   std::vector<std::string> names;
-  std::vector<std::string> activeAnnotators;
+  std::vector<std::string> activeVisualizables;
   size_t index;
 
   std::mutex lock;
@@ -71,7 +72,7 @@ private:
   ros::ServiceServer vis_service_;
 
   // drawingAnnotators handled by this class
-  std::map<std::string, DrawingAnnotator *> drawingAnnotators;
+  std::map<std::string, Visualizable *> visualizables;
 
   static bool *trigger;
 
@@ -81,34 +82,34 @@ public:
 
   bool start();
   void stop();
-  void setActiveAnnotators(std::vector<std::string> annotators);
+  void setActiveAnnotators(std::vector<std::string> visualizable);
   std::string nextAnnotator();
   std::string prevAnnotator();
-  std::string selectAnnotator(std::string annotator);
+  std::string selectAnnotator(std::string visualizable);
 
   // This method will copy all pointers p from DrawingAnnotator::annotators
   // into this class' drawingAnnotators property.
   // DrawingAnnotator::annotators will be emptied after the copy process
   //
   // Returns: The number of elements copied
-  int consumeRecentDrawingAnnotators();
-  void getAnnotatorNames(std::vector<std::string> &names);
-  DrawingAnnotator *getAnnotator(const std::string &name);
-  std::string getCurrentAnnotatorName();
+  int consumeRecentVisualizables(); // TODO should be private
+  void getAnnotatorNames(std::vector<std::string> &names); // TODO rename
+  Visualizable *getAnnotator(const std::string &name); // TODO rename
+  std::string getCurrentVisualizableName();
 
-  void checkAnnotator();
+  void checkVisualizable();
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
   const std::string &getIdentifier() const;
-  DrawingAnnotator *getCurrentDrawingAnnotator() const;
+  Visualizable *getCurrentVisualizable() const;
 
   void publishOutputImage(cv::Mat &disp);
 
   bool updateImage;
   bool updateCloud;
-  bool changedAnnotator;
+  bool changedVisualizable;
 
 };
 

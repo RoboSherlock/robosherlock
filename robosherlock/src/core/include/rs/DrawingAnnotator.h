@@ -33,42 +33,42 @@
 #include <pcl/point_cloud.h>
 
 #include <rs/utils/output.h>
+#include <rs/io/Visualizable.h>
 
-class DrawingAnnotator : public uima::Annotator
+class DrawingAnnotator : public uima::Annotator, public Visualizable
 {
 public:
-  enum Source
-  {
-    IMAGE_VIEWER = 0,
-    CLOUD_VIEWER
-  };
-
-  const std::string name;
-  bool update;
-  bool hasRun;
+  typedef VisualizableDataType Source;
+//  enum Source
+//  {
+//    IMAGE_VIEWER = 0,
+//    CLOUD_VIEWER
+//  };
+//
+//  const std::string name;
+//  bool update;
+  bool hasRun = false;
 
 private:
-  static std::map<std::string, DrawingAnnotator *> annotators;
+//  static std::map<std::string, DrawingAnnotator *> annotators;
 
   std::mutex drawLock;
 
 public:
   DrawingAnnotator(const std::string &name);
-  virtual ~DrawingAnnotator();
+//  virtual ~DrawingAnnotator();
 
-  static void getAnnotatorNames(std::vector<std::string> &names);
-  static DrawingAnnotator *getAnnotator(const std::string &name);
-  static void clearAnnotatorList();
+//  static void clearAnnotatorList();
   // clear inMap and copy the list of current DrawingAnnotators into inMap
-  static int copyAnnotatorList(std::map<std::string, DrawingAnnotator *> &inMap);
+//  static int copyAnnotatorList(std::map<std::string, DrawingAnnotator *> &inMap);
 
   uima::TyErrorId process(uima::CAS &tcas, uima::ResultSpecification const &res_spec);
 
   void drawImage(cv::Mat &disp);
   bool fillVisualizer(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);
 
-  virtual bool callbackMouse(const int event, const int x, const int y, const Source source);
-  virtual bool callbackKey(const int key, const Source source);
+//  virtual bool callbackMouse(const int event, const int x, const int y, const Source source);
+//  virtual bool callbackKey(const int key, const Source source);
 
 protected:
   virtual uima::TyErrorId processWithLock(uima::CAS &tcas, uima::ResultSpecification const &res_spec) = 0;
