@@ -46,6 +46,8 @@ class VisualizerAnnotatorManager
 {
   // TODO change to private and make Visualizer a friend
 private:
+
+
   std::string identifier_;
 
   Visualizable *currentVisualizable;
@@ -101,6 +103,8 @@ public:
 
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
+
+  void callbackMouseHandler(const int event, const int x, const int y);
 
   const std::string &getIdentifier() const;
   Visualizable *getCurrentVisualizable() const;

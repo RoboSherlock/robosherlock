@@ -63,7 +63,11 @@ private:
   bool running;
   bool multiAAEVisualizer_;
 
-  bool save, headless_;
+  bool save;
+  bool saveImageToDisk;
+  bool headless_;
+  std::shared_ptr<VisualizerAnnotatorManager> imageVamToBeSaved;
+
   std::string saveVisualizerWithIdentifier;
   size_t saveFrameImage;
   size_t saveFrameCloud;
@@ -107,7 +111,7 @@ public:
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
-  void callbackMouseHandler(const int event, const int x, const int y);
+//  void callbackMouseHandler(const int event, const int x, const int y);
 
   //
   // @param activeVAM The Associated VisualizerAnnotatorManager in which window the detected key has been pressed
@@ -123,9 +127,6 @@ private:
 
   void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
-
-//  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-//      robosherlock_msgs::RSVisControl::Response &res);
 
   inline const std::string imageWindowName(VisualizerAnnotatorManager &vam){
     return vam.getIdentifier() + "/Image Viewer";
@@ -151,6 +152,8 @@ private:
 
   // Returns true if the active window could be mapped to a VisualizerAnnotatorManager.
   std::shared_ptr<VisualizerAnnotatorManager> getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType);
+
+
 
 
 };

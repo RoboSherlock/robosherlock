@@ -271,3 +271,15 @@ void VisualizerAnnotatorManager::publishOutputImage(cv::Mat &disp) {
   cv_image.toImageMsg(image_msg);
   outputImagePub.publish(image_msg);
 }
+
+void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
+{
+  try {
+    bool needupdate_img = currentVisualizable->callbackMouse(event, x, y, Visualizable::VisualizableDataType::IMAGE_VIEWER);
+    updateImage = needupdate_img | updateImage;
+    updateCloud = needupdate_img | updateCloud;
+  }
+  catch(...) {
+    outError("Exception in " << currentVisualizable->name << "::callbackMouse!");
+  }
+}

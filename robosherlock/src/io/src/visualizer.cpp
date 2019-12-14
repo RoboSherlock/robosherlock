@@ -33,7 +33,8 @@ bool *Visualizer::trigger = NULL;
 
 Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
     running(false), multiAAEVisualizer_(multiAAEVisualizer),
-    save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~")
+    save(false), saveImageToDisk(false), headless_(headless),
+    saveFrameImage(0), saveFrameCloud(0), nh_("~")
 {
   this->savePath = std::string(getenv("HOME")) +"/.ros/";
   if(this->savePath[this->savePath.size() - 1] != '/')
@@ -109,25 +110,9 @@ void Visualizer::stop()
 
 void Visualizer::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
 {
-  // TODO
-  // Check which window is active and forward it to the right VisualizerAnnotatorManager
-  // NOTE: Mouse callbacks are set up per Window. So it would make sense to bind a method
-  // in such a way that we get the name of the window where the mouse action was fired
-//  ((Visualizer *)object)->callbackMouseHandler(event, x, y);
-  outInfo("TODO MouseHandler impl.");
+  VisualizerAnnotatorManager* vam =  ((VisualizerAnnotatorManager *)object);
+  vam->callbackMouseHandler(event,x,y);
 }
-
-//void Visualizer::callbackMouseHandler(const int event, const int x, const int y)
-//{
-//  try {
-//    bool needupdate_img = annotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
-//    updateImage = needupdate_img | updateImage;
-//    updateCloud = needupdate_img | updateCloud;
-//  }
-//  catch(...) {
-//    outError("Exception in " << annotator->name << "::callbackMouse!");
-//  }
-//}
 
 // TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
 // @assert activeVAM is not NULL
@@ -205,7 +190,8 @@ void Visualizer::imageViewer()
       auto& VisualizationAnnotatorMgr = vam.second;
       cv::namedWindow( imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
 
-      //TODO bring back cv::setMouseCallback(windowImage, &Visualizer::callbackMouse, this);
+      // TODO It's not so nice to point to the raw data in the shared_ptr.
+      cv::setMouseCallback(imageWindowName(*VisualizationAnnotatorMgr), &Visualizer::callbackMouse, &(*(vam.second)) );
     }
   }
 
@@ -213,17 +199,26 @@ void Visualizer::imageViewer()
   for(; ros::ok();) {
     for(auto vam : visualizerAnnotatorManagers_)
     {
-      auto& VisualizationAnnotatorMgr = vam.second;
-      VisualizationAnnotatorMgr->checkVisualizable();
-      if(VisualizationAnnotatorMgr->updateImage) {
-        VisualizationAnnotatorMgr->updateImage = false;
-        VisualizationAnnotatorMgr->getCurrentVisualizable()->drawImage(disp);
-        cv::putText(disp, "Annotator: " + VisualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText, color, lineText, CV_AA);
+      auto& visualizationAnnotatorMgr = vam.second;
+      visualizationAnnotatorMgr->checkVisualizable();
+      if(visualizationAnnotatorMgr->updateImage) {
+        visualizationAnnotatorMgr->updateImage = false;
+        visualizationAnnotatorMgr->getCurrentVisualizable()->drawImage(disp);
+        cv::putText(disp, "Annotator: " + visualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText, color, lineText, CV_AA);
         if(!headless_)
-          cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
+          cv::imshow(imageWindowName(*visualizationAnnotatorMgr), disp);
 
-        VisualizationAnnotatorMgr->publishOutputImage(disp);
+        visualizationAnnotatorMgr->publishOutputImage(disp);
+
+        // When an image is to be saved from a previous iteration, check if we can fetch the current image now and write it
+        // TODO if it's a problem that this is always one iteration behind, one could think of calling
+        // the keyboard event image viewer for each iteration in this scope
+        if(saveImageToDisk && imageVamToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier()){
+          saveImageToDisk = false;
+          saveImage(disp, visualizationAnnotatorMgr);
+        }
       }
+
     } // end of visualizerAnnotatorManagers_ iteration
     if(!headless_)
       keyboardEventImageViewer(disp);
@@ -321,7 +316,7 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     return;
   }
   bool success=false;
-  auto vamInteractedWith = getAnnotatorManagerForActiveWindow(success, DrawingAnnotator::IMAGE_VIEWER);
+  auto vamInteractedWith = getAnnotatorManagerForActiveWindow(success, Visualizable::VisualizableDataType::IMAGE_VIEWER);
   if(!success){
     //We couldn't guess the active annotator from the window titles. We'll
     //use the first VAM as a fallback
@@ -337,7 +332,9 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     vamInteractedWith->prevAnnotator();
     break;
   case 99: // insert
-    saveImage(disp, vamInteractedWith);
+    saveImageToDisk = true;
+    imageVamToBeSaved = vamInteractedWith;
+//    saveImage(disp, vamInteractedWith);
     break;
   }
   if(lowerByteOfKey == 27) { //Escape
@@ -418,13 +415,13 @@ std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForAc
   for(auto vam: visualizerAnnotatorManagers_)
   {
     // Check if the active window title starts with the name of the window names the different VAMs should have
-    if(windowType == DrawingAnnotator::IMAGE_VIEWER && active_window_title.rfind(imageWindowName(*(vam.second)),0) == 0 )
+    if(windowType == Visualizable::VisualizableDataType::IMAGE_VIEWER && active_window_title.rfind(imageWindowName(*(vam.second)),0) == 0 )
     {
       success = true;
       return vam.second;
     }
 
-    if(windowType == DrawingAnnotator::CLOUD_VIEWER && active_window_title.rfind(cloudWindowName(*(vam.second)),0) == 0 )
+    if(windowType == Visualizable::VisualizableDataType::CLOUD_VIEWER && active_window_title.rfind(cloudWindowName(*(vam.second)),0) == 0 )
     {
       success = true;
       return vam.second;
