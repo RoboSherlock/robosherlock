@@ -128,10 +128,10 @@ private:
 //      robosherlock_msgs::RSVisControl::Response &res);
 
   inline const std::string imageWindowName(VisualizerAnnotatorManager &vam){
-    return vam.getAEName() + "/Image Viewer";
+    return vam.getIdentifier() + "/Image Viewer";
   }
   inline const std::string cloudWindowName(VisualizerAnnotatorManager &vam){
-    return vam.getAEName() + "/Cloud Viewer";
+    return vam.getIdentifier() + "/Cloud Viewer";
   }
 
   // https://stackoverflow.com/a/478960

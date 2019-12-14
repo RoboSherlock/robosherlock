@@ -32,8 +32,8 @@ using namespace rs;
 bool *VisualizerAnnotatorManager::trigger = NULL;
 // TODO remove headless
 
-VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string aeName) :
-  aeName_(aeName),
+VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string identifier) :
+  identifier_(identifier),
   currentDrawingAnnotator(NULL), names(), index(0), running(false),
   save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~"),
   updateImage(true), updateCloud(true), changedAnnotator(true)
@@ -43,7 +43,7 @@ VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::strin
   {
     this->savePath += '/';
   }
-  vis_service_ = nh_.advertiseService(aeName_ + "/vis_command", &VisualizerAnnotatorManager::visControlCallback, this);
+  vis_service_ = nh_.advertiseService(identifier_ + "/vis_command", &VisualizerAnnotatorManager::visControlCallback, this);
 }
 
 VisualizerAnnotatorManager::~VisualizerAnnotatorManager()
@@ -53,7 +53,7 @@ VisualizerAnnotatorManager::~VisualizerAnnotatorManager()
 
 bool VisualizerAnnotatorManager::start()
 {
-  outInfo("start with AE=" << aeName_);
+  outInfo("start with Identifier=" << identifier_);
   consumeRecentDrawingAnnotators(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
 
   getAnnotatorNames(names);
@@ -64,8 +64,8 @@ bool VisualizerAnnotatorManager::start()
   //Initially, all annotators are active
   activeAnnotators = names;
 //
-  outputImagePub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+  outputImagePub = nh_.advertise<sensor_msgs::Image>(identifier_ + "/output_image", 1, true);
+  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(identifier_ +"/vis/active_annotators", 1, true);
   index = 0;
 
   currentDrawingAnnotator = getAnnotator(names[index]);
@@ -204,67 +204,6 @@ void VisualizerAnnotatorManager::checkAnnotator()
     updateCloud = true;
   }
 }
-
-//void VisualizerAnnotatorManager::keyboardEventImageViewer(const cv::Mat &disp)
-//{
-//    // TODO maybe forward the stuff in this class to the actual annotator
-////
-////  int key;
-////#if CV_MAJOR_VERSION==3
-////  key = cv::waitKeyEx(10);
-////#else
-////  key = cv::waitKey(10);
-////#endif
-////  // Not sure if key == 0 is there for legacy reasons, but according to
-////  // https://docs.opencv.org/3.4/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
-////  // -1 denotes 'no key was pressed'
-////  if(key == 0 || key == -1) {
-////    return;
-////  }
-////  switch(key) {
-////  case 110: // next (n)
-////    nextAnnotator();
-////    break;
-////  case 112: // previous (p)
-////    prevAnnotator();
-////    break;
-////  case 99: // insert
-////    saveImage(disp);
-////    break;
-////  }
-////
-////  if((key & 0xFF) == 27) { //Escape
-////    shutdown();
-////  }
-////  else {
-////    callbackKeyHandler(key & 0xFF, DrawingAnnotator::IMAGE_VIEWER);
-////  }
-//
-//}
-
-//void VisualizerAnnotatorManager::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
-//{
-//    // TODO maybe forward the stuff in this class to the actual annotator
-////  if(event.keyUp()) {
-////    if(event.getKeySym() == "Left") {
-////      nextAnnotator();
-////    }
-////    else if(event.getKeySym() == "Right") {
-////      prevAnnotator();
-////    }
-////    else if(event.getKeySym() == "Escape") {
-////      shutdown();
-////    }
-////    else if(event.getKeySym() == "Insert") {
-////      save = true;
-////    }
-////    else if(event.getKeyCode() > 0) {
-////      callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER);
-////    }
-////  }
-//}
-
-
 bool VisualizerAnnotatorManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
     robosherlock_msgs::RSVisControl::Response &res)
 {
@@ -316,8 +255,8 @@ std::string VisualizerAnnotatorManager::getCurrentAnnotatorName(){
   return currentDrawingAnnotator->name;
 }
 
-const std::string &VisualizerAnnotatorManager::getAEName() const {
-  return aeName_;
+const std::string &VisualizerAnnotatorManager::getIdentifier() const {
+  return identifier_;
 }
 
 DrawingAnnotator *VisualizerAnnotatorManager::getCurrentDrawingAnnotator() const {

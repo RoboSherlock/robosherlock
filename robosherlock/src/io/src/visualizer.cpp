@@ -223,13 +223,6 @@ void Visualizer::imageViewer()
           cv::imshow(imageWindowName(*VisualizationAnnotatorMgr), disp);
 
         VisualizationAnnotatorMgr->publishOutputImage(disp);
-        // TODO bring back ros publishing
-//        sensor_msgs::Image image_msg;
-//        cv_bridge::CvImage cv_image;
-//        cv_image.image = disp;
-//        cv_image.encoding = "bgr8";
-//        cv_image.toImageMsg(image_msg);
-//        pub.publish(image_msg);
       }
     } // end of visualizerAnnotatorManagers_ iteration
     if(!headless_)
@@ -378,7 +371,7 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
     }
     else if(event.getKeySym() == "Insert") {
       save = true;
-      saveVisualizerWithIdentifier = vamInteractedWith->getAEName();
+      saveVisualizerWithIdentifier = vamInteractedWith->getIdentifier();
     }
     else if(event.getKeyCode() > 0) {
       callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, vamInteractedWith);
@@ -411,27 +404,6 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, 
   visualizer->saveScreenshot(oss.str());
   ++saveFrameCloud;
 }
-//
-//bool Visualizer::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-//    robosherlock_msgs::RSVisControl::Response &res)
-//{
-//  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-//  std::string command = req.command;
-//  bool result = true;
-//  std::string activeAnnotator = "";
-//
-//  if(command == "next")
-//    activeAnnotator = firstVizAnnoMgrAnnotator->nextAnnotator();
-//  else if(command == "previous")
-//    activeAnnotator = firstVizAnnoMgrAnnotator->prevAnnotator();
-//  else if(command != "")
-//    activeAnnotator = firstVizAnnoMgrAnnotator->selectAnnotator(command);
-//  if(activeAnnotator == "")
-//    result = false;
-//  res.success = result;
-//  res.active_annotator = activeAnnotator;
-//  return result;
-//}
 
 std::string Visualizer::getActiveWindowTitle()
 {

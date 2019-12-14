@@ -45,7 +45,7 @@ class VisualizerAnnotatorManager
 {
   // TODO change to private and make Visualizer a friend
 private:
-  std::string aeName_;
+  std::string identifier_;
 
   DrawingAnnotator *currentDrawingAnnotator;
 
@@ -76,7 +76,7 @@ private:
   static bool *trigger;
 
 public:
-  VisualizerAnnotatorManager(bool headless, std::string aeName);
+  VisualizerAnnotatorManager(bool headless, std::string identifier);
   ~VisualizerAnnotatorManager();
 
   bool start();
@@ -101,7 +101,7 @@ public:
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
       robosherlock_msgs::RSVisControl::Response &res);
 
-  const std::string &getAEName() const;
+  const std::string &getIdentifier() const;
   DrawingAnnotator *getCurrentDrawingAnnotator() const;
 
   void publishOutputImage(cv::Mat &disp);
