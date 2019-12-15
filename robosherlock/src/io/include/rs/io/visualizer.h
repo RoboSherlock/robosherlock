@@ -43,19 +43,19 @@ namespace rs
 {
 
 /*
- * This visualizer can be run with only one AAE running or also in MultiAAE setups.
+ * This class handles visualization for everything that is a Visualizable.
+ * It creates two threads. One for openCV Image visualization and one for PCL.
+ * Since multithreading in GUI handling is problematic, do not instantiate this class more than once.
+ *
+ * This visualizer can be run with only one AAE or also in MultiAAE setups.
  * Please note that the MultiAAE features are new and experimental.
- * If you want to use them, instantiate the RSVisualizer with multiAAEVisualizer=true and
- * add the DrawingAnnotators per Engien with the TODO method.
+ * If you want to use them, instantiate the RSVisualizer with multiAAEVisualizer=true.
+ * After that, instantiate all Visualizables you want to group and then call this->addVisualizableGroupManager
+ *
  */
 class Visualizer
 {
 private:
-//  std::string aeName_;
-
-//  const std::string windowImage;
-//  const std::string windowCloud;
-
   std::thread imageViewerThread;
   std::thread cloudViewerThread;
   std::mutex lock;
@@ -77,7 +77,6 @@ private:
   std_msgs::Header header;
   ros::NodeHandle nh_;
   ros::Publisher pub, pubAnnotList;
-  ros::ServiceServer vis_service_;
 
   // Map that relates an identifier (or in our case right now: the AAE name
   std::map<std::string, std::shared_ptr<VisualizableGroupManager>> visualizerAnnotatorManagers_;
@@ -91,7 +90,8 @@ public:
   bool start();
   void stop();
 
-  // TODO change this interfaces so it doesn't break the current api
+  // TODO provide *Visualizables methods instead of *Annotators so it reflects the new API
+  // TODO forward all calls to *Annotator to *Visualizables so the change in the  interface doesn't break the current api
   // RS ProcessManager is calling this from the outside
   // Note: When running in MultiAAE mode, this will only affect the first
   // AAE (or in more detail: rs::Visualizer::visualizerAnnotatorManagers_.begin().second
@@ -114,8 +114,8 @@ public:
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
 
-  // @param activeVAM The Associated VisualizableGroupManager in which window the detected key has been pressed
-  void callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizableGroupManager> activeVAM);
+  // @param activeVGM The Associated VisualizableGroupManager in which window the detected key has been pressed
+  void callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizableGroupManager> activeVGM);
 
   void shutdown();
 
@@ -125,14 +125,14 @@ private:
   void keyboardEventImageViewer(const cv::Mat &disp);
   void keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *);
 
-  void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGroupManager> vam);
+  void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGroupManager> vgm);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
-  inline const std::string imageWindowName(VisualizableGroupManager &vam){
-    return vam.getIdentifier() + "/Image Viewer";
+  inline const std::string imageWindowName(VisualizableGroupManager &vgm){
+    return vgm.getIdentifier() + "/Image Viewer";
   }
-  inline const std::string cloudWindowName(VisualizableGroupManager &vam){
-    return vam.getIdentifier() + "/Cloud Viewer";
+  inline const std::string cloudWindowName(VisualizableGroupManager &vgm){
+    return vgm.getIdentifier() + "/Cloud Viewer";
   }
 
   // https://stackoverflow.com/a/478960
