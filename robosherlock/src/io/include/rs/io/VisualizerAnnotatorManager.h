@@ -42,6 +42,15 @@
 namespace rs
 {
 
+  /*
+   * This class is a communicator between a single Visualizer and a group of Visualizables.
+   * A group of visualizables could, for example, be all DrawingAnnotators in a single Pipeline/AAE.
+   *
+   * Visualizers must be unique, because GUI related actions are problematic to handle in multiple threads.
+   * The logic which Visualizables should currently be shown or if updates have been occured are handled in this class.
+   * Usually, for each AAE that wants to visualize stuff, an object of this class will be instantiated by the Visualizer.
+   *
+   */
 class VisualizerAnnotatorManager
 {
   // TODO change to private and make Visualizer a friend
@@ -78,7 +87,18 @@ private:
 
   static bool *trigger;
 
-public:
+    // This method will copy all pointers p from DrawingAnnotator::annotators
+    // into this class' drawingAnnotators property.
+    // DrawingAnnotator::annotators will be emptied after the copy process
+    //
+    // Returns: The number of elements copied
+  int consumeRecentVisualizables();
+
+  void getAnnotatorNames(std::vector<std::string> &names); // TODO rename
+  Visualizable *getAnnotator(const std::string &name); // TODO rename
+
+
+  public:
   VisualizerAnnotatorManager(bool headless, std::string identifier);
   ~VisualizerAnnotatorManager();
 
@@ -89,14 +109,7 @@ public:
   std::string prevAnnotator();
   std::string selectAnnotator(std::string visualizable);
 
-  // This method will copy all pointers p from DrawingAnnotator::annotators
-  // into this class' drawingAnnotators property.
-  // DrawingAnnotator::annotators will be emptied after the copy process
-  //
-  // Returns: The number of elements copied
-  int consumeRecentVisualizables(); // TODO should be private
-  void getAnnotatorNames(std::vector<std::string> &names); // TODO rename
-  Visualizable *getAnnotator(const std::string &name); // TODO rename
+
   std::string getCurrentVisualizableName();
 
   void checkVisualizable();
