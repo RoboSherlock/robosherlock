@@ -51,8 +51,8 @@ Visualizer::~Visualizer()
 // TODO think of having headless in the VisualizableGroupManager so some pipelines can be headless
 void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
-  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizableGroupManager>(false, identifier);
-  visualizerAnnotatorManagers_[identifier]->start();
+  visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(false, identifier);
+  visualizableGroupManagers_[identifier]->start();
 }
 
 bool Visualizer::start()
@@ -64,7 +64,7 @@ bool Visualizer::start()
   if(!multiAAEVisualizer_){
     outInfo("Using Legacy Visualizer functionality");
     // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
-    // Add the first visualizerAnnotatorManagers_ for the user
+    // Add the first visualizableGroupManagers_ for the user
     // TODO get the AEName without breaking the API?
     addVisualizableGroupManager("");
   } else{
@@ -132,31 +132,31 @@ void Visualizer::callbackKeyHandler(const char key, const Visualizable::Visualiz
 void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
 {
   // TODO change service and add a parameter which VGM/pipeline/AAE is meant
-  assert(visualizerAnnotatorManagers_.size()>0);
-  auto firstVGM = visualizerAnnotatorManagers_.begin()->second;
+  assert(visualizableGroupManagers_.size() > 0);
+  auto firstVGM = visualizableGroupManagers_.begin()->second;
 
   firstVGM->setActiveVisualizable(annotators);
 }
 
 std::string Visualizer::nextAnnotator()
 {
-  assert(visualizerAnnotatorManagers_.size()>0);
-  auto firstVGM = visualizerAnnotatorManagers_.begin()->second;
+  assert(visualizableGroupManagers_.size() > 0);
+  auto firstVGM = visualizableGroupManagers_.begin()->second;
 
   return firstVGM->nextVisualizable();
 }
 
 std::string Visualizer::prevAnnotator()
 {
-  assert(visualizerAnnotatorManagers_.size()>0);
-  auto firstVGM = visualizerAnnotatorManagers_.begin()->second;
+  assert(visualizableGroupManagers_.size() > 0);
+  auto firstVGM = visualizableGroupManagers_.begin()->second;
   return firstVGM->prevVisualizable();
 }
 
 std::string Visualizer::selectAnnotator(std::string anno)
 {
-  assert(visualizerAnnotatorManagers_.size()>0);
-  auto firstVGM = visualizerAnnotatorManagers_.begin()->second;
+  assert(visualizableGroupManagers_.size() > 0);
+  auto firstVGM = visualizableGroupManagers_.begin()->second;
   return firstVGM->selectVisualizable(anno);
 }
 
@@ -178,7 +178,7 @@ void Visualizer::imageViewer()
   // Initialize Windows for every AAE
   if(!headless_)
   {
-    for(auto vgm : visualizerAnnotatorManagers_)
+    for(auto vgm : visualizableGroupManagers_)
     {
       auto& VisualizationAnnotatorMgr = vgm.second;
       cv::namedWindow( imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
@@ -188,9 +188,9 @@ void Visualizer::imageViewer()
     }
   }
 
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+  auto firstVizAnnoMgrAnnotator = visualizableGroupManagers_.begin()->second;
   for(; ros::ok();) {
-    for(auto vgm : visualizerAnnotatorManagers_)
+    for(auto vgm : visualizableGroupManagers_)
     {
       auto& visualizationAnnotatorMgr = vgm.second;
       visualizationAnnotatorMgr->checkVisualizable();
@@ -212,13 +212,13 @@ void Visualizer::imageViewer()
         }
       }
 
-    } // end of visualizerAnnotatorManagers_ iteration
+    } // end of visualizableGroupManagers_ iteration
     if(!headless_)
       keyboardEventImageViewer(disp);
     usleep(100);
   }
   if(!headless_) {
-    for (auto vgm : visualizerAnnotatorManagers_) {
+    for (auto vgm : visualizableGroupManagers_) {
       auto &VisualizationAnnotatorMgr = vgm.second;
       cv::destroyWindow(imageWindowName(*VisualizationAnnotatorMgr));
     }
@@ -230,7 +230,7 @@ void Visualizer::cloudViewer()
 {
   std::map<std::string, pcl::visualization::PCLVisualizer::Ptr> visualizers;
 
-  for(auto vgm : visualizerAnnotatorManagers_) {
+  for(auto vgm : visualizableGroupManagers_) {
     auto &VisualizationAnnotatorMgr = vgm.second;
     const std::string annotatorName = "annotatorName-" + vgm.first;
     visualizers[vgm.first] = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
@@ -249,7 +249,7 @@ void Visualizer::cloudViewer()
   }
 
   while(ros::ok()) {
-    for(auto vgm : visualizerAnnotatorManagers_)
+    for(auto vgm : visualizableGroupManagers_)
     {
       auto &VisualizationAnnotatorMgr = vgm.second;
       auto &visualizer = visualizers[vgm.first];
@@ -274,7 +274,7 @@ void Visualizer::cloudViewer()
     if(save) {
       // TODO should be put a mutex here if you try to save multiple clouds very quickly?
       save = false;
-      if(visualizerAnnotatorManagers_.count(saveVisualizerWithIdentifier)==0)
+      if(visualizableGroupManagers_.count(saveVisualizerWithIdentifier) == 0)
       {
         outError("Trying to save a cloud but we can't map the entered input from the window to a Visualizer.");
         break;
@@ -285,7 +285,7 @@ void Visualizer::cloudViewer()
     }
 
   } // end of ros::ok while loop
-  for(auto vgm : visualizerAnnotatorManagers_) {
+  for(auto vgm : visualizableGroupManagers_) {
     auto &visualizer = visualizers[vgm.first];
     visualizer->close();
     visualizer->spinOnce(10);
@@ -314,7 +314,7 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
     //We couldn't guess the active annotator from the window titles. We'll
     //use the first VAM as a fallback
     outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
-    vgmInteractedWith = visualizerAnnotatorManagers_.begin()->second;
+    vgmInteractedWith = visualizableGroupManagers_.begin()->second;
   }
   int lowerByteOfKey = key & 0xFF;
   switch(lowerByteOfKey) {
@@ -346,7 +346,7 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
     //We couldn't guess the active annotator from the window titles. We'll
     //use the first VAM as a fallback
     outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
-    vgmInteractedWith = visualizerAnnotatorManagers_.begin()->second;
+    vgmInteractedWith = visualizableGroupManagers_.begin()->second;
   }
 
   if(event.keyUp()) {
@@ -382,7 +382,7 @@ void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGrou
 
 void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,  pcl::visualization::PCLVisualizer::Ptr &visualizer)
 {
-  auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
+  auto firstVizAnnoMgrAnnotator = visualizableGroupManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss, oss_cloud;
   oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".pcd";
@@ -400,12 +400,12 @@ std::string Visualizer::getActiveWindowTitle()
   return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
 }
 
-// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VGM in visualizerAnnotatorManagers_
+// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VGM in visualizableGroupManagers_
 std::shared_ptr<VisualizableGroupManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType) {
   success = false;
   std::string active_window_title = getActiveWindowTitle();
 
-  for(auto vgm: visualizerAnnotatorManagers_)
+  for(auto vgm: visualizableGroupManagers_)
   {
     // Check if the active window title starts with the name of the window names the different VGMs should have
     if(windowType == Visualizable::VisualizableDataType::IMAGE_VIEWER && active_window_title.rfind(imageWindowName(*(vgm.second)), 0) == 0 )

@@ -1,7 +1,3 @@
-//
-// Created by pmania on 14.12.19.
-//
-
 #ifndef ROBOSHERLOCK_VISUALIZABLE
 #define ROBOSHERLOCK_VISUALIZABLE
 
@@ -19,6 +15,14 @@
 
 #include <rs/utils/output.h>
 
+/*
+ * Interface-like class to define the base for something to be used by rs::Visualizer.
+ * This class is usually inherited from by DrawingAnnotators or CAS Consumers that need to visualize something.
+ *
+ * During the Construction of a Visualizable, a pointer to the newly created object will be
+ * pushed into Visualizable::visualizables to keep track of new Visualizable instances.
+ * These instances will then be picked up by VisualizGroupManagers
+ */
 class Visualizable
 {
 public:

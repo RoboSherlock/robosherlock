@@ -78,8 +78,9 @@ private:
   ros::NodeHandle nh_;
   ros::Publisher pub, pubAnnotList;
 
-  // Map that relates an identifier (or in our case right now: the AAE name
-  std::map<std::string, std::shared_ptr<VisualizableGroupManager>> visualizerAnnotatorManagers_;
+  // Map that relates an identifier (or in our case right now: the AAE name)
+  // to the Manager that keeps track of a group of Visualizables
+  std::map<std::string, std::shared_ptr<VisualizableGroupManager>> visualizableGroupManagers_;
 
 public:
   static bool *trigger;
@@ -94,7 +95,7 @@ public:
   // TODO forward all calls to *Annotator to *Visualizables so the change in the  interface doesn't break the current api
   // RS ProcessManager is calling this from the outside
   // Note: When running in MultiAAE mode, this will only affect the first
-  // AAE (or in more detail: rs::Visualizer::visualizerAnnotatorManagers_.begin().second
+  // AAE (or in more detail: rs::Visualizer::visualizableGroupManagers_.begin().second
   void setActiveAnnotators(std::vector<std::string> annotators);
   std::string nextAnnotator();
   std::string prevAnnotator();
