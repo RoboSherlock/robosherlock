@@ -48,10 +48,10 @@ Visualizer::~Visualizer()
     stop();
 }
 
-// TODO think of having headless in the VisualizerAnnotatorManager so some pipelines can be headless
-void Visualizer::addVisualizerManager(std::string identifier)
+// TODO think of having headless in the VisualizableGroupManager so some pipelines can be headless
+void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
-  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizerAnnotatorManager>(false, identifier);
+  visualizerAnnotatorManagers_[identifier] = std::make_shared<VisualizableGroupManager>(false, identifier);
   visualizerAnnotatorManagers_[identifier]->start();
 }
 
@@ -66,17 +66,9 @@ bool Visualizer::start()
     // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
     // Add the first visualizerAnnotatorManagers_ for the user
     // TODO get the AEName without breaking the API?
-    addVisualizerManager("");
-
-    // TODO move into VAM
-//    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-//    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
+    addVisualizableGroupManager("");
   } else{
     outInfo("Using MultiAAE Visualizer functionality");
-
-    // TODO this should be moved into the VAMs
-//    pub = nh_.advertise<sensor_msgs::Image>(aeName_ + "/output_image", 1, true);
-//    pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(aeName_ +"/vis/active_annotators", 1, true);
   }
 
 
@@ -110,13 +102,13 @@ void Visualizer::stop()
 
 void Visualizer::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
 {
-  VisualizerAnnotatorManager* vam =  ((VisualizerAnnotatorManager *)object);
+  VisualizableGroupManager* vam =  ((VisualizableGroupManager *)object);
   vam->callbackMouseHandler(event,x,y);
 }
 
 // TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
 // @assert activeVAM is not NULL
-void Visualizer::callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM)
+void Visualizer::callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizableGroupManager> activeVAM)
 {
   // Catch space for triggering
   if(key == ' ') {
@@ -142,7 +134,7 @@ void Visualizer::setActiveAnnotators(std::vector<std::string> annotators)
   assert(visualizerAnnotatorManagers_.size()>0);
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
 
-  firstVizAnnoMgrAnnotator->setActiveAnnotators(annotators);
+  firstVizAnnoMgrAnnotator->setActiveVisualizable(annotators);
 }
 
 std::string Visualizer::nextAnnotator()
@@ -150,21 +142,21 @@ std::string Visualizer::nextAnnotator()
   assert(visualizerAnnotatorManagers_.size()>0);
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
 
-  return firstVizAnnoMgrAnnotator->nextAnnotator();
+  return firstVizAnnoMgrAnnotator->nextVisualizable();
 }
 
 std::string Visualizer::prevAnnotator()
 {
   assert(visualizerAnnotatorManagers_.size()>0);
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-  return firstVizAnnoMgrAnnotator->prevAnnotator();
+  return firstVizAnnoMgrAnnotator->prevVisualizable();
 }
 
 std::string Visualizer::selectAnnotator(std::string anno)
 {
   assert(visualizerAnnotatorManagers_.size()>0);
   auto firstVizAnnoMgrAnnotator = visualizerAnnotatorManagers_.begin()->second;
-  return firstVizAnnoMgrAnnotator->selectAnnotator(anno);
+  return firstVizAnnoMgrAnnotator->selectVisualizable(anno);
 }
 
 void Visualizer::shutdown()
@@ -213,7 +205,7 @@ void Visualizer::imageViewer()
         // When an image is to be saved from a previous iteration, check if we can fetch the current image now and write it
         // TODO if it's a problem that this is always one iteration behind, one could think of calling
         // the keyboard event image viewer for each iteration in this scope
-        if(saveImageToDisk && imageVamToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier()){
+        if(saveImageToDisk && imageVgmToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier()){
           saveImageToDisk = false;
           saveImage(disp, visualizationAnnotatorMgr);
         }
@@ -326,14 +318,14 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
   int lowerByteOfKey = key & 0xFF;
   switch(lowerByteOfKey) {
   case 110: // next (n)
-    vamInteractedWith->nextAnnotator();
+    vamInteractedWith->nextVisualizable();
     break;
   case 112: // previous (p)
-    vamInteractedWith->prevAnnotator();
+    vamInteractedWith->prevVisualizable();
     break;
   case 99: // insert
     saveImageToDisk = true;
-    imageVamToBeSaved = vamInteractedWith;
+      imageVgmToBeSaved = vamInteractedWith;
 //    saveImage(disp, vamInteractedWith);
     break;
   }
@@ -358,10 +350,10 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
 
   if(event.keyUp()) {
     if(event.getKeySym() == "Left") {
-      vamInteractedWith->nextAnnotator();
+      vamInteractedWith->nextVisualizable();
     }
     else if(event.getKeySym() == "Right") {
-      vamInteractedWith->prevAnnotator();
+      vamInteractedWith->prevVisualizable();
     }
     else if(event.getKeySym() == "Escape") {
       shutdown();
@@ -376,7 +368,7 @@ void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEven
   }
 }
 
-void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam)
+void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGroupManager> vam)
 {
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
@@ -408,7 +400,7 @@ std::string Visualizer::getActiveWindowTitle()
 }
 
 // TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VAM in visualizerAnnotatorManagers_
-std::shared_ptr<VisualizerAnnotatorManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType) {
+std::shared_ptr<VisualizableGroupManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType) {
   success = false;
   std::string active_window_title = getActiveWindowTitle();
 

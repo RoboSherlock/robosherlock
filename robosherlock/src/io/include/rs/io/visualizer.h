@@ -37,7 +37,7 @@
 
 // RS
 #include <rs/DrawingAnnotator.h>
-#include "VisualizerAnnotatorManager.h"
+#include "VisualizableGroupManager.h"
 
 namespace rs
 {
@@ -66,7 +66,7 @@ private:
   bool save;
   bool saveImageToDisk;
   bool headless_;
-  std::shared_ptr<VisualizerAnnotatorManager> imageVamToBeSaved;
+  std::shared_ptr<VisualizableGroupManager> imageVgmToBeSaved;
 
   std::string saveVisualizerWithIdentifier;
   size_t saveFrameImage;
@@ -80,7 +80,7 @@ private:
   ros::ServiceServer vis_service_;
 
   // Map that relates an identifier (or in our case right now: the AAE name
-  std::map<std::string, std::shared_ptr<VisualizerAnnotatorManager>> visualizerAnnotatorManagers_;
+  std::map<std::string, std::shared_ptr<VisualizableGroupManager>> visualizerAnnotatorManagers_;
 
 public:
   static bool *trigger;
@@ -100,22 +100,22 @@ public:
   std::string prevAnnotator();
   std::string selectAnnotator(std::string annotator);
 
-  // Add a Visualizer for a given identifier.
-  // Please do this directly after creating a new RSAAE.
-  // This create an VisualizerAnnotatorManager that takes care of the drawing state
-  // of the different AAEs that might be run.
+  // Add a VisualizableGroupManager for a given identifier.
+  // Only required in MultiAAE mode.
   //
-  // @param identifier Is right now the name of the AAE. In the future, we want to extend this to a more general
-  //                   concept of Drawing classes so not only annotators can draw into Visualizers
-  void addVisualizerManager(std::string identifier);
+  // Please use this method directly after creating a new RSAAE
+  // or instantiating your Visualizables in any other way.
+  // This create an VisualizableGroupManager that takes care of the drawing state
+  // of the different AAEs or other visualizing entities that might be run.
+  //
+  // @param identifier A unique identifier. This is usually the name of your AAE when you only execute AAEs.
+  void addVisualizableGroupManager(std::string identifier);
 
 private:
   static void callbackMouse(const int event, const int x, const int y, const int flags, void *object);
-//  void callbackMouseHandler(const int event, const int x, const int y);
 
-  //
-  // @param activeVAM The Associated VisualizerAnnotatorManager in which window the detected key has been pressed
-  void callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizerAnnotatorManager> activeVAM);
+  // @param activeVAM The Associated VisualizableGroupManager in which window the detected key has been pressed
+  void callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizableGroupManager> activeVAM);
 
   void shutdown();
 
@@ -125,13 +125,13 @@ private:
   void keyboardEventImageViewer(const cv::Mat &disp);
   void keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *);
 
-  void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizerAnnotatorManager> vam);
+  void saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGroupManager> vam);
   void saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::visualization::PCLVisualizer::Ptr &visualizer);
 
-  inline const std::string imageWindowName(VisualizerAnnotatorManager &vam){
+  inline const std::string imageWindowName(VisualizableGroupManager &vam){
     return vam.getIdentifier() + "/Image Viewer";
   }
-  inline const std::string cloudWindowName(VisualizerAnnotatorManager &vam){
+  inline const std::string cloudWindowName(VisualizableGroupManager &vam){
     return vam.getIdentifier() + "/Cloud Viewer";
   }
 
@@ -150,8 +150,8 @@ private:
   }
   std::string getActiveWindowTitle();
 
-  // Returns true if the active window could be mapped to a VisualizerAnnotatorManager.
-  std::shared_ptr<VisualizerAnnotatorManager> getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType);
+  // Returns true if the active window could be mapped to a VisualizableGroupManager.
+  std::shared_ptr<VisualizableGroupManager> getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType);
 
 
 

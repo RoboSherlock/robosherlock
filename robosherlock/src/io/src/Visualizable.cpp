@@ -41,13 +41,13 @@ bool Visualizable::fillVisualizer(pcl::visualization::PCLVisualizer &visualizer,
   return false;
 }
 
-int Visualizable::copyAnnotatorList(std::map<std::string, Visualizable *> &inMap) {
+int Visualizable::copyVisualizableList(std::map<std::string, Visualizable *> &inMap) {
     inMap.clear();
     inMap.insert(visualizables.begin(), visualizables.end());
 
     return inMap.size();
 }
 
-void Visualizable::clearAnnotatorList() {
+void Visualizable::clearVisualizableList() {
   visualizables.clear();
 }

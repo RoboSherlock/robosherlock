@@ -32,15 +32,15 @@ public:
   bool update;
 
 private:
-  static std::map<std::string, Visualizable *> visualizables; // TODO RENAME
+  static std::map<std::string, Visualizable *> visualizables;
 
 public:
   Visualizable(const std::string &name);
   virtual ~Visualizable();
 
-  static void clearAnnotatorList();
-  // clear inMap and copy the list of current DrawingAnnotators into inMap
-  static int copyAnnotatorList(std::map<std::string, Visualizable *> &inMap);
+  static void clearVisualizableList();
+  // clear inMap and copy the list of current Visualizables into inMap
+  static int copyVisualizableList(std::map<std::string, Visualizable *> &inMap);
 
   virtual void drawImage(cv::Mat &disp);
   virtual bool fillVisualizer(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);

@@ -36,7 +36,6 @@
 #include <robosherlock_msgs/RSVisControl.h>
 
 // RS
-//#include <rs/DrawingAnnotator.h>
 #include <rs/io/Visualizable.h>
 
 namespace rs
@@ -51,17 +50,14 @@ namespace rs
    * Usually, for each AAE that wants to visualize stuff, an object of this class will be instantiated by the Visualizer.
    *
    */
-class VisualizerAnnotatorManager
+class VisualizableGroupManager
 {
-  // TODO change to private and make Visualizer a friend
 private:
-
-
   std::string identifier_;
 
   Visualizable *currentVisualizable;
 
-
+  // List of names with all Visualizables this class is responsible for
   std::vector<std::string> names;
   std::vector<std::string> activeVisualizables;
   size_t index;
@@ -75,7 +71,6 @@ private:
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
-//  std::vector<int> saveParams;
 
   std_msgs::Header header;
   ros::NodeHandle nh_;
@@ -87,27 +82,29 @@ private:
 
   static bool *trigger;
 
-    // This method will copy all pointers p from DrawingAnnotator::annotators
+    // This method will copy all pointers p from Visualizable::visualizables
     // into this class' drawingAnnotators property.
-    // DrawingAnnotator::annotators will be emptied after the copy process
+    // Visualizable::visualizables will be emptied after the copy process
     //
     // Returns: The number of elements copied
   int consumeRecentVisualizables();
 
-  void getAnnotatorNames(std::vector<std::string> &names); // TODO rename
-  Visualizable *getAnnotator(const std::string &name); // TODO rename
+  void getVisualizableNames(std::vector<std::string> &names);
+
+  // Get Pointer to a Visualizable in this group by its name
+  Visualizable *getVisualizable(const std::string &name);
 
 
   public:
-  VisualizerAnnotatorManager(bool headless, std::string identifier);
-  ~VisualizerAnnotatorManager();
+  VisualizableGroupManager(bool headless, std::string identifier);
+  ~VisualizableGroupManager();
 
   bool start();
   void stop();
-  void setActiveAnnotators(std::vector<std::string> visualizable);
-  std::string nextAnnotator();
-  std::string prevAnnotator();
-  std::string selectAnnotator(std::string visualizable);
+  void setActiveVisualizable(std::vector<std::string> visualizable);
+  std::string nextVisualizable();
+  std::string prevVisualizable();
+  std::string selectVisualizable(std::string visualizable);
 
 
   std::string getCurrentVisualizableName();

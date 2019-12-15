@@ -25,14 +25,14 @@
 
 // RS
 #include <rs/utils/output.h>
-#include <rs/io/VisualizerAnnotatorManager.h>
+#include <rs/io/VisualizableGroupManager.h>
 
 using namespace rs;
 
-bool *VisualizerAnnotatorManager::trigger = NULL;
+bool *VisualizableGroupManager::trigger = NULL;
 // TODO remove headless
 
-VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::string identifier) :
+VisualizableGroupManager::VisualizableGroupManager(bool headless, std::string identifier) :
   identifier_(identifier),
   currentVisualizable(NULL), names(), index(0), running(false),
   save(false), headless_(headless), saveFrameImage(0), saveFrameCloud(0), nh_("~"),
@@ -43,88 +43,48 @@ VisualizerAnnotatorManager::VisualizerAnnotatorManager(bool headless, std::strin
   {
     this->savePath += '/';
   }
-  vis_service_ = nh_.advertiseService(identifier_ + "/vis_command", &VisualizerAnnotatorManager::visControlCallback, this);
+  vis_service_ = nh_.advertiseService(identifier_ + "/vis_command", &VisualizableGroupManager::visControlCallback, this);
 }
 
-VisualizerAnnotatorManager::~VisualizerAnnotatorManager()
+VisualizableGroupManager::~VisualizableGroupManager()
 {
     stop();
 }
 
-bool VisualizerAnnotatorManager::start()
+bool VisualizableGroupManager::start()
 {
   outInfo("start with Identifier=" << identifier_);
-  consumeRecentVisualizables(); // Claim the responsibility for all DrawingAnnotators in this VisualizerAnnotatorManager
+  consumeRecentVisualizables(); // Claim the responsibility for all Visualizables in this VisualizableGroupManager
 
-  getAnnotatorNames(names);
+  getVisualizableNames(names);
   if(names.empty()) {
-    outInfo("No annotators do visualize. Aborting Visualizer start.");
+    outInfo("No visualizables do visualize. Aborting Visualizer start.");
     return false;
   }
-  //Initially, all annotators are active
+  //Initially, all visualizables are active
   activeVisualizables = names;
 //
   outputImagePub = nh_.advertise<sensor_msgs::Image>(identifier_ + "/output_image", 1, true);
   pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(identifier_ +"/vis/active_annotators", 1, true);
   index = 0;
 
-  currentVisualizable = getAnnotator(names[index]);
+  currentVisualizable = getVisualizable(names[index]);
 
   running = true;
   return true;
 }
 
-void VisualizerAnnotatorManager::stop()
+void VisualizableGroupManager::stop()
 {
-  outInfo("stopping VisualizerAnnotatorManager!");
+  outInfo("stopping VisualizableGroupManager!");
   if(running) {
     running = false;
-//    imageViewerThread.join();
-//    if(!headless_)
-//      cloudViewerThread.join();
-//    pub.shutdown();
     pubAnnotList.shutdown();
   }
-  outInfo("VisualizerAnnotatorManager stopped!");
+  outInfo("VisualizableGroupManager stopped!");
 }
 
-//void VisualizerAnnotatorManager::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
-//{
-//  ((VisualizerAnnotatorManager *)object)->callbackMouseHandler(event, x, y);
-//}
-
-//void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
-//{
-//  try {
-//    bool needupdate_img = currentDrawingAnnotator->callbackMouse(event, x, y, DrawingAnnotator::IMAGE_VIEWER);
-//    updateImage = needupdate_img | updateImage;
-//    updateCloud = needupdate_img | updateCloud;
-//  }
-//  catch(...) {
-//    outError("Exception in " << currentDrawingAnnotator->name << "::callbackMouse!");
-//  }
-//}
-//
-//void VisualizerAnnotatorManager::callbackKeyHandler(const char key, const DrawingAnnotator::Source source)
-//{
-//  // Catch space for triggering
-//  if(key == ' ') {
-//    if(trigger) {
-//      *trigger = true;
-//    }
-//    return;
-//  }
-//  try {
-//    bool needupdate_img = currentDrawingAnnotator->callbackKey(key, source);
-//    updateImage = needupdate_img | updateImage;
-//    updateCloud = needupdate_img | updateCloud;
-//  }
-//  catch(...) {
-//    outError("Exception in " << currentDrawingAnnotator->name << "::callbackKey!");
-//  }
-//}
-
-void VisualizerAnnotatorManager::setActiveAnnotators(std::vector<std::string> annotators)
+void VisualizableGroupManager::setActiveVisualizable(std::vector<std::string> annotators)
 {
   if(!annotators.empty()){
   std::vector<std::string> activeDrawingAnnotators(names.size()); // TODO rename
@@ -143,14 +103,14 @@ void VisualizerAnnotatorManager::setActiveAnnotators(std::vector<std::string> an
 }
 
 
-std::string VisualizerAnnotatorManager::nextAnnotator()
+std::string VisualizableGroupManager::nextVisualizable()
 {
   {
     std::lock_guard<std::mutex> lock_guard(lock);
     if(activeVisualizables.empty()) return "";
     index = (index + 1) % activeVisualizables.size();
 //    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-    currentVisualizable = getAnnotator(activeVisualizables[index]);
+    currentVisualizable = getVisualizable(activeVisualizables[index]);
     currentVisualizable->update = false;
     updateImage = true;
     updateCloud = true;
@@ -160,14 +120,14 @@ std::string VisualizerAnnotatorManager::nextAnnotator()
   return activeVisualizables[index];
 }
 
-std::string VisualizerAnnotatorManager::prevAnnotator()
+std::string VisualizableGroupManager::prevVisualizable()
 {
   {
     std::lock_guard<std::mutex> lock_guard(lock);
     if(activeVisualizables.empty()) return "";
     index = (activeVisualizables.size() + index - 1) % activeVisualizables.size();
 //    annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-    currentVisualizable = getAnnotator(activeVisualizables[index]);
+    currentVisualizable = getVisualizable(activeVisualizables[index]);
     currentVisualizable->update = false;
     updateImage = true;
     updateCloud = true;
@@ -177,15 +137,15 @@ std::string VisualizerAnnotatorManager::prevAnnotator()
   return activeVisualizables[index];
 }
 
-std::string VisualizerAnnotatorManager::selectAnnotator(std::string anno)
+std::string VisualizableGroupManager::selectVisualizable(std::string visualizable)
 {
   std::lock_guard<std::mutex> lock_guard(lock);
-  ptrdiff_t pos = distance(activeVisualizables.begin(), find(activeVisualizables.begin(), activeVisualizables.end(), anno));
+  ptrdiff_t pos = distance(activeVisualizables.begin(), find(activeVisualizables.begin(), activeVisualizables.end(), visualizable));
   index = pos;
   if(index >= activeVisualizables.size())
     return "";
 //  annotator = DrawingAnnotator::getAnnotator(activeAnnotators[index]);
-  currentVisualizable = getAnnotator(activeVisualizables[index]);
+  currentVisualizable = getVisualizable(activeVisualizables[index]);
   currentVisualizable->update = false;
   updateImage = true;
   updateCloud = true;
@@ -195,7 +155,7 @@ std::string VisualizerAnnotatorManager::selectAnnotator(std::string anno)
 }
 
 
-void VisualizerAnnotatorManager::checkVisualizable()
+void VisualizableGroupManager::checkVisualizable()
 {
   std::lock_guard<std::mutex> lock_guard(lock);
   if(currentVisualizable->update) {
@@ -204,33 +164,33 @@ void VisualizerAnnotatorManager::checkVisualizable()
     updateCloud = true;
   }
 }
-bool VisualizerAnnotatorManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-    robosherlock_msgs::RSVisControl::Response &res)
+bool VisualizableGroupManager::visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
+                                                  robosherlock_msgs::RSVisControl::Response &res)
 {
   std::string command = req.command;
   bool result = true;
-  std::string activeAnnotator = "";
+  std::string activeVisualizable = "";
 
   if(command == "next")
-    activeAnnotator = this->nextAnnotator();
+    activeVisualizable = this->nextVisualizable();
   else if(command == "previous")
-    activeAnnotator = this->prevAnnotator();
+    activeVisualizable = this->prevVisualizable();
   else if(command != "")
-    activeAnnotator = this->selectAnnotator(command);
-  if(activeAnnotator == "")
+    activeVisualizable = this->selectVisualizable(command);
+  if(activeVisualizable == "")
     result = false;
   res.success = result;
-  res.active_annotator = activeAnnotator;
+  res.active_annotator = activeVisualizable;
   return result;
 }
 
-int VisualizerAnnotatorManager::consumeRecentVisualizables() {
-  int copiedElements = Visualizable::copyAnnotatorList(visualizables);
-  Visualizable::clearAnnotatorList();
+int VisualizableGroupManager::consumeRecentVisualizables() {
+  int copiedElements = Visualizable::copyVisualizableList(visualizables);
+  Visualizable::clearVisualizableList();
   return copiedElements;
 }
 
-void VisualizerAnnotatorManager::getAnnotatorNames(std::vector<std::string> &names) {
+void VisualizableGroupManager::getVisualizableNames(std::vector<std::string> &names) {
   std::map<std::string, Visualizable *>::const_iterator it;
   names.clear();
   names.reserve(visualizables.size());
@@ -241,7 +201,7 @@ void VisualizerAnnotatorManager::getAnnotatorNames(std::vector<std::string> &nam
   }
 }
 
-Visualizable *VisualizerAnnotatorManager::getAnnotator(const std::string &name) {
+Visualizable *VisualizableGroupManager::getVisualizable(const std::string &name) {
   std::map<std::string, Visualizable *>::const_iterator it;
   it = visualizables.find(name);
   if(it != visualizables.end())
@@ -251,19 +211,19 @@ Visualizable *VisualizerAnnotatorManager::getAnnotator(const std::string &name) 
   return NULL;
 }
 
-std::string VisualizerAnnotatorManager::getCurrentVisualizableName(){
+std::string VisualizableGroupManager::getCurrentVisualizableName(){
   return currentVisualizable->name;
 }
 
-const std::string &VisualizerAnnotatorManager::getIdentifier() const {
+const std::string &VisualizableGroupManager::getIdentifier() const {
   return identifier_;
 }
 
-Visualizable *VisualizerAnnotatorManager::getCurrentVisualizable() const {
+Visualizable *VisualizableGroupManager::getCurrentVisualizable() const {
   return currentVisualizable;
 }
 
-void VisualizerAnnotatorManager::publishOutputImage(cv::Mat &disp) {
+void VisualizableGroupManager::publishOutputImage(cv::Mat &disp) {
   sensor_msgs::Image image_msg;
   cv_bridge::CvImage cv_image;
   cv_image.image = disp;
@@ -272,7 +232,7 @@ void VisualizerAnnotatorManager::publishOutputImage(cv::Mat &disp) {
   outputImagePub.publish(image_msg);
 }
 
-void VisualizerAnnotatorManager::callbackMouseHandler(const int event, const int x, const int y)
+void VisualizableGroupManager::callbackMouseHandler(const int event, const int x, const int y)
 {
   try {
     bool needupdate_img = currentVisualizable->callbackMouse(event, x, y, Visualizable::VisualizableDataType::IMAGE_VIEWER);
