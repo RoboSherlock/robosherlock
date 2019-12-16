@@ -34,14 +34,14 @@ protected:
   virtual void SetUp()
   {
     rs::common::getAEPaths("symmetry_segmentation", engineFile);
-    CamInterface::resetIdCount();
+    rs::SceneCas::unregisterAllCameraIDs();
     engine = rs::createRSAggregateAnalysisEngine(engineFile, false); // do not run parallel for now
   }
 
   virtual void TearDown()
   {
     //clean up
-    CamInterface::resetIdCount();
+    rs::SceneCas::unregisterAllCameraIDs();
     engine->destroy();
     delete engine;
   }
