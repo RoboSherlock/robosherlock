@@ -1,8 +1,8 @@
 #include "rs/io/Visualizable.h"
 
-std::map<std::string, Visualizable *> Visualizable::visualizables;
+std::map<std::string, Visualizable*> Visualizable::visualizables;
 
-Visualizable::Visualizable(const std::string &name) : name(name), update(false)
+Visualizable::Visualizable(const std::string& name) : name(name), update(false)
 {
   outDebug("Added: " << name);
   visualizables[name] = this;
@@ -10,10 +10,10 @@ Visualizable::Visualizable(const std::string &name) : name(name), update(false)
 
 Visualizable::~Visualizable()
 {
-  std::map<std::string, Visualizable *>::const_iterator it;
-  for(it = visualizables.begin(); it != visualizables.end(); ++it)
+  std::map<std::string, Visualizable*>::const_iterator it;
+  for (it = visualizables.begin(); it != visualizables.end(); ++it)
   {
-    if(it->second == this)
+    if (it->second == this)
     {
       visualizables.erase(it);
       break;
@@ -31,23 +31,24 @@ bool Visualizable::callbackKey(const int key, const VisualizableDataType source)
   return false;
 }
 
-void Visualizable::drawImage(cv::Mat &disp)
+void Visualizable::drawImage(cv::Mat& disp)
 {
-
 }
 
-bool Visualizable::fillVisualizer(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
+bool Visualizable::fillVisualizer(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
 {
   return false;
 }
 
-int Visualizable::copyVisualizableList(std::map<std::string, Visualizable *> &inMap) {
-    inMap.clear();
-    inMap.insert(visualizables.begin(), visualizables.end());
+int Visualizable::copyVisualizableList(std::map<std::string, Visualizable*>& inMap)
+{
+  inMap.clear();
+  inMap.insert(visualizables.begin(), visualizables.end());
 
-    return inMap.size();
+  return inMap.size();
 }
 
-void Visualizable::clearVisualizableList() {
+void Visualizable::clearVisualizableList()
+{
   visualizables.clear();
 }

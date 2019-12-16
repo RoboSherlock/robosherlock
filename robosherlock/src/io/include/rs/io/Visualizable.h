@@ -15,7 +15,7 @@
 
 #include <rs/utils/output.h>
 
-/*
+/**
  * Interface-like class to define the base for something to be used by rs::Visualizer.
  * This class is usually inherited from by DrawingAnnotators or CAS Consumers that need to visualize something.
  *
@@ -36,21 +36,24 @@ public:
   bool update;
 
 private:
-  static std::map<std::string, Visualizable *> visualizables;
+  static std::map<std::string, Visualizable*> visualizables;
 
 public:
-  Visualizable(const std::string &name);
+  Visualizable(const std::string& name);
   virtual ~Visualizable();
 
   static void clearVisualizableList();
-  // clear inMap and copy the list of current Visualizables into inMap
-  static int copyVisualizableList(std::map<std::string, Visualizable *> &inMap);
 
-  virtual void drawImage(cv::Mat &disp);
-  virtual bool fillVisualizer(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);
+  /**
+   *  clear inMap and copy the list of current Visualizables into inMap
+   */
+  static int copyVisualizableList(std::map<std::string, Visualizable*>& inMap);
+
+  virtual void drawImage(cv::Mat& disp);
+  virtual bool fillVisualizer(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun);
 
   virtual bool callbackMouse(const int event, const int x, const int y, const VisualizableDataType source);
   virtual bool callbackKey(const int key, const VisualizableDataType source);
 };
 
-#endif //ROBOSHERLOCK_VISUALIZABLE
+#endif  // ROBOSHERLOCK_VISUALIZABLE

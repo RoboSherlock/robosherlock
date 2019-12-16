@@ -29,15 +29,20 @@
 
 using namespace rs;
 
-bool *Visualizer::trigger = NULL;
+bool* Visualizer::trigger = NULL;
 
-Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
-    running(false), multiAAEVisualizer_(multiAAEVisualizer),
-    save(false), saveImageToDisk(false), headless_(headless),
-    saveFrameImage(0), saveFrameCloud(0), nh_("~")
+Visualizer::Visualizer(bool headless, bool multiAAEVisualizer)
+  : running(false)
+  , multiAAEVisualizer_(multiAAEVisualizer)
+  , save(false)
+  , saveImageToDisk(false)
+  , headless_(headless)
+  , saveFrameImage(0)
+  , saveFrameCloud(0)
+  , nh_("~")
 {
-  this->savePath = std::string(getenv("HOME")) +"/.ros/";
-  if(this->savePath[this->savePath.size() - 1] != '/')
+  this->savePath = std::string(getenv("HOME")) + "/.ros/";
+  if (this->savePath[this->savePath.size() - 1] != '/')
   {
     this->savePath += '/';
   }
@@ -45,7 +50,7 @@ Visualizer::Visualizer(bool headless, bool multiAAEVisualizer) :
 
 Visualizer::~Visualizer()
 {
-    stop();
+  stop();
 }
 
 // TODO think of having headless in the VisualizableGroupManager so some pipelines can be headless
@@ -61,23 +66,25 @@ bool Visualizer::start()
   saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
   saveParams.push_back(9);
 
-  if(!multiAAEVisualizer_){
+  if (!multiAAEVisualizer_)
+  {
     outInfo("Using Legacy Visualizer functionality");
     // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
     // Add the first visualizableGroupManagers_ for the user
     // TODO get the AEName without breaking the API?
     addVisualizableGroupManager("");
-  } else{
+  }
+  else
+  {
     outInfo("Using MultiAAE Visualizer functionality");
   }
-
 
   // Creating threads for the visualizations
   // Please note that GUI handling is in general not very multi-thread friendly
   // This is also the reason why we only have ONE thread for
   // handling,for example, OpenCV Windows.
   imageViewerThread = std::thread(&Visualizer::imageViewer, this);
-  if(!headless_)
+  if (!headless_)
     cloudViewerThread = std::thread(&Visualizer::cloudViewer, this);
   running = true;
   return true;
@@ -86,13 +93,15 @@ bool Visualizer::start()
 void Visualizer::stop()
 {
   outInfo("stopping visualizer!");
-  if(running) {
+  if (running)
+  {
     running = false;
     imageViewerThread.join();
-    if(!headless_)
+    if (!headless_)
       cloudViewerThread.join();
 
-    if(!multiAAEVisualizer_) {
+    if (!multiAAEVisualizer_)
+    {
       pub.shutdown();
       pubAnnotList.shutdown();
     }
@@ -100,31 +109,34 @@ void Visualizer::stop()
   outInfo("visualizer stopped!");
 }
 
-void Visualizer::callbackMouse(const int event, const int x, const int y, const int flags, void *object)
+void Visualizer::callbackMouse(const int event, const int x, const int y, const int flags, void* object)
 {
-  VisualizableGroupManager* vgm =  ((VisualizableGroupManager *)object);
+  VisualizableGroupManager* vgm = ((VisualizableGroupManager*)object);
   vgm->callbackMouseHandler(event, x, y);
 }
 
-// TODO In MultiAAE mode we should get a parameter which window/aae has been interacted with
-// @assert activeVGM is not NULL
-void Visualizer::callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source, std::shared_ptr<VisualizableGroupManager> activeVGM)
+void Visualizer::callbackKeyHandler(const char key, const Visualizable::VisualizableDataType source,
+                                    std::shared_ptr<VisualizableGroupManager> activeVGM)
 {
   // Catch space for triggering
-  if(key == ' ') {
-    if(trigger) {
+  if (key == ' ')
+  {
+    if (trigger)
+    {
       *trigger = true;
     }
     return;
   }
-  try {
+  try
+  {
     bool needupdate_img;
 
     needupdate_img = activeVGM->getCurrentVisualizable()->callbackKey(key, source);
     activeVGM->updateImage = needupdate_img | activeVGM->updateImage;
     activeVGM->updateCloud = needupdate_img | activeVGM->updateCloud;
   }
-  catch(...) {
+  catch (...)
+  {
     outError("Exception in " << activeVGM->getCurrentVisualizableName() << "::callbackKey!");
   }
 }
@@ -176,50 +188,57 @@ void Visualizer::imageViewer()
   const int font = cv::FONT_HERSHEY_SIMPLEX;
 
   // Initialize Windows for every AAE
-  if(!headless_)
+  if (!headless_)
   {
-    for(auto vgm : visualizableGroupManagers_)
+    for (auto vgm : visualizableGroupManagers_)
     {
       auto& VisualizationAnnotatorMgr = vgm.second;
-      cv::namedWindow( imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
+      cv::namedWindow(imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
 
       // TODO It's not so nice to point to the raw data in the shared_ptr.
-      cv::setMouseCallback(imageWindowName(*VisualizationAnnotatorMgr), &Visualizer::callbackMouse, &(*(vgm.second)) );
+      cv::setMouseCallback(imageWindowName(*VisualizationAnnotatorMgr), &Visualizer::callbackMouse, &(*(vgm.second)));
     }
   }
 
   auto firstVizAnnoMgrAnnotator = visualizableGroupManagers_.begin()->second;
-  for(; ros::ok();) {
-    for(auto vgm : visualizableGroupManagers_)
+  for (; ros::ok();)
+  {
+    for (auto vgm : visualizableGroupManagers_)
     {
       auto& visualizationAnnotatorMgr = vgm.second;
       visualizationAnnotatorMgr->checkVisualizable();
-      if(visualizationAnnotatorMgr->updateImage) {
+      if (visualizationAnnotatorMgr->updateImage)
+      {
         visualizationAnnotatorMgr->updateImage = false;
         visualizationAnnotatorMgr->getCurrentVisualizable()->drawImage(disp);
-        cv::putText(disp, "Annotator: " + visualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText, color, lineText, CV_AA);
-        if(!headless_)
+        cv::putText(disp, "Annotator: " + visualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText,
+                    color, lineText, CV_AA);
+        if (!headless_)
           cv::imshow(imageWindowName(*visualizationAnnotatorMgr), disp);
 
         visualizationAnnotatorMgr->publishOutputImage(disp);
 
-        // When an image is to be saved from a previous iteration, check if we can fetch the current image now and write it
+        // When an image is to be saved from a previous iteration, check if we can fetch the current image now and write
+        // it
         // TODO if it's a problem that this is always one iteration behind, one could think of calling
         // the keyboard event image viewer for each iteration in this scope
-        if(saveImageToDisk && imageVgmToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier()){
+        if (saveImageToDisk && imageVgmToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier())
+        {
           saveImageToDisk = false;
           saveImage(disp, visualizationAnnotatorMgr);
         }
       }
 
-    } // end of visualizableGroupManagers_ iteration
-    if(!headless_)
+    }  // end of visualizableGroupManagers_ iteration
+    if (!headless_)
       keyboardEventImageViewer(disp);
     usleep(100);
   }
-  if(!headless_) {
-    for (auto vgm : visualizableGroupManagers_) {
-      auto &VisualizationAnnotatorMgr = vgm.second;
+  if (!headless_)
+  {
+    for (auto vgm : visualizableGroupManagers_)
+    {
+      auto& VisualizationAnnotatorMgr = vgm.second;
       cv::destroyWindow(imageWindowName(*VisualizationAnnotatorMgr));
     }
   }
@@ -230,12 +249,14 @@ void Visualizer::cloudViewer()
 {
   std::map<std::string, pcl::visualization::PCLVisualizer::Ptr> visualizers;
 
-  for(auto vgm : visualizableGroupManagers_) {
-    auto &VisualizationAnnotatorMgr = vgm.second;
+  for (auto vgm : visualizableGroupManagers_)
+  {
+    auto& VisualizationAnnotatorMgr = vgm.second;
     const std::string annotatorName = "annotatorName-" + vgm.first;
-    visualizers[vgm.first] = pcl::visualization::PCLVisualizer::Ptr(new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
+    visualizers[vgm.first] = pcl::visualization::PCLVisualizer::Ptr(
+        new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
 
-    auto &visualizer = visualizers[vgm.first];
+    auto& visualizer = visualizers[vgm.first];
     visualizer->initCameraParameters();
     visualizer->setCameraPosition(0, 0, 0, 0, -1, 0);
     visualizer->setBackgroundColor(0, 0, 0);
@@ -248,22 +269,28 @@ void Visualizer::cloudViewer()
     visualizer->setSize(1280, 960);
   }
 
-  while(ros::ok()) {
-    for(auto vgm : visualizableGroupManagers_)
+  while (ros::ok())
+  {
+    for (auto vgm : visualizableGroupManagers_)
     {
-      auto &VisualizationAnnotatorMgr = vgm.second;
-      auto &visualizer = visualizers[vgm.first];
+      auto& VisualizationAnnotatorMgr = vgm.second;
+      auto& visualizer = visualizers[vgm.first];
 
       VisualizationAnnotatorMgr->checkVisualizable();
 
-      if(VisualizationAnnotatorMgr->updateCloud) {
-        if(VisualizationAnnotatorMgr->changedVisualizable) {
+      if (VisualizationAnnotatorMgr->updateCloud)
+      {
+        if (VisualizationAnnotatorMgr->changedVisualizable)
+        {
           visualizer->removeAllPointClouds();
           visualizer->removeAllShapes();
           const std::string annotatorName = "annotatorName-" + vgm.first;
-          visualizer->addText(VisualizationAnnotatorMgr->getCurrentVisualizableName(), 2, 20, 12, 1, 1, 1, annotatorName);
+          visualizer->addText(VisualizationAnnotatorMgr->getCurrentVisualizableName(), 2, 20, 12, 1, 1, 1,
+                              annotatorName);
         }
-        if(VisualizationAnnotatorMgr->getCurrentVisualizable()->fillVisualizer(*visualizer, VisualizationAnnotatorMgr->changedVisualizable)) {
+        if (VisualizationAnnotatorMgr->getCurrentVisualizable()->fillVisualizer(
+                *visualizer, VisualizationAnnotatorMgr->changedVisualizable))
+        {
           VisualizationAnnotatorMgr->updateCloud = false;
           VisualizationAnnotatorMgr->changedVisualizable = false;
         }
@@ -271,33 +298,35 @@ void Visualizer::cloudViewer()
       visualizer->spinOnce(10);
     }
 
-    if(save) {
+    if (save)
+    {
       // TODO should be put a mutex here if you try to save multiple clouds very quickly?
       save = false;
-      if(visualizableGroupManagers_.count(saveVisualizerWithIdentifier) == 0)
+      if (visualizableGroupManagers_.count(saveVisualizerWithIdentifier) == 0)
       {
         outError("Trying to save a cloud but we can't map the entered input from the window to a Visualizer.");
         break;
       }
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>()); // this was in the initialization before, i'm not sure if it's really needed there.
+      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(
+          new pcl::PointCloud<pcl::PointXYZRGBA>());  // this was in the initialization before, i'm not sure if it's
+                                                      // really needed there.
       saveCloud(cloud, visualizers[saveVisualizerWithIdentifier]);
       saveVisualizerWithIdentifier = "";
     }
 
-  } // end of ros::ok while loop
-  for(auto vgm : visualizableGroupManagers_) {
-    auto &visualizer = visualizers[vgm.first];
+  }  // end of ros::ok while loop
+  for (auto vgm : visualizableGroupManagers_)
+  {
+    auto& visualizer = visualizers[vgm.first];
     visualizer->close();
     visualizer->spinOnce(10);
   }
 }
 
-void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
+void Visualizer::keyboardEventImageViewer(const cv::Mat& disp)
 {
-
-
   int key;
-#if CV_MAJOR_VERSION==3
+#if CV_MAJOR_VERSION == 3
   key = cv::waitKeyEx(10);
 #else
   key = cv::waitKey(10);
@@ -305,88 +334,105 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat &disp)
   // Not sure if key == 0 is there for legacy reasons, but according to
   // https://docs.opencv.org/3.4/d7/dfc/group__highgui.html#ga5628525ad33f52eab17feebcfba38bd7
   // -1 denotes 'no key was pressed'
-  if(key == 0 || key == -1) {
+  if (key == 0 || key == -1)
+  {
     return;
   }
-  bool success=false;
-  auto vgmInteractedWith = getAnnotatorManagerForActiveWindow(success, Visualizable::VisualizableDataType::IMAGE_VIEWER);
-  if(!success){
-    //We couldn't guess the active annotator from the window titles. We'll
-    //use the first VAM as a fallback
+  bool success = false;
+  auto vgmInteractedWith =
+      getAnnotatorManagerForActiveWindow(success, Visualizable::VisualizableDataType::IMAGE_VIEWER);
+  if (!success)
+  {
+    // We couldn't guess the active annotator from the window titles. We'll
+    // use the first VAM as a fallback
     outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
     vgmInteractedWith = visualizableGroupManagers_.begin()->second;
   }
   int lowerByteOfKey = key & 0xFF;
-  switch(lowerByteOfKey) {
-  case 110: // next (n)
-    vgmInteractedWith->nextVisualizable();
-    break;
-  case 112: // previous (p)
-    vgmInteractedWith->prevVisualizable();
-    break;
-  case 99: // insert
-    saveImageToDisk = true;
-    imageVgmToBeSaved = vgmInteractedWith;
-//    saveImage(disp, vamInteractedWith);
-    break;
+  switch (lowerByteOfKey)
+  {
+    case 110:  // next (n)
+      vgmInteractedWith->nextVisualizable();
+      break;
+    case 112:  // previous (p)
+      vgmInteractedWith->prevVisualizable();
+      break;
+    case 99:  // insert
+      saveImageToDisk = true;
+      imageVgmToBeSaved = vgmInteractedWith;
+      //    saveImage(disp, vamInteractedWith);
+      break;
   }
-  if(lowerByteOfKey == 27) { //Escape
+  if (lowerByteOfKey == 27)
+  {  // Escape
     shutdown();
   }
-  else {
+  else
+  {
     callbackKeyHandler(lowerByteOfKey, DrawingAnnotator::IMAGE_VIEWER, vgmInteractedWith);
   }
 }
 
-void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent &event, void *)
+void Visualizer::keyboardEventCloudViewer(const pcl::visualization::KeyboardEvent& event, void*)
 {
-  bool success=false;
+  bool success = false;
   auto vgmInteractedWith = getAnnotatorManagerForActiveWindow(success, DrawingAnnotator::CLOUD_VIEWER);
-  if(!success){
-    //We couldn't guess the active annotator from the window titles. We'll
-    //use the first VAM as a fallback
+  if (!success)
+  {
+    // We couldn't guess the active annotator from the window titles. We'll
+    // use the first VAM as a fallback
     outError("Couldn't fetch the active Annotator from the window titles. Will forward to the first AAE.");
     vgmInteractedWith = visualizableGroupManagers_.begin()->second;
   }
 
-  if(event.keyUp()) {
-    if(event.getKeySym() == "Left") {
+  if (event.keyUp())
+  {
+    if (event.getKeySym() == "Left")
+    {
       vgmInteractedWith->nextVisualizable();
     }
-    else if(event.getKeySym() == "Right") {
+    else if (event.getKeySym() == "Right")
+    {
       vgmInteractedWith->prevVisualizable();
     }
-    else if(event.getKeySym() == "Escape") {
+    else if (event.getKeySym() == "Escape")
+    {
       shutdown();
     }
-    else if(event.getKeySym() == "Insert") {
+    else if (event.getKeySym() == "Insert")
+    {
       save = true;
       saveVisualizerWithIdentifier = vgmInteractedWith->getIdentifier();
     }
-    else if(event.getKeyCode() > 0) {
+    else if (event.getKeyCode() > 0)
+    {
       callbackKeyHandler(event.getKeyCode(), DrawingAnnotator::CLOUD_VIEWER, vgmInteractedWith);
     }
   }
 }
 
-void Visualizer::saveImage(const cv::Mat &disp, std::shared_ptr<VisualizableGroupManager> vgm)
+void Visualizer::saveImage(const cv::Mat& disp, std::shared_ptr<VisualizableGroupManager> vgm)
 {
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss;
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << vgm->getCurrentVisualizableName() << ".png";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameImage << "_" << vgm->getCurrentVisualizableName()
+      << ".png";
 
   outInfo("saving image: " << oss.str());
   cv::imwrite(oss.str(), disp, saveParams);
   ++saveFrameImage;
 }
 
-void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,  pcl::visualization::PCLVisualizer::Ptr &visualizer)
+void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
+                           pcl::visualization::PCLVisualizer::Ptr& visualizer)
 {
   auto firstVizAnnoMgrAnnotator = visualizableGroupManagers_.begin()->second;
   std::lock_guard<std::mutex> lock_guard(lock);
   std::ostringstream oss, oss_cloud;
-  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".pcd";
-  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_" << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".png";
+  oss_cloud << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_"
+            << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".pcd";
+  oss << savePath << std::setfill('0') << std::setw(5) << saveFrameCloud << "_"
+      << firstVizAnnoMgrAnnotator->getCurrentVisualizableName() << ".png";
 
   outInfo("saving cloud: " << oss_cloud.str());
   //  pcl::io::savePCDFileASCII(oss.str(), *cloud);
@@ -400,21 +446,25 @@ std::string Visualizer::getActiveWindowTitle()
   return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
 }
 
-// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VGM in visualizableGroupManagers_
-std::shared_ptr<VisualizableGroupManager> Visualizer::getAnnotatorManagerForActiveWindow(bool &success, const Visualizable::VisualizableDataType windowType) {
+// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VGM in
+std::shared_ptr<VisualizableGroupManager>
+Visualizer::getAnnotatorManagerForActiveWindow(bool& success, const Visualizable::VisualizableDataType windowType)
+{
   success = false;
   std::string active_window_title = getActiveWindowTitle();
 
-  for(auto vgm: visualizableGroupManagers_)
+  for (auto vgm : visualizableGroupManagers_)
   {
     // Check if the active window title starts with the name of the window names the different VGMs should have
-    if(windowType == Visualizable::VisualizableDataType::IMAGE_VIEWER && active_window_title.rfind(imageWindowName(*(vgm.second)), 0) == 0 )
+    if (windowType == Visualizable::VisualizableDataType::IMAGE_VIEWER &&
+        active_window_title.rfind(imageWindowName(*(vgm.second)), 0) == 0)
     {
       success = true;
       return vgm.second;
     }
 
-    if(windowType == Visualizable::VisualizableDataType::CLOUD_VIEWER && active_window_title.rfind(cloudWindowName(*(vgm.second)), 0) == 0 )
+    if (windowType == Visualizable::VisualizableDataType::CLOUD_VIEWER &&
+        active_window_title.rfind(cloudWindowName(*(vgm.second)), 0) == 0)
     {
       success = true;
       return vgm.second;

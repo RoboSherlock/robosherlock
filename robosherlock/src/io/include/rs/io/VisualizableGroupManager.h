@@ -3,6 +3,7 @@
  * Author(s): Ferenc Balint-Benczedi <balintbe@cs.uni-bremen.de>
  *         Thiemo Wiedemeyer <wiedemeyer@cs.uni-bremen.de>
  *         Jan-Hendrik Worch <jworch@cs.uni-bremen.de>
+ *         Patrick Mania <pmania@cs.uni-bremen.de>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,32 +41,29 @@
 
 namespace rs
 {
-
-  /*
-   * This class is a communicator between a single Visualizer and a group of Visualizables.
-   * A group of visualizables could, for example, be all DrawingAnnotators in a single Pipeline/AAE.
-   *
-   * Visualizers must be unique, because GUI related actions are problematic to handle in multiple threads.
-   * The logic which Visualizables should currently be shown or if updates have been occured are handled in this class.
-   * Usually, for each AAE that wants to visualize stuff, an object of this class will be instantiated by the Visualizer.
-   *
-   */
+/**
+ * This class is a communicator between a single Visualizer and a group of Visualizables.
+ * A group of visualizables could, for example, be all DrawingAnnotators in a single Pipeline/AAE.
+ *
+ * Visualizers must be unique, because GUI related actions are problematic to handle in multiple threads.
+ * The logic which Visualizables should currently be shown or if updates have been occured are handled in this class.
+ * Usually, for each AAE that wants to visualize stuff, an object of this class will be instantiated by the Visualizer.
+ *
+ */
 class VisualizableGroupManager
 {
 private:
   std::string identifier_;
 
-  Visualizable *currentVisualizable;
+  Visualizable* currentVisualizable;
 
-  // List of names with all Visualizables this class is responsible for
-  std::vector<std::string> names;
+  std::vector<std::string> names; /** List of names with all Visualizables this class is responsible for */
   std::vector<std::string> activeVisualizables;
   size_t index;
 
   std::mutex lock;
 
   bool running;
-
 
   bool save, headless_;
   size_t saveFrameImage;
@@ -77,25 +75,29 @@ private:
   ros::Publisher outputImagePub, pubAnnotList;
   ros::ServiceServer vis_service_;
 
-  // drawingAnnotators handled by this class
-  std::map<std::string, Visualizable *> visualizables;
+  std::map<std::string, Visualizable*> visualizables; /** (The group of) Visualizables this class is responsible for */
 
-  static bool *trigger;
+  static bool* trigger;
 
-    // This method will copy all pointers p from Visualizable::visualizables
-    // into this class' drawingAnnotators property.
-    // Visualizable::visualizables will be emptied after the copy process
-    //
-    // Returns: The number of elements copied
+  /**
+   * This method will copy all pointers p from Visualizable::visualizables
+   * into this class' drawingAnnotators property.
+   * Visualizable::visualizables will be emptied after the copy process
+   *
+   * Returns: The number of elements copied
+   * */
   int consumeRecentVisualizables();
 
-  void getVisualizableNames(std::vector<std::string> &names);
+  void getVisualizableNames(std::vector<std::string>& names);
 
-  // Get Pointer to a Visualizable in this group by its name
-  Visualizable *getVisualizable(const std::string &name);
+  /**
+ * Get Pointer to a Visualizable in this group by its name
+ *
+ * Returns: Pointer to the Visualizable with name == name or NULL if no Visualizable with the given name can be found.
+ * */
+  Visualizable* getVisualizable(const std::string& name);
 
-
-  public:
+public:
   VisualizableGroupManager(bool headless, std::string identifier);
   ~VisualizableGroupManager();
 
@@ -106,25 +108,23 @@ private:
   std::string prevVisualizable();
   std::string selectVisualizable(std::string visualizable);
 
-
   std::string getCurrentVisualizableName();
 
   void checkVisualizable();
 
-  bool visControlCallback(robosherlock_msgs::RSVisControl::Request &req,
-      robosherlock_msgs::RSVisControl::Response &res);
+  bool visControlCallback(robosherlock_msgs::RSVisControl::Request& req,
+                          robosherlock_msgs::RSVisControl::Response& res);
 
   void callbackMouseHandler(const int event, const int x, const int y);
 
-  const std::string &getIdentifier() const;
-  Visualizable *getCurrentVisualizable() const;
+  const std::string& getIdentifier() const;
+  Visualizable* getCurrentVisualizable() const;
 
-  void publishOutputImage(cv::Mat &disp);
+  void publishOutputImage(cv::Mat& disp);
 
   bool updateImage;
   bool updateCloud;
   bool changedVisualizable;
-
 };
 
-}
+}  // namespace rs
