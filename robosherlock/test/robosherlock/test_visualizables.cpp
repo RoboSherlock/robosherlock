@@ -5,6 +5,7 @@
 #include <rs/types/all_types.h>
 #include <rs/scene_cas.h>
 #include <rs/io/Visualizable.h>
+#include <rs/io/VisualizableGroupManager.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>
@@ -23,11 +24,8 @@ public:
 class VisualizablesTest : public testing::Test
 {
 protected:
-
-
   VisualizablesTest()
   {
-
   }
   virtual void SetUp()
   {
@@ -36,7 +34,6 @@ protected:
 
   virtual void TearDown()
   {
-
   }
 };
 
@@ -55,3 +52,25 @@ TEST_F(VisualizablesTest, Instantiation)
   EXPECT_TRUE(mapOfVisualizables.size() == 0);
 }
 
+TEST_F(VisualizablesTest, SelectingVisualizablesinVGMs)
+{
+  TestVisualizable tv1("Visualizable1");
+  TestVisualizable tv2("Visualizable2");
+
+  rs::VisualizableGroupManager vgm("testvgm");
+  vgm.start();
+  // Test going back and forth
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable1");
+  vgm.nextVisualizable();
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable2");
+  vgm.nextVisualizable();
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable1");
+  vgm.prevVisualizable();
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable2");
+  vgm.prevVisualizable();
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable1");
+
+  // Test to select individual Visualizables
+  vgm.selectVisualizable("Visualizable2");
+  ASSERT_EQ(vgm.getCurrentVisualizableName(), "Visualizable2");
+}

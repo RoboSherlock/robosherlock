@@ -53,7 +53,6 @@ Visualizer::~Visualizer()
   stop();
 }
 
-// TODO think of having headless in the VisualizableGroupManager so some pipelines can be headless
 void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
   visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(identifier);
@@ -71,7 +70,9 @@ bool Visualizer::start()
     outInfo("Using Legacy Visualizer functionality");
     // This is the legacy-visualizer style and shouldn't break the older RoboSherlock code
     // Add the first visualizableGroupManagers_ for the user
-    // TODO get the AEName without breaking the API?
+
+    // There is currently no way get the the AAE Name without breaking the API.
+    // So we just pass an empty AAE Name here.
     addVisualizableGroupManager("");
   }
   else

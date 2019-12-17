@@ -42,10 +42,6 @@ protected:
 
   CamInterface(const boost::property_tree::ptree& pt) : _newData(false)
   {
-    // TODO still something todo here?
-//    cam_id_ = id++;
-//    outInfo("New Camera ID: " FG_BLUE << cam_id_);
-//    rs::SceneCas::cam_ids_.push_back(cam_id_);
   }
 
 public:
@@ -64,14 +60,16 @@ public:
     return cam_id_;
   }
 
-  inline bool cameraIdAlreadyRegistered(){
+  inline bool cameraIdAlreadyRegistered()
+  {
     return camera_id_registered_;
   }
 
-//  static void resetIdCount()
-//  {
-//    id = 0;
-//  }
+  // This method has been removed. Use rs::SceneCas::unregisterAllCameraIDs(); instead.
+  //  static void resetIdCount();
+  //  {
+  //    id = 0;
+  //  }
 
   void registerCameraInCAS(std::string analysis_engine_name) {
     cam_id_ = rs::SceneCas::registerCameraInCAS(analysis_engine_name);
