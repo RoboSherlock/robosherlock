@@ -41,6 +41,8 @@
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>
 
+#include <yaml-cpp/yaml.h>
+
 using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
@@ -157,62 +159,78 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  void readSemanticMap(const std::string& file)
+  bool readSemanticMap(const std::string& file)
   {
-    std::vector<std::string> searchPaths = rs::common::getRSSearchPaths("/config");
-    std::string mapFile;
-    for (auto p : searchPaths)
+    std::vector<std::string> search_paths = rs::common::getRSSearchPaths("/config");
+    std::string path_to_sem_map;
+    for (auto p : search_paths)
       if (boost::filesystem::is_regular_file(boost::filesystem::path(p + "/" + file)))
-        mapFile = p + "/" + file;
+        path_to_sem_map = p + "/" + file;
 
-    if (mapFile.empty())
-      throw_exception_message("Semantic map file not found: " + file);
+    if (path_to_sem_map.empty())
+      throw rs::InitAEException(this->name, "Semantic map file not found: " + file);
 
-    outInfo("Path to semantic map file: " FG_BLUE << mapFile);
-    cv::FileStorage fs(mapFile, cv::FileStorage::READ);
-    std::vector<std::string> names;
+    outInfo("Path to semantic map file: " FG_BLUE << path_to_sem_map);
 
-    cv::FileNode n = fs["names"];
-    for (cv::FileNodeIterator it = n.begin(); it != n.end(); ++it)
+    YAML::Node config = YAML::LoadFile(path_to_sem_map);
+
+    if (config["names"])
     {
-      names.push_back((std::string)(*it));
-    }
-
-    semanticMapItems_.resize(names.size());
-    for (size_t i = 0; i < names.size(); ++i)
-    {
-      SemanticMapItem& item = semanticMapItems_[i];
-      cv::FileNode entry = fs[names[i]];
-
-      item.name = names[i];
-      entry["type"] >> item.type;
-      entry["width"] >> item.height;
-      entry["height"] >> item.depth;
-      entry["depth"] >> item.width;
-      entry["reference_frame"] >>item.reference_frame;
-      cv::Vec4f mod_coeffs;
-
-      for (cv::FileNodeIterator fit = entry.begin(); fit != entry.end(); ++fit)
+      auto sem_map_entries = config["names"].as<std::vector<std::string>>();
+      semanticMapItems_.resize(sem_map_entries.size());
+      for (size_t i = 0; i < sem_map_entries.size(); ++i)
       {
-        cv::FileNode fn_item = *fit;
-        if (fn_item.name() == "plane_eq")
+        SemanticMapItem& item = semanticMapItems_[i];
+        if (!config[sem_map_entries[i]])
+          throw rs::InitAEException(this->name, "Semantic map file is malformed. The region: " + sem_map_entries[i] +
+                                                    " has no transformation attached to it!!");
+        YAML::Node entry = config[sem_map_entries[i]];
+
+        item.name = sem_map_entries[i];
+        item.type = entry["type"].as<std::string>();
+        // TODO:: WHAT THE FUCK - REDO THIS - AXIS ALIGNED;
+        item.height = entry["width"].as<double>();
+        item.depth = entry["height"].as<double>();
+        item.width = entry["depth"].as<double>();
+
+        if (entry["reference_frame"])
+          item.reference_frame = entry["reference_frame"].as<std::string>();
+        else
+          item.reference_frame = "map";
+
+        if (entry["plane_eq"])
         {
-          entry["plane_eq"] >> item.plane_eq;
           item.hasPlaneEq = true;
-          outError("Found a Plane eq: " << item.plane_eq);
+          std::vector<float> plane_eq = entry["plane_eq"].as<std::vector<float>>();
+          item.plane_eq[0] = plane_eq[0];
+          item.plane_eq[1] = plane_eq[1];
+          item.plane_eq[2] = plane_eq[2];
+          item.plane_eq[3] = plane_eq[3];
+          outInfo("Found a pre-defined plane equation for " << item.name << " : " << item.plane_eq);
         }
+
+        cv::Mat m;
+        YAML::Node transform = entry["transform"];
+        int rows = transform["rows"].as<int>();
+        int cols = transform["cols"].as<int>();
+        std::vector<double> trans_matrix = transform["data"].as<std::vector<double>>();
+        if(rows*cols != static_cast<int>(trans_matrix.size()))
+          throw rs::InitAEException(this->name, "Semantic map file is malformed. The region: " + sem_map_entries[i] +
+                                          " has a bad transformation!! cols*rows != data.size()");
+
+        tf::Matrix3x3 rot;
+        tf::Vector3 trans;
+        rot.setValue(trans_matrix.at(0),trans_matrix.at(1),trans_matrix.at(2),
+                     trans_matrix.at(4),trans_matrix.at(5),trans_matrix.at(6),
+                     trans_matrix.at(8),trans_matrix.at(9),trans_matrix.at(10));
+        trans.setValue(trans_matrix.at(3),trans_matrix.at(7),trans_matrix.at(11));
+        item.transform = tf::Transform(rot, trans);
       }
-
-      cv::Mat m;
-      entry["transform"] >> m;
-
-      tf::Matrix3x3 rot;
-      tf::Vector3 trans;
-      rot.setValue(m.at<double>(0, 0), m.at<double>(0, 1), m.at<double>(0, 2), m.at<double>(1, 0), m.at<double>(1, 1),
-                   m.at<double>(1, 2), m.at<double>(2, 0), m.at<double>(2, 1), m.at<double>(2, 2));
-      trans.setValue(m.at<double>(0, 3), m.at<double>(1, 3), m.at<double>(2, 3));
-      item.transform = tf::Transform(rot, trans);
     }
+    else
+      throw rs::InitAEException(this->name, "Semantic map file is malformed. Semantic map file needs to have a \"name\""
+                                            " tag containing a list of all semantic region names");
+
   }
 
 private:
@@ -306,31 +324,30 @@ private:
           filterRegion(semanticMapItems_[i]);
           if (semanticMapItems_[i].hasPlaneEq)
           {
+            Eigen::Matrix4d Trans;  // Your Transformation Matrix
+            Trans.setIdentity();    // Set to Identity to make bottom row of Matrix 0,0,0,1
+            Trans(0, 0) = worldToCam.getBasis()[0][0];
+            Trans(0, 1) = worldToCam.getBasis()[0][1];
+            Trans(0, 2) = worldToCam.getBasis()[0][2];
 
-            Eigen::Matrix4d Trans; //Your Transformation Matrix
-            Trans.setIdentity();   // Set to Identity to make bottom row of Matrix 0,0,0,1
-            Trans(0,0) = worldToCam.getBasis()[0][0];
-            Trans(0,1) = worldToCam.getBasis()[0][1];
-            Trans(0,2) = worldToCam.getBasis()[0][2];
+            Trans(1, 0) = worldToCam.getBasis()[1][0];
+            Trans(1, 1) = worldToCam.getBasis()[1][1];
+            Trans(1, 2) = worldToCam.getBasis()[1][2];
 
-            Trans(1,0) = worldToCam.getBasis()[1][0];
-            Trans(1,1) = worldToCam.getBasis()[1][1];
-            Trans(1,2) = worldToCam.getBasis()[1][2];
+            Trans(2, 0) = worldToCam.getBasis()[2][0];
+            Trans(2, 1) = worldToCam.getBasis()[2][1];
+            Trans(2, 2) = worldToCam.getBasis()[2][2];
 
-            Trans(2,0) = worldToCam.getBasis()[2][0];
-            Trans(2,1) = worldToCam.getBasis()[2][1];
-            Trans(2,2) = worldToCam.getBasis()[2][2];
+            Trans(0, 3) = worldToCam.getOrigin()[0];
+            Trans(1, 3) = worldToCam.getOrigin()[1];
+            Trans(2, 3) = worldToCam.getOrigin()[2];
 
-            Trans(0,3) = worldToCam.getOrigin()[0];
-            Trans(1,3) = worldToCam.getOrigin()[1];
-            Trans(2,3) = worldToCam.getOrigin()[2];
-
-            outInfo(std::endl<<Trans);
-            outInfo(std::endl<<Trans.inverse().transpose());
+            outInfo(std::endl << Trans);
+            outInfo(std::endl << Trans.inverse().transpose());
             Eigen::Vector4d plane_eq(semanticMapItems_[i].plane_eq[0], semanticMapItems_[i].plane_eq[1],
-                    semanticMapItems_[i].plane_eq[2], -semanticMapItems_[i].plane_eq[3]);
+                                     semanticMapItems_[i].plane_eq[2], -semanticMapItems_[i].plane_eq[3]);
 
-            Eigen::Vector4d new_plane_eq = Trans.inverse().transpose()*plane_eq;
+            Eigen::Vector4d new_plane_eq = Trans.inverse().transpose() * plane_eq;
 
             outInfo(new_plane_eq);
             rs::Plane supp_plane = rs::create<rs::Plane>(tcas);
@@ -544,12 +561,13 @@ private:
     }
 
     tf::Transform transform;
-    outInfo(region.name<<" is defined in "<<region.reference_frame);
-    if (region.reference_frame !="map")
+    outInfo(region.name << " is defined in " << region.reference_frame);
+    if (region.reference_frame != "map")
     {
-        outInfo("Looking up transfrom from: "<<cameraInfo.header.frame_id<<"to "<<region.reference_frame);
-        listener_.listener->waitForTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),ros::Duration(2.0));
-        listener_.listener->lookupTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),camToWorld);
+      outInfo("Looking up transfrom from: " << cameraInfo.header.frame_id << "to " << region.reference_frame);
+      listener_.listener->waitForTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),
+                                           ros::Duration(2.0));
+      listener_.listener->lookupTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0), camToWorld);
     }
     transform = region.transform.inverse() * camToWorld;
 
