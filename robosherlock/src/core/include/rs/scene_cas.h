@@ -115,14 +115,18 @@ public:
     cas.setDocumentText(uima::UnicodeStringRef(t.c_str()));
   }
 
-  // This will return the name of the AAE that is responsible for this->cas
-  inline std::string getDocumentText(){
+  /**
+   * Get the identifier for this CAS.
+   *
+   * Currently this reflects the name of the responsible AAE that uses this->cas.
+   */
+  inline std::string getIdentifier(){
     return cas.getDocumentText().asUTF8();
   }
 
   void setActiveCamId(int id)
   {
-    std::string name_of_aae = getDocumentText();
+    std::string name_of_aae = getIdentifier();
 
     if (std::find(camera_ids_in_aae_[name_of_aae].begin(),
                   camera_ids_in_aae_[name_of_aae].end(), id) != camera_ids_in_aae_[name_of_aae].end())

@@ -151,8 +151,8 @@ public:
       // Check if camera interfaces are already registered in the SceneCAS
       if( !(cameras_[i].cam_interface_->cameraIdAlreadyRegistered()) ){
 
-        cameras_[i].cam_interface_->registerCameraInCAS(tcas.getDocumentText().asUTF8());
-        outInfo("New Camera Interface in AAE: '" << cas.getDocumentText() << "' discovered. Camera ID: "  << FG_BLUE << cameras_[i].cam_interface_->getCameraId() );
+        cameras_[i].cam_interface_->registerCameraInCAS(cas.getIdentifier());
+        outInfo("New Camera Interface in AAE: '" << cas.getIdentifier() << "' discovered. Camera ID: "  << FG_BLUE << cameras_[i].cam_interface_->getCameraId() );
       }
     }
 
