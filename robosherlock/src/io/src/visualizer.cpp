@@ -56,7 +56,7 @@ Visualizer::~Visualizer()
 // TODO think of having headless in the VisualizableGroupManager so some pipelines can be headless
 void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
-  visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(false, identifier);
+  visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(identifier);
   visualizableGroupManagers_[identifier]->start();
 }
 
@@ -219,8 +219,7 @@ void Visualizer::imageViewer()
         visualizationAnnotatorMgr->publishOutputImage(disp);
 
         // When an image is to be saved from a previous iteration, check if we can fetch the current image now and write
-        // it
-        // TODO if it's a problem that this is always one iteration behind, one could think of calling
+        // it. If it's a problem that this is always one iteration behind, one could think of calling
         // the keyboard event image viewer for each iteration in this scope
         if (saveImageToDisk && imageVgmToBeSaved->getIdentifier() == visualizationAnnotatorMgr->getIdentifier())
         {
@@ -300,7 +299,6 @@ void Visualizer::cloudViewer()
 
     if (save)
     {
-      // TODO should be put a mutex here if you try to save multiple clouds very quickly?
       save = false;
       if (visualizableGroupManagers_.count(saveVisualizerWithIdentifier) == 0)
       {
@@ -360,7 +358,6 @@ void Visualizer::keyboardEventImageViewer(const cv::Mat& disp)
     case 99:  // insert
       saveImageToDisk = true;
       imageVgmToBeSaved = vgmInteractedWith;
-      //    saveImage(disp, vamInteractedWith);
       break;
   }
   if (lowerByteOfKey == 27)
@@ -441,12 +438,31 @@ void Visualizer::saveCloud(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
   ++saveFrameCloud;
 }
 
+/**
+ * Source: https://stackoverflow.com/a/478960
+ * Full example on https://gist.github.com/Sanic/10fb2517000985f53757b74e843004dc
+ */
+std::string Visualizer::exec(const char* cmd)
+{
+  std::array<char, 128> buffer;
+  std::string result;
+  std::unique_ptr<FILE, decltype(&pclose)> pipe(popen(cmd, "r"), pclose);
+  if (!pipe)
+  {
+    throw std::runtime_error("popen() failed!");
+  }
+  while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+  {
+    result += buffer.data();
+  }
+  return result;
+}
+
 std::string Visualizer::getActiveWindowTitle()
 {
   return exec("xprop -id $(xprop -root _NET_ACTIVE_WINDOW | cut -d ' ' -f 5) WM_NAME | awk -F '\"' '{print $2}' ");
 }
 
-// TODO maybe introduce another method that will just return the first AAE if there is no other AAE/VGM in
 std::shared_ptr<VisualizableGroupManager>
 Visualizer::getAnnotatorManagerForActiveWindow(bool& success, const Visualizable::VisualizableDataType windowType)
 {

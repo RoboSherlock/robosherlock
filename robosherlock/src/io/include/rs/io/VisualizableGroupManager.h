@@ -65,7 +65,7 @@ private:
 
   bool running;
 
-  bool save, headless_;
+  bool save;
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
@@ -91,14 +91,14 @@ private:
   void getVisualizableNames(std::vector<std::string>& names);
 
   /**
- * Get Pointer to a Visualizable in this group by its name
- *
- * Returns: Pointer to the Visualizable with name == name or NULL if no Visualizable with the given name can be found.
- * */
+   * Get Pointer to a Visualizable in this group by its name
+   *
+   * Returns: Pointer to the Visualizable with name == name or NULL if no Visualizable with the given name can be found.
+   * */
   Visualizable* getVisualizable(const std::string& name);
 
 public:
-  VisualizableGroupManager(bool headless, std::string identifier);
+  VisualizableGroupManager(std::string identifier);
   ~VisualizableGroupManager();
 
   bool start();

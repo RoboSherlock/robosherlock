@@ -31,16 +31,14 @@
 using namespace rs;
 
 bool* VisualizableGroupManager::trigger = NULL;
-// TODO remove headless
 
-VisualizableGroupManager::VisualizableGroupManager(bool headless, std::string identifier)
+VisualizableGroupManager::VisualizableGroupManager(std::string identifier)
   : identifier_(identifier)
   , currentVisualizable(NULL)
   , names()
   , index(0)
   , running(false)
   , save(false)
-  , headless_(headless)
   , saveFrameImage(0)
   , saveFrameCloud(0)
   , nh_("~")

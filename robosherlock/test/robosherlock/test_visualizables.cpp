@@ -40,7 +40,6 @@ protected:
   }
 };
 
-//q_subClassOf
 TEST_F(VisualizablesTest, Instantiation)
 {
   TestVisualizable tv1("Visualizable1");
