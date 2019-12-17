@@ -51,6 +51,24 @@ public:
   }
 };
 
+
+class InitAEException : public Exception
+{
+protected:
+  const std::string message;
+
+public:
+  InitAEException(std::string ae_name, std::string msg) throw() : Exception("Initializing analysis " + ae_name + " engine failed with message: " + msg)
+  {
+  }
+
+  virtual ~InitAEException() throw()
+  {
+  }
+};
+
+
+
 class FrameFilterException : public Exception
 {
 protected:
