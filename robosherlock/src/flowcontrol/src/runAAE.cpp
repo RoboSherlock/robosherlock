@@ -160,7 +160,7 @@ int main(int argc, char *argv[])
     {
       RSAggregateAnalysisEngine* engine = rs::createRSAggregateAnalysisEngine(ae_path);
       rsaaes.push_back(engine);
-      vis.addVisualizerManager(engine->getAAEName());
+      vis.addVisualizableGroupManager(engine->getAAEName());
     }
     vis.start();
 
