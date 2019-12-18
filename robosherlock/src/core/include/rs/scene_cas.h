@@ -121,7 +121,7 @@ public:
    * Currently this reflects the name of the responsible AAE that uses this->cas.
    */
   inline std::string getIdentifier(){
-    return cas.getDocumentText().asUTF8();
+    return cas.getIdentifier();
   }
 
   void setActiveCamId(int id)

@@ -156,7 +156,7 @@ public:
       }
     }
 
-    outInfo("waiting for all cameras to have new data in AE " << tcas.getDocumentText().asUTF8() <<" ...");
+    outInfo("waiting for all cameras to have new data in AE " << cas.getIdentifier() <<" ...");
     double t1 = clock.getTime();
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
