@@ -342,14 +342,11 @@ private:
             Trans(1, 3) = worldToCam.getOrigin()[1];
             Trans(2, 3) = worldToCam.getOrigin()[2];
 
-            outInfo(std::endl << Trans);
-            outInfo(std::endl << Trans.inverse().transpose());
             Eigen::Vector4d plane_eq(semanticMapItems_[i].plane_eq[0], semanticMapItems_[i].plane_eq[1],
                                      semanticMapItems_[i].plane_eq[2], -semanticMapItems_[i].plane_eq[3]);
 
             Eigen::Vector4d new_plane_eq = Trans.inverse().transpose() * plane_eq;
 
-            outInfo(new_plane_eq);
             rs::Plane supp_plane = rs::create<rs::Plane>(tcas);
             std::vector<float> plane_model_as_std_vect(4);
             plane_model_as_std_vect[0] = new_plane_eq[0];
