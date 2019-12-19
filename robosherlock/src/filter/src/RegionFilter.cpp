@@ -47,17 +47,24 @@ using namespace uima;
 
 class RegionFilter : public DrawingAnnotator
 {
+
+    /**
+   * @brief The SemanticMapItem struct
+   * transform describing transformation from reference frame to center of region you are definging
+   * Dimensions are defined on each axis. If defining a regins that should have a supporting plane you
+   * can optionally add the equation of the plane to the map entry
+   */
   struct SemanticMapItem
   {
     tf::Transform transform;
     std::string reference_frame;
     std::string name, type;
-    double width, height, depth;
+    double y_dimention, z_dimension, x_dimention;
     cv::Vec4f plane_eq;
     bool hasPlaneEq = false;
   };
-  std::vector<SemanticMapItem> semanticMapItems_;
-  std::vector<SemanticMapItem> activeSemanticMapItems_;
+  std::vector<SemanticMapItem> semantic_map_items_;
+  std::vector<SemanticMapItem> active_semantic_map_items_;
 
   typedef pcl::PointXYZRGBA PointT;
 
@@ -177,10 +184,10 @@ public:
     if (config["names"])
     {
       auto sem_map_entries = config["names"].as<std::vector<std::string>>();
-      semanticMapItems_.resize(sem_map_entries.size());
+      semantic_map_items_.resize(sem_map_entries.size());
       for (size_t i = 0; i < sem_map_entries.size(); ++i)
       {
-        SemanticMapItem& item = semanticMapItems_[i];
+        SemanticMapItem& item = semantic_map_items_[i];
         if (!config[sem_map_entries[i]])
           throw rs::InitAEException(this->name, "Semantic map file is malformed. The region: " + sem_map_entries[i] +
                                                     " has no transformation attached to it!!");
@@ -188,10 +195,9 @@ public:
 
         item.name = sem_map_entries[i];
         item.type = entry["type"].as<std::string>();
-        // TODO:: WHAT THE FUCK - REDO THIS - AXIS ALIGNED;
-        item.height = entry["width"].as<double>();
-        item.depth = entry["height"].as<double>();
-        item.width = entry["depth"].as<double>();
+        item.x_dimention = entry["depth"].as<double>();  //X-dim
+        item.y_dimention = entry["width"].as<double>(); //Y-dim
+        item.z_dimension = entry["height"].as<double>(); //Z-dim
 
         if (entry["reference_frame"])
           item.reference_frame = entry["reference_frame"].as<std::string>();
@@ -242,16 +248,16 @@ private:
     rs::Scene scene = cas.getScene();
 
     std::vector<rs::SemanticMapObject> semanticMap;
-    semanticMap.reserve(semanticMapItems_.size());
-    for (size_t i = 0; i < semanticMapItems_.size(); ++i)
+    semanticMap.reserve(semantic_map_items_.size());
+    for (size_t i = 0; i < semantic_map_items_.size(); ++i)
     {
-      SemanticMapItem& item = semanticMapItems_[i];
+      SemanticMapItem& item = semantic_map_items_[i];
       rs::SemanticMapObject obj = rs::create<rs::SemanticMapObject>(tcas);
       obj.name(item.name);
       obj.typeName(item.type);
-      obj.width(static_cast<double>(item.width));
-      obj.height(static_cast<double>(item.height));
-      obj.depth(static_cast<double>(item.depth));
+      obj.width(static_cast<double>(item.y_dimention));
+      obj.height(static_cast<double>(item.z_dimension));
+      obj.depth(static_cast<double>(item.x_dimention));
       obj.transform(rs::conversion::to(tcas, item.transform));
       semanticMap.push_back(obj);
     }
@@ -313,16 +319,17 @@ private:
       }
     }
 
-    for (size_t i = 0; i < semanticMapItems_.size(); ++i)
+    for (size_t i = 0; i < semantic_map_items_.size(); ++i)
     {
-      if (frustumCulling(semanticMapItems_[i]) || !frustumCulling_)
+      if (frustumCulling(semantic_map_items_[i]) || !frustumCulling_)
       {
-        if (std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), semanticMapItems_[i].name) !=
+        if (std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), semantic_map_items_[i].name) !=
             regions_to_look_at_.end())
         {
-          outInfo("region inside frustum: " << semanticMapItems_[i].name);
-          filterRegion(semanticMapItems_[i]);
-          if (semanticMapItems_[i].hasPlaneEq)
+          outInfo("region inside frustum: " << semantic_map_items_[i].name);
+          filterRegion(semantic_map_items_[i]);
+
+          if (semantic_map_items_[i].hasPlaneEq)
           {
             Eigen::Matrix4d Trans;  // Your Transformation Matrix
             Trans.setIdentity();    // Set to Identity to make bottom row of Matrix 0,0,0,1
@@ -342,8 +349,8 @@ private:
             Trans(1, 3) = worldToCam.getOrigin()[1];
             Trans(2, 3) = worldToCam.getOrigin()[2];
 
-            Eigen::Vector4d plane_eq(semanticMapItems_[i].plane_eq[0], semanticMapItems_[i].plane_eq[1],
-                                     semanticMapItems_[i].plane_eq[2], -semanticMapItems_[i].plane_eq[3]);
+            Eigen::Vector4d plane_eq(semantic_map_items_[i].plane_eq[0], semantic_map_items_[i].plane_eq[1],
+                                     semantic_map_items_[i].plane_eq[2], -semantic_map_items_[i].plane_eq[3]);
 
             Eigen::Vector4d new_plane_eq = Trans.inverse().transpose() * plane_eq;
 
@@ -454,8 +461,8 @@ private:
     }
 
     // check region bounding box
-    Eigen::Vector3d bbMin(-(region.width / 2), -(region.height / 2), -(region.depth / 2));
-    Eigen::Vector3d bbMax((region.width / 2), (region.height / 2), 0.5);
+    Eigen::Vector3d bbMin(-(region.y_dimention / 2), -(region.z_dimension / 2), -(region.x_dimention / 2));
+    Eigen::Vector3d bbMax((region.y_dimention / 2), (region.z_dimension / 2), 0.5);
     pcl::visualization::FrustumCull res =
         (pcl::visualization::FrustumCull)pcl::visualization::cullFrustum(tFrustum, bbMin, bbMax);
     return res != pcl::visualization::PCL_OUTSIDE_FRUSTUM;
@@ -531,12 +538,12 @@ private:
 
   void filterRegion(const SemanticMapItem& region)
   {
-    const float minX = -(region.width / 2) + border;
-    const float maxX = (region.width / 2) - border;
-    float minY = -(region.height / 2) + border;
-    const float maxY = (region.height / 2) - border;
-    const float minZ = -(region.depth / 2);
-    float maxZ = +(region.depth / 2);
+    const float minX = -(region.x_dimention / 2) + border;
+    const float maxX = (region.x_dimention/ 2) - border;
+    float minY = -(region.y_dimention / 2) + border;
+    const float maxY = (region.y_dimention / 2) - border;
+    const float minZ = -(region.z_dimension / 2);
+    float maxZ = +(region.z_dimension / 2);
 
     if (region.name == "drawer_sinkblock_upper_open")
     {
@@ -640,9 +647,9 @@ private:
     visualizer.addLine(pclOrigin, pclLineY, 0, 1, 0, "lineY");
     visualizer.addLine(pclOrigin, pclLineZ, 0, 0, 1, "lineZ");
 
-    for (int i = 0; i < semanticMapItems_.size(); ++i)
+    for (int i = 0; i < semantic_map_items_.size(); ++i)
     {
-      const SemanticMapItem& region = semanticMapItems_[i];
+      const SemanticMapItem& region = semantic_map_items_[i];
       if (std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), region.name) == regions_to_look_at_.end())
         continue;
       tf::Transform transform = worldToCam * region.transform;
@@ -671,7 +678,7 @@ private:
       tf::vectorTFToEigen(transform.getOrigin(), translation);
       tf::quaternionTFToEigen(transform.getRotation(), rotation);
 
-      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(), region.width, region.height, region.depth,
+      visualizer.addCube(translation.cast<float>(), rotation.cast<float>(), region.x_dimention, region.y_dimention, region.z_dimension,
                          oss.str());
       visualizer.setRepresentationToWireframeForAllActors();
     }
