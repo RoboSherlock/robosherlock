@@ -48,7 +48,6 @@
 #include <ros/ros.h>
 #include <ros/package.h>
 
-
 /**
  * @brief help description of parameters
  */
@@ -62,7 +61,6 @@ void help()
             << std::endl;
 }
 
-
 void signalHandler(int signum)
 {
   outWarn("Interrupt signal " << signum << " recevied. Exiting!");
@@ -73,17 +71,17 @@ void signalHandler(int signum)
 /*       Main                                                              */
 /* ----------------------------------------------------------------------- */
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-  if(argc < 2)
+  if (argc < 2)
   {
     help();
     return 1;
   }
 
-  if(OUT_LEVEL == OUT_LEVEL_DEBUG)
+  if (OUT_LEVEL == OUT_LEVEL_DEBUG)
   {
-    if(ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
+    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
     {
       ros::console::notifyLoggerLevelsChanged();
     }
@@ -94,87 +92,122 @@ int main(int argc, char *argv[])
 
   std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;
   bool useVisualizer;
+  bool publishResults;
 
   nh.param("ae", analysis_engine_names, std::string(""));
   nh.param("vis", useVisualizer, false);
+  nh.param("publish_results", publishResults, false);
 
   nh.deleteParam("ae");
   nh.deleteParam("vis");
+  std::vector<std::string> analysis_engine_name_list;
 
-  //if only argument is an AE (nh.param reudces argc)
-  if(argc == 2)
+  // if only argument is an AE (nh.param reudces argc)
+  if (argc == 2)
   {
     const std::string arg = argv[1];
-    if(arg == "-?" || arg == "-h" || arg == "--help")
+    if (arg == "-?" || arg == "-h" || arg == "--help")
     {
       help();
       return 0;
     }
     analysis_engine_names = argv[1];
   }
-  rs::common::getAEPaths(analysis_engine_names, analysis_engine_file);
 
-  if(analysis_engine_file.empty())
+  std::stringstream ss(analysis_engine_names);
+  while (ss.good())
   {
-    outError("analysis engine \"" << analysis_engine_file << "\" not found.");
-    return -1;
+    std::string substring;
+    std::getline(ss, substring, ',');
+    if (substring != "")
+    {
+      analysis_engine_name_list.push_back(substring);
+    }
   }
-  else
-    outInfo(analysis_engine_file);
 
-  rs::Visualizer vis(!useVisualizer);
+  std::vector<std::string> analysis_engine_file_paths;
+  for (auto ae_name : analysis_engine_name_list)
+  {
+    rs::common::getAEPaths(ae_name, analysis_engine_file);
 
-  RSAggregateAnalysisEngine *engine;
-  ros::Publisher result_pub_ = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+    if (analysis_engine_file.empty())
+    {
+      outError("analysis engine \"" << ae_name << "\" not found.");
+      return -1;
+    }
+    else
+    {
+      outInfo(analysis_engine_file);
+      analysis_engine_file_paths.push_back(analysis_engine_file);
+    }
+  }
 
+  ros::Publisher result_pub;
+  if (publishResults)
+  {
+    result_pub = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
+  }
+
+  std::vector<RSAggregateAnalysisEngine*> rsaaes;
   try
   {
-    //singl
-    uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
+    // singl
+    uima::ResourceManager& resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
 
-    mongo::client::GlobalInstance instance; //this is a stupid thing we did now we suffer the consequences 
+    mongo::client::GlobalInstance instance;  // this is a stupid thing we did now we suffer the consequences
     ros::AsyncSpinner spinner(0);
 
-    engine = rs::createRSAggregateAnalysisEngine(analysis_engine_file, false);
+    rs::Visualizer vis(!useVisualizer, true);
     spinner.start();
+    for (auto ae_path : analysis_engine_file_paths)
+    {
+      RSAggregateAnalysisEngine* engine = rs::createRSAggregateAnalysisEngine(ae_path);
+      rsaaes.push_back(engine);
+      vis.addVisualizableGroupManager(engine->getAAEName());
+    }
     vis.start();
 
     ros::Rate rate(30.0);
-    while(ros::ok())
+    while (ros::ok())
     {
       signal(SIGINT, signalHandler);
+      for (auto rsaae : rsaaes)
+      {
+        rsaae->resetCas();
+        rsaae->processOnce();
+        if (publishResults)
+        {
+          std::vector<std::string> obj_descriptions;
+          rs::ObjectDesignatorFactory dw(rsaae->getCas(), rs::ObjectDesignatorFactory::Mode::CLUSTER);
+          dw.getObjectDesignators(obj_descriptions);
+          robosherlock_msgs::RSObjectDescriptions objDescr;
+          objDescr.obj_descriptions = obj_descriptions;
+          result_pub.publish(objDescr);
+        }
+      }
 
-      engine->resetCas();
-      engine->processOnce();
-
-      std::vector<std::string> obj_descriptions;
-      rs::ObjectDesignatorFactory dw(engine->getCas(),rs::ObjectDesignatorFactory::Mode::CLUSTER);
-      dw.getObjectDesignators(obj_descriptions);
-      robosherlock_msgs::RSObjectDescriptions objDescr;
-      objDescr.obj_descriptions = obj_descriptions;
-      result_pub_.publish(objDescr);
-
-      rate.sleep(); 
+      rate.sleep();
     }
-
   }
-  catch(const rs::Exception &e)
+  catch (const rs::Exception& e)
   {
     outError("Exception: [" << e.what() << "]");
   }
-  catch(const uima::Exception &e)
+  catch (const uima::Exception& e)
   {
     outError("Exception: " << std::endl << e);
   }
-  catch(const std::exception &e)
+  catch (const std::exception& e)
   {
     outError("Exception: " << std::endl << e.what());
   }
-  catch(...)
+  catch (...)
   {
     outError("Unknown exception!");
   }
   ros::shutdown();
-  delete engine;
+  for (auto rsaae : rsaaes)
+    delete rsaae;
+
   return 0;
 }

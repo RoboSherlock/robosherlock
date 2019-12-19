@@ -33,17 +33,17 @@ protected:
     virtual void SetUp()
     {
       rs::common::getAEPaths("u_test",engineFile);
-      CamInterface::resetIdCount();
+      rs::SceneCas::unregisterAllCameraIDs();
       engine = rs::createRSAggregateAnalysisEngine(engineFile, false); // set false for not query from knowrob, we will manually set variables
 
       engine->setPipelineOrdering(engineList);
-      engine->setParallelOrderings(orderings,orderingIndices);
+      engine->setParallelOrderings(orderings, orderingIndices);
     }
 
     virtual void TearDown()
     {      
        engine->destroy();
-       CamInterface::resetIdCount();
+       rs::SceneCas::unregisterAllCameraIDs();
        delete engine;
     }
 

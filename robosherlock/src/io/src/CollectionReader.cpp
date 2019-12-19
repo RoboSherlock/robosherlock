@@ -92,7 +92,7 @@ public:
     {
       cameras_.clear();
       interfaces_.clear();
-      CamInterface::resetIdCount();
+      rs::SceneCas::unregisterAllCameraIDs();
       std::vector<std::string *> configs;
       ctx.extractValue("camera_config_files", configs);
       for(size_t i = 0; i < configs.size(); ++i)
@@ -145,7 +145,18 @@ public:
       }
     }
 
-    outInfo("waiting for all cameras to have new data...");
+    // Check that all camera interface have an ID assigned and that the SceneCAS knows about it
+    for(size_t i = 0; i < cameras_.size(); ++i)
+    {
+      // Check if camera interfaces are already registered in the SceneCAS
+      if( !(cameras_[i].cam_interface_->cameraIdAlreadyRegistered()) ){
+
+        cameras_[i].cam_interface_->registerCameraInCAS(cas.getIdentifier());
+        outInfo("New Camera Interface in AAE: '" << cas.getIdentifier() << "' discovered. Camera ID: "  << FG_BLUE << cameras_[i].cam_interface_->getCameraId() );
+      }
+    }
+
+    outInfo("waiting for all cameras to have new data in AE " << cas.getIdentifier() <<" ...");
     double t1 = clock.getTime();
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
@@ -156,6 +167,8 @@ public:
       }
     }
     outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
+
+
 
     for(size_t i = 0; i < cameras_.size(); ++i)
     {

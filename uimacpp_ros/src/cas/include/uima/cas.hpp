@@ -52,6 +52,7 @@
 #include <uima/sofastream.hpp>
 #include <uima/fsindex.hpp>
 #include <map>
+#include <string>
 
 /* ----------------------------------------------------------------------- */
 /*       Constants                                                         */
@@ -188,6 +189,7 @@ namespace uima {
     SofaFS getSofa(char* sofaName);
     SofaFS getSofa(UnicodeStringRef sofaName);
     uima::lowlevel::IndexRepository * getIndexRepositoryForSofa(SofaFS sofa);
+    std::string identifier;
     void bumpSofaCount();	
     void invalidBaseCasMethod();
 
@@ -313,6 +315,20 @@ namespace uima {
   public:
     virtual ~CAS();
 
+    /**
+     * Get the String identifier of this CAS.
+     */
+    inline std::string getIdentifier() {
+      return identifier;
+    }
+
+    /**
+     * Set the identifier of this CAS. This could for example be used
+     * to identify which AAE mainly uses this CAS.
+     */
+    inline void setIdentifier(std::string id) {
+      identifier = id;
+    }
 
     /**
      * Returns the Sofa number

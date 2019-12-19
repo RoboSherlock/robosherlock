@@ -33,39 +33,27 @@
 #include <pcl/point_cloud.h>
 
 #include <rs/utils/output.h>
+#include <rs/io/Visualizable.h>
 
-class DrawingAnnotator : public uima::Annotator
+class DrawingAnnotator : public uima::Annotator, public Visualizable
 {
 public:
-  enum Source
-  {
-    IMAGE_VIEWER = 0,
-    CLOUD_VIEWER
-  };
+  typedef VisualizableDataType Source; // This is necessary in order to
+                                       // don't break the Key callback signature in annotators
 
-  const std::string name;
-  bool update;
-  bool hasRun;
+  bool hasRun = false;
 
 private:
-  static std::map<std::string, DrawingAnnotator *> annotators;
 
   std::mutex drawLock;
 
 public:
   DrawingAnnotator(const std::string &name);
-  virtual ~DrawingAnnotator();
-
-  static void getAnnotatorNames(std::vector<std::string> &names);
-  static DrawingAnnotator *getAnnotator(const std::string &name);
 
   uima::TyErrorId process(uima::CAS &tcas, uima::ResultSpecification const &res_spec);
 
   void drawImage(cv::Mat &disp);
   bool fillVisualizer(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun);
-
-  virtual bool callbackMouse(const int event, const int x, const int y, const Source source);
-  virtual bool callbackKey(const int key, const Source source);
 
 protected:
   virtual uima::TyErrorId processWithLock(uima::CAS &tcas, uima::ResultSpecification const &res_spec) = 0;

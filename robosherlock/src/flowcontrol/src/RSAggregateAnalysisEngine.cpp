@@ -191,9 +191,9 @@ void RSAggregateAnalysisEngine::processOnce(std::vector<std::string> &designator
   outInfo("executing analisys engine: " << name_);
   try
   {
-    UnicodeString ustrInputText;
-    ustrInputText.fromUTF8(name_);
+    UnicodeString ustrInputText = name_.c_str();
     cas_->setDocumentText(uima::UnicodeStringRef(ustrInputText));
+    cas_->setIdentifier(name_);
     rs::StopWatch clock;
     outInfo("processing CAS");
     try
