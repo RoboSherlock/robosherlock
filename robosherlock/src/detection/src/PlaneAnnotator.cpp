@@ -222,11 +222,6 @@ private:
           break;
       }
     }
-    if (!foundPlane)
-    {
-      outWarn("no plane found, no further processing!");
-      throw rs::FrameFilterException();
-    }
 
     return UIMA_ERR_NONE;
   }
