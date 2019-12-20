@@ -130,7 +130,7 @@ public:
       ctx.extractValue("defaultRegions", temp);
       for (auto s : temp)
       {
-        outInfo(*s);
+        outDebug(*s);
         defaultRegions.push_back(*s);
       }
     }
@@ -177,7 +177,7 @@ public:
     if (path_to_sem_map.empty())
       throw rs::InitAEException(this->name, "Semantic map file not found: " + file);
 
-    outInfo("Path to semantic map file: " FG_BLUE << path_to_sem_map);
+    outDebug("Path to semantic map file: " FG_BLUE << path_to_sem_map);
 
     YAML::Node config = YAML::LoadFile(path_to_sem_map);
 
@@ -212,7 +212,7 @@ public:
           item.plane_eq[1] = plane_eq[1];
           item.plane_eq[2] = plane_eq[2];
           item.plane_eq[3] = plane_eq[3];
-          outInfo("Found a pre-defined plane equation for " << item.name << " : " << item.plane_eq);
+          outDebug("Found a pre-defined plane equation for " << item.name << " : " << item.plane_eq);
         }
 
         cv::Mat m;
@@ -307,7 +307,7 @@ private:
       if (std::find(defaultRegions.begin(), defaultRegions.end(), newLocation) == std::end(defaultRegions) &&
           newLocation != "")
       {
-        outInfo("new location not in default Regions");
+        outInfo("Location defined in query is not set in the default regions. Setting as active region to look at");
         regions_to_look_at_.clear();
         regions_to_look_at_.push_back(newLocation);
         if (jsonString.find("scan"))
@@ -326,7 +326,7 @@ private:
         if (std::find(regions_to_look_at_.begin(), regions_to_look_at_.end(), semantic_map_items_[i].name) !=
             regions_to_look_at_.end())
         {
-          outInfo("region inside frustum: " << semantic_map_items_[i].name);
+          outDebug("region inside frustum: " << semantic_map_items_[i].name);
           filterRegion(semantic_map_items_[i]);
 
           if (semantic_map_items_[i].hasPlaneEq)
@@ -392,11 +392,11 @@ private:
       else
         lastTime = camToWorld.stamp_;
 
-      outInfo("filtered frames: " << filtered << " / " << frames << "(" << (filtered / (float)frames) * 100 << "%)");
+      outDebug("filtered frames: " << filtered << " / " << frames << "(" << (filtered / (float)frames) * 100 << "%)");
 
       if (!change)
       {
-        outWarn("no changes in frame detected, no further processing!");
+        outInfo("No changes in frame detected, no further processing!");
         throw rs::FrameFilterException();
       }
     }
@@ -531,7 +531,7 @@ private:
     indices->swap(lastIndices);
 
     const float diff = changedPixels / (float)size;
-    outInfo(changedPixels << " from " << size << " pixels changed (" << diff * 100 << "%)");
+    outDebug(changedPixels << " from " << size << " pixels changed (" << diff * 100 << "%)");
 
     return diff > threshold;
   }
@@ -565,10 +565,10 @@ private:
     }
 
     tf::Transform transform;
-    outInfo(region.name << " is defined in " << region.reference_frame);
+    outDebug(region.name << " is defined in " << region.reference_frame);
     if (region.reference_frame != "map")
     {
-      outInfo("Looking up transfrom from: " << cameraInfo.header.frame_id << "to " << region.reference_frame);
+      outDebug("Looking up transfrom from: " << cameraInfo.header.frame_id << "to " << region.reference_frame);
       listener_.listener->waitForTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0),
                                            ros::Duration(2.0));
       listener_.listener->lookupTransform(cameraInfo.header.frame_id, region.reference_frame, ros::Time(0), camToWorld);
