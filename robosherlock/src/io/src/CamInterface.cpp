@@ -1,3 +1,3 @@
 #include "rs/io/CamInterface.h"
 
-int CamInterface::id = 0;
+//int CamInterface::id = 0;

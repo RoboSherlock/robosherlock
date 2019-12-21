@@ -20,48 +20,9 @@
 #include <rs/DrawingAnnotator.h>
 #include <rs/utils/exception.h>
 
-std::map<std::string, DrawingAnnotator *> DrawingAnnotator::annotators;
-
-DrawingAnnotator::DrawingAnnotator(const std::string &name) : name(name), update(false), hasRun(false)
+DrawingAnnotator::DrawingAnnotator(const std::string &name) : Visualizable(name)
 {
-  outDebug("Added: " << name);
-  annotators[name] = this;
-}
 
-DrawingAnnotator::~DrawingAnnotator()
-{
-  std::map<std::string, DrawingAnnotator *>::const_iterator it;
-  for(it = annotators.begin(); it != annotators.end(); ++it)
-  {
-    if(it->second == this)
-    {
-      annotators.erase(it);
-      break;
-    }
-  }
-}
-
-void DrawingAnnotator::getAnnotatorNames(std::vector<std::string> &names)
-{
-  std::map<std::string, DrawingAnnotator *>::const_iterator it;
-  names.clear();
-  names.reserve(annotators.size());
-
-  for(it = annotators.begin(); it != annotators.end(); ++it)
-  {
-    names.push_back(it->first);
-  }
-}
-
-DrawingAnnotator *DrawingAnnotator::getAnnotator(const std::string &name)
-{
-  std::map<std::string, DrawingAnnotator *>::const_iterator it;
-  it = annotators.find(name);
-  if(it != annotators.end())
-  {
-    return it->second;
-  }
-  return NULL;
 }
 
 uima::TyErrorId DrawingAnnotator::process(uima::CAS &tcas, uima::ResultSpecification const &res_spec)
@@ -141,16 +102,6 @@ bool DrawingAnnotator::fillVisualizer(pcl::visualization::PCLVisualizer &visuali
   }
   drawLock.unlock();
   return true;
-}
-
-bool DrawingAnnotator::callbackMouse(const int event, const int x, const int y, const Source source)
-{
-  return false;
-}
-
-bool DrawingAnnotator::callbackKey(const int key, const Source source)
-{
-  return false;
 }
 
 void DrawingAnnotator::fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)

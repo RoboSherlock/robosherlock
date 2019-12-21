@@ -57,8 +57,10 @@ public:
   SceneCas(uima::CAS& cas);
   virtual ~SceneCas();
 
-  static std::vector<int> cam_ids_;
+//  static std::vector<int> cam_ids_;
   int active_cam_id_;
+
+  static std::map<std::string, std::vector<int>> camera_ids_in_aae_;
 
   rs::Scene getScene(int cam_id = -1);
 
@@ -67,6 +69,39 @@ public:
 
   bool getFS(const char* name, uima::FeatureStructure& fs);
   void setFS(const char* name, const uima::FeatureStructure& fs);
+
+  // Register a new camera into the global mapping:
+  //    AAE_Name -> list_of_camera_ids
+  // Camera IDs are not globally unique. They are only unique in the AAE they have been loaded in
+  // TODO: This should be prettier in the sense that the returned camera id will not just be the size
+  //       of the list, but rather the first free camera id.
+  // TODO: The current state of methods will also be imperfect if only some of the loaded CamInterfaces are deleted
+  //       and then new ones are added.
+  // TODO: Have a mutex when going for multithreading
+  static int registerCameraInCAS(std::string analysis_engine_name){
+    // Append camera id and check for camera id
+    int current_id_to_assign = camera_ids_in_aae_[analysis_engine_name].size();
+    camera_ids_in_aae_[analysis_engine_name].push_back(current_id_to_assign);
+    return current_id_to_assign;
+  }
+
+  // Returns true if camera id has been found , else otherwise
+  // TODO: Have a mutex when going for multithreading
+  static bool unregisterCameraInCAS(std::string analysis_engine_name, int camera_id){
+    auto cams_in_ae = camera_ids_in_aae_[analysis_engine_name];
+
+    std::vector<int>::iterator it = std::find(cams_in_ae.begin(), cams_in_ae.end(), camera_id);
+    if (it != cams_in_ae.end()) {
+      cams_in_ae.erase(it);
+      return true;
+    }
+    return false;
+  }
+
+  // This method will completly clear the ae -> camera_ids mapping
+  static inline void unregisterAllCameraIDs(){
+    camera_ids_in_aae_.clear();
+  }
 
   void reset()
   {
@@ -80,9 +115,21 @@ public:
     cas.setDocumentText(uima::UnicodeStringRef(t.c_str()));
   }
 
+  /**
+   * Get the identifier for this CAS.
+   *
+   * Currently this reflects the name of the responsible AAE that uses this->cas.
+   */
+  inline std::string getIdentifier(){
+    return cas.getIdentifier();
+  }
+
   void setActiveCamId(int id)
   {
-    if (std::find(cam_ids_.begin(), cam_ids_.end(), id) != cam_ids_.end())
+    std::string name_of_aae = getIdentifier();
+
+    if (std::find(camera_ids_in_aae_[name_of_aae].begin(),
+                  camera_ids_in_aae_[name_of_aae].end(), id) != camera_ids_in_aae_[name_of_aae].end())
       active_cam_id_ = id;
     else
       throw std::runtime_error("Setting a cam id that does not exist");

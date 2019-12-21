@@ -34,7 +34,9 @@
 namespace rs
 {
 
-std::vector<int> SceneCas::cam_ids_ = {};
+//std::vector<int> SceneCas::cam_ids_ = {};
+
+std::map<std::string, std::vector<int>> SceneCas::camera_ids_in_aae_;
 
 SceneCas::SceneCas(uima::CAS &cas) :
   cas(cas), active_cam_id_(0)
