@@ -400,6 +400,8 @@ private:
         throw rs::FrameFilterException();
       }
     }
+    else
+        indices_->swap(last_indices_);
 
     return UIMA_ERR_NONE;
   }
