@@ -155,7 +155,7 @@ public:
         check_ros();
       }
     }
-    outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
+    outDebug("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
 
     for(size_t i = 0; i < cameras_.size(); ++i)
     {
@@ -165,7 +165,7 @@ public:
 
     if(std::find(interfaces_.begin(), interfaces_.end(), "MongoDB") != interfaces_.end())
     {
-      outInfo("Broadcasting TF for cameraPose");
+      outDebug("Broadcasting TF for cameraPose");
       rs::SceneCas scenecas(tcas);
       rs::Scene scene = scenecas.getScene();
       tf::StampedTransform camToWorld;
