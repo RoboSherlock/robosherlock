@@ -15,7 +15,7 @@ add_library(rs_io SHARED
   src/TFListenerProxy.cpp
   src/Storage.cpp
   src/visualizer.cpp
-        src/VisualizableGroupManager.cpp
+  src/VisualizableGroupManager.cpp
   src/Visualizable.cpp)
 target_link_libraries(rs_io
   ${catkin_LIBRARIES}
