@@ -326,6 +326,18 @@ private:
       if (it != semantic_map_items_.end())
       {
         outDebug("Found " << region);
+        outDebug(it->name << " is defined in " << it->reference_frame);
+        if (it->reference_frame != "map")
+        {
+          outDebug("Looking up transfrom from: " << camera_info_.header.frame_id << "to " << it->reference_frame);
+          listener_.listener->waitForTransform(camera_info_.header.frame_id, it->reference_frame, ros::Time(0),
+                                               ros::Duration(2.0));
+          listener_.listener->lookupTransform(camera_info_.header.frame_id, it->reference_frame, ros::Time(0),
+                                              camToWorld);
+          worldToCam =
+              tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
+          computeFrustum();
+        }
         if (frustumCulling(*it) || !frustum_culling_)
         {
             outDebug("region inside frustum: " << it->name);
@@ -571,15 +583,7 @@ private:
     }
 
     tf::Transform transform;
-    outDebug(region.name << " is defined in " << region.reference_frame);
-    if (region.reference_frame != "map")
-    {
-      outDebug("Looking up transfrom from: " << camera_info_.header.frame_id << "to " << region.reference_frame);
-      listener_.listener->waitForTransform(camera_info_.header.frame_id, region.reference_frame, ros::Time(0),
-                                           ros::Duration(2.0));
-      listener_.listener->lookupTransform(camera_info_.header.frame_id, region.reference_frame, ros::Time(0),
-                                          camToWorld);
-    }
+
     transform = region.transform.inverse() * camToWorld;
 
     Eigen::Affine3d eigenTransform;
