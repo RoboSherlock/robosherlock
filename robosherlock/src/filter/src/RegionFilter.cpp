@@ -321,67 +321,68 @@ private:
 
     for (auto region : regions_to_look_at_)
     {
-      std::vector<SemanticMapItem>::iterator it = std::find_if(semantic_map_items_.begin(), semantic_map_items_.end(),
-                                                               [region](SemanticMapItem r) { return region == r.name;});
+      std::vector<SemanticMapItem>::iterator it =
+          std::find_if(semantic_map_items_.begin(), semantic_map_items_.end(),
+                       [region](SemanticMapItem r) { return region == r.name; });
       if (it != semantic_map_items_.end())
       {
         outDebug("Found " << region);
         outDebug(it->name << " is defined in " << it->reference_frame);
         if (it->reference_frame != "map")
         {
-          outDebug("Looking up transfrom from: " << camera_info_.header.frame_id << "to " << it->reference_frame);
+          outDebug("Looking up transfrom from: " << camera_info_.header.frame_id << " to " << it->reference_frame);
           listener_.listener->waitForTransform(camera_info_.header.frame_id, it->reference_frame, ros::Time(0),
                                                ros::Duration(2.0));
           listener_.listener->lookupTransform(camera_info_.header.frame_id, it->reference_frame, ros::Time(0),
                                               camToWorld);
-          worldToCam =
-              tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
+          worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_,
+                                            camToWorld.frame_id_);
           computeFrustum();
         }
         if (frustumCulling(*it) || !frustum_culling_)
         {
-            outDebug("region inside frustum: " << it->name);
-            filterRegion(*it);
+          outDebug("region inside frustum: " << it->name);
+          filterRegion(*it);
 
-            if (it->has_plane_equations)
-            {
-              Eigen::Matrix4d Trans;
-              Trans.setIdentity();  // Set to Identity to make bottom row of Matrix 0,0,0,1
-              Trans(0, 0) = worldToCam.getBasis()[0][0];
-              Trans(0, 1) = worldToCam.getBasis()[0][1];
-              Trans(0, 2) = worldToCam.getBasis()[0][2];
+          if (it->has_plane_equations)
+          {
+            Eigen::Matrix4d Trans;
+            Trans.setIdentity();  // Set to Identity to make bottom row of Matrix 0,0,0,1
+            Trans(0, 0) = worldToCam.getBasis()[0][0];
+            Trans(0, 1) = worldToCam.getBasis()[0][1];
+            Trans(0, 2) = worldToCam.getBasis()[0][2];
 
-              Trans(1, 0) = worldToCam.getBasis()[1][0];
-              Trans(1, 1) = worldToCam.getBasis()[1][1];
-              Trans(1, 2) = worldToCam.getBasis()[1][2];
+            Trans(1, 0) = worldToCam.getBasis()[1][0];
+            Trans(1, 1) = worldToCam.getBasis()[1][1];
+            Trans(1, 2) = worldToCam.getBasis()[1][2];
 
-              Trans(2, 0) = worldToCam.getBasis()[2][0];
-              Trans(2, 1) = worldToCam.getBasis()[2][1];
-              Trans(2, 2) = worldToCam.getBasis()[2][2];
+            Trans(2, 0) = worldToCam.getBasis()[2][0];
+            Trans(2, 1) = worldToCam.getBasis()[2][1];
+            Trans(2, 2) = worldToCam.getBasis()[2][2];
 
-              Trans(0, 3) = worldToCam.getOrigin()[0];
-              Trans(1, 3) = worldToCam.getOrigin()[1];
-              Trans(2, 3) = worldToCam.getOrigin()[2];
+            Trans(0, 3) = worldToCam.getOrigin()[0];
+            Trans(1, 3) = worldToCam.getOrigin()[1];
+            Trans(2, 3) = worldToCam.getOrigin()[2];
 
-              Eigen::Vector4d plane_eq(it->plane_eq[0], it->plane_eq[1],
-                                       it->plane_eq[2], -it->plane_eq[3]);
+            Eigen::Vector4d plane_eq(it->plane_eq[0], it->plane_eq[1], it->plane_eq[2], -it->plane_eq[3]);
 
-              Eigen::Vector4d new_plane_eq = Trans.inverse().transpose() * plane_eq;
+            Eigen::Vector4d new_plane_eq = Trans.inverse().transpose() * plane_eq;
 
-              rs::Plane supp_plane = rs::create<rs::Plane>(tcas);
-              std::vector<float> plane_model_as_std_vect(4);
-              plane_model_as_std_vect[0] = new_plane_eq[0];
-              plane_model_as_std_vect[1] = new_plane_eq[1];
-              plane_model_as_std_vect[2] = new_plane_eq[2];
-              plane_model_as_std_vect[3] = new_plane_eq[3];
-              supp_plane.model(plane_model_as_std_vect);
-              supp_plane.source("RegionFilter");
-              scene.annotations.append(supp_plane);
-            }
+            rs::Plane supp_plane = rs::create<rs::Plane>(tcas);
+            std::vector<float> plane_model_as_std_vect(4);
+            plane_model_as_std_vect[0] = new_plane_eq[0];
+            plane_model_as_std_vect[1] = new_plane_eq[1];
+            plane_model_as_std_vect[2] = new_plane_eq[2];
+            plane_model_as_std_vect[3] = new_plane_eq[3];
+            supp_plane.model.set(plane_model_as_std_vect);
+            supp_plane.source("RegionFilter");
+            outDebug("Setting plane eq to CAS: "<<new_plane_eq);
+            scene.annotations.append(supp_plane);
+          }
         }
       }
       else
-          outWarn("Region: "<<region<<" is not deined in the semantic map that was loaded.");
+        outWarn("Region: " << region << " is not deined in the semantic map that was loaded.");
     }
 
     pcl::ExtractIndices<PointT> ei;
