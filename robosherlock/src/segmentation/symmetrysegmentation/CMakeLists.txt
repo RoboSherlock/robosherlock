@@ -8,7 +8,7 @@ add_library(rs_symmetrysegmentation SHARED
   src/BilateralSymmetrySegmenter.cpp
   src/SymmetrySegmentationAnnotator.cpp
 )
-target_link_libraries(rs_symmetrysegmentation rs_core)
+target_link_libraries(rs_symmetrysegmentation rs_core rs_io)
 
 rs_add_library(rs_symmetrySegmentationAnnotator src/SymmetrySegmentationAnnotator.cpp)
-target_link_libraries(rs_symmetrySegmentationAnnotator rs_core rs_symmetrysegmentation)
+target_link_libraries(rs_symmetrySegmentationAnnotator rs_core rs_symmetrysegmentation rs_io)

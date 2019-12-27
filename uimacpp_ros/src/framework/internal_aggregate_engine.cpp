@@ -109,14 +109,14 @@ namespace uima {
         getAnnotatorContext().getLogger().logError(rclException.getErrorInfo());
         return(logError(rclTrace, rclException.getErrorInfo().getErrorId()));
       }
-#ifdef NDEBUG
-      catch (...) {
-        /* this should never occur!!! */
-        rclTrace.dump(_TEXT("Unexpected unknown exception"));
-        assertWithMsg(false, _TEXT("Unexpected unknown exception in init()"));   //lint !e506: Constant value Boolean
-        return(logError(rclTrace, UIMA_ERR_ENGINE_UNEXPECTED_EXCEPTION));   /* in case the assert() is no longer here */
-      }
-#endif
+//#ifdef NDEBUG
+//      catch (...) {
+//        /* this should never occur!!! */
+//        rclTrace.dump(_TEXT("Unexpected unknown exception"));
+//        assertWithMsg(false, _TEXT("Unexpected unknown exception in init()"));   //lint !e506: Constant value Boolean
+//        return(logError(rclTrace, UIMA_ERR_ENGINE_UNEXPECTED_EXCEPTION));   /* in case the assert() is no longer here */
+//      }
+//#endif
       return(utErrorId);
     }
 

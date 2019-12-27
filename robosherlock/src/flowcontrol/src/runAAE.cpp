@@ -46,6 +46,7 @@
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
 #include <ros/ros.h>
+#include <ros/console.h>
 #include <ros/package.h>
 
 /**
@@ -79,15 +80,10 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  if (OUT_LEVEL == OUT_LEVEL_DEBUG)
-  {
-    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-    {
-      ros::console::notifyLoggerLevelsChanged();
-    }
-  }
-
   ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
+
+  if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) )
+     ros::console::notifyLoggerLevelsChanged();
   ros::NodeHandle nh("~");
 
   std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;

@@ -122,12 +122,12 @@ void ROSRealSenseBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
     return;
   }
 
-  if(depth.cols != 1280) {
-    outError("Depth resolution error: depth image needs to be 720p");
+  if(depth.cols != 1280 && depth.cols != 848) {
+    outError("Depth resolution error! Depth res is: "<<depth.cols<<"x"<<depth.rows<<" height of depth image needs to be 1280x720 or 848x480");
   }
   color = orig_rgb_img->image.clone();
   if(scale) {
-    if(color.cols == 1280) {
+    if(color.cols == 1280 || color.cols == 848) {
       cameraInfoHD = cameraInfo;
       cameraInfoHD.height *= 1.5;
       cameraInfoHD.width  *= 1.5;
@@ -208,7 +208,7 @@ bool ROSRealSenseBridge::setData(uima::CAS &tcas, uint64_t ts)
     cv::resize(color, color, cv::Size(), 0.66, 0.66, cv::INTER_AREA);
     cas.set(VIEW_COLOR_IMAGE, color);
   }
-  else if(color.cols == 1280) {
+  else if(color.cols == 1280 || color.cols == 848) {
     cas.set(VIEW_COLOR_IMAGE, color);
     cv::resize(color, color, cv::Size(), 1.5, 1.5, cv::INTER_AREA);
     cas.set(VIEW_COLOR_IMAGE_HD, color);

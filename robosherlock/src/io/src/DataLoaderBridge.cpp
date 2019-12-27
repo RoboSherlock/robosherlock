@@ -254,9 +254,11 @@ bool DataLoaderBridge::readConfig(const boost::property_tree::ptree &pt)
     success = false;
   }
 
+  this->cameraInfo.header.frame_id = pt.get<std::string>("camera_info.frame_id");
   this->frameRate = pt.get<double>("camera_info.frame_rate", -1);
   this->cameraInfo.width = pt.get<int>("camera_info.width", 640);
   this->cameraInfo.height = pt.get<int>("camera_info.height", 480);
+
 
   this->cameraInfo.roi.width = this->cameraInfo.width;
   this->cameraInfo.roi.height = this->cameraInfo.height;

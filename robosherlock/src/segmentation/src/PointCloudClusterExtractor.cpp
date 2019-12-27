@@ -47,6 +47,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
+#include <rs/utils/exception.h>
 
 //#define DEBUG_OUTPUT 1;
 using namespace uima;
@@ -177,7 +178,7 @@ private:
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
     cas.get(VIEW_NORMALS, *cloud_normals);
-    cas.get(VIEW_COLOR_IMAGE_HD, color);
+    cas.get(VIEW_COLOR_IMAGE, color);
 
     std::vector<rs::Plane> planes;
     scene.annotations.filter(planes);
@@ -187,9 +188,14 @@ private:
       outInfo(clock.getTime() << " ms.");
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
     }
-
+    outDebug("Found plane equation");
     plane_coefficients->values = planes[0].model();
-    plane_inliers->indices = planes[0].inliers();
+
+    try{
+        plane_inliers->indices = planes[0].inliers();
+    } catch(uima::Exception ex){
+        throw rs::Exception("Failed to retrieve plane inliers, although there is a plane equation");
+    }
 
     if(plane_coefficients->values.empty())
     {
@@ -265,7 +271,7 @@ private:
     disp = color.clone();
     for(size_t i = 0; i < clusters.size(); ++i)
     {
-      cv::rectangle(disp, clusters[i].roi_hires_, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
+      cv::rectangle(disp, clusters[i].roi_, rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
   }
 
@@ -456,6 +462,7 @@ private:
     }
 
     cluster.roi_ = cv::Rect(min_x, min_y, max_x - min_x + 1, max_y - min_y + 1);
+    //this is not true in all cases
     cluster.roi_hires_ = cv::Rect(cluster.roi_.x << 1, cluster.roi_.y << 1, cluster.roi_.width << 1, cluster.roi_.height << 1);
     mask_full(cluster.roi_).copyTo(cluster.mask);
     cv::resize(cluster.mask, cluster.mask_hires_, cv::Size(0, 0), 2.0, 2.0, cv::INTER_NEAREST);
