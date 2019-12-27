@@ -37,7 +37,7 @@ uima::TyErrorId DrawingAnnotator::process(uima::CAS &tcas, uima::ResultSpecifica
   }
   catch(const uima::Exception &e)
   {
-    outError("Exception in " << name << ": " << e);
+//    outError("Exception in " << name << ": " << e);
     drawLock.unlock();
     throw e;
   }
@@ -50,14 +50,14 @@ uima::TyErrorId DrawingAnnotator::process(uima::CAS &tcas, uima::ResultSpecifica
   }
   catch(const rs::Exception &e)
   {
-    outError("Exception in " << name << ": " << e.what());
+//    outError("Exception in " << name << ": " << e.what());
     drawLock.unlock();
     throw e;
   }
-  catch(...)
-  {
-    outError("Exception in " << name << "!");
-  }
+//  catch(...)
+//  {
+//    outError("Exception in " << name << "!");
+//  }
   drawLock.unlock();
   return ret;
 }
