@@ -47,6 +47,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
+#include <rs/utils/exception.h>
 
 //#define DEBUG_OUTPUT 1;
 using namespace uima;
@@ -187,9 +188,14 @@ private:
       outInfo(clock.getTime() << " ms.");
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
     }
-
+    outDebug("Found plane equation");
     plane_coefficients->values = planes[0].model();
-    plane_inliers->indices = planes[0].inliers();
+
+    try{
+        plane_inliers->indices = planes[0].inliers();
+    } catch(uima::Exception ex){
+        throw rs::Exception("Failed to retrieve plane inliers, although there is a plane equation");
+    }
 
     if(plane_coefficients->values.empty())
     {
