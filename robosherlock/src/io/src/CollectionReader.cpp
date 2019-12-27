@@ -176,13 +176,15 @@ public:
       check_expression(ret, "Could not receive data from camera.");
     }
 
-    if(std::find(interfaces_.begin(), interfaces_.end(), "MongoDB") != interfaces_.end())
+    if(std::find(interfaces_.begin(), interfaces_.end(), "MongoDB") != interfaces_.end() ||
+       std::find(interfaces_.begin(), interfaces_.end(), "DataLoader") != interfaces_.end())
     {
       outDebug("Broadcasting TF for cameraPose");
       rs::SceneCas scenecas(tcas);
       rs::Scene scene = scenecas.getScene();
       tf::StampedTransform camToWorld;
       rs::conversion::from(scene.viewPoint(), camToWorld);
+      camToWorld.stamp_= ros::Time::now();
       broadCasterObject_.clear();
       broadCasterObject_.addTransform(camToWorld);
     }
