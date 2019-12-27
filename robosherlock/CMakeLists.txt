@@ -246,6 +246,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
     test/annotators_utest/Cluster3DGeometry_utest.cpp
     test/annotators_utest/ClusterColorHistogramCalculator_utest.cpp
     test/annotators_utest/PrimitiveShapesAnnotator_utest.cpp
+    test/annotators_utest/RegionFilter_utest.cpp
     test/annotators_utest/FeatureAnnotator_utest.cpp
     test/annotators_utest/SacModelAnnotator_utest.cpp
     #test/annotators_utest/MLNInferencer_utest.cpp
