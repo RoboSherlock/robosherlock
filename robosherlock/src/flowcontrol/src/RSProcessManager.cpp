@@ -1,7 +1,7 @@
-#include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/io/MongoDBBridge.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
+#include <robosherlock/io/MongoDBBridge.h>
 // needed for action server
-#include <rs/queryanswering/RSQueryActionServer.h>
+#include <robosherlock/queryanswering/RSQueryActionServer.h>
 
 RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisualizer,
                                    rs::KnowledgeEngine::KnowledgeEngineType keType)

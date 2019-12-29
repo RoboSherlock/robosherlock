@@ -27,25 +27,25 @@
 #include <pcl/filters/voxel_grid.h>
 
 //RS
-#include <rs/DrawingAnnotator.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
-#include <rs/types/all_types.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/types/all_types.h>
 
-#include <rs/symmetrysegmentation/OverSegmenter.h>
-#include <rs/symmetrysegmentation/RotationalSymmetryExtractor.h>
-#include <rs/symmetrysegmentation/RotationalSymmetrySegmenter.h>
-#include <rs/symmetrysegmentation/BilateralSymmetryExtractor.h>
-#include <rs/symmetrysegmentation/BilateralSymmetrySegmenter.h>
+#include <robosherlock/symmetrysegmentation/OverSegmenter.h>
+#include <robosherlock/symmetrysegmentation/RotationalSymmetryExtractor.h>
+#include <robosherlock/symmetrysegmentation/RotationalSymmetrySegmenter.h>
+#include <robosherlock/symmetrysegmentation/BilateralSymmetryExtractor.h>
+#include <robosherlock/symmetrysegmentation/BilateralSymmetrySegmenter.h>
 
 //graph
-#include <rs/graph/Graph.h>
-#include <rs/graph/GraphAlgorithms.hpp>
+#include <robosherlock/graph/Graph.h>
+#include <robosherlock/graph/GraphAlgorithms.hpp>
 
-#include <rs/utils/array_utils.hpp>
+#include <robosherlock/utils/array_utils.hpp>
 
-#include <rs/visualization/Primitives.hpp>
+#include <robosherlock/visualization/Primitives.hpp>
 
 using namespace uima;
 

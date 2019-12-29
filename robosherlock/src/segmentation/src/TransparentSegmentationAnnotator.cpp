@@ -20,18 +20,18 @@
 #include <uima/api.hpp>
 
 #include <pcl/point_types.h>
-#include <rs/types/all_types.h>
+#include <robosherlock/types/all_types.h>
 
 // CV
 #include <opencv2/opencv.hpp>
 
 //RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/DrawingAnnotator.h>
 
-#include <rs/segmentation/TransparentSegmentationAnnotator.h>
-#include <rs/segmentation/ImageSegmentation.h>
+#include <robosherlock/segmentation/TransparentSegmentationAnnotator.h>
+#include <robosherlock/segmentation/ImageSegmentation.h>
 
 
 TyErrorId TransparentSegmentationAnnotator::initialize(AnnotatorContext &ctx)

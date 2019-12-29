@@ -1,5 +1,5 @@
-#include <rs/queryanswering/RSQueryActionServer.h>
-#include <rs/flowcontrol/RSProcessManager.h>
+#include <robosherlock/queryanswering/RSQueryActionServer.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
 
 /*
  * Constructor

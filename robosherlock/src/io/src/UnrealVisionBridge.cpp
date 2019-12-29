@@ -29,10 +29,10 @@
 #include <immintrin.h>
 
 // RS
-#include <rs/io/UnrealVisionBridge.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/io/UnrealVisionBridge.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false), advertiseTf(false)
 {

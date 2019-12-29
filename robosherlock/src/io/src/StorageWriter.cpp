@@ -21,10 +21,10 @@
 #include <uima/api.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/io/Storage.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/Storage.h>
 
 using namespace uima;
 

@@ -33,12 +33,12 @@
 #include <pcl/point_cloud.h>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/utils/common.h>
-#include <rs/utils/exception.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/utils/exception.h>
 
 // ROS
 #include <ros/package.h>

@@ -1,4 +1,4 @@
-#include <rs/queryanswering/ObjectDesignatorFactory.h>
+#include <robosherlock/queryanswering/ObjectDesignatorFactory.h>
 #include "rapidjson/pointer.h"
 
 namespace rs

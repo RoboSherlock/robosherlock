@@ -1,4 +1,4 @@
-#include <rs/queryanswering/JsonPrologInterface.h>
+#include <robosherlock/queryanswering/JsonPrologInterface.h>
 
 #ifdef WITH_JSON_PROLOG
 

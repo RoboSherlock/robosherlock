@@ -24,8 +24,8 @@
  *      Author(s): christiankerl
  */
 
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
 
 // Force disable debug output
 #undef OUT_LEVEL

@@ -24,11 +24,11 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/recognition/LinemodInterface.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/recognition/LinemodInterface.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>

@@ -12,7 +12,7 @@ include(cmake/robosherlock.cmake)
 ## Constants for project                                                      ##
 ################################################################################
 set(NAMESPACE rs)
-set(TYPESYSTEM_CPP_PATH ${PROJECT_SOURCE_DIR}/src/core/include/rs/types)
+set(TYPESYSTEM_CPP_PATH ${PROJECT_SOURCE_DIR}/src/core/include/robosherlock/types)
 set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
@@ -260,5 +260,6 @@ target_link_libraries(${PROJECT_NAME}-test
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
-message(WARNING ${RS_INCLUDE_DIRS_LIST})
-install(DIRECTORY ${RS_INCLUDE_DIRS_LIST} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+#append robosherlock to the path of the includes to make install path correct
+string(REPLACE ";" "robosherlock/\;" RS_INSTALL_INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST}) 
+install(DIRECTORY ${RS_INSTALL_INCLUDE_DIRS} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})

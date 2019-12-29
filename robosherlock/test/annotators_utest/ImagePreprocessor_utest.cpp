@@ -9,20 +9,20 @@
 #include <condition_variable>
 
 #include <ros/ros.h>
-#include <rs/flowcontrol/RSProcessManager.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
 
-#include <rs/utils/common.h>
-#include <rs/io/Storage.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/io/Storage.h>
 
-#include <rs/conversion/conversion.h>
+#include <robosherlock/conversion/conversion.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
-#include <rs/scene_cas.h>
+#include <robosherlock/scene_cas.h>
 
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include "../main.h"
 

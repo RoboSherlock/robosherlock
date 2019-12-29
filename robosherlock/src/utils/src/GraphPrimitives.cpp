@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/graph/GraphPrimitives.h>
+#include <robosherlock/graph/GraphPrimitives.h>
 
 #include <iostream>
 Vertex::Vertex() : neighbors(0) , neighbor_edges(0) {}

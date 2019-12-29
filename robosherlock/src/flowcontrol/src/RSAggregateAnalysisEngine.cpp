@@ -1,4 +1,4 @@
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 static const std::string GEN_XML_PATH = ".ros/robosherlock_generated_xmls";
 

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/graph/Graph.h>
+#include <robosherlock/graph/Graph.h>
 
 Graph::Graph() : GraphBase<Vertex, Edge>() {}
 

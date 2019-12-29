@@ -1,5 +1,5 @@
-#include<rs/queryanswering/QueryInterface.h>
-#include<rs/queryanswering/ObjectDesignatorFactory.h>
+#include<robosherlock/queryanswering/QueryInterface.h>
+#include<robosherlock/queryanswering/ObjectDesignatorFactory.h>
 
 // Boost
 #include <boost/property_tree/ptree.hpp>

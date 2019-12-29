@@ -3,9 +3,9 @@
 #include <stdio.h>
 #include <gtest/gtest.h>
 
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>
@@ -23,13 +23,13 @@
 #include <condition_variable>
 
 #include <ros/ros.h>
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
-#include <rs/utils/common.h>
-#include <rs/io/Storage.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/io/Storage.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
-#include <rs/scene_cas.h>
+#include <robosherlock/scene_cas.h>
 
 #undef OUT_LEVEL
 #define OUT_LEVEL OUT_LEVEL_DEBUG

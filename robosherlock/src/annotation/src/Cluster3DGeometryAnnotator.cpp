@@ -34,11 +34,11 @@
 #include <pcl/filters/statistical_outlier_removal.h>
 #include <pcl/sample_consensus/sac_model_plane.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
-#include <rs/utils/common.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf_conversions/tf_eigen.h>

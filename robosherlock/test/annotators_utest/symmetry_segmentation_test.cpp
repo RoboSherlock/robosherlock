@@ -1,13 +1,13 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
-#include <rs/io/CamInterface.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/io/CamInterface.h>
 
-#include <rs/utils/array_utils.hpp>
+#include <robosherlock/utils/array_utils.hpp>
 
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>

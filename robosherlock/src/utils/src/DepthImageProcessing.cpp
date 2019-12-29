@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <rs/utils/DepthImageProcessing.h>
-#include <rs/utils/output.h>
+#include <robosherlock/utils/DepthImageProcessing.h>
+#include <robosherlock/utils/output.h>
 
 void selectiveBinomialFiltering(const cv::Mat &input, cv::Mat &output, const uint16_t minValue, const uint16_t maxValue)
 {

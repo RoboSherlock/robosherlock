@@ -25,7 +25,7 @@
 #include <utility>
 #include <vector>
 
-#include <rs/recognition/CaffeProxy.h>
+#include <robosherlock/recognition/CaffeProxy.h>
 
 bool PairCompare(const std::pair<float, int> &lhs, const std::pair<float, int> &rhs)
 {

@@ -24,8 +24,8 @@
 #include <mongo/bson/bson.h>
 
 // RS
-#include <rs/conversion/bson.h>
-#include <rs/conversion/conversion.h>
+#include <robosherlock/conversion/bson.h>
+#include <robosherlock/conversion/conversion.h>
 
 namespace rs
 {

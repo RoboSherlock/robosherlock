@@ -21,10 +21,10 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
-#include <rs/scene_cas.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 #include <rapidjson/document.h>
 

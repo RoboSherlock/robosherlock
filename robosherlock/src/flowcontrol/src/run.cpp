@@ -38,7 +38,7 @@
 #include "uima/internal_aggregate_engine.hpp"
 #include "uima/annotator_mgr.hpp"
 
-#include <rs/flowcontrol/RSProcessManager.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
 
 #include <ros/ros.h>
 #include <ros/package.h>
