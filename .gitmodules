@@ -1,0 +1,3 @@
+[submodule "rapidjson_ros/include/rapidjson"]
+	path = rapidjson_ros/include/rapidjson
+	url = https://github.com/Tencent/rapidjson.git

@@ -39,10 +39,11 @@
   <!--local dependencies-->
   <depend>robosherlock_msgs          </depend>
   <depend>uimacpp_ros                </depend>
+  <depend>rapidjson_ros		     </depend>
   
   <!--system-->
-  <depend>rapidjson-dev              </depend>
-  <depend>libmongoclient-dev         </depend>
+  <!--depend>rapidjson-dev              </depend-->
+  <!--depend>libmongoclient-dev         </depend-->
   <depend>mongodb 		     </depend>
   <depend>yaml-cpp                   </depend>
   <depend>swi-prolog		     </depend>
