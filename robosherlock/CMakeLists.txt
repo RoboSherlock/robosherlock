@@ -73,7 +73,7 @@ find_package(catkin REQUIRED
  visualization_msgs cv_bridge image_transport
  image_geometry message_filters resource_retriever
  robosherlock_msgs std_srvs
- uimacpp_ros
+ uimacpp_ros rapidjson_ros
  ${OPTIONAL_libmongocxx})
 
 
@@ -129,10 +129,10 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   set(RS_WEB_LIB rs_web)
 endif()
 
-find_package(RapidJSON REQUIRED)
-if(${RapidJSON_FOUND})
+#find_package(RapidJSON REQUIRED)
+#if(${RapidJSON_FOUND})
     add_definitions(-DRAPIDJSON_HAS_STDSTRING)
-endif()
+#endif()
 
 find_package(json_prolog QUIET)
 option(WITH_JSON_PROLOG "build using json prolog" False)
@@ -181,9 +181,9 @@ set(RS_LIBS
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${RapidJSON_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
-  CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros tf tf_conversions
+  CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
   DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
 )
@@ -201,7 +201,6 @@ include_directories(
   ${Boost_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${VTK_INCLUDE_DIRS}
-  ${RapidJSON_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
 )
 
