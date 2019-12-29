@@ -136,7 +136,7 @@ macro(find_include_dirs result)
   message(STATUS "found include path: ${found_include_dirs}")
 
   if(NOT "${found_include_dirs}" STREQUAL "")
-    string(REPLACE "\n" ";" ${result} ${found_include_dirs})
+    string(REPLACE "\n" "/\;" ${result} ${found_include_dirs})
     #message(STATUS "additional include dirs: ${${result}}")
   endif()
 endmacro(find_include_dirs)

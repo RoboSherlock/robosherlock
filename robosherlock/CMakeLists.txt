@@ -223,9 +223,6 @@ add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)
 add_subdirectory(src/queryanswering)
-################################################################################
-## Install                                                                    ##
-################################################################################
 
 ################################################################################
 ## Testing                                                                    ##
@@ -258,3 +255,10 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_core
     rs_io
     rs_utils)
+
+
+################################################################################
+## Install                                                                    ##
+################################################################################
+message(WARNING ${RS_INCLUDE_DIRS_LIST})
+install(DIRECTORY ${RS_INCLUDE_DIRS_LIST} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})

@@ -1,8 +1,6 @@
 project(rs_recognition)
 
-add_library(rs_recognition SHARED
-  src/LinemodInterface.cpp
-)
+add_library(rs_recognition SHARED src/LinemodInterface.cpp)
 target_link_libraries(rs_recognition ${OpenCV_LIBRARIES})
 
 rs_add_library(rs_LinemodAnnotator src/LinemodAnnotator.cpp)
@@ -17,3 +15,9 @@ if(Caffe_FOUND)
   add_library(rs_caffeProxy src/CaffeProxy.cpp)
   target_link_libraries(rs_caffeProxy ${catkin_LIBRARIES} ${Caffe_LIBRARIES})
 endif(Caffe_FOUND)
+
+install(
+  TARGETS rs_recognition
+          rs_LinemodAnnotator           
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+) 

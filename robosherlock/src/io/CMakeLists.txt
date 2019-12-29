@@ -38,3 +38,13 @@ target_link_libraries(rs_TFBroadcaster rs_core)
 
 rs_add_library(rs_DrawResultImage src/DrawResultImage.cpp)
 target_link_libraries(rs_DrawResultImage rs_core)
+
+
+install(
+  TARGETS rs_io
+          rs_StorageWriter
+          rs_CollectionReader
+          rs_TFBroadcaster 
+          rs_DrawResultImage 
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+) 

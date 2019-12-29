@@ -43,8 +43,8 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   )
 
   PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS
-    include/rs/annotation/web/request.proto
-    include/rs/annotation/web/response.proto
+    include/robosherlock/annotation/web/request.proto
+    include/robosherlock/annotation/web/response.proto
     )
 
   add_library(rs_web SHARED
@@ -62,3 +62,16 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
   rs_add_library(rs_gogglesAnnotator src/web/GogglesAnnotator.cpp)
   target_link_libraries(rs_gogglesAnnotator rs_core rs_web)
 endif()
+
+install(
+  TARGETS rs_Cluster3DGeometryAnnotator
+          rs_ClusterColorHistogramCalculator
+          rs_ClusterTFLocationAnnotator
+          rs_FeatureAnnotator
+          rs_NormalEstimator
+          rs_PrimitiveShapeAnnotator
+          rs_SacModelAnnotator
+          rs_SuperVoxelAnnotator
+          rs_pclDescriptorExtractor
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
