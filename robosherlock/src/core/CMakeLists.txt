@@ -3,6 +3,7 @@ project(rs_core)
 add_library(rs_core SHARED
   src/DrawingAnnotator.cpp
   src/scene_cas.cpp
+  src/CASConsumerContext.cpp
   src/conversion/bson.cpp
   src/conversion/bson_conversion.cpp
   src/conversion/json.cpp
