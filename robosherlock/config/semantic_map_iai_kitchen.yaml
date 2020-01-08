@@ -1,5 +1,6 @@
 %YAML:1.0
 names:
+   - test_region
    - drawer_sinkblock_upper
    - drawer_sinkblock_upper_open
    - drawer_sinkblock_middle
@@ -53,6 +54,20 @@ names:
    - shopping_rack_shelf_1
    - shopping_rack_shelf_2
    - chemlab_table
+test_region:
+   type: CounterTop
+   reference_frame: head_mount_kinect_rgb_optical_frame
+   width: 6.0000000000000004e-01
+   height: 1.4000000000000001e-01
+   depth: 5.0000000000000000e-01
+   transform: !!opencv-matrix
+      rows: 4
+      cols: 4
+      dt: d
+      data: [ 1., 0., 0., 0., 0., 1., 0.,
+          0., 0., 0., 1., 1.15, 0.,
+          0., 0., 1. ]
+   plane_eq: [1.46492841e-02, -5.63045025e-01, -8.26296389e-01, -9.16824400e-01]
 drawer_sinkblock_upper:
    type: Drawer
    width: 8.0000000000000004e-01

@@ -153,7 +153,7 @@ private:
     rs::Scene scene = cas.getScene();
     std::vector<rs::ObjectHypothesis> clusters;
 
-    cas.get(VIEW_COLOR_IMAGE_HD, color_mat_);
+    cas.get(VIEW_COLOR_IMAGE, color_mat_);
     rs::Query qs = rs::create<rs::Query>(tcas);
     rapidjson::Document jsonDoc;
     std::string jsonQuery;
@@ -196,8 +196,8 @@ private:
       //======================= Calculate HSV image ==========================
       cv::Mat rgb, mask;
       cv::Rect roi;
-      rs::conversion::from(image_rois.roi_hires(), roi);
-      rs::conversion::from(image_rois.mask_hires(), mask);
+      rs::conversion::from(image_rois.roi(), roi);
+      rs::conversion::from(image_rois.mask(), mask);
 
       cluster_rois_[idx] = roi;
 

@@ -121,7 +121,7 @@ public:
     rs::SceneCas cas(tcas);
 
     cas.get(VIEW_CLOUD, *cloud);
-    cas.get(VIEW_COLOR_IMAGE_HD, color);
+    cas.get(VIEW_COLOR_IMAGE, color);
 
     rs::Scene scene = cas.getScene();
 
@@ -135,7 +135,7 @@ public:
         continue;
       }
       cv::Rect roi;
-      rs::conversion::from(cluster.rois().roi_hires(), roi);
+      rs::conversion::from(cluster.rois().roi(), roi);
 
       const cv::Mat &clusterImg = color(roi);
 

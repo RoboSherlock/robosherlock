@@ -162,7 +162,7 @@ public:
 
   TyErrorId reconfigure()
   {
-    outInfo("Reconfiguring");
+    outDebug("Reconfiguring");
     AnnotatorContext& ctx = getAnnotatorContext();
     initialize(ctx);
     if (ctx.isParameterDefined("plane_estimation_mode"))
@@ -176,7 +176,7 @@ public:
 
   TyErrorId destroy()
   {
-    outInfo("destroy");
+    outDebug("destroy");
     return UIMA_ERR_NONE;
   }
 
@@ -184,7 +184,7 @@ private:
   TyErrorId processWithLock(CAS& tcas, ResultSpecification const& res_spec)
   {
     MEASURE_TIME;
-    outInfo("process begins");
+    outDebug("process begins");
 
     rs::SceneCas cas(tcas);
     rs::Scene scene = cas.getScene();
@@ -221,11 +221,6 @@ private:
           loadPlaneModel(tcas, scene, false);
           break;
       }
-    }
-    if (!foundPlane)
-    {
-      outWarn("no plane found, no further processing!");
-      throw rs::FrameFilterException();
     }
 
     return UIMA_ERR_NONE;

@@ -70,14 +70,14 @@ void ROSKinectBridge::readConfig(const boost::property_tree::ptree &pt)
   rgbImageSubscriber = new image_transport::SubscriberFilter(it, color_topic, 1, hintsColor);
   cameraInfoSubscriber = new message_filters::Subscriber<sensor_msgs::CameraInfo>(nodeHandle, cam_info_topic, 1);
 
-  outInfo("  Depth topic: " FG_BLUE << depth_topic);
-  outInfo("  Color topic: " FG_BLUE << color_topic);
-  outInfo("CamInfo topic: " FG_BLUE << cam_info_topic);
-  outInfo("  Depth Hints: " FG_BLUE << depth_hints);
-  outInfo("  Color Hints: " FG_BLUE << color_hints);
-  outInfo("  DepthOffset: " FG_BLUE << depthOffset);
-  outInfo("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
-  outInfo("  Scale Input: " FG_BLUE << (scale ? "ON" : "OFF"));
+  outDebug("  Depth topic: " FG_BLUE << depth_topic);
+  outDebug("  Color topic: " FG_BLUE << color_topic);
+  outDebug("CamInfo topic: " FG_BLUE << cam_info_topic);
+  outDebug("  Depth Hints: " FG_BLUE << depth_hints);
+  outDebug("  Color Hints: " FG_BLUE << color_hints);
+  outDebug("  DepthOffset: " FG_BLUE << depthOffset);
+  outDebug("  Blur filter: " FG_BLUE << (filterBlurredImages ? "ON" : "OFF"));
+  outDebug("  Scale Input: " FG_BLUE << (scale ? "ON" : "OFF"));
 }
 
 void ROSKinectBridge::cb_(const sensor_msgs::Image::ConstPtr rgb_img_msg,
