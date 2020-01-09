@@ -1,3 +1,6 @@
+set(RS_SCRIPT_PATH @PROJECT_SOURCE_DIR@/scripts)
+set(RS_PROJECT_CONFIG @PROJECT_SOURCE_DIR@/cmake/project_config.cmake.in)
+
 #############################################################################
 ## Check for c++11 support                                                 ##
 #############################################################################
@@ -30,6 +33,37 @@ if(OPENMP_FOUND)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+
+#############################################################################
+## Check for Caffe Support                                                 ##
+#############################################################################
+find_package(Caffe QUIET)
+if(Caffe_FOUND)
+  message(STATUS "Caffe FOUND! Building related components")
+
+  include_directories(${Caffe_INCLUDE_DIRS})
+  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
+
+  set(RS_CAFFE_LIB rs_caffeProxy)
+  set(RS_WITH_CAFFE TRUE)
+else()
+  set(RS_WITH_CAFFE FALSE)
+endif(Caffe_FOUND)
+
+
+#############################################################################
+## Check for Protobug Support                                              ##
+#############################################################################
+find_package(Protobuf QUIET)
+if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
+  message (STATUS "Found Protobuf and Protobuf executable.")	
+  set(RS_WEB_LIB rs_web)
+  set(RS_WITH_GG TRUE)
+else()
+  set(RS_WITH_GG FALSE)
+endif()
+
+
 #############################################################################
 ## Output level                                                            ##
 #############################################################################
@@ -61,12 +95,6 @@ if($ENV{CPATH})
     include_directories(${path})
   endforeach()
 endif()
-
-#############################################################################
-## RS PATHS                                                                ##
-#############################################################################
-set(RS_SCRIPT_PATH         @PROJECT_SOURCE_DIR@/scripts)
-set(RS_PROJECT_CONFIG      @PROJECT_SOURCE_DIR@/cmake/project_config.cmake.in)
 
 #############################################################################
 ## Add library macro                                                       ##

@@ -14,6 +14,8 @@ endif(LIBPRACMLN)
 if(Caffe_FOUND)
   add_library(rs_caffeProxy src/CaffeProxy.cpp)
   target_link_libraries(rs_caffeProxy ${catkin_LIBRARIES} ${Caffe_LIBRARIES})
+  install(TARGETS rs_caffeProxy LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION})
+  set(RS_CAFFE_LIB rs_caffeProxy)
 endif(Caffe_FOUND)
 
 install(

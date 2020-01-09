@@ -30,6 +30,10 @@ target_link_libraries(rs_pclDescriptorExtractor rs_core)
 if(Caffe_FOUND)
   rs_add_library(rs_CaffeAnnotator src/CaffeAnnotator.cpp)
   target_link_libraries(rs_CaffeAnnotator rs_core rs_caffeProxy)
+  install(
+    TARGETS rs_CaffeAnnotator 
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  )
 endif()
 
 #build the web annotations (Goggles only atm)
@@ -61,6 +65,12 @@ if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
 
   rs_add_library(rs_gogglesAnnotator src/web/GogglesAnnotator.cpp)
   target_link_libraries(rs_gogglesAnnotator rs_core rs_web)
+
+  install(
+    TARGETS rs_web
+            rs_gogglesAnnotator
+    LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+  )
 endif()
 
 install(
