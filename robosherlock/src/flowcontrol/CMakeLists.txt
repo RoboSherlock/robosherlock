@@ -20,7 +20,7 @@ target_link_libraries(runAAE rs_flowcontrol ${catkin_LIBRARIES})
 
 install(
   TARGETS rs_flowcontrol
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
 
 install(

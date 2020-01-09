@@ -33,21 +33,8 @@ configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
 
 ################################################################################
-## CMake options                                                              ##
-################################################################################
-
-# Will not show up in any cmake gui. Only for internal use but it will overwrite
-# RS_DEBUG_OUTPUT if set, that's why it's initialized empty
-set(RS_OUT_LEVEL "" CACHE INTERNAL "Output-Level: Debug/\"3\", Info/\"2\", Error/\"1\", None/\"0\"")
-
-option(RS_DEBUG_OUTPUT      "Enable debug output for non debug builds" OFF)
-
-check_option(RS_DEBUG_OUTPUT)
-
-################################################################################
 ## Package dependencies                                                       ##
 ################################################################################
-
 
 #mongo client
 find_package(libmongocxx_ros QUIET)
@@ -263,3 +250,11 @@ target_link_libraries(${PROJECT_NAME}-test
 #append robosherlock to the path of the includes to make install path correct
 string(REPLACE ";" "robosherlock/\;" RS_INSTALL_INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST}) 
 install(DIRECTORY ${RS_INSTALL_INCLUDE_DIRS} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+#copy to descriptors and config folders to their appropriate locations
+install(DIRECTORY descriptors DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY owl DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY prolog DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
