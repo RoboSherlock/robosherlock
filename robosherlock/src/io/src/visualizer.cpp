@@ -55,6 +55,13 @@ Visualizer::~Visualizer()
 
 void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
+  if (visualizableGroupManagers_.count(identifier) > 0)
+  {
+    outWarn("The given identifier '" << identifier
+                                     << "' in addVisualizableGroupManager is already existing! Visualizer Identifiers "
+                                        "must be unique. Maybe you have loaded multiple analysis engines or cas "
+                                        "consumers with the same name.");
+  }
   visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(identifier);
   visualizableGroupManagers_[identifier]->start();
 }

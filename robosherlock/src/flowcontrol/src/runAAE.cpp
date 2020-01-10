@@ -57,8 +57,9 @@ void help()
   std::cout << "Continuously exectue the fixed flow defined in an analysis engine." << std::endl
             << "Usage: rosrun robosherlock runAAE [options] [analysis_engine]" << std::endl
             << "Options:" << std::endl
-            << "               _ae:=engine         Name of analysis enginee for execution" << std::endl
-            << "              _vis:=true|false     shorter version for _visualization" << std::endl
+            << "               _ae:=engine         Name of analysis engines for execution. Comma seperated list." << std::endl
+            << "              _vis:=true|false     shorter version for _visualization." << std::endl
+            << "              _cc:=engine          Cas Consumer engine that shall be executed after _ae engines have been executed." << std::endl
             << std::endl;
 }
 
@@ -89,14 +90,19 @@ int main(int argc, char* argv[])
   std::string analysis_engine_names, analysis_engine_file, save_path, knowledge_engine;
   bool useVisualizer;
   bool publishResults;
+  std::string cas_consumer_name; // If empty, CAS consumer handling is disabled.
 
   nh.param("ae", analysis_engine_names, std::string(""));
   nh.param("vis", useVisualizer, false);
+  nh.param("cc", cas_consumer_name, std::string(""));
   nh.param("publish_results", publishResults, false);
 
   nh.deleteParam("ae");
   nh.deleteParam("vis");
+  nh.deleteParam("cc");
+
   std::vector<std::string> analysis_engine_name_list;
+
 
   // if only argument is an AE (nh.param reudces argc)
   if (argc == 2)
@@ -138,6 +144,23 @@ int main(int argc, char* argv[])
     }
   }
 
+  // Shall we initialize a CAS consumer?
+  std::string cas_consumer_file;
+  if(cas_consumer_name!="")
+  {
+    rs::common::getAEPaths(cas_consumer_name, cas_consumer_file);
+    if (cas_consumer_file.empty())
+    {
+      outError("CAS Consumer analysis engine \"" << cas_consumer_name << "\" not found.");
+      return -1;
+    }
+    else
+    {
+      outInfo("Starting with CAS Consumer engine '" << cas_consumer_name <<"'");
+      outInfo("CAS Consumer file: " << analysis_engine_file);
+    }
+  }
+
   ros::Publisher result_pub;
   if (publishResults)
   {
@@ -145,6 +168,7 @@ int main(int argc, char* argv[])
   }
 
   std::vector<RSAggregateAnalysisEngine*> rsaaes;
+  RSAggregateAnalysisEngine* cas_consumer;
   try
   {
     // singl
@@ -160,6 +184,11 @@ int main(int argc, char* argv[])
       RSAggregateAnalysisEngine* engine = rs::createRSAggregateAnalysisEngine(ae_path);
       rsaaes.push_back(engine);
       vis.addVisualizableGroupManager(engine->getAAEName());
+    }
+    if(cas_consumer_name!="")
+    {
+      cas_consumer = rs::createRSAggregateAnalysisEngine(cas_consumer_file);
+      vis.addVisualizableGroupManager(cas_consumer->getAAEName());
     }
     vis.start();
 
@@ -204,6 +233,9 @@ int main(int argc, char* argv[])
   ros::shutdown();
   for (auto rsaae : rsaaes)
     delete rsaae;
+
+  if(cas_consumer)
+    delete cas_consumer;
 
   return 0;
 }
