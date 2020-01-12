@@ -68,7 +68,7 @@ bool VisualizableGroupManager::start()
   getVisualizableNames(names);
   if (names.empty())
   {
-    outInfo("No visualizables do visualize. Aborting Visualizer start.");
+    outInfo("No visualizables to visualize. Aborting Visualizer start.");
     return false;
   }
   // Initially, all visualizables are active
@@ -197,6 +197,10 @@ bool VisualizableGroupManager::visControlCallback(robosherlock_msgs::RSVisContro
   res.success = result;
   res.active_annotator = activeVisualizable;
   return result;
+}
+
+bool VisualizableGroupManager::isActive(){
+  return running;
 }
 
 int VisualizableGroupManager::consumeRecentVisualizables()
