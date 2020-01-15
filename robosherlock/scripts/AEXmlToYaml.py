@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-
+# script for converting xml based descriptors of RoboSherlock annotators to the new YAML based format
 # TODO: use variable for rs_components namespace
 
 import os
