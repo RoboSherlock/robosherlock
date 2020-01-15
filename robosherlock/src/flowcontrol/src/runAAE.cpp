@@ -168,7 +168,7 @@ int main(int argc, char* argv[])
   }
 
   std::vector<RSAggregateAnalysisEngine*> rsaaes;
-  RSAggregateAnalysisEngine* cas_consumer;
+  RSAggregateAnalysisEngine* cas_consumer = nullptr;
   try
   {
     // singl
@@ -209,6 +209,13 @@ int main(int argc, char* argv[])
           objDescr.obj_descriptions = obj_descriptions;
           result_pub.publish(objDescr);
         }
+      }
+
+      if(cas_consumer_name!="" && cas_consumer!=nullptr)
+      {
+        outInfo("Analysis Execution done. Executing CAS Consumer " << cas_consumer_name);
+        cas_consumer->resetCas();
+        cas_consumer->processOnce();
       }
 
       rate.sleep();

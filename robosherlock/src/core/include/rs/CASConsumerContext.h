@@ -16,6 +16,7 @@ namespace rs
  */
 class CASConsumerContext
 {
+public:
   static CASConsumerContext& getInstance()
   {
     // Since it's a static variable, if the class has already been created,
