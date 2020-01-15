@@ -4,11 +4,8 @@
 #############################################################################
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-check_cxx_compiler_flag("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
 if(COMPILER_SUPPORTS_CXX11)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
-elseif(COMPILER_SUPPORTS_CXX0X)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
 else()
   message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
 endif()
@@ -88,25 +85,6 @@ macro(rs_add_executable execname)
   add_executable(${execname} ${ARGN})
   target_link_libraries(${execname} ${LIBAPR_LIBRARY} ${UIMA_LIBRARY} ${ICUUC_LIBRARY} ${catkin_LIBRARIES})
 endmacro(rs_add_executable)
-
-#############################################################################
-## Update xml list of annotators inside analysis engines                   ##
-#############################################################################
-macro(update_analysis_engines)
-  set(script ${RS_SCRIPT_PATH}/update_analysis_engines.py)
-  set(annotators ${ANNOTATOR_PATH})
-  set(engines ${ENGINE_PATH})
-
-  foreach(arg ${ARGN}) 
-    if("${${arg}_ANNOTATOR_PATH}" STREQUAL "")
-      message(WARNING "Tried to get annotator path of " + ${arg} + ". Check your CMakeLists call of update_analysis_engine")
-    else()
-      set(annotators ${annotators} ${${arg}_ANNOTATOR_PATH})
-    endif()
-  endforeach()
-  
-  add_custom_target(${PROJECT_NAME}_update_analysis_engines ALL ${script} ${engines} ${annotators})
-endmacro(update_analysis_engines)
 
 #############################################################################
 ## Generate classes from the typesystem xml files                          ##
