@@ -142,8 +142,8 @@ macro(generate_type_system)
   foreach(arg ${ARGN}) 
     set(projects ${projects} ${arg}:${${arg}_NAMESPACE}:${${arg}_TYPESYSTEM_XML_PATH}:${${arg}_TYPESYSTEM_CPP_PATH})
   endforeach()
-
-  add_custom_target(${PROJECT_NAME}_generate_type_system ALL ${script} ${projects})
+  
+  execute_process(COMMAND python ${script} ${projects})
 endmacro(generate_type_system)
 
 #############################################################################
