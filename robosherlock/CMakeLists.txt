@@ -3,9 +3,8 @@ cmake_minimum_required(VERSION 2.8.3)
 project(robosherlock)
 
 ################################################################################
-## Include RoboSherlock cmake file                                            ##
+## Include RoboSherlock cmake file, containing macros                         ##
 ################################################################################
-configure_file(${PROJECT_SOURCE_DIR}/cmake/robosherlock.cmake.in ${PROJECT_SOURCE_DIR}/cmake/robosherlock.cmake @ONLY)
 include(cmake/robosherlock.cmake)
 
 ################################################################################
@@ -17,10 +16,14 @@ set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+set(RS_SCRIPT_PATH      ${PROJECT_SOURCE_DIR}/scripts)
+set(RS_PROJECT_CONFIG   ${PROJECT_SOURCE_DIR}/cmake/project_config_cmake.in)
 
 # Code Coverage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
+
+#the *.em file took the place of this. 
 ################################################################################
 ## Configure project configuration files                                      ##
 ################################################################################
@@ -29,7 +32,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 ################################################################################
 ## Find all include directories                                               ##
 ################################################################################
-
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
 
 ################################################################################
@@ -98,7 +100,7 @@ endif()
 
 #find_package(RapidJSON REQUIRED)
 #if(${RapidJSON_FOUND})
-    add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 #endif()
 
 find_package(json_prolog QUIET)
@@ -112,8 +114,6 @@ else()
     message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
 endif()
 
-
-
 find_package(yaml-cpp REQUIRED)
 if(yaml-cpp_FOUND)
   message(STATUS "yaml-cpp FOUND")
@@ -125,7 +125,6 @@ endif()
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
-
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
@@ -155,6 +154,9 @@ catkin_package(
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
 )
 
+message(STATUS "+++++++++++++++++RS_SCRIPT_PATH+++++++++++++++")
+message(STATUS ${RS_SCRIPT_PATH})
+message(STATUS "++++++++++++++++++++++++++++++++++++++++++++++")
 ################################################################################
 ## Set include directories                                                    ##
 ################################################################################

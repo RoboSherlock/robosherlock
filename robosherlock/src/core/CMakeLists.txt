@@ -20,7 +20,8 @@ target_link_libraries(rs_core
   ${PCL_LIBRARIES}
   ${mongoClient_LIBRARIES}
 )
-add_dependencies(rs_core robosherlock_generate_type_system)
+
+#add_dependencies(rs_core robosherlock_generate_type_system)
 
 install(
   TARGETS rs_core 

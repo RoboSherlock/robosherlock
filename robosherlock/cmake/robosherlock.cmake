@@ -1,5 +1,3 @@
-set(RS_SCRIPT_PATH @PROJECT_SOURCE_DIR@/scripts)
-set(RS_PROJECT_CONFIG @PROJECT_SOURCE_DIR@/cmake/project_config.cmake.in)
 
 #############################################################################
 ## Check for c++11 support                                                 ##
