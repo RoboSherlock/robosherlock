@@ -50,7 +50,7 @@ endif(Caffe_FOUND)
 
 
 #############################################################################
-## Check for Protobug Support                                              ##
+## Check for Protobuf Support                                              ##
 #############################################################################
 find_package(Protobuf QUIET)
 if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
@@ -61,28 +61,6 @@ else()
   set(RS_WITH_GG FALSE)
 endif()
 
-
-#############################################################################
-## Output level                                                            ##
-#############################################################################
-if(NOT RS_OUT_LEVEL)
-  if(CMAKE_BUILD_TYPE STREQUAL "Debug" OR RS_DEBUG_OUTPUT)
-    set(OUT_LEVEL 3)
-  else()
-    set(OUT_LEVEL 2)
-  endif()
-elseif(RS_OUT_LEVEL STREQUAL "Debug" OR RS_OUT_LEVEL STREQUAL "3")
-  set(OUT_LEVEL 3)
-elseif(RS_OUT_LEVEL STREQUAL "Info" OR RS_OUT_LEVEL STREQUAL "2")
-  set(OUT_LEVEL 2)
-elseif(RS_OUT_LEVEL STREQUAL "Error" OR RS_OUT_LEVEL STREQUAL "1")
-  set(OUT_LEVEL 1)
-elseif(RS_OUT_LEVEL STREQUAL "None" OR RS_OUT_LEVEL STREQUAL "0")
-  set(OUT_LEVEL 0)
-endif()
-
-add_definitions(-DOUT_LEVEL=${OUT_LEVEL})
-message(STATUS "Ouput level set to: ${OUT_LEVEL}")
 
 #############################################################################
 ## Adding include dirs defined in CPATH (needed for xstow)                 ##
