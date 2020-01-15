@@ -24,7 +24,7 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 ################################################################################
 ## Configure project configuration files                                      ##
 ################################################################################
-configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
+#configure_file(${PROJECT_SOURCE_DIR}/cmake/project_config.cmake.in ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
 
 ################################################################################
 ## Find all include directories                                               ##
@@ -152,7 +152,7 @@ catkin_package(
   LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
   DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
-  CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
+  CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
 )
 
 ################################################################################
@@ -234,7 +234,7 @@ install(DIRECTORY ${RS_INSTALL_INCLUDE_DIRS} DESTINATION ${CATKIN_PACKAGE_INCLUD
 #copy to descriptors and config folders to their appropriate locations
 install(DIRECTORY descriptors DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
-install(DIRECTORY scripts DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY scripts DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
 install(DIRECTORY owl DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
