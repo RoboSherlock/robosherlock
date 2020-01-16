@@ -27,10 +27,6 @@
 #include <robosherlock/scene_cas.h>
 #include <robosherlock/utils/output.h>
 
-// Force disable debug output
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
-
 namespace rs
 {
 

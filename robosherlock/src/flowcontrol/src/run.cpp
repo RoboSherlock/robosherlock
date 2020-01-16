@@ -80,15 +80,13 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  if (OUT_LEVEL == OUT_LEVEL_DEBUG)
+  ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
+  
+  if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
   {
-    if (ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug))
-    {
-      ros::console::notifyLoggerLevelsChanged();
-    }
+    ros::console::notifyLoggerLevelsChanged();
   }
 
-  ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
   ros::NodeHandle nh("~");
 
   std::string analysis_engine_names, analysis_engine_file, knowledge_engine;

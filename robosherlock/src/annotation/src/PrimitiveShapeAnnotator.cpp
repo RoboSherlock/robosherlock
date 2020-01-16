@@ -43,9 +43,6 @@
 #include <robosherlock/utils/common.h>
 #include <robosherlock/DrawingAnnotator.h>
 
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
-
 using namespace uima;
 
 class PrimitiveShapeAnnotator : public DrawingAnnotator

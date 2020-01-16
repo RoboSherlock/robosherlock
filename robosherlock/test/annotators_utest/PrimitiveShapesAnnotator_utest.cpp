@@ -2,8 +2,6 @@
 #include <gtest/gtest.h>
 #include <robosherlock/scene_cas.h>
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
 #include "../main.h"
 
 

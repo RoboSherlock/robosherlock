@@ -20,8 +20,6 @@
 #include <ros/package.h>
 #include <robosherlock/scene_cas.h>
 
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include "../main.h"

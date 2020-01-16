@@ -30,9 +30,6 @@
 #include <robosherlock/io/Storage.h>
 #include <robosherlock/conversion/bson.h>
 
-//#undef OUT_LEVEL
-//#define OUT_LEVEL OUT_LEVEL_DEBUG
-
 using namespace rs;
 
 /******************************************************************************

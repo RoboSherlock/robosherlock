@@ -60,14 +60,14 @@
 #define BG_LIGHTCYAN    "\033[106m"
 #define BG_WHITE        "\033[107m"
 
-#define OUT_LEVEL_NOOUT 0
-#define OUT_LEVEL_ERROR 1
-#define OUT_LEVEL_INFO  2
-#define OUT_LEVEL_DEBUG 3
+//#define OUT_LEVEL_NOOUT 0
+//#define OUT_LEVEL_ERROR 1
+//#define OUT_LEVEL_INFO  2
+//#define OUT_LEVEL_DEBUG 3
 
-#ifndef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
-#endif
+//#ifndef OUT_LEVEL
+//#define OUT_LEVEL OUT_LEVEL_INFO
+//#endif
 
 #define OUT_STD_STREAM std::cout
 #define OUT_ERR_STREAM std::cerr

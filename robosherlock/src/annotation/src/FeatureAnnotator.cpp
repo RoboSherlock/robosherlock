@@ -87,9 +87,7 @@ public:
       return UIMA_ERR_ANNOTATOR_MISSING_INIT;
     }
     setupAlgorithm(&detector);
-#if OUT_LEVEL == OUT_LEVEL_DEBUG
     printParams(detector);
-#endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(detector, keypointDetector);
 #endif
@@ -103,9 +101,7 @@ public:
       return UIMA_ERR_ANNOTATOR_MISSING_INIT;
     }
     setupAlgorithm(extractor);
-#if OUT_LEVEL == OUT_LEVEL_DEBUG
     printParams(extractor);
-#endif
 #elif CV_MAJOR_VERSION == 3
     setupAlgorithm(extractor, keypointDetector);
 #endif
@@ -268,52 +264,52 @@ private:
       switch(type)
       {
       case cv::Param::INT:
-        outInfo("Type: INT");
-        outInfo("Value: " << algorithm->get<int>(name));
+        outDebug("Type: INT");
+        outDebug("Value: " << algorithm->get<int>(name));
         break;
       case cv::Param::BOOLEAN:
-        outInfo("Type: BOOLEAN");
-        outInfo("Value: " << algorithm->get<bool>(name));
+        outDebug("Type: BOOLEAN");
+        outDebug("Value: " << algorithm->get<bool>(name));
         break;
       case cv::Param::REAL:
-        outInfo("Type: REAL");
-        outInfo("Value: " << algorithm->get<double>(name));
+        outDebug("Type: REAL");
+        outDebug("Value: " << algorithm->get<double>(name));
         break;
       case cv::Param::STRING:
-        outInfo("Type: STRING");
-        outInfo("Value: " << algorithm->get<std::string>(name));
+        outDebug("Type: STRING");
+        outDebug("Value: " << algorithm->get<std::string>(name));
         break;
       case cv::Param::MAT:
-        outInfo("Type: MAT");
-        outInfo("Value: " << algorithm->get<cv::Mat>(name));
+        outDebug("Type: MAT");
+        outDebug("Value: " << algorithm->get<cv::Mat>(name));
         break;
       case cv::Param::MAT_VECTOR:
-        outInfo("Type: MAT_VECTOR");
-        outInfo("Value: " << algorithm->get<std::vector<cv::Mat>>(name).size());
+        outDebug("Type: MAT_VECTOR");
+        outDebug("Value: " << algorithm->get<std::vector<cv::Mat>>(name).size());
         break;
       case cv::Param::ALGORITHM:
-        outInfo("Type: ALGORITHM");
-        outInfo("Value: -");
+        outDebug("Type: ALGORITHM");
+        outDebug("Value: -");
         break;
       case cv::Param::FLOAT:
-        outInfo("Type: FLOAT");
-        outInfo("Value: " << algorithm->get<float>(name));
+        outDebug("Type: FLOAT");
+        outDebug("Value: " << algorithm->get<float>(name));
         break;
       case cv::Param::UNSIGNED_INT:
-        outInfo("Type: UNSIGNED_INT");
-        outInfo("Value: " << algorithm->get<unsigned int>(name));
+        outDebug("Type: UNSIGNED_INT");
+        outDebug("Value: " << algorithm->get<unsigned int>(name));
         break;
       case cv::Param::UINT64:
-        outInfo("Type: UINT64");
-        outInfo("Value: " << algorithm->get<uint64_t>(name));
+        outDebug("Type: UINT64");
+        outDebug("Value: " << algorithm->get<uint64_t>(name));
         break;
       case cv::Param::SHORT:
-        outInfo("Type: SHORT");
-        outInfo("Value: " << algorithm->get<short>(name));
+        outDebug("Type: SHORT");
+        outDebug("Value: " << algorithm->get<short>(name));
         break;
       case cv::Param::UCHAR:
-        outInfo("Type: UCHAR");
-        outInfo("Value: " << algorithm->get<unsigned char>(name));
+        outDebug("Type: UCHAR");
+        outDebug("Value: " << algorithm->get<unsigned char>(name));
         break;
       }
     }

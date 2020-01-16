@@ -43,9 +43,6 @@
 #include <tf/transform_datatypes.h>
 #include <tf_conversions/tf_eigen.h>
 
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
-
 using namespace uima;
 
 class Cluster3DGeometryAnnotation : public DrawingAnnotator

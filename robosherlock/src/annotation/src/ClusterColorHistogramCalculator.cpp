@@ -28,10 +28,6 @@
 
 #include <rapidjson/document.h>
 
-#define DEBUG_OUTPUT 0
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
-
 using namespace uima;
 
 class ClusterColorHistogramCalculator : public DrawingAnnotator
