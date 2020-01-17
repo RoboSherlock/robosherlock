@@ -90,6 +90,12 @@ pkg_check_modules(SWIPL REQUIRED swipl)
 include_directories(${SWIPL_INCLUDE_DIRS})
 link_directories(${SWIPL_LIBRARY_DIRS})
 
+string(REPLACE "." ";" VERSION_LIST ${SWIPL_VERSION})
+list(GET VERSION_LIST 0 SWIPL_VERSION_MAJOR)
+list(GET VERSION_LIST 1 SWIPL_VERSION_MINOR)
+list(GET VERSION_LIST 2 SWIPL_VERSION_PATCH)
+add_compile_options(-DSWIPL_VERSION=${SWIPL_VERSION_MAJOR})
+
 
 find_library(LIBPRACMLN pracmln QUIET)
 if(LIBPRACMLN)
@@ -111,7 +117,7 @@ if(json_prolog_FOUND OR ${WITH_JSON_PROLOG})
     add_definitions(-DWITH_JSON_PROLOG)
     include_directories(${json_prolog_INCLUDE_DIRS})
 else()
-    message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
+    message(STATUS "json_prolog NOT FOUND. using knowrob as the knowledge engine will not be possible")
 endif()
 
 find_package(yaml-cpp REQUIRED)
@@ -153,10 +159,6 @@ catkin_package(
   DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
   CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
 )
-
-message(STATUS "+++++++++++++++++RS_SCRIPT_PATH+++++++++++++++")
-message(STATUS ${RS_SCRIPT_PATH})
-message(STATUS "++++++++++++++++++++++++++++++++++++++++++++++")
 ################################################################################
 ## Set include directories                                                    ##
 ################################################################################
