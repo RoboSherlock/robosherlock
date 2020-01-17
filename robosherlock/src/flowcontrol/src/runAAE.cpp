@@ -42,6 +42,7 @@
 
 #include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <rs/io/visualizer.h>
+#include <rs/CASConsumerContext.h>
 
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
@@ -91,6 +92,7 @@ int main(int argc, char* argv[])
   bool useVisualizer;
   bool publishResults;
   std::string cas_consumer_name; // If empty, CAS consumer handling is disabled.
+  bool use_cas_consumer = false;
 
   nh.param("ae", analysis_engine_names, std::string(""));
   nh.param("vis", useVisualizer, false);
@@ -100,6 +102,9 @@ int main(int argc, char* argv[])
   nh.deleteParam("ae");
   nh.deleteParam("vis");
   nh.deleteParam("cc");
+
+  if(cas_consumer_name!="")
+    use_cas_consumer = true;
 
   std::vector<std::string> analysis_engine_name_list;
 
@@ -146,7 +151,7 @@ int main(int argc, char* argv[])
 
   // Shall we initialize a CAS consumer?
   std::string cas_consumer_file;
-  if(cas_consumer_name!="")
+  if(use_cas_consumer)
   {
     rs::common::getAEPaths(cas_consumer_name, cas_consumer_file);
     if (cas_consumer_file.empty())
@@ -185,7 +190,7 @@ int main(int argc, char* argv[])
       rsaaes.push_back(engine);
       vis.addVisualizableGroupManager(engine->getAAEName());
     }
-    if(cas_consumer_name!="")
+    if(use_cas_consumer)
     {
       cas_consumer = rs::createRSAggregateAnalysisEngine(cas_consumer_file);
       vis.addVisualizableGroupManager(cas_consumer->getAAEName());
@@ -196,10 +201,13 @@ int main(int argc, char* argv[])
     while (ros::ok())
     {
       signal(SIGINT, signalHandler);
+
+      // Analysis Engine processing
       for (auto rsaae : rsaaes)
       {
         rsaae->resetCas();
         rsaae->processOnce();
+        
         if (publishResults)
         {
           std::vector<std::string> obj_descriptions;
@@ -209,13 +217,18 @@ int main(int argc, char* argv[])
           objDescr.obj_descriptions = obj_descriptions;
           result_pub.publish(objDescr);
         }
-      }
 
-      if(cas_consumer_name!="" && cas_consumer!=nullptr)
+        // Add AE to CAS
+        if(use_cas_consumer)
+          rs::CASConsumerContext::getInstance().addCAS(rsaae->getAAEName(), rsaae->getCas());
+      } // end of AE processing
+
+      if(use_cas_consumer && cas_consumer!=nullptr)
       {
         outInfo("Analysis Execution done. Executing CAS Consumer " << cas_consumer_name);
         cas_consumer->resetCas();
-        cas_consumer->processOnce();
+        cas_consumer->processOnce(); 
+        rs::CASConsumerContext::getInstance().clearCASes();
       }
 
       rate.sleep();
