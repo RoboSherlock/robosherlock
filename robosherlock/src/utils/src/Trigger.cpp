@@ -26,11 +26,11 @@
 
 #include <message_filters/sync_policies/approximate_time.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/exception.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/io/visualizer.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/exception.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/visualizer.h>
 
 using namespace uima;
 

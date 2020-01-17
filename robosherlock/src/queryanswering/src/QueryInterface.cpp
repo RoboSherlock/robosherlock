@@ -1,5 +1,5 @@
-#include<rs/queryanswering/QueryInterface.h>
-#include<rs/queryanswering/ObjectDesignatorFactory.h>
+#include<robosherlock/queryanswering/QueryInterface.h>
+#include<robosherlock/queryanswering/ObjectDesignatorFactory.h>
 
 // Boost
 #include <boost/property_tree/ptree.hpp>
@@ -89,7 +89,7 @@ bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
 
   //add the ones that are interpretable to the queriedKeys;
   if (!json.IsObject()){
-      outError("Description of object needs to be a json object! Example of an empty query: {\"\detect\":{}}");
+      outError("Description of object needs to be a json object! Example of an empty query: {\"detect\":{}}");
       return false;
   }
   for(rapidjson::Value::ConstMemberIterator iter = json.MemberBegin(); iter != json.MemberEnd(); ++iter)

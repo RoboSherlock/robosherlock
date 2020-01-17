@@ -1,4 +1,4 @@
-#include <rs/queryanswering/SWIPLInterface.h>
+#include <robosherlock/queryanswering/SWIPLInterface.h>
 
 namespace rs
 {

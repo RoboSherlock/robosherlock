@@ -37,14 +37,11 @@
 #include <ros/ros.h>
 #include <math.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
-#include <rs/utils/common.h>
-#include <rs/DrawingAnnotator.h>
-
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 using namespace uima;
 

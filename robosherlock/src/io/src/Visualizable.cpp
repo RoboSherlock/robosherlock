@@ -1,4 +1,4 @@
-#include "rs/io/Visualizable.h"
+#include "robosherlock/io/Visualizable.h"
 
 std::map<std::string, Visualizable*> Visualizable::visualizables;
 

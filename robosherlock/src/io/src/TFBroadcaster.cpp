@@ -40,9 +40,9 @@
 #include <pcl/common/centroid.h>
 
 //RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/io/TFBroadcasterWrapper.hpp>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/io/TFBroadcasterWrapper.hpp>
 
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>

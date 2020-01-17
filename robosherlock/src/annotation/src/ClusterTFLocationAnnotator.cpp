@@ -24,8 +24,8 @@
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
 
 using namespace uima;
 

@@ -1,9 +1,7 @@
 
 #include <gtest/gtest.h>
-#include <rs/scene_cas.h>
-#include <rs/flowcontrol/RSAnalysisEngine.h>
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_DEBUG
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/flowcontrol/RSAnalysisEngine.h>
 #include "../main.h"
 
 

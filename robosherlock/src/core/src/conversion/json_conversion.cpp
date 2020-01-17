@@ -21,8 +21,8 @@
 #include <rapidjson/rapidjson.h>
 
 // RS
-#include <rs/conversion/json.h>
-#include <rs/conversion/conversion.h>
+#include <robosherlock/conversion/json.h>
+#include <robosherlock/conversion/conversion.h>
 
 namespace rs
 {

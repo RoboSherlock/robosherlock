@@ -21,11 +21,11 @@
 #include <ros/ros.h>
 
 // RS
-#include <rs/io/TFBroadcasterWrapper.hpp>
+#include <robosherlock/io/TFBroadcasterWrapper.hpp>
 
-#include <rs/io/CollectionReader.h>
-#include <rs/utils/time.h>
-#include <rs/scene_cas.h>
+#include <robosherlock/io/CollectionReader.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/scene_cas.h>
 
 // RapidJson
 #include <rapidjson/document.h>

@@ -22,8 +22,8 @@
 #include <std_msgs/Header.h>
 
 // RS
-#include <rs/conversion/conversion.h>
-#include <rs/types/ros_types.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/types/ros_types.h>
 
 namespace rs
 {

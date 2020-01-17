@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/io/ROSCamInterface.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/ROSCamInterface.h>
 
 // Implementation
 

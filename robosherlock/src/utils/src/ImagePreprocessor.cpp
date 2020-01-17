@@ -29,12 +29,12 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/utils/time.h>
-#include <rs/utils/exception.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/DepthImageProcessing.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/segmentation/ImageSegmentation.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/exception.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/DepthImageProcessing.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/segmentation/ImageSegmentation.h>
 
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>

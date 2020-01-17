@@ -1,7 +1,7 @@
-#include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/io/MongoDBBridge.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
+#include <robosherlock/io/MongoDBBridge.h>
 // needed for action server
-#include <rs/queryanswering/RSQueryActionServer.h>
+#include <robosherlock/queryanswering/RSQueryActionServer.h>
 
 RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisualizer,
                                    rs::KnowledgeEngine::KnowledgeEngineType keType)
@@ -15,20 +15,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   outInfo("Creating resource manager");
   signal(SIGINT, RSProcessManager::signalHandler);
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
-
-  switch(OUT_LEVEL)
-  {
-  case OUT_LEVEL_NOOUT:
-  case OUT_LEVEL_ERROR:
-    resourceManager.setLoggingLevel(uima::LogStream::EnError);
-    break;
-  case OUT_LEVEL_INFO:
-    resourceManager.setLoggingLevel(uima::LogStream::EnWarning);
-    break;
-  case OUT_LEVEL_DEBUG:
-    resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
-    break;
-  }
+  resourceManager.setLoggingLevel(uima::LogStream::EnError);
 
   if(keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
   {

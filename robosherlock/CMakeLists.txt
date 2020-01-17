@@ -3,51 +3,40 @@ cmake_minimum_required(VERSION 2.8.3)
 project(robosherlock)
 
 ################################################################################
-## Include RoboSherlock cmake file                                            ##
+## Include RoboSherlock cmake file, containing macros                         ##
 ################################################################################
-configure_file(${PROJECT_SOURCE_DIR}/cmake/robosherlock.cmake.in ${PROJECT_SOURCE_DIR}/cmake/robosherlock.cmake @ONLY)
 include(cmake/robosherlock.cmake)
 
 ################################################################################
 ## Constants for project                                                      ##
 ################################################################################
 set(NAMESPACE rs)
-set(TYPESYSTEM_CPP_PATH ${PROJECT_SOURCE_DIR}/src/core/include/rs/types)
+set(TYPESYSTEM_CPP_PATH ${PROJECT_SOURCE_DIR}/src/core/include/robosherlock/types)
 set(TYPESYSTEM_XML_PATH ${PROJECT_SOURCE_DIR}/descriptors/typesystem)
 set(ANNOTATOR_PATH      ${PROJECT_SOURCE_DIR}/descriptors/annotators)
 set(ENGINE_PATH         ${PROJECT_SOURCE_DIR}/descriptors/analysis_engines)
 set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)
+set(RS_SCRIPT_PATH      ${PROJECT_SOURCE_DIR}/scripts)
+set(RS_PROJECT_CONFIG   ${PROJECT_SOURCE_DIR}/cmake/project_config_cmake.in)
 
 # Code Coverage
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 
+
+#the *.em file took the place of this. 
 ################################################################################
 ## Configure project configuration files                                      ##
 ################################################################################
-configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
+#configure_file(${PROJECT_SOURCE_DIR}/cmake/project_config.cmake.in ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
 
 ################################################################################
 ## Find all include directories                                               ##
 ################################################################################
-
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
-
-################################################################################
-## CMake options                                                              ##
-################################################################################
-
-# Will not show up in any cmake gui. Only for internal use but it will overwrite
-# RS_DEBUG_OUTPUT if set, that's why it's initialized empty
-set(RS_OUT_LEVEL "" CACHE INTERNAL "Output-Level: Debug/\"3\", Info/\"2\", Error/\"1\", None/\"0\"")
-
-option(RS_DEBUG_OUTPUT      "Enable debug output for non debug builds" OFF)
-
-check_option(RS_DEBUG_OUTPUT)
 
 ################################################################################
 ## Package dependencies                                                       ##
 ################################################################################
-
 
 #mongo client
 find_package(libmongocxx_ros QUIET)
@@ -109,29 +98,9 @@ else()
   message(STATUS "libpracmln NOT FOUND. Related annotators will not be build!")
 endif()
 
-find_package(Caffe QUIET)
-if(Caffe_FOUND)
-  message(STATUS "Caffe FOUND")
-  set(OPTIONAL_Caffe Caffe)
-  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
-  set(RS_CAFFE_LIB rs_caffeProxy)
-  include_directories(${Caffe_INCLUDE_DIRS})
-endif(Caffe_FOUND)
-
-find_package(Protobuf QUIET)
-if(PROTOBUF_FOUND)
-  message(STATUS "Found Protobuf.")
-endif()
-if(PROTOBUF_PROTOC_EXECUTABLE)
-  message(STATUS "Found Protobuf executeable.")
-endif()
-if(PROTOBUF_FOUND AND PROTOBUF_PROTOC_EXECUTABLE)
-  set(RS_WEB_LIB rs_web)
-endif()
-
 #find_package(RapidJSON REQUIRED)
 #if(${RapidJSON_FOUND})
-    add_definitions(-DRAPIDJSON_HAS_STDSTRING)
+add_definitions(-DRAPIDJSON_HAS_STDSTRING)
 #endif()
 
 find_package(json_prolog QUIET)
@@ -145,8 +114,6 @@ else()
     message(STATUS "json_prolog NOT FOUND. No Queryanswering will be available.")
 endif()
 
-
-
 find_package(yaml-cpp REQUIRED)
 if(yaml-cpp_FOUND)
   message(STATUS "yaml-cpp FOUND")
@@ -158,7 +125,6 @@ endif()
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
-
 link_directories(${PCL_LIBRARY_DIRS})
 add_definitions(${PCL_DEFINITIONS})
 
@@ -185,9 +151,12 @@ catkin_package(
   LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
   DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
-  CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake
+  CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
 )
 
+message(STATUS "+++++++++++++++++RS_SCRIPT_PATH+++++++++++++++")
+message(STATUS ${RS_SCRIPT_PATH})
+message(STATUS "++++++++++++++++++++++++++++++++++++++++++++++")
 ################################################################################
 ## Set include directories                                                    ##
 ################################################################################
@@ -223,9 +192,6 @@ add_subdirectory(src/utils)
 add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)
 add_subdirectory(src/queryanswering)
-################################################################################
-## Install                                                                    ##
-################################################################################
 
 ################################################################################
 ## Testing                                                                    ##
@@ -258,3 +224,20 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_core
     rs_io
     rs_utils)
+
+
+################################################################################
+## Install                                                                    ##
+################################################################################
+#append robosherlock to the path of the includes to make install path correct
+string(REPLACE ";" "robosherlock/\;" RS_INSTALL_INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST}) 
+install(DIRECTORY ${RS_INSTALL_INCLUDE_DIRS} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
+
+#copy to descriptors and config folders to their appropriate locations
+install(DIRECTORY descriptors DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY config DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY scripts DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+
+install(DIRECTORY launch DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY owl DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
+install(DIRECTORY prolog DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})

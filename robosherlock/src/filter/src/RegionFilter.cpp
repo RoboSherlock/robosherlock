@@ -31,13 +31,13 @@
 #include <tf_conversions/tf_eigen.h>
 #include <tf/tf.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/utils/common.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/exception.h>
-#include <rs/io/TFListenerProxy.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/exception.h>
+#include <robosherlock/io/TFListenerProxy.h>
 
 #include <rapidjson/document.h>
 #include <rapidjson/pointer.h>

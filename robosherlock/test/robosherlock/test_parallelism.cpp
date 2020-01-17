@@ -2,11 +2,11 @@
 #include <gtest/gtest.h>
 
 #include <uima/api.hpp>
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
-#include <rs/io/CamInterface.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/io/CamInterface.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>

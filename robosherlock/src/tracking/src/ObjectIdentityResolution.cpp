@@ -27,22 +27,19 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/compare.h>
-#include <rs/io/Storage.h>
-#include <rs/utils/common.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/compare.h>
+#include <robosherlock/io/Storage.h>
+#include <robosherlock/utils/common.h>
 
 // ROS
 #include <ros/ros.h>
 #include <visualization_msgs/MarkerArray.h>
 #include <resource_retriever/retriever.h>
 
-
-//#undef OUT_LEVEL
-//#define OUT_LEVEL OUT_LEVEL_DEBUG
 
 using namespace uima;
 

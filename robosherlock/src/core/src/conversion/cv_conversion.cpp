@@ -25,8 +25,8 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/conversion/conversion.h>
-#include <rs/types/cv_types.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/types/cv_types.h>
 
 namespace rs
 {

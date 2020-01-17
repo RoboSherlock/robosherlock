@@ -35,12 +35,12 @@
 #include <pcl/io/pcd_io.h>
 
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/annotation/web/goggles.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/annotation/web/goggles.h>
 
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 using namespace uima;
 

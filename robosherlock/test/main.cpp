@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include <rs/utils/common.h>
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include <mongo/client/dbclient.h>
 

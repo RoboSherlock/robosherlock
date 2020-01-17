@@ -1,7 +1,6 @@
 robosherlock/cmake/robosherlock_config.cmake
-robosherlock/cmake/robosherlock.cmake
 robosherlock/data
 robosherlock/scripts/.*.modified
 robosherlock/scripts/*.pyc
-robosherlock/src/core/include/rs/types/*.h
+robosherlock/src/core/include/robosherlock/types/*.h
 robosherlock/descriptors/typesystem/all_types.xml

@@ -40,8 +40,8 @@
 
 #include <mongo/client/dbclient.h>
 
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
-#include <rs/io/visualizer.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/io/visualizer.h>
 
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
