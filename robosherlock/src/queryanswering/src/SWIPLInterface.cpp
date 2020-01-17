@@ -111,7 +111,7 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
     return false;
   }
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Planning Pipeline");
+  outDebug("Planning Pipeline");
   setEngine();
   PlTermv av(2);
   std::stringstream query;
@@ -122,16 +122,16 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   try
   {
     res = PlCall(query.str().c_str());
-    outInfo("result of PlCall:" << res);
+    outDebug("result of PlCall:" << res);
     if (res)
     {
-      outInfo(child << " is subclass of " << parent);
+      outDebug(child << " is subclass of " << parent);
       //      releaseEngine();
       return true;
     }
     else
     {
-      outInfo(child << " is NOT subclass of " << parent);
+      outDebug(child << " is NOT subclass of " << parent);
       //      releaseEngine();
       return false;
     }
@@ -147,7 +147,7 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
 bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::string>>& query_terms)
 {
   MEASURE_TIME;
-  outInfo("Asserting query language specific knowledge");
+  outDebug("Asserting query language specific knowledge");
   setEngine();
   try
   {
@@ -162,7 +162,7 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
       }
       if (res)
       {
-        outInfo("Asserted " << term.first << " as a query language term");
+        outDebug("Asserted " << term.first << " as a query language term");
         for (auto type : term.second)
         {
           std::string token;
@@ -182,7 +182,7 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
           }
           query << "assert(rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
           if (PlCall(query.str().c_str()))
-            outInfo("Assertion successfull: " << query.str());
+            outDebug("Assertion successfull: " << query.str());
         }
       }
     }
@@ -211,14 +211,14 @@ bool SWIPLInterface::assertOutputTypeRestriction(const std::string& individual, 
     query << *it << separator;
   }
   query << "], " << type << ").";
-  outInfo("Query: " << query.str());
+  outDebug("Query: " << query.str());
   try
   {
     PlCall(query.str().c_str());
   }
   catch (PlException& ex)
   {
-    outError(static_cast<char*>(ex));
+    outDebug(static_cast<char*>(ex));
     return false;
   }
   return true;
@@ -240,7 +240,7 @@ bool SWIPLInterface::assertInputTypeConstraint(const std::string& individual, co
     query << *it << separator;
   }
   query << "], " << type << ").";
-  outInfo("Query: " << query.str());
+  outDebug("Query: " << query.str());
   try
   {
     PlCall(query.str().c_str());
@@ -260,7 +260,7 @@ bool SWIPLInterface::assertValueForKey(const std::string& key, const std::string
 
   std::stringstream assertionQuery;
   assertionQuery << "assert(requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
-  outInfo("Calling query: " << assertionQuery.str());
+  outDebug("Calling query: " << assertionQuery.str());
   int res;
   try
   {
@@ -273,7 +273,7 @@ bool SWIPLInterface::assertValueForKey(const std::string& key, const std::string
   }
   if (res)
   {
-    outInfo("Asserted: " << assertionQuery.str());
+    outDebug("Asserted: " << assertionQuery.str());
     return true;
   }
   else
@@ -286,7 +286,7 @@ bool SWIPLInterface::assertValueForKey(const std::string& key, const std::string
 bool SWIPLInterface::retractQueryLanguage()
 {
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Retracting Query language");
+  outDebug("Retracting Query language");
   setEngine();
 
   try
@@ -307,7 +307,7 @@ bool SWIPLInterface::retractQueryLanguage()
 bool SWIPLInterface::retractQueryKvPs()
 {
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Retractking Query KvPs");
+  outDebug("Retractking Query KvPs");
   setEngine();
   try
   {
@@ -371,7 +371,7 @@ bool SWIPLInterface::instanceFromClass(const std::string& class_name, std::vecto
 bool SWIPLInterface::retractAllAnnotators()
 {
   std::lock_guard<std::mutex> lock(lock_);
-  outInfo("Retracting all annotators");
+  outDebug("Retracting all annotators");
   setEngine();
 
   PlTermv av(2);
