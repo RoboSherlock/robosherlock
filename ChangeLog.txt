@@ -3,20 +3,20 @@
 v1.0.0
 %----------------------------------
 
-2019-07-02 - Ferenc Balint-Benczedi: Fix bugs (#178) 
+2019-07-02 - Fix bugs (#178) 
 * changes to how RSProcessManage is constructed (no more init function)
 
-2019-06-26 - Ferenc Balint-Benczedi: - fix frame id in header of advertised result point cloud (#176) 
+2019-06-26 - fix frame id in header of advertised result point cloud (#176) 
 
-2019-06-25 - Ferenc Balint-Benczedi: plane models can be stored as part of the semantic map entry (#174) 
+2019-06-25 - plane models can be stored as part of the semantic map entry (#174) 
 * check if plane equation is defined as part of the semantic map and set as plane annotation
 * in plane annotator check if plane eq is already present and instead of estimation simply find inliers 
 
-2019-06-19 - fkenghagho: Integration of an action server and client for queryanswering (#171) 
+2019-06-19 - Integration of an action server and client for queryanswering (#171) 
 * basic query answering through a fixed action interface
 * example action client
 
-2019-06-19 - Ferenc Balint-Benczedi: Multi camera support in a singel pipeline (#172 and #173i) 
+2019-06-19 - Multi camera support in a single pipeline (#172 and #173i) 
 * introduce id system for multiple identical cameras in a single pipeline
 * set active camera ids in bridges
 * set query with setFS to avoid adding cam ID to it
@@ -25,27 +25,27 @@ v1.0.0
 * in Storage prepend cam0 to viewname if no cam id present
 * other minor bug fixes
 
-2019-03-25 - Ferenc Balint-Benczedi: ros fixes (#167) 
+2019-03-25 - ros fixes (#167) 
 * async spinner in RSProcessManager; removed spin from cam interface; new proxy class for tf::TransformListener
 * when filtering for individuals or annotations look at direct subclasses as well.
 * add view name for display image
 
-2019-03-22 - Ferenc Balint-Benczedi: add missing getQuery to QueryInterface (#165) 
+2019-03-22 - add missing getQuery to QueryInterface (#165) 
 * add method to get query document from QueryInterface
 
-2019-03-12 - Ferenc Balint-Benczedi: Merged AggregateAE and RSAE implementation (#164) 
+2019-03-12 - Merged AggregateAE and RSAE implementation (#164) 
 * split functionality of RSAnalysisEngine between RSAggregateAnalysisEngine and RSProcessManager
 * new CollectionReader class for creating a CPE
 * moved semantic map reading to Region filter
 * add executable to run an AAE; loads an AE yaml and runs fixed flow continuously;
 
-2019-03-04 - Ferenc Balint-Benczedi: capability assertion from AAE defintition  (#162) 
+2019-03-04 - capability assertion from AAE defintition  (#162) 
 * allow overwriting of capabilities in the aggregate AE config file; useful for classifiers where output domain and input restricion changes with the parameters
 
-2019-03-04 - Fenja Kollasch: Point cloud filtering depending on a given transform frame (#160) 
+2019-03-04 - Point cloud filtering depending on a given transform frame (#160) 
 * Add frame selection to PointCloudFilter with frame parameters for target (source frame is always cloud frame)
 
-2019-02-26 - Ferenc Balint-Benczedi: Embedded SWI-Prolog knowledge engine (#161) 
+2019-02-26 - Embedded SWI-Prolog knowledge engine (#161) 
 * documented methods of RSProcessManager and cleand up
 * fix Cluster3DGeometry (initialize mins and maxs properly)
 * new abstract class fro KnowledgeEngine; Modified query answering class to use new interface; moved parsing of json string out of json interface
@@ -56,7 +56,7 @@ v1.0.0
 * moved knowrob related files into project. RoboSherlock can now be loaded into json prolog; robosherlock_knowrob package becoming deprecated.
 * tests for query interfae and swipl interface
 
-2019-01-24 - Ferenc Balint-Benczedi: json conversion of RS types; (#156) 
+2019-01-24 - json conversion of RS types; (#156) 
 * Made query answering extendible: 
 - implemented rs::conversions::to for rapidjson::Document
 - object descriptions are generated from type using this conversion
@@ -69,63 +69,63 @@ v1.0.0
 - rotations are now stored as quaternions
 - SemanticColorAnnotation is for single colors; Store multiple SemColorAnnotations instead of a single one;
 
-2018-12-14 - Ferenc Balint-Benczedi: Devel cleanup (#155) 
+2018-12-14 - Devel cleanup (#155) 
 - merged Yaml to XML converters into a single class
 - cleanup in typesystem: removed unused types
 - **breaking change**: rs::Cluster is now called rs::ObjectHypothesis; rs::MergedCluster is now called rs::MergedHypothesis
 
-2018-12-04 - Ferenc Balint-Benczedi: Parallel pipeline planning not dependent on json_prolog (#154) 
+2018-12-04 - Parallel pipeline planning not dependent on json_prolog (#154) 
 * build dependency graph of parallel pipeline execution based on information extracted from the YAMls; no need to query KnowRob anymore for the parallel planning
 * removing Classifier from recognition; up to date version in rs_addons;
 
-2018-10-25 - Ferenc Balint-Benczedi: Devel realsense camer bridge (#151) 
+2018-10-25 - Devel realsense camer bridge (#151) 
 * added bridge for RealSense camera
 * PCL_DEFINITIONS is not needed
 
-2018-09-23 - Ferenc Balint-Benczedi: Stackification (#150) 
+2018-09-23 - Stackification (#150) 
 * uimacpp_ros, robosherlock_msgs, rapidjson_ros part of  a stack now;
 
-2018-09-20 - Ferenc Balint-Benczedi: VFH is the default for PCLDescriptorExtractor 
+2018-09-20 - VFH is the default for PCLDescriptorExtractor 
 
-2018-09-20 - Ferenc Balint-Benczedi: fix annototator generation script 
+2018-09-20 - fix annototator generation script 
 
-2018-09-18 - Ferenc Balint-Benczedi: Devel fixes (#148) 
+2018-09-18 - Devel fixes (#148) 
 * annotator for saving results written on images; 
 * Triggering can work now from a service of type std_srvs/Trigger
 Fix:
 * params that are arrays in yaml generate correct xml
 * scripts for generating annotators and rs dependent packages
 
-2018-09-11 - Ferenc Balint-Benczedi: Yaml config for AE-s and domain restrictions for annotators when planning a pipeline (#147) 
+2018-09-11 - Yaml config for AE-s and domain restrictions for annotators when planning a pipeline (#147) 
 * generate AE xmls from YAML config files
 * assert metadata to KB from yaml parsing directly
 * ROS_INFO instead of std::cerr and std::cout for output
 * fixed annoying mongoDB bug (if can't convert mongo entry to RS type, don't crash but catch error and handle)
 
-2018-09-03 - Ferenc Balint-Benczedi: new ROS interface and yaml migration (#144) 
+2018-09-03 - new ROS interface and yaml migration (#144) 
 * added ROS interface for setting a specific pipeline
 * yaml files and script for generating them for annotators
 
-2018-08-23 - Bred: Unit tests for annotators (#141) 
+2018-08-23 - Unit tests for annotators (#141) 
 * unit tests for annotators
 * implemented  reconfigure for some of the annotators
 * fixed FeatureAnnotator
 
-2018-08-21 - Ferenc Balint-Benczedi: Refactoring: merged RSControledAE and RSAnalysisEngine (#142) 
+2018-08-21 - Refactoring: merged RSControledAE and RSAnalysisEngine (#142) 
 * no more base64 image advertiser
 * cleaned up query type; Moved ROS related parts out of ControledAE;
 * more refactoring; result image publishing in RSProcessManager; Point clouds not there yet; Cleanup in designator wrapper; deleted deprecated members and deprecated type conversions; fix tests;
 
-2018-08-17 - Ferenc Balint-Benczedi: Refarctoring and fixes so YAML will work;  (#140) 
+2018-08-17 - Refarctoring and fixes so YAML will work;  (#140) 
 * modified the loopkup of domain specificitaions so YAML files can be also parsed
 * moved yaml and XML stuff to flowcontrol
 * completely removed RSPipelineManager; RSAAE incorporates its functionality
 
-2018-08-14 - Shixin Li: New changes made for YAML input - GSoC 2018 (#139) 
+2018-08-14 - New changes made for YAML input - GSoC 2018 (#139) 
 * annotators can have YAML definitions instead of XML; XML gets auto-generated;
 * AEs do not need a list of delegates anymore; the fixed flow gets read during the init process and list of delegates is generated 
 
-2018-08-10 - Ferenc Balint-Benczedi: query answering development (#138) 
+2018-08-10 - query answering development (#138) 
 - assert annotators and their domains
 - multiple checks in json per key
 - deleted old PCLVFHFeatureExtractor
