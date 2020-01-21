@@ -6,12 +6,12 @@ SWIPLInterface::SWIPLInterface()
 {
   std::lock_guard<std::mutex> lock(lock_);
   int argc = 0;
-  argv[argc++] = (char *)"robosherlock";
-  argv[argc++] = "-g";
-  argv[argc++] = "true";
+  argv[argc++] = (char*)"robosherlock";
+   argv[argc++] = "-g";
+   argv[argc++] = "true";
   // Inhibit any signal handling by Prolog
   argv[argc++] = (char*)"--signals=false";
-  //set the file to load at startup
+  // set the file to load at startup
   argv[argc++] = "-f";
   std::string rosPrologInit = ros::package::getPath("robosherlock") + "/prolog/init_rs_internal.pl";
   argv[argc] = new char[rosPrologInit.size() + 1];
@@ -35,7 +35,7 @@ SWIPLInterface::SWIPLInterface()
   attributes_.cancel = 0;
   attributes_.flags = 0;
 
-  outInfo("SWI-PROLOG ENGINE INITIALIZED");
+  outInfo("SWI-Prolog engine initialized.");
 }
 
 void SWIPLInterface::setEngine()
@@ -57,6 +57,46 @@ void SWIPLInterface::setEngine()
       else
         throw std::runtime_error("Unknown Response when setting PL_engine");
     }
+  }
+}
+
+void SWIPLInterface::printObjPropertyKeys()
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  outDebug("Printing loaded query keys that refer to object properties in the KB: ");
+  PlTermv av(1);
+  try
+  {
+    std::shared_ptr<PlQuery> q(new PlQuery("key_is_property", av));
+    while (q->next_solution())
+    {
+      outDebug((char*)av[0]);
+    }
+  }
+  catch (PlException& ex)
+  {
+    outError(static_cast<char*>(ex));
+  }
+}
+
+void SWIPLInterface::printQueryKeys()
+{
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  outDebug("Printing loaded query keys: ");
+  PlTermv av(2);
+  try
+  {
+    std::shared_ptr<PlQuery> q(new PlQuery("rs_type_for_predicate", av));
+    while (q->next_solution())
+    {
+      outDebug((char*)av[0]<<" "<<(char*)av[1]);
+    }
+  }
+  catch (PlException& ex)
+  {
+    outError(static_cast<char*>(ex));
   }
 }
 
@@ -111,7 +151,6 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
     return false;
   }
   std::lock_guard<std::mutex> lock(lock_);
-  outDebug("Planning Pipeline");
   setEngine();
   PlTermv av(2);
   std::stringstream query;
@@ -119,6 +158,7 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   av[0] = child.c_str();
   av[1] = parent.c_str();
   int res;  // = PlCall("owl_subclass_of", av);
+  outDebug("Calling Query: " << query.str());
   try
   {
     res = PlCall(query.str().c_str());
@@ -144,7 +184,58 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   }
 }
 
-bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::string>>& query_terms)
+bool SWIPLInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
+{
+  if (!addNamespace(object))
+  {
+    outWarn(object << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(subject))
+  {
+    outWarn(subject << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(relation, "obj-property"))
+  {
+    outWarn(subject << " is not found under any of the namespaces");
+    return false;
+  }
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  PlTermv av(3);
+  std::stringstream query;
+  query << "owl_class_properties(" << subject << "," << relation << "," << object << ")";
+  av[0] = subject.c_str();
+  av[1] = relation.c_str();
+  av[2] = object.c_str();
+  int res;  // = PlCall("owl_subclass_of", av);
+  outDebug("Calling Query: " << query.str());
+  try
+  {
+    res = PlCall(query.str().c_str());
+    outDebug("result of PlCall:" << res);
+    if (res)
+    {
+      outDebug(subject << " is in  " << relation << " with: " << object);
+      return true;
+    }
+    else
+    {
+      outDebug(subject << " is not in  " << relation << " with: " << object);
+      return false;
+    }
+  }
+  catch (PlException& ex)
+  {
+    outError((char*)ex);
+    return false;
+  }
+  return true;
+}
+
+bool SWIPLInterface::assertQueryLanguage(
+    std::vector<std::tuple<std::string, std::vector<std::string>, int>>& query_terms)
 {
   MEASURE_TIME;
   outDebug("Asserting query language specific knowledge");
@@ -153,17 +244,37 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
   {
     for (auto term : query_terms)
     {
+      std::string q_predicate;
+      std::vector<std::string> types;
+      int type_of_predicate;
+      std::tie(q_predicate, types, type_of_predicate) = term;
       std::stringstream query;
-      query << "assert(rs_query_reasoning:rs_query_predicate(" << term.first << "))";
+      query << "assert(rs_query_reasoning:rs_query_predicate(" << q_predicate << "))";
       int res;
       {
         std::lock_guard<std::mutex> lock(lock_);
         res = PlCall(query.str().c_str());
       }
-      if (res)
+      int res2 = true;
+      if (type_of_predicate == 1)
       {
-        outDebug("Asserted " << term.first << " as a query language term");
-        for (auto type : term.second)
+        query.str("");
+        query << "assert(rs_query_reasoning:key_is_property(" << q_predicate << "))";
+        {
+          std::lock_guard<std::mutex> lock(lock_);
+          res2 = PlCall(query.str().c_str());
+          if (res2)
+          {
+            outDebug("Assertion successfull: " << query.str());
+            outDebug("Asserted " << q_predicate << " as a property request in query language term");
+          }
+        }
+      }
+
+      if (res && res2)
+      {
+        outDebug("Asserted " << q_predicate << " as a query language term");
+        for (auto type : types)
         {
           std::string token;
           std::stringstream ss(type), krType;
@@ -180,7 +291,7 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
             outWarn(krType.str() << "Was not found in ontology");
             continue;
           }
-          query << "assert(rs_type_for_predicate(" << term.first << "," << krTypeClass << "))";
+          query << "assert(rs_type_for_predicate(" << q_predicate << "," << krTypeClass << "))";
           if (PlCall(query.str().c_str()))
             outDebug("Assertion successfull: " << query.str());
         }
@@ -191,7 +302,8 @@ bool SWIPLInterface::assertQueryLanguage(std::map<std::string, std::vector<std::
   {
     outError(static_cast<char*>(ex));
   }
-  //  releaseEngine();
+  printQueryKeys();
+  //releaseEngine();
   return true;
 }
 
@@ -397,7 +509,7 @@ bool SWIPLInterface::retractAllAnnotators()
   return true;
 }
 
-bool SWIPLInterface::addNamespace(std::string& s)
+bool SWIPLInterface::addNamespace(std::string& s, std::string type)
 {
   std::lock_guard<std::mutex> lock(lock_);
   //  outInfo("Adding namespace to: " << s);
@@ -419,7 +531,11 @@ bool SWIPLInterface::addNamespace(std::string& s)
     for (auto ns : krNamespaces_)
     {
       std::stringstream prologQuery;
-      prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE << ",'http://www.w3.org/2002/07/owl#Class').";
+      if (type == "class")
+        prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE << ",'http://www.w3.org/2002/07/owl#Class').";
+      else if (type == "obj-property")
+        prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE
+                    << ",'http://www.w3.org/2002/07/owl#ObjectProperty').";
       if (PlCall(prologQuery.str().c_str()))
       {
         s = "'" + ns + s + "'";

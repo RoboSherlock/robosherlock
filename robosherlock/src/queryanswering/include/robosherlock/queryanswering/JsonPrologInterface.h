@@ -99,12 +99,15 @@ public:
   bool instanceFromClass(const std::string &, std::vector<std::string> &);
 
 
-  bool addNamespace(std::string &entry);
+  bool addNamespace(std::string &entry, std::string entry_type="class");
 
   /*brief
    * check for a class property
    * */
   bool q_classProperty(std::string className, std::string property, std::string value);
+
+  bool q_hasClassProperty(std::string obj, std::string relation, std::string subject);
+
 
   /*
    * assert terms of the query language and types that correspond to these terms

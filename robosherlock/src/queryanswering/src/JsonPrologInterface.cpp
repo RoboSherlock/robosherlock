@@ -276,7 +276,7 @@ bool JsonPrologInterface::assertOutputTypeRestriction(const std::string &individ
 }
 
 
-bool JsonPrologInterface::addNamespace(std::string &entry)
+bool JsonPrologInterface::addNamespace(std::string &entry, std::string entry_type)
 {
   if(krNamespaces_.empty())
   {
@@ -296,7 +296,10 @@ bool JsonPrologInterface::addNamespace(std::string &entry)
   for(auto ns : krNamespaces_)
   {
     std::stringstream prologQuery;
-    prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'Class').";
+    if (entry_type == "class")
+      prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'Class').";
+    else if(entry_type == "obj-property")
+      prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'ObjectProperty').";
     json_prolog::PrologQueryProxy bdgs = queryWithLock(prologQuery.str());
     if(bdgs.begin() != bdgs.end())
     {

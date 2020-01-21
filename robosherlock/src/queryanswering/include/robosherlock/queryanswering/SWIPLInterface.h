@@ -89,6 +89,8 @@ public:
 
   bool q_subClassOf(std::string child, std::string parent);
 
+  bool q_hasClassProperty(std::string subject, std::string relation, std::string object);
+
   bool checkValidQueryTerm(const std::string &term);
 
   bool assertValueForKey(const std::string &key, const std::string &value);
@@ -105,9 +107,9 @@ public:
 
   bool retractAllAnnotators();
 
-  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &);
+  bool assertQueryLanguage(std::vector<std::tuple <std::string, std::vector<std::string>,int>> &query_terms);
 
-  bool addNamespace(std::string &s);
+  bool addNamespace(std::string &s, std::string type= "class");
 
   bool assertTestPipelnie()
   {
@@ -126,6 +128,12 @@ public:
     }
     return true;
   }
+
+
+  //functions for debugging
+  void printObjPropertyKeys();
+
+  void printQueryKeys();
 
 };
 }  // namespace rs

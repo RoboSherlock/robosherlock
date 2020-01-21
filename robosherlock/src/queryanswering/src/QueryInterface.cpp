@@ -98,10 +98,10 @@ bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
     {
       keys.push_back(iter->name.GetString());
       //for a select member of keys (type, class, shape, color) let's add value reasoning; TODO: get rid of this somehow;
-      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size", "material"};
-      if(std::find(special_keys.begin(), special_keys.end(),
-                   iter->name.GetString()) != std::end(special_keys))
-      {
+//      std::vector<std::string> special_keys = {"type", "class", "shape", "color", "size", "material", "hasIngredient","hasObjectPart"};
+//      if(std::find(special_keys.begin(), special_keys.end(),
+//                   iter->name.GetString()) != std::end(special_keys))
+//      {
         std::string d = iter->value.GetString();
         d[0] = std::toupper(d[0]);
         if(d != "" && !knowledgeEngine_->addNamespace(d))
@@ -111,7 +111,7 @@ bool QueryInterface::extractQueryKeysFromDesignator(rapidjson::Value &json,
         }
         if(!knowledgeEngine_->assertValueForKey(iter->name.GetString(), d))
           return false;
-      }
+//      }
     }
     else
       outWarn(iter->name.GetString() << " is not a valid query-language term");
@@ -208,7 +208,7 @@ bool QueryInterface::getQueryConfig()
 
   knowledgeEngine_->retractQueryLanguage();
 
-  std::map <std::string, std::vector<std::string>> queryLangSpecs;
+  std::vector<std::tuple <std::string, std::vector<std::string>,int > >  queryLangSpecs;
   for(auto p : configPaths)
   {
     outInfo("Path to config file: " FG_BLUE << p);
@@ -226,7 +226,18 @@ bool QueryInterface::getQueryConfig()
             std::vector<std::string> types;
             std::string typesEntry = pt.get<std::string>(property.first + "." + entry.first);
             boost::algorithm::split(types, typesEntry, boost::is_any_of(" ,"), boost::token_compress_on);
-            queryLangSpecs[entry.first].insert(queryLangSpecs[entry.first].end(), types.begin(), types.end());
+
+            queryLangSpecs.push_back(std::make_tuple(entry.first, types, 0));
+          }
+        }
+        else if(property.first == "object-property-keys")
+        {
+          for(auto entry : property.second)
+          {
+            std::vector<std::string> types;
+            std::string typesEntry = pt.get<std::string>(property.first + "." + entry.first);
+            boost::algorithm::split(types, typesEntry, boost::is_any_of(" ,"), boost::token_compress_on);
+            queryLangSpecs.push_back(std::make_tuple(entry.first, types, 1));
           }
         }
         else
@@ -275,6 +286,23 @@ bool QueryInterface::checkSubClass(const std::string &resultValue, const std::st
     outError("Prolog Exception: Malformed owl_subclass_of. Child or superclass undefined:");
     outError("     Child: " << resultValue);
     outError("     Parent: " << queryValue);
+  }
+  return ok;
+}
+
+bool QueryInterface::checkClassProperty(const std::string &subject, const std::string &relation, const std::string &object)
+{
+  bool ok = false;
+  try
+  {
+    ok = knowledgeEngine_->q_hasClassProperty(subject, relation, object);
+  }
+  catch(std::exception &e)
+  {
+    outError("Prolog Exception: Malformed owl_subclass_of. Child or superclass undefined:");
+    outError("     Subject: " << subject);
+    outError("     Relation: " << relation);
+    outError("     Object: "<< object);
   }
   return ok;
 }
@@ -396,7 +424,7 @@ bool QueryInterface::filterResults(std::vector<std::string> &resultDesignators,
               if(rapidjson::Value *value = rapidjson::Pointer(newLocation).Get(resultJson))
               {
                 std::string resultValue = value->GetString();;
-                if(resultValue == queryValue || checkSubClass(resultValue, queryValue))
+                if(resultValue == queryValue || checkSubClass(resultValue, queryValue) || checkClassProperty(resultValue,key,queryValue))
                   matched = true;
               }
             }
