@@ -10,7 +10,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   , it_(nh_)
   , useVisualizer_(useVisualizer)
   , use_identity_resolution_(false)
-  , visualizer_(!useVisualizer)
+  , visualizer_(!useVisualizer, true)
 {
   outInfo("Creating resource manager");
   signal(SIGINT, RSProcessManager::signalHandler);
@@ -54,7 +54,9 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   // ROS action server for query answering
   actionServer = new RSQueryActionServer(nh_, this);
 
+
   spinner_.start();
+  visualizer_.addVisualizableGroupManager(engine_->getAAEName()); 
   visualizer_.start();
 
 }
