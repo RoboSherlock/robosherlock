@@ -302,7 +302,7 @@ annotators_for_predicate(P,A) :-
 	%print_message(warning, ["Looking for type of", P]),
         rs_type_for_predicate(P,T),
 	%print_message(warning, ["Found type: ", T]),
-        annotator_outputs(A, T),
+        annotator_outputs(A, T).
 	%print_message(warning, ["Found an annotator that outputs this type: ", A]).
 
 
@@ -367,7 +367,7 @@ assert_test_pipeline:-
     owl_instance_from_class(rs_components:'CaffeAnnotator',_),
     owl_instance_from_class(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
     owl_instance_from_class(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection'),
-    assert(requestedValueForKey(has-ingredient,kitchen:'Honey')).
+    assert(requestedValueForKey(shape,rs_components:'Box')).
     
 assert_query_lang:-
 	assert(rs_query_predicate(shape)),

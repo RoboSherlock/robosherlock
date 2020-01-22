@@ -81,8 +81,8 @@ TEST_F(SWIPLInterfaceTest, AssertValueForKey)
 
 TEST_F(SWIPLInterfaceTest, AssertQueryLan)
 {
-  std::map<std::string, std::vector<std::string>> queryDefs;
-  queryDefs = std::make_tuple("shape","rs.annotation.Shape",0);
+  std::vector<std::tuple<std::string, std::vector<std::string>, int >> queryDefs;
+  queryDefs.push_back(std::make_tuple("shape",std::vector<std::string>{"rs.annotation.Shape"},0));
   bool res = ke->assertQueryLanguage(queryDefs);
   EXPECT_TRUE(res == true);
 }
