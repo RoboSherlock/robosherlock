@@ -69,6 +69,7 @@ private:
   size_t saveFrameImage;
   size_t saveFrameCloud;
   std::string savePath;
+  std::string ns_string_;
 
   std_msgs::Header header;
   ros::NodeHandle nh_;
