@@ -8,6 +8,7 @@ capabilities:
   - rs.pcl.FilteredPointCloud
   outputs:
   - rs.scene.ObjectHypothesis
+  - rs.annotation.Detection: ['IkeaGlass']
 parameters:
   close_iterations: 12
   convex_hull_segments: true

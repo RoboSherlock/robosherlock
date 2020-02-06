@@ -238,6 +238,15 @@
     
 
 
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#DrinkingGlass -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#DrinkingGlass">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#Container"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+    </owl:Class>
+    
+
+
     <!-- http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl">
@@ -260,6 +269,12 @@
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Coffee-Beverage"/>
     </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#FoodOrDrink -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#FoodOrDrink"/>
     
 
 
@@ -302,6 +317,14 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#Honey">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Food-ReadyToEat"/>
+    </owl:Class>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#IkeaGlass -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#IkeaGlass">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#DrinkingGlass"/>
     </owl:Class>
     
 
@@ -849,7 +872,9 @@
 
     <!-- http://knowrob.org/kb/knowrob.owl#BreakfastCereal -->
 
-    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#BreakfastCereal">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#FoodOrDrink"/>
+    </owl:Class>
     
 
 
@@ -935,7 +960,9 @@
 
     <!-- http://knowrob.org/kb/knowrob.owl#Juice -->
 
-    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Juice"/>
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#Juice">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#FoodOrDrink"/>
+    </owl:Class>
     
 
 
