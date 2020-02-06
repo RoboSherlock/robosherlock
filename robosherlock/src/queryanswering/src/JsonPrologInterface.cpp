@@ -148,7 +148,15 @@ bool JsonPrologInterface::retractQueryLanguage()
 
 bool JsonPrologInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
 {
+  outWarn("HAS CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
+  return false;
 }
+bool JsonPrologInterface::q_getClassProperty(std::string subject, std::string relation, std::string object){
+{
+    outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
+    return false;
+}
+
 
 bool JsonPrologInterface::assertQueryLanguage(
     std::vector<std::tuple<std::string, std::vector<std::string>, int>>& query_terms)
