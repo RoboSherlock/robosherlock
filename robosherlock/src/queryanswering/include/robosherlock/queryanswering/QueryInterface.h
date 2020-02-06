@@ -79,6 +79,8 @@ public:
 
   bool checkClassProperty(const std::string &subject, const std::string &relation, const std::string &object);
 
+  bool checkValueRestriction(const std::string &subject, const std::string &relation, const std::string &value);
+
   bool checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower);
 
   bool extractQueryKeysFromDesignator(rapidjson::Value &desig, std::vector<std::string> &keys);

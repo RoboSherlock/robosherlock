@@ -57,6 +57,18 @@
     
 
 
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#canHoldAmount -->
+
+    <owl:DatatypeProperty rdf:about="http://knowrob.org/kb/iai-kitchen.owl#canHoldAmount"/>
+    
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#hasVolume -->
+
+    <owl:DatatypeProperty rdf:about="http://knowrob.org/kb/iai-kitchen.owl#hasVolume"/>
+    
+
+
     <!-- http://knowrob.org/kb/knowrob.owl#pathToCadModel -->
 
     <owl:DatatypeProperty rdf:about="http://knowrob.org/kb/knowrob.owl#pathToCadModel"/>
@@ -79,6 +91,12 @@
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#AlbiHimbeerJuice">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Juice"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#hasIngredient"/>
+                <owl:someValuesFrom rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#Raspberry"/>
+            </owl:Restriction>
+        </rdfs:subClassOf>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#hasObjectPart"/>
@@ -325,6 +343,18 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#IkeaGlass">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#DrinkingGlass"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#canHoldAmount"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.5</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#hasVolume"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.5</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -555,6 +585,14 @@
     
 
 
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#Raspberry -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#Raspberry">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#EdibleFruit"/>
+    </owl:Class>
+    
+
+
     <!-- http://knowrob.org/kb/iai-kitchen.owl#RedMetalBowlWhiteSpeckles -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#RedMetalBowlWhiteSpeckles">
@@ -775,6 +813,30 @@
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#WhiteCeramicIkeaBowl">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl-Eating"/>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#canHoldAmount"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.5</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#canHoldAmount"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1.0</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#hasVolume"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">0.5</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
+        <rdfs:subClassOf>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#hasVolume"/>
+                <owl:hasValue rdf:datatype="http://www.w3.org/2001/XMLSchema#float">1.0</owl:hasValue>
+            </owl:Restriction>
+        </rdfs:subClassOf>
     </owl:Class>
     
 
@@ -931,6 +993,12 @@
     <!-- http://knowrob.org/kb/knowrob.owl#DrinkingMug -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    
+
+
+    <!-- http://knowrob.org/kb/knowrob.owl#EdibleFruit -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/knowrob.owl#EdibleFruit"/>
     
 
 

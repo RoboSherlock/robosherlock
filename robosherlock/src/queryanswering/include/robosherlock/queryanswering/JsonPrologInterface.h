@@ -106,6 +106,7 @@ public:
    * */
   bool q_hasClassProperty(std::string obj, std::string relation, std::string subject);
 
+  bool q_getClassProperty(std::string subject, std::string relation, std::string object);
 
   /*
    * assert terms of the query language and types that correspond to these terms

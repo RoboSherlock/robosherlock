@@ -184,6 +184,61 @@ bool SWIPLInterface::q_subClassOf(std::string child, std::string parent)
   }
 }
 
+
+bool SWIPLInterface::q_getClassProperty(std::string subject, std::string relation, std::string value)
+{
+//  if (!addNamespace(object))
+//  {
+//    outWarn(object << " is not found under any of the namespaces");
+//    return false;
+//  }
+  std::stringstream ss;
+  ss<<"literal(type('http://www.w3.org/2001/XMLSchema#float','"<<value<<"'))";
+  value = ss.str();
+  if (!addNamespace(subject))
+  {
+    outWarn(subject << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(relation, "data-property"))
+  {
+    outWarn(relation << " is not found under any of the namespaces");
+    return false;
+  }
+  std::lock_guard<std::mutex> lock(lock_);
+  setEngine();
+  PlTermv av(3);
+  std::stringstream query;
+  query << "owl_class_properties(" << subject << "," << relation << "," << value << ")";
+  av[0] = subject.c_str();
+  av[1] = relation.c_str();
+  av[2] = value.c_str();
+  int res;  // = PlCall("owl_subclass_of", av);
+  outDebug("Calling Query: " << query.str());
+  try
+  {
+    res = PlCall(query.str().c_str());
+    outDebug("result of PlCall:" << res);
+    if (res)
+    {
+      outDebug(subject << " is in  " << relation << " with: " << value);
+      return true;
+    }
+    else
+    {
+      outDebug(subject << " is not in  " << relation << " with: " << value);
+      return false;
+    }
+  }
+  catch (PlException& ex)
+  {
+    outError((char*)ex);
+    return false;
+  }
+  return true;
+}
+
+
 bool SWIPLInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
 {
   if (!addNamespace(object))
@@ -198,7 +253,7 @@ bool SWIPLInterface::q_hasClassProperty(std::string subject, std::string relatio
   }
   if (!addNamespace(relation, "obj-property"))
   {
-    outWarn(subject << " is not found under any of the namespaces");
+    outWarn(relation << " is not found under any of the namespaces");
     return false;
   }
   std::lock_guard<std::mutex> lock(lock_);
@@ -536,6 +591,9 @@ bool SWIPLInterface::addNamespace(std::string& s, std::string type)
       else if (type == "obj-property")
         prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE
                     << ",'http://www.w3.org/2002/07/owl#ObjectProperty').";
+      else if (type == "data-property")
+        prologQuery << "rdf_has('" << ns << s << "'," << RDF_TYPE
+                    << ",'http://www.w3.org/2002/07/owl#DatatypeProperty').";
       if (PlCall(prologQuery.str().c_str()))
       {
         s = "'" + ns + s + "'";

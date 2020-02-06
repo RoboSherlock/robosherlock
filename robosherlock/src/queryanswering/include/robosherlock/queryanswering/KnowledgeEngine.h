@@ -59,6 +59,9 @@ public:
    */
   virtual bool q_hasClassProperty(std::string subject, std::string relation, std::string object) = 0;
 
+
+  virtual bool q_getClassProperty(std::string subject, std::string relation, std::string object) = 0;
+
   /**
    * @brief checkValidQueryTerm verify if term of query language has been defined in KB
    * @param term term to verify
@@ -153,7 +156,7 @@ public:
    */
   bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
   {
-    outInfo("Asserting annotators to KB");
+    outDebug("Asserting annotators to KB");
     for(const std::pair<std::string, rs::AnnotatorCapabilities> &annotatorData : caps)
     {
       std::string nameWithNS;
@@ -163,7 +166,7 @@ public:
         instanceFromClass(nameWithNS, individualsOf);
         for(auto individualOfAnnotator : individualsOf)
         {
-          outInfo(individualOfAnnotator);
+          outDebug(individualOfAnnotator);
           std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
           std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
 
@@ -182,7 +185,7 @@ public:
                     outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
                     continue;
                   }
-                  outInfo(d);
+                  outDebug(d);
                   inputTypeConstraintInKnowRob.push_back(d);
                 }
 
@@ -195,7 +198,7 @@ public:
                   t[0] = std::toupper(t[0]);
                   typeClass.append(t);
                 }
-                outInfo(typeName << ":" << typeClass);
+                outDebug(typeName << ":" << typeClass);
                 addNamespace(typeClass);
                 assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
               }
@@ -217,7 +220,7 @@ public:
                     outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
                     continue;
                   }
-                  outInfo(d);
+                  outDebug(d);
                   resultDomainInKnowRob.push_back(d);
                 }
 
@@ -230,7 +233,7 @@ public:
                   t[0] = std::toupper(t[0]);
                   typeClass.append(t);
                 }
-                outInfo(typeName << ":" << typeClass);
+                outDebug(typeName << ":" << typeClass);
                 addNamespace(typeClass);
                 assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
               }
