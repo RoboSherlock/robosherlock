@@ -7,8 +7,8 @@ SWIPLInterface::SWIPLInterface()
   std::lock_guard<std::mutex> lock(lock_);
   int argc = 0;
   argv[argc++] = (char*)"robosherlock";
-   argv[argc++] = "-g";
-   argv[argc++] = "true";
+  argv[argc++] = "-g";
+  argv[argc++] = "true";
   // Inhibit any signal handling by Prolog
   argv[argc++] = (char*)"--signals=false";
   // set the file to load at startup
@@ -91,7 +91,7 @@ void SWIPLInterface::printQueryKeys()
     std::shared_ptr<PlQuery> q(new PlQuery("rs_type_for_predicate", av));
     while (q->next_solution())
     {
-      outDebug((char*)av[0]<<" "<<(char*)av[1]);
+      outDebug((char*)av[0] << " " << (char*)av[1]);
     }
   }
   catch (PlException& ex)
@@ -303,7 +303,7 @@ bool SWIPLInterface::assertQueryLanguage(
     outError(static_cast<char*>(ex));
   }
   printQueryKeys();
-  //releaseEngine();
+  // releaseEngine();
   return true;
 }
 

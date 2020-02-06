@@ -104,8 +104,6 @@ public:
   /*brief
    * check for a class property
    * */
-  bool q_classProperty(std::string className, std::string property, std::string value);
-
   bool q_hasClassProperty(std::string obj, std::string relation, std::string subject);
 
 
@@ -114,7 +112,7 @@ public:
    * in: map of keyword to types in the typesystem corresponding to the keys;
    * out true on success
    * */
-  bool assertQueryLanguage(std::map<std::string, std::vector<std::string>> &query_terms);
+  bool assertQueryLanguage(std::vector<std::tuple <std::string, std::vector<std::string>,int>> &query_terms);
 
   bool retractQueryLanguage();
 
