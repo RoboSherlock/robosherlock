@@ -207,7 +207,9 @@ int main(int argc, char* argv[])
       {
         rsaae->resetCas();
         rsaae->processOnce();
-        
+        // Add the finished CAS ptr to the CASConsumerContext 
+        rs::CASConsumerContext::getInstance().addCAS(rsaae->getAAEName(), rsaae->getCas());
+
         if (publishResults)
         {
           std::vector<std::string> obj_descriptions;
@@ -230,6 +232,8 @@ int main(int argc, char* argv[])
         cas_consumer->processOnce(); 
         rs::CASConsumerContext::getInstance().clearCASes();
       }
+      // Clear up CASes after consumption modules are done
+      rs::CASConsumerContext::getInstance().clearCASes();
 
       rate.sleep();
     }
