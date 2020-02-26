@@ -25,6 +25,7 @@ def create_xml_def(pathToPackage,annotatorName):
     f = open(pathToXmlLocation+xmlFileName, 'w')
     txt = ("annotator:\n"
            "  implementation: "+libName+"\n"
+           "  name: "+annotatorName+"\n"
            "parameters:\n"
            "  test_param: 0.01\n"
            "capabilities:\n"
@@ -43,10 +44,10 @@ def create_cpp_source(pathToPackage,annotatorName):
     f = open(pathToCppLocation+cppFileName, 'w')
     txt = ("#include <uima/api.hpp>\n\n"
            "#include <pcl/point_types.h>\n"
-           "#include <rs/types/all_types.h>\n"
+           "#include <robosherlock/types/all_types.h>\n"
            "//RS\n"
-           "#include <rs/scene_cas.h>\n"
-           "#include <rs/utils/time.h>\n\n"
+           "#include <robosherlock/scene_cas.h>\n"
+           "#include <robosherlock/utils/time.h>\n\n"
            "using namespace uima;\n\n\n"
            "class "+annotatorName+" : public Annotator\n{\n"
            "private:\n"
