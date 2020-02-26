@@ -200,11 +200,6 @@ TyErrorId TransparentSegmentationAnnotator::processWithLock(
       cluster.rois(roi);
       cluster.points(points);
       cluster.source.set("TransparentSegmentation");
-      rs::Detection det = rs::create<rs::Detection>(tcas);
-      det.source("TransparentSegmentation");
-      det.name("IkeaGlass");
-      det.confidence(1.0);
-      cluster.annotations.append(det);
       scene.identifiables.append(cluster);
     }
 
