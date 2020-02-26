@@ -43,7 +43,7 @@ echo 'set(CMAKE_MODULE_PATH   ${PROJECT_SOURCE_DIR}/cmake)'>> $CMakefile
 echo '################################################################################'>> $CMakefile
 echo '## Configure project configuration files                                      ##'>> $CMakefile
 echo '################################################################################'>> $CMakefile
-echo 'configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)'>> $CMakefile
+echo 'configure_file(${RS_PROJECT_CONFIG} ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake)'>> $CMakefile
 echo '################################################################################'>> $CMakefile
 echo '## Find all include directories                                               ##'>> $CMakefile
 echo '################################################################################'>> $CMakefile
