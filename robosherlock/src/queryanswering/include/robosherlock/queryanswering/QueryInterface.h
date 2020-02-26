@@ -8,6 +8,7 @@
 
 //STL
 #include <vector>
+#include <tuple>
 
 //RS
 #include <robosherlock/utils/output.h>
@@ -75,6 +76,10 @@ public:
   bool filterResults(std::vector<std::string> &resultDesignators, std::vector<std::string> &filteredResponse, std::vector<bool> &designatorsToKeep);
 
   bool checkSubClass(const std::string &resultValue, const std::string &queryValue);
+
+  bool checkClassProperty(const std::string &subject, const std::string &relation, const std::string &object);
+
+  bool checkValueRestriction(const std::string &subject, const std::string &relation, const std::string &value);
 
   bool checkThresholdOnList(rapidjson::Value &list, const float threshold, std::string requestedKey, bool keepLower);
 

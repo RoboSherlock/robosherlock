@@ -51,6 +51,18 @@ public:
   virtual bool q_subClassOf(std::string child, std::string parent) = 0;
 
   /**
+   * @brief q_hasClassProperty
+   * @param obj object of relation
+   * @param relation type
+   * @param subject of relation
+   * @return true of relation exists e.g. Cup hasObjectPart Handle
+   */
+  virtual bool q_hasClassProperty(std::string subject, std::string relation, std::string object) = 0;
+
+
+  virtual bool q_getClassProperty(std::string subject, std::string relation, std::string object) = 0;
+
+  /**
    * @brief checkValidQueryTerm verify if term of query language has been defined in KB
    * @param term term to verify
    * @return true if defined
@@ -84,14 +96,14 @@ public:
    * These are defined in ${PROJECT_ROOT}/config/query_specifications.ini
    * @return true on success
    */
-  virtual bool assertQueryLanguage(std::map <std::string, std::vector<std::string>> &query_terms) = 0;
+  virtual bool assertQueryLanguage(  std::vector<std::tuple <std::string, std::vector<std::string>,int>> &query_terms) = 0;
 
   /**
    * @brief addNamespace find namespace of an entry in the knowledge base and append it to entry
    * @param entry the entry we are searching for in the KB
    * @return true on success
    */
-  virtual bool addNamespace(std::string &entry) = 0;
+  virtual bool addNamespace(std::string &entry, std::string type="class") = 0;
 
   /**
    * @brief addNamespace alternative implementation of adding a namespace
@@ -144,7 +156,7 @@ public:
    */
   bool assertAnnotators(const std::map<std::string, rs::AnnotatorCapabilities> &caps)
   {
-    outInfo("Asserting annotators to KB");
+    outDebug("Asserting annotators to KB");
     for(const std::pair<std::string, rs::AnnotatorCapabilities> &annotatorData : caps)
     {
       std::string nameWithNS;
@@ -154,7 +166,7 @@ public:
         instanceFromClass(nameWithNS, individualsOf);
         for(auto individualOfAnnotator : individualsOf)
         {
-          outInfo(individualOfAnnotator);
+          outDebug(individualOfAnnotator);
           std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
           std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
 
@@ -173,7 +185,7 @@ public:
                     outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
                     continue;
                   }
-                  outInfo(d);
+                  outDebug(d);
                   inputTypeConstraintInKnowRob.push_back(d);
                 }
 
@@ -186,7 +198,7 @@ public:
                   t[0] = std::toupper(t[0]);
                   typeClass.append(t);
                 }
-                outInfo(typeName << ":" << typeClass);
+                outDebug(typeName << ":" << typeClass);
                 addNamespace(typeClass);
                 assertInputTypeConstraint(individualOfAnnotator, inputTypeConstraintInKnowRob, typeClass);
               }
@@ -208,7 +220,7 @@ public:
                     outWarn("output domain element: [ " << d << " ] is not defined in Ontology. Will not be considered durin query answering");
                     continue;
                   }
-                  outInfo(d);
+                  outDebug(d);
                   resultDomainInKnowRob.push_back(d);
                 }
 
@@ -221,7 +233,7 @@ public:
                   t[0] = std::toupper(t[0]);
                   typeClass.append(t);
                 }
-                outInfo(typeName << ":" << typeClass);
+                outDebug(typeName << ":" << typeClass);
                 addNamespace(typeClass);
                 assertOutputTypeRestriction(individualOfAnnotator, resultDomainInKnowRob, typeClass);
               }

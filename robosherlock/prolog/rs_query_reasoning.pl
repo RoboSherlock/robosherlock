@@ -40,6 +40,7 @@
   assert_test_pipeline/0,
   assert_query_lang/0,
   retract_query_lang/0,
+  assert_test_case/0,
   retract_all_annotators/0,
   retract_query_assertions/0
 ]).
@@ -298,30 +299,39 @@ build_pipeline(ListOfAnnotators,EvaluationList):-
 
 % Map a predefined set of predicates to Annotator Outputs
 annotators_for_predicate(P,A) :-
+	%print_message(warning, ["Looking for type of", P]),
         rs_type_for_predicate(P,T),
+	%print_message(warning, ["Found type: ", T]),
         annotator_outputs(A, T).
+	%print_message(warning, ["Found an annotator that outputs this type: ", A]).
 
 
 annotator_satisfies_domain_constraints(Key,A):-
+	%print_message(warning, "annotator keresese elott"),
         annotators_for_predicate(Key, A),
+	%print_message(warning, "annotator keresese utan" ),
         rs_type_for_predicate(Key, Type),
+	%print_message(warning, Type),
         owl_individual_of(I,A),
         ((compute_annotator_output_type_domain(I,Type,DList),requestedValueForKey(Key,Val)) -> % these relations get asserted when RoboSherlock starts; TODO: requested value for type; 
           ( Val\='' ->
 	  member(class(D),DList),
 	  rdf_global_id(Val,ValURI),
-	  owl_subclass_of(D,ValURI);true);false)	.
+	  (owl_subclass_of(D,ValURI);key_is_property(Key));true);false)	.
   
 
 % Predicates : list of predicates
 % Annotators that satisfy the value constraint set ona  key;
 annotators_satisfying_domain_constraints(Predicates, A):-
-	member(P,Predicates), 
+	member(P,Predicates),
 	annotator_satisfies_domain_constraints(P, A). 
 
 % given a list of predicates get a list of pipelines
 pipeline_from_predicates_with_domain_constraint(ListOfPredicates,Pipeline):-
+	%print_message(warning, "PLanning a pipeline with domain constraints"),
 	setof(X,annotators_satisfying_domain_constraints(ListOfPredicates, X), Annotators), % Only build one list of annotators for the given Predicates
+	%print_message(warning,['Found List ', Annotators]),
+	write('****************************FOUND A GOOD ANNOTATOR'),
 	build_pipeline(Annotators, Pipeline),
 	forall(member(P,Pipeline), can_inputs_be_provided_for_annotator(P)).
 	
@@ -355,7 +365,7 @@ assert_test_pipeline:-
     owl_instance_from_class(rs_components:'SacModelAnnotator',SI),set_annotator_output_type_domain(SI,[rs_components:'Cylinder'],rs_components:'RsAnnotationShape'),
     owl_instance_from_class(rs_components:'PCLDescriptorExtractor',_),	
     owl_instance_from_class(rs_components:'CaffeAnnotator',_),
-    owl_instance_from_class(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl'], rs_components:'RsAnnotationClassification'),
+    owl_instance_from_class(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
     owl_instance_from_class(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection'),
     assert(requestedValueForKey(shape,rs_components:'Box')).
     
@@ -373,6 +383,7 @@ assert_query_lang:-
 	assert(rs_query_predicate(contains)),
 	assert(rs_query_predicate(timestamp)),
 	assert(rs_query_predicate(location)),
+	assert(rs_query_predicate(has-ingredient)),
 	rdf_global_id(rs_components:'RsAnnotationShape',A),assert(rs_type_for_predicate(shape, A)),
 	rdf_global_id(rs_components:'RsAnnotationSemanticcolor',B),assert(rs_type_for_predicate(color, B)),
 	rdf_global_id(rs_components:'RsAnnotationGeometry',C),
@@ -386,7 +397,14 @@ assert_query_lang:-
 	assert(rs_type_for_predicate(type, E)),
 	assert(rs_type_for_predicate(type, D)),
 	assert(rs_type_for_predicate(location, C)),
-	assert(rs_type_for_predicate(pose, F)).
+	assert(rs_type_for_predicate(pose, F)),
+	assert(rs_type_for_predicate(has-ingredient, E)),
+	assert(rs_type_for_predicate(has-ingredient, D)),
+	assert(key_is_property(has-ingredient)).
+
+assert_test_case:-
+	assert_query_lang, 
+	assert_test_pipeline.
 
 retract_query_lang:-
 	retractall(rs_query_predicate(_)),
