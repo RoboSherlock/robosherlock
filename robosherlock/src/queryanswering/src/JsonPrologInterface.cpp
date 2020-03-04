@@ -12,14 +12,14 @@ JsonPrologInterface::JsonPrologInterface()
 bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::string& value)
 {
   std::stringstream assertionQuery;
-  assertionQuery << "assert(requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
+  assertionQuery << "assert(rs_query_reasoning:requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
   outInfo("Calling query: " << assertionQuery.str());
   PrologQuery bdgs = queryWithLock(assertionQuery.str());
   if (bdgs.begin() != bdgs.end())
   {
     outInfo("Asserted: " << assertionQuery.str());
     return true;
-  }
+  }   
   else
   {
     outError("Asserttion: " << assertionQuery.str() << " failed!");
@@ -29,7 +29,8 @@ bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::s
 
 bool JsonPrologInterface::retractQueryKvPs()
 {
-  queryWithLock("retract(requestedValueForKey(_,_))");
+  queryWithLock("retract(rs_query_reasoning:requestedValueForKey(_,_))");
+  queryWithLock("retract(rs_query_reasoning:key_is_property(_))");
   return true;
 }
 
@@ -134,10 +135,10 @@ bool JsonPrologInterface::retractQueryLanguage()
   try
   {
     std::stringstream query;
-    query << "retractall(rs_type_for_predicate(_,_))";
+    query << "retractall(rs_query_reasoning:rs_type_for_predicate(_,_))";
     queryWithLock(query.str());
     query.str("");
-    query << "retractall(rs_query_predicate(_))";
+    query << "retractall(rs_query_reasoning:rs_query_predicate(_))";
     queryWithLock(query.str());
   }
   catch (...)
@@ -151,6 +152,7 @@ bool JsonPrologInterface::q_hasClassProperty(std::string subject, std::string re
   outWarn("HAS CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
   return false;
 }
+
 bool JsonPrologInterface::q_getClassProperty(std::string subject, std::string relation, std::string object)
 {
     outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
@@ -169,7 +171,7 @@ bool JsonPrologInterface::assertQueryLanguage(
     std::tie(q_predicate, types, type_of_predicate) = term;
 
     std::stringstream query;
-    query << "assert(rs_query_predicate(" << q_predicate << "))";
+    query << "assert(rs_query_reasoning:rs_query_predicate(" << q_predicate << "))";
     PrologQuery bdgs = queryWithLock(query.str());
     bool res1 = false, res2 = false;
     if (bdgs.begin() != bdgs.end())
@@ -180,7 +182,7 @@ bool JsonPrologInterface::assertQueryLanguage(
     if (type_of_predicate == 1)
     {
       query.str("");
-      query << "assert(key_is_property(" << q_predicate << "))";
+      query << "assert(rs_query_reasoning:key_is_property(" << q_predicate << "))";
       bdgs = queryWithLock(query.str());
       if (bdgs.begin() != bdgs.end())
       {
@@ -203,7 +205,7 @@ bool JsonPrologInterface::assertQueryLanguage(
       query.str("");
       std::string krTypeClass;
       KnowledgeEngine::addNamespace(krType.str(), krTypeClass);
-      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_type_for_predicate(" << q_predicate << ",A))";
+      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_query_reasoning:rs_type_for_predicate(" << q_predicate << ",A))";
       PrologQuery bdgs = queryWithLock(query.str());
       if (bdgs.begin() != bdgs.end())
       {
@@ -217,7 +219,7 @@ bool JsonPrologInterface::assertQueryLanguage(
 bool JsonPrologInterface::instanceFromClass(const std::string& class_name, std::vector<std::string>& individualsOF)
 {
   std::stringstream prologQuery;
-  prologQuery << "owl_instance_from_class(" << class_name << ","
+  prologQuery << "kb_create(" << class_name << ","
               << "I)";
   PrologQuery bdgs = queryWithLock(prologQuery.str());
   for (auto bdg : bdgs)
@@ -273,7 +275,7 @@ bool JsonPrologInterface::assertOutputTypeRestriction(const std::string& individ
                                                       const std::vector<std::string>& values, std::string& type)
 {
   std::stringstream query;
-  query << "set_annotator_output_type_domain(" << individual << ",[";
+  query << "set_annotator_output_type_domain('" << individual << "',[";
   std::string separator = ",";
   for (auto it = values.begin(); it != values.end(); ++it)
   {
@@ -301,7 +303,7 @@ bool JsonPrologInterface::addNamespace(std::string& entry, std::string entry_typ
     for (auto bdg : bdgs)
     {
       std::string ns = bdg["A"].toString();
-      ns = ns.substr(1, ns.size() - 2);
+//      ns = ns.substr(0, ns.size() - 1);
       if (std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
       {
         krNamespaces_.push_back(ns);
