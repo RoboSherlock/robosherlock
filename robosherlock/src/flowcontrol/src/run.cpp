@@ -58,7 +58,7 @@ void help()
             << "        _pervasive:=true|false     Enable/Disable running the pipeline defined in the analysis engine "
                "xml"
             << std::endl
-            << "         _parallel:=true|false     Enable/Disable parallel execution of pipeline (json_prolog is "
+            << "         _parallel:=true|false     Enable/Disable parallel execution of pipeline (rosprolog is "
                "required)"
             << std::endl
             << "        _withIDRes:=true|false     Enable/Disable running object identity resolution" << std::endl

@@ -260,7 +260,7 @@ bool RSAggregateAnalysisEngine::initParallelPipelineManager()
   }
   catch (...)
   {
-    outError("Unknown error has occured! Probaly json_prolog is not running");
+    outError("Unknown error has occured! Probaly rosprolog is not running");
   }
 
   return querySuccess;
