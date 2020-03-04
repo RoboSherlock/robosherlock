@@ -303,7 +303,7 @@ bool JsonPrologInterface::addNamespace(std::string& entry, std::string entry_typ
     for (auto bdg : bdgs)
     {
       std::string ns = bdg["A"].toString();
-//      ns = ns.substr(0, ns.size() - 1);
+      //      ns = ns.substr(0, ns.size() - 1);
       if (std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
       {
         krNamespaces_.push_back(ns);

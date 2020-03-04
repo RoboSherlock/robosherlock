@@ -371,7 +371,7 @@ assert_test_pipeline:-
     kb_create(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection').
    
 assert_query:-
-    assert(requestedValueForKey(shape,rs_components:'Cylinder')).
+    assert(requestedValueForKey(shape,rs_components:'Box')).
  
 assert_query_lang:-
 	assert(rs_query_predicate(shape)),
@@ -408,7 +408,8 @@ assert_query_lang:-
 
 assert_test_case:-
 	assert_query_lang, 
-	assert_test_pipeline.
+	assert_test_pipeline,   
+    assert_query.
 
 retract_query_lang:-
 	retractall(rs_query_predicate(_)),
