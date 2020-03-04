@@ -12,14 +12,15 @@ JsonPrologInterface::JsonPrologInterface()
 bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::string& value)
 {
   std::stringstream assertionQuery;
-  assertionQuery << "assert(rs_query_reasoning:requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
+  assertionQuery << "assert(rs_query_reasoning:requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value)
+                 << "))";
   outInfo("Calling query: " << assertionQuery.str());
   PrologQuery bdgs = queryWithLock(assertionQuery.str());
   if (bdgs.begin() != bdgs.end())
   {
     outInfo("Asserted: " << assertionQuery.str());
     return true;
-  }   
+  }
   else
   {
     outError("Asserttion: " << assertionQuery.str() << " failed!");
@@ -30,7 +31,6 @@ bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::s
 bool JsonPrologInterface::retractQueryKvPs()
 {
   queryWithLock("retract(rs_query_reasoning:requestedValueForKey(_,_))");
-  queryWithLock("retract(rs_query_reasoning:key_is_property(_))");
   return true;
 }
 
@@ -138,7 +138,7 @@ bool JsonPrologInterface::retractQueryLanguage()
     query << "retractall(rs_query_reasoning:rs_type_for_predicate(_,_))";
     queryWithLock(query.str());
     query.str("");
-    query << "retractall(rs_query_reasoning:rs_query_predicate(_))";
+    query << "retractall(rs_query_predicate(_))";
     queryWithLock(query.str());
   }
   catch (...)
@@ -149,16 +149,43 @@ bool JsonPrologInterface::retractQueryLanguage()
 
 bool JsonPrologInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
 {
-  outWarn("HAS CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
-  return false;
+  if (!addNamespace(object))
+  {
+    outWarn(object << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(subject))
+  {
+    outWarn(subject << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(relation, "obj-property"))
+  {
+    outWarn(relation << " is not found under any of the namespaces");
+    return false;
+  }
+  std::stringstream query;
+  query << "owl_has(" << subject << ", rdfs:subClassOf, O),"
+        << "owl_restriction(O, restriction(" << relation << ", some_values_from(" << object << ")))";
+
+  PrologQuery bdgs = queryWithLock(query.str());
+  if (bdgs.begin() != bdgs.end())
+  {
+    outDebug(subject << " is in  " << relation << " with: " << object);
+    return true;
+  }
+  else
+  {
+    outDebug(subject << " is not in  " << relation << " with: " << object);
+    return false;
+  }
 }
 
 bool JsonPrologInterface::q_getClassProperty(std::string subject, std::string relation, std::string object)
 {
-    outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
-    return false;
+  outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
+  return false;
 }
-
 
 bool JsonPrologInterface::assertQueryLanguage(
     std::vector<std::tuple<std::string, std::vector<std::string>, int>>& query_terms)
@@ -171,7 +198,7 @@ bool JsonPrologInterface::assertQueryLanguage(
     std::tie(q_predicate, types, type_of_predicate) = term;
 
     std::stringstream query;
-    query << "assert(rs_query_reasoning:rs_query_predicate(" << q_predicate << "))";
+    query << "assert(rs_query_predicate(" << q_predicate << "))";
     PrologQuery bdgs = queryWithLock(query.str());
     bool res1 = false, res2 = false;
     if (bdgs.begin() != bdgs.end())
@@ -205,7 +232,8 @@ bool JsonPrologInterface::assertQueryLanguage(
       query.str("");
       std::string krTypeClass;
       KnowledgeEngine::addNamespace(krType.str(), krTypeClass);
-      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_query_reasoning:rs_type_for_predicate(" << q_predicate << ",A))";
+      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_query_reasoning:rs_type_for_predicate(" << q_predicate
+            << ",A))";
       PrologQuery bdgs = queryWithLock(query.str());
       if (bdgs.begin() != bdgs.end())
       {
