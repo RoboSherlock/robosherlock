@@ -17,7 +17,7 @@
 
 #include <robosherlock/queryanswering/QueryInterface.h>
 #include <robosherlock/queryanswering/SWIPLInterface.h>
-#include <robosherlock/queryanswering/JsonPrologInterface.h>
+#include <robosherlock/queryanswering/RosPrologInterface.h>
 #include <robosherlock/io/CollectionReader.h>
 
 #include <robosherlock/feature_structure_proxy.h>

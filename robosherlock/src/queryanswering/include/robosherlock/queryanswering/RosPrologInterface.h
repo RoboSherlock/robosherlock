@@ -36,15 +36,15 @@
 namespace rs
 {
 
-class JsonPrologInterface: public rs::KnowledgeEngine
+class RosPrologInterface: public rs::KnowledgeEngine
 {
 
   PrologClient pl_;
 
 public:
 
-  JsonPrologInterface();
-  ~JsonPrologInterface() {};
+  RosPrologInterface();
+  ~RosPrologInterface() {};
 
   /**
    * @brief planPipelineQuery

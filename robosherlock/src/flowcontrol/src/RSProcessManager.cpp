@@ -22,7 +22,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
     outInfo("Setting KnowRob (through rosprolog interface) as the knowledge engine.");
 #if WITH_ROS_PROLOG
     if(ros::service::waitForService("rosprolog/query", ros::Duration(60.0)))
-      knowledge_engine_ = std::make_shared<rs::JsonPrologInterface>();
+      knowledge_engine_ = std::make_shared<rs::RosPrologInterface>();
     else
       throw rs::Exception("rosprolog client sercivice not reachable");
 #else
