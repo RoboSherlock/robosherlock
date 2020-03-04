@@ -122,12 +122,14 @@ compute_annotator_input_type_restriction(AnnotatorI, Type, Domain):-
 % Get outputs of Annotator
 compute_annotator_outputs(Annotator,Output) :- 
 	annotators(Annotator), 
-	owl_class_properties(Annotator,rs_components:'perceptualOutput',Output).
+	owl_has(Annotator,rdfs:subClassOf, O),
+    owl_restriction(O, restriction(rs_components:'perceptualOutput',some_values_from(Output))).
 
 % Get inputs of Annotator
 compute_annotator_inputs(Annotator,Input) :- 
 	annotators(Annotator), 
-	owl_class_properties(Annotator,rs_components:'perceptualInputRequired',Input).
+	owl_has(Annotator,rdfs:subClassOf,O),
+    owl_restriction(O, restriction(rs_components:'perceptualInputRequired',some_values_from(Input))).
 
 % cache outputs/inputs
 :- forall(compute_annotator_outputs(A,O), assert(annotator_outputs(A,O)) ).
