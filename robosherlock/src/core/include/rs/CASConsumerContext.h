@@ -43,12 +43,25 @@ protected:
 public:
   /** Add a new CAS that should be accessible for the CAS Consumers **/
   void addCAS(std::string identifier, uima::CAS* cas);
+
   /** Remove a CAS by its identifier. Returns true if key was presented **/
   bool removeCAS(std::string identifier);
+
   /** Get CAS by the identifier you've used in addCAS. Returns nullptr if identifier couldn't be found. **/
   uima::CAS* getCAS(std::string identifier);
+
   /** Remove all stored CAS pointers in this CASConsumerContext **/
   void clearCASes();
+
+  /**
+   * Get a list of every identifier that is currently presented in the CASConsumerContext.
+   * The order of the identifiers in the list is alphabetically (std::Map default) and
+   * _NOT_ in the order they have been added.
+   *
+   * @return List of identifiers
+   */
+  std::vector<std::string> getCASIdentifiers();
+
 };
 } // End of namespace 'rs'
 #endif  // ROBOSHERLOCK_CASCONSUMERCONTEXT_H

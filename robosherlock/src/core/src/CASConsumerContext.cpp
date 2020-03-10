@@ -3,6 +3,7 @@
 //
 
 #include "rs/CASConsumerContext.h"
+#include <algorithm>
 
 using namespace rs;
 
@@ -26,8 +27,17 @@ uima::CAS* CASConsumerContext::getCAS(std::string identifier)
 
   return nullptr;
 }
+
 // Remove all stored CAS pointers in this CASConsumerContext
 void CASConsumerContext::clearCASes()
 {
   CASes.clear();
+}
+
+std::vector<std::string> CASConsumerContext::getCASIdentifiers() {
+    std::vector<std::string> ret;
+    for (auto const& element : CASes) {
+        ret.push_back(element.first);
+    }
+    return ret;
 }
