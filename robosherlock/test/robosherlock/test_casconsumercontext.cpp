@@ -55,16 +55,6 @@ TEST_F(CASConsumerContextTest, AddingAndRemoving)
     EXPECT_EQ(2, second_list_of_cas_identifiers.size());
     EXPECT_STREQ("chirdcas", second_list_of_cas_identifiers[0].c_str() );
     EXPECT_STREQ("testcas", second_list_of_cas_identifiers[1].c_str() );
-
-
-//
-//    /** Remove a CAS by its identifier. Returns true if key was presented **/
-//    bool removeCAS(std::string identifier);
-//
-//    /** Get CAS by the identifier you've used in addCAS. Returns nullptr if identifier couldn't be found. **/
-//    uima::CAS* getCAS(std::string identifier);
-//    /** Remove all stored CAS pointers in this CASConsumerContext **/
-//    void clearCASes();
 }
 
 TEST_F(CASConsumerContextTest, clearCASes)
