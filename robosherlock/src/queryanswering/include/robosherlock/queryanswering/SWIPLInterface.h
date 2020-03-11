@@ -118,9 +118,7 @@ public:
     setEngine();
     try
     {
-      if(!PlCall("rs_query_reasoning:assert_query_lang"))
-        return false;
-      if(!PlCall("rs_query_reasoning:assert_test_pipeline"))
+      if(!PlCall("rs_query_reasoning:assert_test_case"))
         return false;
       outInfo("Asserted query lang and pipeline for testing");
     }

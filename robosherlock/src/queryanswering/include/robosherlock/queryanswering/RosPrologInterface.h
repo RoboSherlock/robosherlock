@@ -1,7 +1,7 @@
 #ifndef JSONPROLOGINTERFACE_H
 #define JSONPROLOGINTERFACE_H
 
-#ifdef WITH_JSON_PROLOG
+#ifdef WITH_ROS_PROLOG
 
 //YAML parsing
 #include <yaml-cpp/exceptions.h>
@@ -15,8 +15,9 @@
 #include <robosherlock/utils/output.h>
 #include <robosherlock/utils/common.h>
 
-//json_prolog interface
-#include <json_prolog/prolog.h>
+//rosprolog interface
+#include <rosprolog/rosprolog_client/PrologClient.h>
+
 
 //STD
 #include <memory>
@@ -35,15 +36,15 @@
 namespace rs
 {
 
-class JsonPrologInterface: public rs::KnowledgeEngine
+class RosPrologInterface: public rs::KnowledgeEngine
 {
 
-  json_prolog::Prolog pl_;
+  PrologClient pl_;
 
 public:
 
-  JsonPrologInterface();
-  ~JsonPrologInterface() {};
+  RosPrologInterface();
+  ~RosPrologInterface() {};
 
   /**
    * @brief planPipelineQuery
@@ -137,7 +138,7 @@ public:
    */
   std::vector<std::string> createPipelineFromPrologResult(std::string result);
 
-  json_prolog::PrologQueryProxy queryWithLock(const std::string &query);
+  PrologQuery queryWithLock(const std::string &query);
 
 };
 }

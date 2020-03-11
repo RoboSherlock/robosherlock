@@ -122,12 +122,14 @@ compute_annotator_input_type_restriction(AnnotatorI, Type, Domain):-
 % Get outputs of Annotator
 compute_annotator_outputs(Annotator,Output) :- 
 	annotators(Annotator), 
-	owl_class_properties(Annotator,rs_components:'perceptualOutput',Output).
+	owl_has(Annotator,rdfs:subClassOf, O),
+    owl_restriction(O, restriction(rs_components:'perceptualOutput',some_values_from(Output))).
 
 % Get inputs of Annotator
 compute_annotator_inputs(Annotator,Input) :- 
 	annotators(Annotator), 
-	owl_class_properties(Annotator,rs_components:'perceptualInputRequired',Input).
+	owl_has(Annotator,rdfs:subClassOf,O),
+    owl_restriction(O, restriction(rs_components:'perceptualInputRequired',some_values_from(Input))).
 
 % cache outputs/inputs
 :- forall(compute_annotator_outputs(A,O), assert(annotator_outputs(A,O)) ).
@@ -352,23 +354,25 @@ build_pipeline_from_predicates_no_constraints(ListOfPredicates,Pipeline):-
 	build_pipeline(Annotators, Pipeline).
 	
 assert_test_pipeline:-
-    owl_instance_from_class(rs_components:'CollectionReader',_),owl_instance_from_class(rs_components:'ImagePreprocessor',_),
-    owl_instance_from_class(rs_components:'RegionFilter',_),
-    owl_instance_from_class(rs_components:'NormalEstimator',_),
-    owl_instance_from_class(rs_components:'PlaneAnnotator',_),
-    owl_instance_from_class(rs_components:'ImageSegmentationAnnotator',_),
-    owl_instance_from_class(rs_components:'PointCloudClusterExtractor',_),
-    owl_instance_from_class(rs_components:'ClusterMerger',_),
-    owl_instance_from_class(rs_components:'Cluster3DGeometryAnnotator',GI),set_annotator_output_type_domain(GI,[rs_components:'Small',rs_components:'Big',rs_components:'Medium'],rs_components:'RsAnnotationGeometry'),
-    owl_instance_from_class(rs_components:'PrimitiveShapeAnnotator',PI),set_annotator_output_type_domain(PI,[rs_components:'Box',rs_components:'Round'],rs_components:'RsAnnotationShape'),
-    owl_instance_from_class(rs_components:'ClusterColorHistogramCalculator',CI),set_annotator_output_type_domain(CI,[rs_components:'Yellow',rs_components:'Blue'],rs_components:'RsAnnotationSemanticcolor'),
-    owl_instance_from_class(rs_components:'SacModelAnnotator',SI),set_annotator_output_type_domain(SI,[rs_components:'Cylinder'],rs_components:'RsAnnotationShape'),
-    owl_instance_from_class(rs_components:'PCLDescriptorExtractor',_),	
-    owl_instance_from_class(rs_components:'CaffeAnnotator',_),
-    owl_instance_from_class(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
-    owl_instance_from_class(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection'),
+    kb_create(rs_components:'CollectionReader',_),kb_create(rs_components:'ImagePreprocessor',_),
+    kb_create(rs_components:'RegionFilter',_),
+    kb_create(rs_components:'NormalEstimator',_),
+    kb_create(rs_components:'PlaneAnnotator',_),
+    kb_create(rs_components:'ImageSegmentationAnnotator',_),
+    kb_create(rs_components:'PointCloudClusterExtractor',_),
+    kb_create(rs_components:'ClusterMerger',_),
+    kb_create(rs_components:'Cluster3DGeometryAnnotator',GI),set_annotator_output_type_domain(GI,[rs_components:'Small',rs_components:'Big',rs_components:'Medium'],rs_components:'RsAnnotationGeometry'),
+    kb_create(rs_components:'PrimitiveShapeAnnotator',PI),set_annotator_output_type_domain(PI,[rs_components:'Box',rs_components:'Round'],rs_components:'RsAnnotationShape'),
+    kb_create(rs_components:'ClusterColorHistogramCalculator',CI),set_annotator_output_type_domain(CI,[rs_components:'Yellow',rs_components:'Blue'],rs_components:'RsAnnotationSemanticcolor'),
+    kb_create(rs_components:'SacModelAnnotator',SI),set_annotator_output_type_domain(SI,[rs_components:'Cylinder'],rs_components:'RsAnnotationShape'),
+    kb_create(rs_components:'PCLDescriptorExtractor',_),	
+    kb_create(rs_components:'CaffeAnnotator',_),
+    kb_create(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
+    kb_create(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection').
+   
+assert_query:-
     assert(requestedValueForKey(shape,rs_components:'Box')).
-    
+ 
 assert_query_lang:-
 	assert(rs_query_predicate(shape)),
 	assert(rs_query_predicate(color)),
@@ -390,7 +394,7 @@ assert_query_lang:-
 	rdf_global_id(rs_components:'RsAnnotationDetection',D),
  	rdf_global_id(rs_components:'RsAnnotationClassification',E),
 	rdf_global_id(rs_components:'RsAnnotationPose',F),
-        assert(rs_type_for_predicate(size, C)),
+    assert(rs_type_for_predicate(size, C)),
 	assert(rs_type_for_predicate(detection, D)),
 	assert(rs_type_for_predicate(class, E)),
 	assert(rs_type_for_predicate(class, D)),
@@ -404,7 +408,8 @@ assert_query_lang:-
 
 assert_test_case:-
 	assert_query_lang, 
-	assert_test_pipeline.
+	assert_test_pipeline,   
+    assert_query.
 
 retract_query_lang:-
 	retractall(rs_query_predicate(_)),

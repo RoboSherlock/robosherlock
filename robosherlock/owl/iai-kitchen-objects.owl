@@ -10,7 +10,6 @@
      xmlns:knowrob="http://knowrob.org/kb/knowrob.owl#">
     <owl:Ontology rdf:about="http://knowrob.org/kb/iai-kitchen.owl">
         <owl:imports rdf:resource="package://knowrob_common/owl/knowrob.owl"/>
-        <owl:imports rdf:resource="package://knowrob_household/owl/kitchen.owl"/>
     </owl:Ontology>
     
 

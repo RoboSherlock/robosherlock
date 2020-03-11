@@ -39,7 +39,8 @@
       owl_write_readable/1,             % +Resource
       owl_readable/2,                   % +Resource, -Readable
       owl_instance_from_class/2,
-      owl_instance_from_class/3
+      owl_instance_from_class/3,
+      kb_create/2
     ]).
 /** <module> Utilities for handling OWL information in KnowRob.
 
@@ -50,10 +51,6 @@
 
 :- use_module(library('semweb/rdf_db')).
 :- use_module(library('semweb/rdfs')).
-%:- use_module(library('semweb/owl')).
-%:- use_module(library('knowrob/computable')).
-%:- use_module(library('knowrob/rdfs')).
-%:- use_module(library('knowrob/transforms')).
 
 :- rdf_meta owl_compute_individual_of(r, t),
             owl_compute_has(r, r, o),
@@ -67,7 +64,8 @@
             owl_readable(r,-),
             owl_write_readable(r),
             owl_instance_from_class(r,-),
-            owl_instance_from_class(r,t,-).
+            owl_instance_from_class(r,t,-),
+            kb_create(r,-).
 
 % define holds as meta-predicate and allow the definitions
 % to be in different source files
@@ -294,6 +292,9 @@ owl_readable_internal(X,Y) :- compound(X), owl_readable(X,Y).
 owl_instance_from_class(Class, Instance) :-
   ( owl_instance_from_class(Class, [], Instance);
     rdf_instance_from_class(Class, Instance)), !.
+
+kb_create(Class, Instance) :-
+    owl_instance_from_class(Class, Instance).
 
 %%%%%%%%%%%%%%%%%%%
 %% knowrob:TimePoint

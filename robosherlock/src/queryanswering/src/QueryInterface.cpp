@@ -132,7 +132,7 @@ bool QueryInterface::handleDetect(std::vector<std::string>& res)
   }
   catch (std::exception e)
   {
-    outError("calling json_prolog was not successful. Is the node running?");
+    outError("calling rosprolog was not successful. Is the node running?");
     return false;
   }
 

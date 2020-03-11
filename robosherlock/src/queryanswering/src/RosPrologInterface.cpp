@@ -1,20 +1,21 @@
-#include <robosherlock/queryanswering/JsonPrologInterface.h>
+#include <robosherlock/queryanswering/RosPrologInterface.h>
 
-#ifdef WITH_JSON_PROLOG
+#ifdef WITH_ROS_PROLOG
 
 namespace rs
 {
-JsonPrologInterface::JsonPrologInterface()
+RosPrologInterface::RosPrologInterface()
 {
-  outInfo("Creating ROS Service client for json_prolog");
+  outInfo("Creating ROS Service client for rosprolog");
 }
 
-bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::string& value)
+bool RosPrologInterface::assertValueForKey(const std::string& key, const std::string& value)
 {
   std::stringstream assertionQuery;
-  assertionQuery << "assert(requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value) << "))";
+  assertionQuery << "assert(rs_query_reasoning:requestedValueForKey(" << key << "," << (value == "" ? "\'\'" : value)
+                 << "))";
   outInfo("Calling query: " << assertionQuery.str());
-  json_prolog::PrologQueryProxy bdgs = queryWithLock(assertionQuery.str());
+  PrologQuery bdgs = queryWithLock(assertionQuery.str());
   if (bdgs.begin() != bdgs.end())
   {
     outInfo("Asserted: " << assertionQuery.str());
@@ -27,24 +28,24 @@ bool JsonPrologInterface::assertValueForKey(const std::string& key, const std::s
   }
 }
 
-bool JsonPrologInterface::retractQueryKvPs()
+bool RosPrologInterface::retractQueryKvPs()
 {
-  queryWithLock("retract(requestedValueForKey(_,_))");
+  queryWithLock("retract(rs_query_reasoning:requestedValueForKey(_,_))");
   return true;
 }
 
-bool JsonPrologInterface::checkValidQueryTerm(const std::string& term)
+bool RosPrologInterface::checkValidQueryTerm(const std::string& term)
 {
   std::stringstream checkTermQuery;
   checkTermQuery << "rs_query_predicate(" << term << ")";
-  json_prolog::PrologQueryProxy bindings = queryWithLock(checkTermQuery.str());
+  PrologQuery bindings = queryWithLock(checkTermQuery.str());
   if (bindings.begin() != bindings.end())
     return true;
   else
     return false;
 }
 
-std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std::string>& keys)
+std::string RosPrologInterface::buildPrologQueryFromKeys(const std::vector<std::string>& keys)
 {
   std::string prologQuery = "pipeline_from_predicates_with_domain_constraint([";
   for (unsigned int i = 0; i < keys.size(); i++)
@@ -59,10 +60,10 @@ std::string JsonPrologInterface::buildPrologQueryFromKeys(const std::vector<std:
   return prologQuery;
 }
 
-bool JsonPrologInterface::planPipelineQuery(const std::vector<std::string>& keys, std::vector<std::string>& pipeline)
+bool RosPrologInterface::planPipelineQuery(const std::vector<std::string>& keys, std::vector<std::string>& pipeline)
 {
   outInfo("Calling Json Prolog");
-  json_prolog::PrologQueryProxy bdgs = queryWithLock(buildPrologQueryFromKeys(keys));
+  PrologQuery bdgs = queryWithLock(buildPrologQueryFromKeys(keys));
   if (bdgs.begin() == bdgs.end())
   {
     outInfo("Can't find solution for pipeline planning");
@@ -75,7 +76,7 @@ bool JsonPrologInterface::planPipelineQuery(const std::vector<std::string>& keys
   return true;
 }
 
-std::vector<std::string> JsonPrologInterface::createPipelineFromPrologResult(std::string queryResult)
+std::vector<std::string> RosPrologInterface::createPipelineFromPrologResult(std::string queryResult)
 {
   std::vector<std::string> new_pipeline;
 
@@ -105,14 +106,14 @@ std::vector<std::string> JsonPrologInterface::createPipelineFromPrologResult(std
   return new_pipeline;
 }
 
-bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
+bool RosPrologInterface::q_subClassOf(std::string child, std::string parent)
 {
   std::stringstream prologQuery;
   if (addNamespace(child) && addNamespace(parent))
   {
     prologQuery << "owl_subclass_of(" << child << "," << parent << ").";
     outInfo("Asking Query: " << prologQuery.str());
-    json_prolog::PrologQueryProxy bdgs = queryWithLock(prologQuery.str());
+    PrologQuery bdgs = queryWithLock(prologQuery.str());
     if (bdgs.begin() != bdgs.end())
     {
       outInfo(child << " IS " << parent);
@@ -129,12 +130,12 @@ bool JsonPrologInterface::q_subClassOf(std::string child, std::string parent)
   return false;
 }
 
-bool JsonPrologInterface::retractQueryLanguage()
+bool RosPrologInterface::retractQueryLanguage()
 {
   try
   {
     std::stringstream query;
-    query << "retractall(rs_type_for_predicate(_,_))";
+    query << "retractall(rs_query_reasoning:rs_type_for_predicate(_,_))";
     queryWithLock(query.str());
     query.str("");
     query << "retractall(rs_query_predicate(_))";
@@ -146,19 +147,47 @@ bool JsonPrologInterface::retractQueryLanguage()
   return true;
 }
 
-bool JsonPrologInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
+bool RosPrologInterface::q_hasClassProperty(std::string subject, std::string relation, std::string object)
 {
-  outWarn("HAS CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
+  if (!addNamespace(object))
+  {
+    outWarn(object << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(subject))
+  {
+    outWarn(subject << " is not found under any of the namespaces");
+    return false;
+  }
+  if (!addNamespace(relation, "obj-property"))
+  {
+    outWarn(relation << " is not found under any of the namespaces");
+    return false;
+  }
+  std::stringstream query;
+  query << "owl_has(" << subject << ", rdfs:subClassOf, O),"
+        << "owl_restriction(O, restriction(" << relation << ", some_values_from(" << object << ")))";
+
+  PrologQuery bdgs = queryWithLock(query.str());
+  if (bdgs.begin() != bdgs.end())
+  {
+    outDebug(subject << " is in  " << relation << " with: " << object);
+    return true;
+  }
+  else
+  {
+    outDebug(subject << " is not in  " << relation << " with: " << object);
+    return false;
+  }
+}
+
+bool RosPrologInterface::q_getClassProperty(std::string subject, std::string relation, std::string object)
+{
+  outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
   return false;
 }
-bool JsonPrologInterface::q_getClassProperty(std::string subject, std::string relation, std::string object)
-{
-    outWarn("GET CLASS PROPERTY IS NOT IMPLEMENTED FOR JSON PROLOG INTERFACE");
-    return false;
-}
 
-
-bool JsonPrologInterface::assertQueryLanguage(
+bool RosPrologInterface::assertQueryLanguage(
     std::vector<std::tuple<std::string, std::vector<std::string>, int>>& query_terms)
 {
   for (auto term : query_terms)
@@ -170,7 +199,7 @@ bool JsonPrologInterface::assertQueryLanguage(
 
     std::stringstream query;
     query << "assert(rs_query_predicate(" << q_predicate << "))";
-    json_prolog::PrologQueryProxy bdgs = queryWithLock(query.str());
+    PrologQuery bdgs = queryWithLock(query.str());
     bool res1 = false, res2 = false;
     if (bdgs.begin() != bdgs.end())
     {
@@ -180,7 +209,7 @@ bool JsonPrologInterface::assertQueryLanguage(
     if (type_of_predicate == 1)
     {
       query.str("");
-      query << "assert(key_is_property(" << q_predicate << "))";
+      query << "assert(rs_query_reasoning:key_is_property(" << q_predicate << "))";
       bdgs = queryWithLock(query.str());
       if (bdgs.begin() != bdgs.end())
       {
@@ -203,8 +232,9 @@ bool JsonPrologInterface::assertQueryLanguage(
       query.str("");
       std::string krTypeClass;
       KnowledgeEngine::addNamespace(krType.str(), krTypeClass);
-      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_type_for_predicate(" << q_predicate << ",A))";
-      json_prolog::PrologQueryProxy bdgs = queryWithLock(query.str());
+      query << "rdf_global_id(" << krTypeClass << ",A),assert(rs_query_reasoning:rs_type_for_predicate(" << q_predicate
+            << ",A))";
+      PrologQuery bdgs = queryWithLock(query.str());
       if (bdgs.begin() != bdgs.end())
       {
         outInfo("Asserted " << krTypeClass << " as a type for " << q_predicate);
@@ -214,18 +244,18 @@ bool JsonPrologInterface::assertQueryLanguage(
   return true;
 }  // namespace rs
 
-bool JsonPrologInterface::instanceFromClass(const std::string& class_name, std::vector<std::string>& individualsOF)
+bool RosPrologInterface::instanceFromClass(const std::string& class_name, std::vector<std::string>& individualsOF)
 {
   std::stringstream prologQuery;
-  prologQuery << "owl_instance_from_class(" << class_name << ","
+  prologQuery << "kb_create(" << class_name << ","
               << "I)";
-  json_prolog::PrologQueryProxy bdgs = queryWithLock(prologQuery.str());
+  PrologQuery bdgs = queryWithLock(prologQuery.str());
   for (auto bdg : bdgs)
     individualsOF.push_back(bdg["I"]);
   return true;
 }
 
-bool JsonPrologInterface::retractAllAnnotators()
+bool RosPrologInterface::retractAllAnnotators()
 {
   std::stringstream query;
   query << "owl_subclass_of(S,rs_components:'RoboSherlockComponent'),rdf_retractall(_,rdf:type,S)";
@@ -233,11 +263,11 @@ bool JsonPrologInterface::retractAllAnnotators()
   return true;
 }
 
-bool JsonPrologInterface::expandToFullUri(std::string& entry)
+bool RosPrologInterface::expandToFullUri(std::string& entry)
 {
   std::stringstream prologQuery;
   prologQuery << "rdf_global_id(" << entry << ",A).";
-  json_prolog::PrologQueryProxy bdgs = queryWithLock(prologQuery.str());
+  PrologQuery bdgs = queryWithLock(prologQuery.str());
   for (auto bdg : bdgs)
   {
     std::string newentry = bdg["A"];
@@ -247,7 +277,7 @@ bool JsonPrologInterface::expandToFullUri(std::string& entry)
   return false;
 }
 
-bool JsonPrologInterface::assertInputTypeConstraint(const std::string& individual,
+bool RosPrologInterface::assertInputTypeConstraint(const std::string& individual,
                                                     const std::vector<std::string>& values, std::string& type)
 {
   std::stringstream query;
@@ -262,18 +292,18 @@ bool JsonPrologInterface::assertInputTypeConstraint(const std::string& individua
   query << "], " << type << ").";
 
   outInfo("Query: " << query.str());
-  json_prolog::PrologQueryProxy bdgs = queryWithLock(query.str());
+  PrologQuery bdgs = queryWithLock(query.str());
   if (bdgs.begin() != bdgs.end())
     return true;
   else
     return false;
 }
 
-bool JsonPrologInterface::assertOutputTypeRestriction(const std::string& individual,
+bool RosPrologInterface::assertOutputTypeRestriction(const std::string& individual,
                                                       const std::vector<std::string>& values, std::string& type)
 {
   std::stringstream query;
-  query << "set_annotator_output_type_domain(" << individual << ",[";
+  query << "set_annotator_output_type_domain('" << individual << "',[";
   std::string separator = ",";
   for (auto it = values.begin(); it != values.end(); ++it)
   {
@@ -284,25 +314,24 @@ bool JsonPrologInterface::assertOutputTypeRestriction(const std::string& individ
   query << "], " << type << ").";
 
   outInfo("Query: " << query.str());
-  json_prolog::Prolog pl;
-  json_prolog::PrologQueryProxy bdgs = pl.query(query.str());
+  PrologQuery bdgs = queryWithLock(query.str());
   if (bdgs.begin() != bdgs.end())
     return true;
   else
     return false;
 }
 
-bool JsonPrologInterface::addNamespace(std::string& entry, std::string entry_type)
+bool RosPrologInterface::addNamespace(std::string& entry, std::string entry_type)
 {
   if (krNamespaces_.empty())
   {
     std::stringstream getNamespacesQuery;
     getNamespacesQuery << "rdf_current_ns(A,_)";
-    json_prolog::PrologQueryProxy bdgs = queryWithLock(getNamespacesQuery.str());
+    PrologQuery bdgs = queryWithLock(getNamespacesQuery.str());
     for (auto bdg : bdgs)
     {
       std::string ns = bdg["A"].toString();
-      ns = ns.substr(1, ns.size() - 2);
+      //      ns = ns.substr(0, ns.size() - 1);
       if (std::find(rs::NS_TO_SKIP.begin(), rs::NS_TO_SKIP.end(), ns) == rs::NS_TO_SKIP.end())
       {
         krNamespaces_.push_back(ns);
@@ -316,7 +345,7 @@ bool JsonPrologInterface::addNamespace(std::string& entry, std::string entry_typ
       prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'Class').";
     else if (entry_type == "obj-property")
       prologQuery << "rdf_has(" << ns << ":'" << entry << "',rdf:type, owl:'ObjectProperty').";
-    json_prolog::PrologQueryProxy bdgs = queryWithLock(prologQuery.str());
+    PrologQuery bdgs = queryWithLock(prologQuery.str());
     if (bdgs.begin() != bdgs.end())
     {
       entry = ns + ":'" + entry + "'";
@@ -326,7 +355,7 @@ bool JsonPrologInterface::addNamespace(std::string& entry, std::string entry_typ
   return false;
 }
 
-json_prolog::PrologQueryProxy JsonPrologInterface::queryWithLock(const std::string& query)
+PrologQuery RosPrologInterface::queryWithLock(const std::string& query)
 {
   std::lock_guard<std::mutex> lock(lock_);
   return pl_.query(query);

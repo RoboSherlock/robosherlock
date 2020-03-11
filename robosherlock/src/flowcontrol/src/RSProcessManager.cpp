@@ -19,14 +19,14 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
 
   if(keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
   {
-    outInfo("Setting KnowRob (through json prolog interface) as the knowledge engine.");
-#if WITH_JSON_PROLOG
-    if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
-      knowledge_engine_ = std::make_shared<rs::JsonPrologInterface>();
+    outInfo("Setting KnowRob (through rosprolog interface) as the knowledge engine.");
+#if WITH_ROS_PROLOG
+    if(ros::service::waitForService("rosprolog/query", ros::Duration(60.0)))
+      knowledge_engine_ = std::make_shared<rs::RosPrologInterface>();
     else
-      throw rs::Exception("Json prolog not reachable");
+      throw rs::Exception("rosprolog client sercivice not reachable");
 #else
-    throw rs::Exception("Json prolog was not found at compile time!");
+    throw rs::Exception("rosprolog was not found at compile time!");
 #endif
   }
   else if(keType == rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG)

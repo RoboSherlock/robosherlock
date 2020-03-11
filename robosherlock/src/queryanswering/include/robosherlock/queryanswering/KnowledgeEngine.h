@@ -16,7 +16,7 @@ static const std::vector<std::string> NS_TO_SKIP = {"rdf", "rdfs", "owl", "xsd",
 
 /**
  * @brief The KnowledgeEngine class unified abstract interface for switching between
- * internal prolog engine and KnowRob's json_prolog interface (for now)
+ * internal prolog engine and KnowRob's rosprolog interface (for now)
  */
 class KnowledgeEngine
 {
