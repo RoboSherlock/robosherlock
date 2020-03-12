@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/io/DataLoaderBridge.h>
+#include <robosherlock/io/DataLoaderBridge.h>
 
 #include <ros/package.h>
 

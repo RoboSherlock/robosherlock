@@ -24,8 +24,8 @@
 #include <sstream>
 #include <map>
 
-#include <rs/recognition/LinemodInterface.h>
-#include <rs/utils/output.h>
+#include <robosherlock/recognition/LinemodInterface.h>
+#include <robosherlock/utils/output.h>
 
 LinemodInterface::LinemodInterface() : detector(), matches()
 {

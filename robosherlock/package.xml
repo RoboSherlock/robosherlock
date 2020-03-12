@@ -33,20 +33,20 @@
   <depend>tf_conversions             </depend>
   <depend>image_transport            </depend>
   <depend>image_geometry             </depend>
-  <depend>pcl_ros		     </depend>
-  <depend>pcl_conversions	     </depend>
+  <depend>pcl_ros		             </depend>
+  <depend>pcl_conversions	         </depend>
 
   <!--local dependencies-->
   <depend>robosherlock_msgs          </depend>
   <depend>uimacpp_ros                </depend>
-  <depend>rapidjson_ros		     </depend>
+  <depend>rapidjson_ros		         </depend>
   
   <!--system-->
   <!--depend>rapidjson-dev              </depend-->
   <!--depend>libmongoclient-dev         </depend-->
-  <depend>mongodb 		     </depend>
+  <depend>mongodb 		             </depend>
   <depend>yaml-cpp                   </depend>
-  <depend>swi-prolog		     </depend>
+  <depend>swi-prolog		         </depend>
   
   <export>
   </export>

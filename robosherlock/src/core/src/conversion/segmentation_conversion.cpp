@@ -17,9 +17,9 @@
  * limitations under the License.
  */
 
-#include <rs/conversion/conversion.h>
-#include <rs/types/annotation_types.h>
-#include <rs/segmentation/ImageSegmentation.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/types/annotation_types.h>
+#include <robosherlock/segmentation/ImageSegmentation.h>
 
 namespace rs
 {

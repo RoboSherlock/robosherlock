@@ -30,10 +30,10 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem.hpp>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
 
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 #define DEBUG_OUTPUT 1
 

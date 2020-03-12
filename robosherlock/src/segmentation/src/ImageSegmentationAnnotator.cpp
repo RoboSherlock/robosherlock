@@ -24,12 +24,12 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
 
-#include <rs/segmentation/ImageSegmentation.h>
+#include <robosherlock/segmentation/ImageSegmentation.h>
 
 using namespace uima;
 

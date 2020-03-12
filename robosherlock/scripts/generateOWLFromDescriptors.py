@@ -136,9 +136,6 @@ class OWLWriteManager:
             "   <!ENTITY swrl \"http://www.w3.org/2003/11/swrl#\" >\n"
             "   <!ENTITY xsd \"http://www.w3.org/2001/XMLSchema#\" >\n"
             "   <!ENTITY knowrob \"http://knowrob.org/kb/knowrob.owl#\" >\n"
-            "   <!ENTITY srdl2-cap \"http://knowrob.org/kb/srdl2-cap.owl#\" >\n"
-            "   <!ENTITY srdl2-comp \"http://knowrob.org/kb/srdl2-comp.owl#\" >\n"
-            "   <!ENTITY srdl2-action \"http://knowrob.org/kb/srdl2-action.owl#\" >\n"
             "   <!ENTITY computable \"http://knowrob.org/kb/computable.owl#\" >\n"
             "   <!ENTITY rdfs \"http://www.w3.org/2000/01/rdf-schema#\" >\n"
             "   <!ENTITY rdf \"http://www.w3.org/1999/02/22-rdf-syntax-ns#\" >\n"
@@ -151,18 +148,12 @@ class OWLWriteManager:
             "     xmlns:owl=\"http://www.w3.org/2002/07/owl#\"\n"
             "     xmlns:xsd=\"http://www.w3.org/2001/XMLSchema#\"\n"
             "     xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"\n"
-            "     xmlns:knowrob=\"http://knowrob.org/kb/knowrob.owl#\"\n"
-            "     xmlns:srdl2-cap=\"http://knowrob.org/kb/srdl2-cap.owl#\"\n"
-            "     xmlns:srdl2-comp=\"http://knowrob.org/kb/srdl2-comp.owl#\"\n"
-            "     xmlns:srdl2-action=\"http://knowrob.org/kb/srdl2-action.owl#\">\n"
+            "     xmlns:knowrob=\"http://knowrob.org/kb/knowrob.owl#\">\n"
             "     <owl:Ontology rdf:about=\"http://knowrob.org/kb/" + self.file_name + "\">\n"
             "        <rdfs:comment rdf:datatype=\"&xsd;string\">Annotators that are used in "
             "the RoboSherlock Framework\n"
             "        </rdfs:comment>\n"
             "     <owl:imports rdf:resource=\"package://knowrob_common/owl/knowrob.owl\"/>\n"
-            "     <owl:imports rdf:resource=\"package://knowrob_srdl/owl/srdl2-action.owl\"/>\n"
-            "     <owl:imports rdf:resource=\"package://knowrob_srdl/owl/srdl2-cap.owl\"/>\n"
-            "     <owl:imports rdf:resource=\"package://knowrob_srdl/owl/srdl2-comp.owl\"/>\n"
             "     <owl:imports rdf:resource=\"package://iai_kitchen/owl/iai-kitchen-objects.owl\"/>\n"
             "    </owl:Ontology>\n\n\n"
             "<!-- http://knowrob.org/kb/" + self.file_name + "#RoboSherlockComponent-->\n"
@@ -580,39 +571,12 @@ if __name__ == "__main__":
         for outs in a.ontology_outputs() :
             # print " Output: " + outs
             class_relations.append( ( "http://knowrob.org/kb/rs_components.owl#"+ACTOR_OUTPUT_PROPERTY_NAME , ("http://knowrob.org/kb/rs_components.owl#"+outs) ) )
-        for cap in a.ontology_required_capabilities() :
-            class_relations.append( ( "&srdl2-cap;dependsOnCapability" , "http://knowrob.org/kb/rs_components.owl#" + cap ) )
 
         # Add class and individuals
         owl_manager.addOWLClass(OWLClass(a.ontology_name(), OWLSubClassOf(a.ontology_subclass_of(),class_relations ) ) )
-        # owl_manager.addOWLIndividual(OWLNamedIndividual( INDIVIDUAL_PREFIX + a.ontology_name(), a.ontology_name(), relations ) )
-        # owl_manageraddRelationToIndividual(self, name, relations)
 
      # Add Capabilites for Perception Planning
     relations = []
-    # Create Perceive3DDepthCapability
-    relations.append( ( "&srdl2-comp;dependsOnComponent" ,
-        ["unionOf",
-            "http://knowrob.org/kb/srdl2-comp.owl#ThreeDimensionalLaserScanner",
-            "http://knowrob.org/kb/srdl2-comp.owl#TimeOfFlightCamera",
-            "http://knowrob.org/kb/rs_components.owl#DepthCamera",
-            ] ) )
-
-    owl_manager.addOWLClass(OWLClass("http://knowrob.org/kb/rs_components.owl#Perceive3DDepthCapability" , OWLSubClassOf("http://knowrob.org/kb/srdl2-cap.owl#PerceptionCapability", relations), False ) )
-
-    # Create PerceiveColorCapability
-    relations = []
-    relations.append( ( "&srdl2-comp;dependsOnComponent" , "http://knowrob.org/kb/srdl2-comp.owl#ColorCamera" ) )
-    owl_manager.addOWLClass(OWLClass("http://knowrob.org/kb/rs_components.owl#PerceiveColorCapability" , OWLSubClassOf("http://knowrob.org/kb/srdl2-cap.owl#PerceptionCapability", relations), False ) )
-
-    # Create PerceiveThermalCapability
-    relations = []
-    relations.append( ( "&srdl2-comp;dependsOnComponent" , "http://knowrob.org/kb/srdl2-comp.owl#InfraredCamera" ) )
-    owl_manager.addOWLClass(OWLClass("http://knowrob.org/kb/rs_components.owl#PerceiveThermalCapability" , OWLSubClassOf("http://knowrob.org/kb/srdl2-cap.owl#PerceptionCapability", relations), False ) )
-
-    # Create the Depth receiving part of the Kinect as Camera and assert it under the knowrob_srdl ontology
-    owl_manager.addOWLClass(OWLClass("http://knowrob.org/kb/rs_components.owl#DepthCamera", OWLSubClassOf("http://knowrob.org/kb/srdl2-comp.owl#Camera") , False ))
-    owl_manager.addOWLClass(OWLClass("http://knowrob.org/kb/rs_components.owl#KinectIRProjectionCamera", OWLSubClassOf("http://knowrob.org/kb/rs_components.owl#DepthCamera"),False ))
 
     # Create the hasVisualProperty object property to
     # describe the visual properties of an object

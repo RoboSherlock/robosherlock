@@ -18,7 +18,7 @@
  */
 
 
-#include <rs/symmetrysegmentation/RotationalSymmetryExtractor.h>
+#include <robosherlock/symmetrysegmentation/RotationalSymmetryExtractor.h>
 
 RotationalSymmetryExtractor::RotationalSymmetryExtractor()
 {

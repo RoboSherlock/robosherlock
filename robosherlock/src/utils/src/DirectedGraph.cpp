@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/graph/DirectedGraph.h>
+#include <robosherlock/graph/DirectedGraph.h>
 
 DirectedGraph::DirectedGraph() : DirectedGraphBase<DirectedVertex, DirectedEdge>() {}
 

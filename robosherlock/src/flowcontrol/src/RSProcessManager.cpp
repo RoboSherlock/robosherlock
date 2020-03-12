@@ -1,7 +1,7 @@
-#include <rs/flowcontrol/RSProcessManager.h>
-#include <rs/io/MongoDBBridge.h>
+#include <robosherlock/flowcontrol/RSProcessManager.h>
+#include <robosherlock/io/MongoDBBridge.h>
 // needed for action server
-#include <rs/queryanswering/RSQueryActionServer.h>
+#include <robosherlock/queryanswering/RSQueryActionServer.h>
 
 RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisualizer,
                                    rs::KnowledgeEngine::KnowledgeEngineType keType)
@@ -10,36 +10,23 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   , it_(nh_)
   , useVisualizer_(useVisualizer)
   , use_identity_resolution_(false)
-  , visualizer_(!useVisualizer)
+  , visualizer_(!useVisualizer, true)
 {
   outInfo("Creating resource manager");
   signal(SIGINT, RSProcessManager::signalHandler);
   uima::ResourceManager &resourceManager = uima::ResourceManager::createInstance("RoboSherlock");
-
-  switch(OUT_LEVEL)
-  {
-  case OUT_LEVEL_NOOUT:
-  case OUT_LEVEL_ERROR:
-    resourceManager.setLoggingLevel(uima::LogStream::EnError);
-    break;
-  case OUT_LEVEL_INFO:
-    resourceManager.setLoggingLevel(uima::LogStream::EnWarning);
-    break;
-  case OUT_LEVEL_DEBUG:
-    resourceManager.setLoggingLevel(uima::LogStream::EnMessage);
-    break;
-  }
+  resourceManager.setLoggingLevel(uima::LogStream::EnError);
 
   if(keType == rs::KnowledgeEngine::KnowledgeEngineType::JSON_PROLOG)
   {
-    outInfo("Setting KnowRob (through json prolog interface) as the knowledge engine.");
-#if WITH_JSON_PROLOG
-    if(ros::service::waitForService("json_prolog/simple_query", ros::Duration(60.0)))
-      knowledge_engine_ = std::make_shared<rs::JsonPrologInterface>();
+    outInfo("Setting KnowRob (through rosprolog interface) as the knowledge engine.");
+#if WITH_ROS_PROLOG
+    if(ros::service::waitForService("rosprolog/query", ros::Duration(60.0)))
+      knowledge_engine_ = std::make_shared<rs::RosPrologInterface>();
     else
-      throw rs::Exception("Json prolog not reachable");
+      throw rs::Exception("rosprolog client sercivice not reachable");
 #else
-    throw rs::Exception("Json prolog was not found at compile time!");
+    throw rs::Exception("rosprolog was not found at compile time!");
 #endif
   }
   else if(keType == rs::KnowledgeEngine::KnowledgeEngineType::SWI_PROLOG)
@@ -67,7 +54,9 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   // ROS action server for query answering
   actionServer = new RSQueryActionServer(nh_, this);
 
+
   spinner_.start();
+  visualizer_.addVisualizableGroupManager(engine_->getAAEName()); 
   visualizer_.start();
 
 }

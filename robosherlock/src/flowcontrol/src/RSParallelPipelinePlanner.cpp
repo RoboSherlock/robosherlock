@@ -16,7 +16,7 @@
  * limitations under the License.
  */
 
-#include <rs/flowcontrol/RSParallelPipelinePlanner.h>
+#include <robosherlock/flowcontrol/RSParallelPipelinePlanner.h>
 
 bool RSParallelPipelinePlanner::getAnnotatorList(std::vector<std::string> &list) const
 {

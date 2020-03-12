@@ -1,11 +1,11 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
-#include <rs/io/Visualizable.h>
-#include <rs/io/VisualizableGroupManager.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/io/Visualizable.h>
+#include <robosherlock/io/VisualizableGroupManager.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>

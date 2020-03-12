@@ -28,8 +28,8 @@
 
 #include <queue>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
 
 using namespace uima;
 using namespace rs;

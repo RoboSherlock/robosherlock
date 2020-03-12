@@ -29,7 +29,7 @@
  */
 
 #include <stdlib.h>
-#include <rs/annotation/web/goggles.h>
+#include <robosherlock/annotation/web/goggles.h>
 #include <request.pb.h>
 #include <response.pb.h>
 

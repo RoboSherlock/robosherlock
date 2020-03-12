@@ -19,10 +19,10 @@
 #include <uima/api.hpp>
 
 // RS
-#include <rs/DrawingAnnotator.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 // PCL
 #include <pcl/filters/extract_indices.h>

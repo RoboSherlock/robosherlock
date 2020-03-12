@@ -20,8 +20,8 @@
 #include <math.h>
 #include <ostream>
 
-#include <rs/utils/output.h>
-#include <rs/segmentation/ImageSegmentation.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/segmentation/ImageSegmentation.h>
 
 ImageSegmentation::ImageSegmentation()
 {

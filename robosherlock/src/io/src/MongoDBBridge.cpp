@@ -17,11 +17,11 @@
  * limitations under the License.
  */
 // RS
-#include <rs/io/MongoDBBridge.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/utils/exception.h>
+#include <robosherlock/io/MongoDBBridge.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/exception.h>
 
 #include <sys/stat.h>
 #include <thread>

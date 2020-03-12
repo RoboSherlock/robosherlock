@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
- #include <rs/symmetrysegmentation/BilateralSymmetrySegmenter.h>
+ #include <robosherlock/symmetrysegmentation/BilateralSymmetrySegmenter.h>
 
  BilateralSymmetrySegmenter::BilateralSymmetrySegmenter()
  {

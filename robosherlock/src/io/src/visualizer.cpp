@@ -24,8 +24,8 @@
 #include <cv_bridge/cv_bridge.h>
 
 // RS
-#include <rs/utils/output.h>
-#include <rs/io/visualizer.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/visualizer.h>
 
 using namespace rs;
 

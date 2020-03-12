@@ -25,13 +25,10 @@
 #include <unicode/unistr.h>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/io/Storage.h>
-#include <rs/conversion/bson.h>
-
-//#undef OUT_LEVEL
-//#define OUT_LEVEL OUT_LEVEL_DEBUG
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/Storage.h>
+#include <robosherlock/conversion/bson.h>
 
 using namespace rs;
 

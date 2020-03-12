@@ -1,11 +1,11 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include <rs/queryanswering/SWIPLInterface.h>
-#include <rs/queryanswering/QueryInterface.h>
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
+#include <robosherlock/queryanswering/SWIPLInterface.h>
+#include <robosherlock/queryanswering/QueryInterface.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>

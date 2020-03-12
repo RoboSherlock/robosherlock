@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <rs/graph/WeightedGraph.h>
-#include <rs/utils/output.h>
+#include <robosherlock/graph/WeightedGraph.h>
+#include <robosherlock/utils/output.h>
 
 WeightedGraph::WeightedGraph() : GraphBase<Vertex, WeightedEdge>() {}
 

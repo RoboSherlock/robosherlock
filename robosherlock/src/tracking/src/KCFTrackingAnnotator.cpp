@@ -23,10 +23,10 @@
 #include <opencv2/core/ocl.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 

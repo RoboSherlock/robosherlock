@@ -25,9 +25,9 @@
 #include <pcl/filters/voxel_grid.h>
 
 //RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 using namespace uima;
 
