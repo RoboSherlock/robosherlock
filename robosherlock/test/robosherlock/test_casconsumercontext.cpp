@@ -1,17 +1,17 @@
 #include <string>
 #include <gtest/gtest.h>
 
-#include <rs/utils/common.h>
-#include <rs/types/all_types.h>
-#include <rs/scene_cas.h>
-#include <rs/CASConsumerContext.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/CASConsumerContext.h>
 
 #include <pcl/point_types.h>
 #include <ros/ros.h>
 
 #include <iostream>
 
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include "../main.h"
 
 class CASConsumerContextTest : public testing::Test
