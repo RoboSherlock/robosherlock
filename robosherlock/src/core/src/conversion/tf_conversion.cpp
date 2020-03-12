@@ -21,8 +21,8 @@
 #include <tf/transform_datatypes.h>
 
 // RS
-#include <rs/conversion/conversion.h>
-#include <rs/types/tf_types.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/types/tf_types.h>
 
 namespace rs
 {

@@ -16,3 +16,14 @@ target_link_libraries(run rs_flowcontrol ${catkin_LIBRARIES})
 
 rs_add_executable(runAAE src/runAAE.cpp)
 target_link_libraries(runAAE rs_flowcontrol ${catkin_LIBRARIES})
+
+
+install(
+  TARGETS rs_flowcontrol
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)
+
+install(
+  TARGETS runAAE run 
+  RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+)

@@ -24,3 +24,13 @@ target_link_libraries(rs_ImagePreprocessor rs_core rs_utils rs_segmentation)
 
 rs_add_library(rs_Trigger src/Trigger.cpp)
 target_link_libraries(rs_Trigger rs_core rs_io)
+
+install(
+  TARGETS rs_utils
+          rs_BlurDetectorAnnotator
+          rs_PointCloudDownsampler
+          rs_ClusterMerger
+          rs_ImagePreprocessor
+          rs_Trigger
+  DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)

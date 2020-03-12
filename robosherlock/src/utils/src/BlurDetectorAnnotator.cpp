@@ -25,12 +25,12 @@
 #include <opencv2/opencv.hpp>
 
 // RS
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/BlurDetector.h>
-#include <rs/utils/common.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/BlurDetector.h>
+#include <robosherlock/utils/common.h>
 
 using namespace uima;
 

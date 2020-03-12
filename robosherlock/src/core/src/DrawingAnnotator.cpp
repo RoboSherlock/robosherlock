@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/exception.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/exception.h>
 
 DrawingAnnotator::DrawingAnnotator(const std::string &name) : Visualizable(name)
 {

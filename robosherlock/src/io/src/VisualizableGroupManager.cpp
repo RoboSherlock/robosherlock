@@ -25,8 +25,8 @@
 #include <cv_bridge/cv_bridge.h>
 
 // RS
-#include <rs/utils/output.h>
-#include <rs/io/VisualizableGroupManager.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/io/VisualizableGroupManager.h>
 
 using namespace rs;
 
@@ -51,8 +51,15 @@ VisualizableGroupManager::VisualizableGroupManager(std::string identifier)
   {
     this->savePath += '/';
   }
-  vis_service_ =
-      nh_.advertiseService(identifier_ + "/vis_command", &VisualizableGroupManager::visControlCallback, this);
+
+  /* this string is needed such that the services and topics get namespaced correctly
+   * when the identifier is an empty string otherwise they end up in the global
+   * namespace
+   * */
+  identifier_ == "" ? ns_string_ = "" : ns_string_ = "/";
+
+  vis_service_ = nh_.advertiseService(identifier_ + ns_string_ + "vis_command",
+                                      &VisualizableGroupManager::visControlCallback, this);
 }
 
 VisualizableGroupManager::~VisualizableGroupManager()
@@ -74,9 +81,9 @@ bool VisualizableGroupManager::start()
   // Initially, all visualizables are active
   activeVisualizables = names;
   //
-  outputImagePub = nh_.advertise<sensor_msgs::Image>(identifier_ + "/output_image", 1, true);
-  pubAnnotList =
-      nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(identifier_ + "/vis/active_annotators", 1, true);
+  outputImagePub = nh_.advertise<sensor_msgs::Image>(identifier_ + ns_string_ + "output_image", 1, true);
+  pubAnnotList = nh_.advertise<robosherlock_msgs::RSActiveAnnotatorList>(
+      identifier_ + ns_string_ + "vis/active_annotators", 1, true);
   index = 0;
 
   currentVisualizable = getVisualizable(names[index]);

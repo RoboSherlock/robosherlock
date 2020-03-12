@@ -28,7 +28,7 @@
 
 #include <ros/ros.h>
 #include <json_prolog/prolog.h>
-#include <rs/utils/output.h>
+#include <robosherlock/utils/output.h>
 
 using namespace json_prolog;
 

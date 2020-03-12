@@ -20,7 +20,7 @@ r"""{0}
 #ifndef {1}
 #define {1}
 
-#include <rs/feature_structure_proxy.h>
+#include <robosherlock/feature_structure_proxy.h>
 {2}
 namespace {3}
 {{

@@ -29,8 +29,8 @@
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
 
 #include <sensor_msgs/PointCloud2.h>
 #include <ros/ros.h>

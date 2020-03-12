@@ -8,3 +8,11 @@ target_link_libraries(rs_RegionFilter ${YAML_CPP_LIBRARIES} rs_core)
 
 rs_add_library(rs_ClusterFilter src/ClusterFilter.cpp)
 target_link_libraries(rs_ClusterFilter rs_core)
+
+
+install(
+  TARGETS rs_PointCloudFilter
+          rs_RegionFilter
+          rs_ClusterFilter 
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)

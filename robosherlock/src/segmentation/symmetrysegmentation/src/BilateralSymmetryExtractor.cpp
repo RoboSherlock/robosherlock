@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-#include <rs/symmetrysegmentation/BilateralSymmetryExtractor.h>
+#include <robosherlock/symmetrysegmentation/BilateralSymmetryExtractor.h>
 
 BilateralSymmetryExtractor::BilateralSymmetryExtractor()
 {

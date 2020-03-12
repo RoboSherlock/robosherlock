@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include <rs/flowcontrol/YamlToXMLConverter.h>
+#include <robosherlock/flowcontrol/YamlToXMLConverter.h>
 
 #include <ros/package.h>
 

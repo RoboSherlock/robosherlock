@@ -24,8 +24,8 @@
 #include <pcl_conversions/pcl_conversions.h>
 
 // RS
-#include <rs/conversion/conversion.h>
-#include <rs/types/pcl_types.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/types/pcl_types.h>
 
 namespace rs
 {

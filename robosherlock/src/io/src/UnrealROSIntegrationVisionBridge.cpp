@@ -18,10 +18,10 @@
  */
 
 // RS
-#include <rs/io/UnrealROSIntegrationVisionBridge.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/io/UnrealROSIntegrationVisionBridge.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 UnrealROSIntegrationVisionBridge::UnrealROSIntegrationVisionBridge(const boost::property_tree::ptree &pt) : ROSCamInterface(pt), it(nodeHandle)
 {

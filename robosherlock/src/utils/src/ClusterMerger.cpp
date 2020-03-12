@@ -19,11 +19,11 @@
 
 #include <ctype.h>
 
-#include <rs/scene_cas.h>
-#include <rs/utils/time.h>
-#include <rs/utils/output.h>
-#include <rs/utils/common.h>
-#include <rs/DrawingAnnotator.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/time.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/common.h>
+#include <robosherlock/DrawingAnnotator.h>
 
 using namespace uima;
 
@@ -34,16 +34,16 @@ private:
   cv::Mat color;
   double pointSize;
 
-  //for visualization
+  // for visualization
   std::vector<std::vector<int> > clusterIndices;
   std::vector<cv::Rect> clusterRois;
-public:
 
-  ClusterMerger(): DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0)
+public:
+  ClusterMerger() : DrawingAnnotator(__func__), cloud(new pcl::PointCloud<pcl::PointXYZRGBA>), pointSize(1.0)
   {
   }
 
-  TyErrorId initialize(AnnotatorContext &ctx)
+  TyErrorId initialize(AnnotatorContext& ctx)
   {
     outInfo("initialize");
     return UIMA_ERR_NONE;
@@ -55,7 +55,7 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  std::vector<int> intersection(std::vector<int> &v1, std::vector<int> &v2)
+  std::vector<int> intersection(std::vector<int>& v1, std::vector<int>& v2)
   {
     std::vector<int> v3;
     std::sort(v1.begin(), v1.end());
@@ -65,7 +65,7 @@ public:
     return v3;
   }
 
-  TyErrorId processWithLock(CAS &tcas, ResultSpecification const &res_spec)
+  TyErrorId processWithLock(CAS& tcas, ResultSpecification const& res_spec)
   {
     MEASURE_TIME;
     outInfo("process begins");
@@ -79,7 +79,7 @@ public:
     std::vector<rs::Identifiable> mergedClusters;
     scene.identifiables.filter(clusters);
     std::vector<bool> duplicates(clusters.size(), false);
-    std::vector<int>  duplicateWith(clusters.size(), -1);
+    std::vector<int> duplicateWith(clusters.size(), -1);
 
     std::vector<bool> keepCluster(clusters.size(), true);
 
@@ -89,55 +89,63 @@ public:
     clusterIndices.reserve(clusters.size());
 
     outInfo("Scene has " << clusters.size() << " clusters");
-   for(size_t i = 0; i < clusters.size(); ++i)
+    for (size_t i = 0; i < clusters.size(); ++i)
     {
-      rs::ObjectHypothesis &cluster1 = clusters[i];
+      rs::ObjectHypothesis& cluster1 = clusters[i];
       rs::ImageROI cluster1ImageRoi = cluster1.rois();
       cv::Rect roi1;
       rs::conversion::from(cluster1ImageRoi.roi_hires(), roi1);
       pcl::PointIndicesPtr cluster1Indices(new pcl::PointIndices());
       rs::conversion::from(((rs::ReferenceClusterPoints)cluster1.points.get()).indices.get(), *cluster1Indices);
-      if(!cluster1Indices->indices.empty())
+      if (!cluster1Indices->indices.empty())
       {
-        for(size_t j = i + 1; j < clusters.size(); ++j)
+        for (size_t j = i + 1; j < clusters.size(); ++j)
         {
-          rs::ObjectHypothesis &cluster2 = clusters[j];
-          outDebug("Source: "<<cluster2.source());
+          rs::ObjectHypothesis& cluster2 = clusters[j];
+          outDebug("Source: " << cluster2.source());
           pcl::PointIndicesPtr cluster2Indices(new pcl::PointIndices());
           rs::conversion::from(((rs::ReferenceClusterPoints)cluster2.points.get()).indices.get(), *cluster2Indices);
 
           rs::ImageROI cluster2ImageRoi = cluster2.rois();
           cv::Rect roi2;
           rs::conversion::from(cluster2ImageRoi.roi_hires(), roi2);
-          if(!cluster2Indices->indices.empty())
+          if (!cluster2Indices->indices.empty())
           {
             int common3DPoints = intersection(cluster1Indices->indices, cluster2Indices->indices).size();
 
             cv::Rect intersect = roi1 & roi2;
-            //first handle the case when a hyp is fully inside another hyp;
-            if(intersect.area() == roi1.area())
+
+            // first handle the case when a hyp is fully inside another hyp;
+            if ((intersect.area() == roi1.area()) && (((double)roi1.area() / roi2.area() > 0.5)))
             {
               keepCluster[i] = false;
               duplicateWith[j] = i;
             }
-            else if(intersect.area() == roi2.area())
+            else if ((intersect.area() == roi2.area()) && ((double)roi2.area() / roi1.area() > 0.5))
             {
               keepCluster[j] = false;
               duplicateWith[i] = j;
             }
-            else if(common3DPoints != 0)
+            else if (common3DPoints != 0)
             {
-              outDebug("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
-              outDebug("That is " << (double)common3DPoints / cluster1Indices->indices.size() * 100 << " % of Cluster " << i << "s total points");
-              outDebug("That is " << (double)common3DPoints / cluster2Indices->indices.size() * 100 << " % of Cluster " << j << "s total points");
+              double ratio1 = (double)common3DPoints / cluster1Indices->indices.size();
+              double ratio2 = (double)common3DPoints / cluster2Indices->indices.size();
 
-              if(((double)common3DPoints / cluster1Indices->indices.size()) < ((double)common3DPoints / cluster2Indices->indices.size()))
+              double r3 = (double)std::min(cluster2Indices->indices.size(), cluster1Indices->indices.size()) /
+                          std::max(cluster1Indices->indices.size(), cluster2Indices->indices.size());
+
+              outDebug("Cluster " << i << "(" << cluster1.source() << ") has " << common3DPoints
+                                  << " common 3D points with Cluster " << j << "( " << cluster2.source() << " )");
+              outDebug("That is " << ratio1 * 100 << " % of Cluster " << i << "s total points");
+              outDebug("That is " << ratio2 * 100 << " % of Cluster " << j << "s total points");
+
+              if ((ratio1 < ratio2) && r3 > 0.3)
               {
                 outDebug("Keeping Cluster: " << i);
                 keepCluster[j] = false;
                 duplicateWith[i] = j;
               }
-              else
+              else if ((ratio1 >= ratio2) && (r3 > 0.3))
               {
                 outDebug("Keeping Cluster: " << j);
                 keepCluster[i] = false;
@@ -148,35 +156,34 @@ public:
         }
       }
     }
-    for(size_t i = 0; i < keepCluster.size(); ++i)
+    for (size_t i = 0; i < keepCluster.size(); ++i)
     {
-      if(keepCluster[i])
+      if (keepCluster[i])
       {
-        if(duplicateWith[i] != -1)
+        if (duplicateWith[i] != -1)
         {
-          rs::ObjectHypothesis &other = clusters[duplicateWith[i]];
+          rs::ObjectHypothesis& other = clusters[duplicateWith[i]];
 
           std::vector<rs::Annotation> annotations;
           other.annotations.filter(annotations);
-          if(!annotations.empty())
+          if (!annotations.empty())
           {
             clusters[i].annotations.append(annotations);
           }
-          if(other.source() != clusters[i].source())
+          if (other.source() != clusters[i].source())
           {
             std::vector<rs::PoseAnnotation> poses;
             clusters[i].annotations.filter(poses);
-            if(!poses.empty())
+            if (!poses.empty())
             {
               clusters[i].annotations.remove(poses[0]);
             }
           }
-
         }
         mergedClusters.push_back(clusters[i]);
 
-        //for visualization if cluster has no 3D points add empty vector
-        if(!clusters[i].points.has())
+        // for visualization if cluster has no 3D points add empty vector
+        if (!clusters[i].points.has())
         {
           this->clusterIndices.push_back(std::vector<int>());
         }
@@ -197,41 +204,40 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  void drawImageWithLock(cv::Mat &disp)
+  void drawImageWithLock(cv::Mat& disp)
   {
     disp = color.clone();
 
-    for(size_t i = 0; i < clusterIndices.size(); ++i)
+    for (size_t i = 0; i < clusterIndices.size(); ++i)
     {
-      const std::vector<int> &indices = clusterIndices[i];
-      for(size_t j = 0; j < indices.size(); ++j)
+      const std::vector<int>& indices = clusterIndices[i];
+      for (size_t j = 0; j < indices.size(); ++j)
       {
         const int index = indices[j];
         disp.at<cv::Vec3b>(index) = rs::common::cvVec3bColors[i % rs::common::numberOfColors];
       }
     }
-    for(size_t i = 0; i < clusterRois.size(); ++i)
+    for (size_t i = 0; i < clusterRois.size(); ++i)
     {
-        cv::rectangle(disp,clusterRois[i], rs::common::cvScalarColors[i % rs::common::numberOfColors]);
+      cv::rectangle(disp, clusterRois[i], rs::common::cvScalarColors[i % rs::common::numberOfColors]);
     }
-
   }
 
-  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer &visualizer, const bool firstRun)
+  void fillVisualizerWithLock(pcl::visualization::PCLVisualizer& visualizer, const bool firstRun)
   {
     const std::string cloudname = this->name;
 
-    for(size_t i = 0; i < clusterIndices.size(); ++i)
+    for (size_t i = 0; i < clusterIndices.size(); ++i)
     {
-      const std::vector<int> &indices = clusterIndices[i];
-      for(size_t j = 0; j < indices.size(); ++j)
+      const std::vector<int>& indices = clusterIndices[i];
+      for (size_t j = 0; j < indices.size(); ++j)
       {
         const int index = indices[j];
         cloud->points[index].rgba = rs::common::colors[i % rs::common::numberOfColors];
       }
     }
 
-    if(firstRun)
+    if (firstRun)
     {
       visualizer.addPointCloud(cloud, cloudname);
       visualizer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, pointSize, cloudname);

@@ -21,16 +21,12 @@
 
 #include <opencv2/highgui/highgui.hpp>
 
-#include <rs/scene_cas.h>
-#include <rs/DrawingAnnotator.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/DrawingAnnotator.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 #include <rapidjson/document.h>
-
-#define DEBUG_OUTPUT 0
-#undef OUT_LEVEL
-#define OUT_LEVEL OUT_LEVEL_INFO
 
 using namespace uima;
 

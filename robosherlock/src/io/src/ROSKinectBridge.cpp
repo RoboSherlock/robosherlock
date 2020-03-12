@@ -22,10 +22,10 @@
 #include <sensor_msgs/image_encodings.h>
 
 // RS
-#include <rs/io/ROSKinectBridge.h>
-#include <rs/scene_cas.h>
-#include <rs/utils/output.h>
-#include <rs/utils/time.h>
+#include <robosherlock/io/ROSKinectBridge.h>
+#include <robosherlock/scene_cas.h>
+#include <robosherlock/utils/output.h>
+#include <robosherlock/utils/time.h>
 
 //OpenCV
 #include <cv_bridge/cv_bridge.h>

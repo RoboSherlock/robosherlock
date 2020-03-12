@@ -24,8 +24,8 @@
 #include <unicode/unistr.h>
 
 // RS
-#include <rs/conversion/bson.h>
-#include <rs/utils/output.h>
+#include <robosherlock/conversion/bson.h>
+#include <robosherlock/utils/output.h>
 
 namespace rs
 {

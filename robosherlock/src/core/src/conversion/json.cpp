@@ -21,9 +21,9 @@
 #include <unicode/unistr.h>
 
 // RS
-#include <rs/conversion/conversion.h>
-#include <rs/conversion/json.h>
-#include <rs/utils/output.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/conversion/json.h>
+#include <robosherlock/utils/output.h>
 
 namespace rs
 {

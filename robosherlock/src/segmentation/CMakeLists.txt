@@ -1,8 +1,6 @@
 project(rs_segmentation)
 
-add_library(rs_segmentation SHARED
-  src/ImageSegmentation.cpp
-)
+add_library(rs_segmentation SHARED src/ImageSegmentation.cpp)
 target_link_libraries(rs_segmentation rs_core)
 
 rs_add_library(rs_ImageSegmentationAnnotator src/ImageSegmentationAnnotator.cpp)
@@ -16,3 +14,12 @@ target_link_libraries(rs_PointCloudColorSegmentation rs_core)
 
 rs_add_library(rs_transparentSegmentationAnnotator src/TransparentSegmentationAnnotator.cpp)
 target_link_libraries(rs_transparentSegmentationAnnotator rs_core rs_segmentation)
+
+
+install(
+  TARGETS rs_segmentation
+          rs_ImageSegmentationAnnotator
+          rs_PointCloudClusterExtractor
+          rs_PointCloudColorSegmentation
+  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+)

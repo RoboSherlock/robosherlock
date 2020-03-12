@@ -1,4 +1,4 @@
-#include <rs/flowcontrol/RSAggregateAnalysisEngine.h>
+#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 static const std::string GEN_XML_PATH = ".ros/robosherlock_generated_xmls";
 
@@ -260,7 +260,7 @@ bool RSAggregateAnalysisEngine::initParallelPipelineManager()
   }
   catch (...)
   {
-    outError("Unknown error has occured! Probaly json_prolog is not running");
+    outError("Unknown error has occured! Probaly rosprolog is not running");
   }
 
   return querySuccess;

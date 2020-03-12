@@ -17,8 +17,8 @@
  * limitations under the License.
  */
 
-#include <rs/conversion/conversion.h>
-#include <rs/utils/output.h>
+#include <robosherlock/conversion/conversion.h>
+#include <robosherlock/utils/output.h>
 
 using namespace rs::conversion;
 
