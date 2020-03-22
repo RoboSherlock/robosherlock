@@ -146,6 +146,20 @@ public:
   bool resetAE(std::string);
 
   /**
+   * @brief Reconfigures a single annotator
+   * @param annotatorIdx Index of annotator in pipeline
+   * @return true on success
+   */
+  bool reconfigureAnnotator(int annotatorIdx);
+
+  /**
+   * @brief Reconfigures a single annotator
+   * @param annotatorName Name of annotator in pipeline
+   * @return true on success
+   */
+  bool reconfigureAnnotator(std::string &annotatorName);
+
+  /**
    * @brief setUseIdentityResolution run identiy resolution for tracking objects over multiple scenes
    * @param useIdentityResoltuion
    */

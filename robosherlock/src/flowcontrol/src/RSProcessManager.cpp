@@ -573,6 +573,18 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
   return true;
 }
 
+bool RSProcessManager::reconfigureAnnotator(int annotatorIdx) {
+  if(annotatorIdx >= 0 && annotatorIdx < engine_->iv_annotatorMgr.iv_vecEntries.size()) {
+      return engine_->iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
+  }
+
+  return false;
+}
+
+bool RSProcessManager::reconfigureAnnotator(std::string &annotatorName) {
+  return reconfigureAnnotator(engine_->getIndexOfAnnotator(std::move(annotatorName)));
+}
+
 template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,
     const std::vector<std::string> &resultDesignators,
     std::string &requestJson, cv::Mat &resImage);

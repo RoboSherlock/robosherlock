@@ -57,6 +57,14 @@ struct AnnotatorCapabilities
    * @brief iTypeValueRestrictions mapping between input type and possible values (if no restrictions on values vector is empty)
    */
   std::map<std::string, std::vector<std::string>> iTypeValueRestrictions;
+  /**
+   * @brief rOutputTypeValueDomains mapping of output domain values after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rOutputTypeValueDomains;
+  /**
+   * @brief rInputTypeValueRestrictions mapping of input restrictions after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rInputTypeValueRestrictions;
 };
 
 

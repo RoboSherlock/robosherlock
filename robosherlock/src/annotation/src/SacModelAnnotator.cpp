@@ -44,89 +44,134 @@ class SacModelAnnotator : public Annotator
 {
 
 private:
-  bool apply_to_clusters;
+    bool apply_to_clusters;
+    pcl::SacModel sacModel;
+    std::string name;
+
+    TyErrorId readParameters(AnnotatorContext &ctx) {
+        if(ctx.isParameterDefined("sacModel"))
+        {
+            int selectedModel;
+            ctx.extractValue("sacModel", selectedModel);
+
+            switch(selectedModel) {
+                case pcl::SACMODEL_CYLINDER: // 5
+                    name = "CYLINDER";
+                    break;
+                case pcl::SACMODEL_SPHERE: // 4
+                    name = "SPHERE";
+                    break;
+                case pcl::SACMODEL_CIRCLE2D: // 2
+                    name = "CIRCLE";
+                    break;
+                case pcl::SACMODEL_PLANE: // 0
+                    name = "PLANE";
+                    break;
+
+                default:
+                    return UIMA_ERR_NOT_YET_IMPLEMENTED;
+            }
+
+            sacModel = static_cast<pcl::SacModel>(selectedModel);
+            outInfo("Selected " << name << " (" << sacModel << ")..");
+
+            return UIMA_ERR_NONE;
+        }
+
+        return UIMA_ERR_ANNOTATOR_COULD_NOT_LOAD;
+    }
 
 public:
-  TyErrorId initialize(AnnotatorContext &ctx)
-  {
-    outInfo("initialize");
-    return UIMA_ERR_NONE;
-  }
-
-  TyErrorId destroy()
-  {
-    outInfo("destroy");
-    return UIMA_ERR_NONE;
-  }
-
-  TyErrorId process(CAS &tcas, ResultSpecification const &resSpec)
-  {
-    MEASURE_TIME;
-    outInfo("process begins");
-
-    rs::SceneCas cas(tcas);
-    rs::Scene scene = cas.getScene();
-
-    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
-    pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
-    cas.get(VIEW_CLOUD, *cloud_ptr);
-    cas.get(VIEW_NORMALS, *normals_ptr);
-
-
-    std::vector<rs::ObjectHypothesis> clusters;
-    scene.identifiables.filter(clusters);
-    outInfo("Processing " << clusters.size() << " point clusters");
-    for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+    TyErrorId initialize(AnnotatorContext &ctx)
     {
-      pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
-      rs::conversion::from(((rs::ReferenceClusterPoints)it->points.get()).indices(), *clusterIndices);
-      
+        outInfo("initialize");
 
-      pcl::PointCloud<pcl::PointXYZRGBA>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
-      pcl::PointCloud<pcl::Normal>::Ptr clusterNormal(new pcl::PointCloud<pcl::Normal>);
-      pcl::ModelCoefficients::Ptr coefficients_cylinder(new pcl::ModelCoefficients);
-      pcl::PointIndices::Ptr cylinderInliers(new pcl::PointIndices);
+        return readParameters(ctx);
+    }
 
-      for(std::vector<int>::const_iterator pit = clusterIndices->indices.begin();
-          pit != clusterIndices->indices.end(); pit++)
-      {
-        clusterCloud->points.push_back(cloud_ptr->points[*pit]);
-        clusterNormal->points.push_back(normals_ptr->points[*pit]);
-      }
+    TyErrorId reconfigure()
+    {
+        outInfo("Reconfiguring");
 
-      clusterCloud->width = clusterCloud->points.size();
-      clusterCloud->height = 1;
-      clusterCloud->is_dense = true;
-      clusterNormal->width = normals_ptr->points.size();
-      clusterNormal->height = 1;
-      clusterNormal->is_dense = true;
-      outDebug("Fitting the selected SAC model");
+        AnnotatorContext &ctx = getAnnotatorContext();
+        return readParameters(ctx);
+    }
 
-      pcl::SACSegmentationFromNormals<pcl::PointXYZRGBA, pcl::Normal> seg;
-      seg.setOptimizeCoefficients(true);
-      seg.setModelType(pcl::SACMODEL_CYLINDER);
-      seg.setMethodType(pcl::SAC_RANSAC);
-      seg.setNormalDistanceWeight(0.1);
-      seg.setMaxIterations(1000);
-      seg.setDistanceThreshold(0.03);
-      seg.setRadiusLimits(0, 0.1);
-      seg.setInputCloud(clusterCloud);
-      seg.setInputNormals(clusterNormal);
+    TyErrorId destroy()
+    {
+        outInfo("destroy");
+        return UIMA_ERR_NONE;
+    }
 
-      // Obtain the cylinder inliers and coefficients
-      seg.segment(*cylinderInliers, *coefficients_cylinder);
+    TyErrorId process(CAS &tcas, ResultSpecification const &resSpec)
+    {
+        MEASURE_TIME;
+        outInfo("process begins");
 
-      outDebug("Size of cluster " << it - clusters.begin() << ": " << clusterCloud->width);
-      outDebug("Number of CYLINDER inliers: " << cylinderInliers->indices.size());
-      if((float)cylinderInliers->indices.size() / clusterCloud->width > 0.5)
-      {
-        rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
-        shapeAnnotation.shape.set("cylinder");
-        it->annotations.append(shapeAnnotation);
-      }
+        rs::SceneCas cas(tcas);
+        rs::Scene scene = cas.getScene();
+
+        pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud_ptr(new pcl::PointCloud<pcl::PointXYZRGBA>);
+        pcl::PointCloud<pcl::Normal>::Ptr normals_ptr(new pcl::PointCloud<pcl::Normal>);
+        cas.get(VIEW_CLOUD, *cloud_ptr);
+        cas.get(VIEW_NORMALS, *normals_ptr);
+
+        std::vector<rs::ObjectHypothesis> clusters;
+        scene.identifiables.filter(clusters);
+        outInfo("Processing " << clusters.size() << " point clusters");
+        for(std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it != clusters.end(); ++it)
+        {
+            pcl::PointIndicesPtr clusterIndices(new pcl::PointIndices());
+            rs::conversion::from(((rs::ReferenceClusterPoints)it->points.get()).indices(), *clusterIndices);
+
+
+            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr clusterCloud(new pcl::PointCloud<pcl::PointXYZRGBA>());
+            pcl::PointCloud<pcl::Normal>::Ptr clusterNormal(new pcl::PointCloud<pcl::Normal>);
+
+            pcl::ModelCoefficients::Ptr coefficientsModel(new pcl::ModelCoefficients);
+
+            pcl::PointIndices::Ptr modelInliers(new pcl::PointIndices);
+
+            for(std::vector<int>::const_iterator pit = clusterIndices->indices.begin();
+                pit != clusterIndices->indices.end(); pit++)
+            {
+                clusterCloud->points.push_back(cloud_ptr->points[*pit]);
+                clusterNormal->points.push_back(normals_ptr->points[*pit]);
+            }
+
+            clusterCloud->width = clusterCloud->points.size();
+            clusterCloud->height = 1;
+            clusterCloud->is_dense = true;
+            clusterNormal->width = normals_ptr->points.size();
+            clusterNormal->height = 1;
+            clusterNormal->is_dense = true;
+            outInfo("Fitting the " << name << " SAC model");
+
+            pcl::SACSegmentationFromNormals<pcl::PointXYZRGBA, pcl::Normal> seg;
+            seg.setOptimizeCoefficients(true);
+            seg.setModelType(sacModel);
+            seg.setMethodType(pcl::SAC_RANSAC);
+            seg.setNormalDistanceWeight(0.1);
+            seg.setMaxIterations(1000);
+            seg.setDistanceThreshold(0.03);
+            seg.setRadiusLimits(0, 0.1);
+            seg.setInputCloud(clusterCloud);
+            seg.setInputNormals(clusterNormal);
+
+            // Obtain the cylinder inliers and coefficients
+            seg.segment(*modelInliers, *coefficientsModel);
+
+            outDebug("Size of cluster " << it - clusters.begin() << ": " << clusterCloud->width);
+            outInfo("Number of " << name << " inliers: " << modelInliers->indices.size());
+            if((float)modelInliers->indices.size() / clusterCloud->width > 0.5)
+            {
+                rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
+                shapeAnnotation.shape.set(name);
+                it->annotations.append(shapeAnnotation);
+            }
 
 #if DEBUG_OUTPUT
-      pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
+            pcl::ExtractIndices<pcl::PointXYZRGBA> extract;
       extract.setInputCloud(clusterCloud);
       extract.setIndices(cylinderInliers);
       extract.setNegative(false);
@@ -144,10 +189,9 @@ public:
         writer.write(fn.str(), *cloud_cylinder, false);
       }
 #endif
+        }
+        return UIMA_ERR_NONE;
     }
-    return UIMA_ERR_NONE;
-  }
-
 };
 
 MAKE_AE(SacModelAnnotator)

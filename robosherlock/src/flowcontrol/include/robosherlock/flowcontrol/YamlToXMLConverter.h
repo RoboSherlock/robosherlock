@@ -126,22 +126,27 @@ private:
   string getType(const YAML::Node& node);
   string getTypeFilePath() const;
 
-  bool genAEInfo(const YAML::Node& node);
+  // TODO: Why identical function implementation?
+  //bool genAEInfo(const YAML::Node& node);
 
   bool parseAnnotatorInfo(const YAML::Node& node);
 
   bool generateAnnotatorConfigParamInfo(const YAML::Node& node);
   bool genConfigParamInfo(const YAML::Node& node, const string analysisEngineName);
 
-  bool parseCapabInfo(const YAML::Node& node, std::string annotator_name = "");
+  bool parseCapabInfo(const YAML::Node& node, string annotator_name = "", string setup_name = "");
   bool genCapabInfo(const YAML::Node& node);
 
   bool genFlowConstraints(const YAML::Node& node);
   bool genFsIndexCollection();
+  bool parseReconfigurationInfo(const YAML::Node &node);
 
-  rs::AnnotatorCapabilities annotatorCap;
+  rs::AnnotatorCapabilities annotCap; // parsing
+  rs::AnnotatorCapabilities annotatorCap; // return value
   std::vector<rs::AnnotatorCapabilities> overwrittenAnnotCaps;
   vector<string> delegates_;
+
+
 };
 
 #endif

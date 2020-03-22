@@ -1,6 +1,7 @@
 annotator:
   implementation: rs_SacModelAnnotator
   name: SacModelAnnotator
+
 capabilities:
   inputs:
   - rs.scene.MergedHypothesis
@@ -8,6 +9,7 @@ capabilities:
   outputs:
   - rs.annotation.Shape: [cylinder]
   domain: [cylinder]
+
 parameters:
   apply_to_clusters: true
   distanceThreshold: 0.05
@@ -19,5 +21,28 @@ parameters:
   minPoints: 200
   radiusLimit1: 0.01
   radiusLimit2: 0.5
-  sacModel: 6
+  sacModel: 5
   useNormals: true
+
+reconfiguration:
+  # Definition of sphere reconfiguration
+  setup_spheres:
+    capabilities:
+      outputs:
+      - rs.annotation.Shape: [sphere]
+      domain: [sphere]
+
+    # Overwrite or define new parameters:
+    parameters:
+      test_param: "success"
+      sacModel: 4
+
+  # Example setup
+  setup_example:
+    capabilities:
+      outputs:
+      - rs.annotation.Shape: [example]
+      domain: [example]
+
+    parameters:
+      useNormals: false
