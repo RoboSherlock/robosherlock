@@ -28,6 +28,7 @@
 #include <pcl/sample_consensus/method_types.h>
 #include <pcl/sample_consensus/model_types.h>
 #include <pcl/segmentation/sac_segmentation.h>
+#include <pcl/io/pcd_io.h>
 
 #include <robosherlock/scene_cas.h>
 #include <robosherlock/utils/time.h>
@@ -35,7 +36,6 @@
 #include <sensor_msgs/PointCloud2.h>
 #include <ros/ros.h>
 
-#include <pcl/io/pcd_io.h>
 
 #define DEBUG_OUTPUT 0
 using namespace uima;
@@ -51,30 +51,20 @@ private:
     TyErrorId readParameters(AnnotatorContext &ctx) {
         if(ctx.isParameterDefined("sacModel"))
         {
-            int selectedModel;
-            ctx.extractValue("sacModel", selectedModel);
+            ctx.extractValue("sacModel", name);
+            std::transform(name.begin(), name.end(), name.begin(), ::toupper);
 
-            switch(selectedModel) {
-                case pcl::SACMODEL_CYLINDER: // 5
-                    name = "CYLINDER";
-                    break;
-                case pcl::SACMODEL_SPHERE: // 4
-                    name = "SPHERE";
-                    break;
-                case pcl::SACMODEL_CIRCLE2D: // 2
-                    name = "CIRCLE";
-                    break;
-                case pcl::SACMODEL_PLANE: // 0
-                    name = "PLANE";
-                    break;
-
-                default:
-                    return UIMA_ERR_NOT_YET_IMPLEMENTED;
+            if(name == "CYLINDER"){
+                sacModel = pcl::SACMODEL_CYLINDER;
+            }
+            else if(name == "SPHERE"){
+                sacModel = pcl::SACMODEL_NORMAL_SPHERE;
+            }
+            else{
+                return UIMA_ERR_NOT_YET_IMPLEMENTED;
             }
 
-            sacModel = static_cast<pcl::SacModel>(selectedModel);
             outInfo("Selected " << name << " (" << sacModel << ")..");
-
             return UIMA_ERR_NONE;
         }
 

@@ -21,7 +21,7 @@ parameters:
   minPoints: 200
   radiusLimit1: 0.01
   radiusLimit2: 0.5
-  sacModel: 5
+  sacModel: Cylinder
   useNormals: true
 
 reconfiguration:
@@ -35,7 +35,7 @@ reconfiguration:
     # Overwrite or define new parameters:
     parameters:
       test_param: "success"
-      sacModel: 4
+      sacModel: Sphere
 
   # Example setup
   setup_example:
