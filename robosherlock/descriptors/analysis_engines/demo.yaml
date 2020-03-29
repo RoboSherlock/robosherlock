@@ -9,6 +9,5 @@ fixedflow:
   - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
-  - SacModelAnnotator
 CollectionReader:
   camera_config_files: ['config_kinect_robot.ini']
