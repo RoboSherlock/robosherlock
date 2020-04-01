@@ -42,6 +42,7 @@
 
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <robosherlock/io/visualizer.h>
+#include <robosherlock/CASConsumerContext.h>
 
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
@@ -57,8 +58,8 @@ void help()
   std::cout << "Continuously exectue the fixed flow defined in an analysis engine." << std::endl
             << "Usage: rosrun robosherlock runAAE [options] [analysis_engine]" << std::endl
             << "Options:" << std::endl
-            << "               _ae:=engine         Name of analysis enginee for execution" << std::endl
-            << "              _vis:=true|false     shorter version for _visualization" << std::endl
+            << "               _ae:=engine         Name of analysis engines for execution. Comma seperated list." << std::endl
+            << "              _vis:=true|false     shorter version for _visualization." << std::endl
             << std::endl;
 }
 
@@ -96,7 +97,9 @@ int main(int argc, char* argv[])
 
   nh.deleteParam("ae");
   nh.deleteParam("vis");
+
   std::vector<std::string> analysis_engine_name_list;
+
 
   // if only argument is an AE (nh.param reudces argc)
   if (argc == 2)
@@ -167,10 +170,15 @@ int main(int argc, char* argv[])
     while (ros::ok())
     {
       signal(SIGINT, signalHandler);
+
+      // Analysis Engine processing
       for (auto rsaae : rsaaes)
       {
         rsaae->resetCas();
         rsaae->processOnce();
+        // Add the finished CAS ptr to the CASConsumerContext 
+        rs::CASConsumerContext::getInstance().addCAS(rsaae->getAAEName(), rsaae->getCas());
+
         if (publishResults)
         {
           std::vector<std::string> obj_descriptions;
@@ -180,7 +188,10 @@ int main(int argc, char* argv[])
           objDescr.obj_descriptions = obj_descriptions;
           result_pub.publish(objDescr);
         }
-      }
+      } // end of AE processing
+
+      // Clear up CASes after consumption modules are done
+      rs::CASConsumerContext::getInstance().clearCASes();
 
       rate.sleep();
     }

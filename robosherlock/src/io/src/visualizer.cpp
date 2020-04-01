@@ -55,6 +55,13 @@ Visualizer::~Visualizer()
 
 void Visualizer::addVisualizableGroupManager(std::string identifier)
 {
+  if (visualizableGroupManagers_.count(identifier) > 0)
+  {
+    outWarn("The given identifier '" << identifier
+                                     << "' in addVisualizableGroupManager is already existing! Visualizer Identifiers "
+                                        "must be unique. Maybe you have loaded multiple analysis engines or cas "
+                                        "consumers with the same name.");
+  }
   visualizableGroupManagers_[identifier] = std::make_shared<VisualizableGroupManager>(identifier);
   visualizableGroupManagers_[identifier]->start();
 }
@@ -194,6 +201,10 @@ void Visualizer::imageViewer()
     for (auto vgm : visualizableGroupManagers_)
     {
       auto& VisualizationAnnotatorMgr = vgm.second;
+
+      if(!VisualizationAnnotatorMgr->isActive())
+        continue;
+
       cv::namedWindow(imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
 
       // TODO It's not so nice to point to the raw data in the shared_ptr.
@@ -207,6 +218,9 @@ void Visualizer::imageViewer()
     for (auto vgm : visualizableGroupManagers_)
     {
       auto& visualizationAnnotatorMgr = vgm.second;
+      if(!visualizationAnnotatorMgr->isActive())
+        continue;
+
       visualizationAnnotatorMgr->checkVisualizable();
       if (visualizationAnnotatorMgr->updateImage)
       {
@@ -252,6 +266,9 @@ void Visualizer::cloudViewer()
   for (auto vgm : visualizableGroupManagers_)
   {
     auto& VisualizationAnnotatorMgr = vgm.second;
+    if(!VisualizationAnnotatorMgr->isActive())
+      continue;
+
     const std::string annotatorName = "annotatorName-" + vgm.first;
     visualizers[vgm.first] = pcl::visualization::PCLVisualizer::Ptr(
         new pcl::visualization::PCLVisualizer(cloudWindowName(*VisualizationAnnotatorMgr)));
@@ -275,6 +292,9 @@ void Visualizer::cloudViewer()
     {
       auto& VisualizationAnnotatorMgr = vgm.second;
       auto& visualizer = visualizers[vgm.first];
+
+      if(!VisualizationAnnotatorMgr->isActive())
+        continue;
 
       VisualizationAnnotatorMgr->checkVisualizable();
 

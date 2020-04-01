@@ -113,6 +113,8 @@ public:
 
   void checkVisualizable();
 
+  bool isActive();
+
   bool visControlCallback(robosherlock_msgs::RSVisControl::Request& req,
                           robosherlock_msgs::RSVisControl::Response& res);
 
