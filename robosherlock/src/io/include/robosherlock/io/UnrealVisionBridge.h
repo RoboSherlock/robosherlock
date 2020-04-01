@@ -87,6 +87,7 @@ private:
   std::thread receiver;
   std::mutex lockBuffer;
   bool running, isConnected, advertiseTf;
+  bool lookUpViewpoint, onlyStableViewpoints;
 
   std::vector<uint8_t> bufferComplete, bufferActive, bufferInUse;
 

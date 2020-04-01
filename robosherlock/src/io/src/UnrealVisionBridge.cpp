@@ -47,10 +47,18 @@ UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : 
   running = true;
   receiver = std::thread(&UnrealVisionBridge::receive, this);
   createLookupTables();
+
+  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
+
+  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
 }
 
 UnrealVisionBridge::~UnrealVisionBridge()
 {
+  running = false;
+  receiver.join();
 }
 
 void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
@@ -60,11 +68,15 @@ void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
   tfFrom = pt.get<std::string>("tf.from", "unreal_vision_optical_frame");
   tfTo = pt.get<std::string>("tf.to", "map");
   advertiseTf = pt.get<bool>("tf.advertise", false);
+  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
 
   outInfo("Address: " FG_BLUE << address);
   outInfo("   Port: " FG_BLUE << port);
   outInfo("TF From: " FG_BLUE << tfFrom);
   outInfo("  TF To: " FG_BLUE << tfTo);
+  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
 }
 
 
@@ -294,8 +306,12 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
     broadcaster.sendTransform(tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom));
   }
 
-  rs::StampedTransform vp(rs::conversion::to(tcas, tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom)));
-  scene.viewPoint.set(vp);
+  if(lookUpViewpoint)
+  {
+    rs::StampedTransform vp(
+        rs::conversion::to(tcas, tf::StampedTransform(tf::Transform(rotation, translation), stamp, tfTo, tfFrom)));
+    scene.viewPoint.set(vp);
+  }
   scene.timestamp.set(stamp.toNSec());
 
   // setting images
