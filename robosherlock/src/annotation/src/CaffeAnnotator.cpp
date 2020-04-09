@@ -98,6 +98,10 @@ public:
        !boost::filesystem::exists(resourcesPath + caffe_label_file))
     {
       outError("files not found!");
+
+      if(!boost::filesystem::exists(resourcesPath + caffe_trained_file)){
+        outError("Couldn't find trained file - Maybe you forgot to put the (downloaded) reference network at " << resourcesPath + caffe_trained_file);
+      }
       return UIMA_ERR_USER_ANNOTATOR_COULD_NOT_INIT;
     }
     caffeProxyObj = std::make_shared<CaffeProxy>(resourcesPath + caffe_model_file,
