@@ -23,6 +23,7 @@
 
 // ROS
 #include <cv_bridge/cv_bridge.h>
+#include <ros/names.h>
 
 // RS
 #include <robosherlock/utils/output.h>
@@ -51,6 +52,21 @@ VisualizableGroupManager::VisualizableGroupManager(std::string identifier)
   {
     this->savePath += '/';
   }
+
+  /*
+   * Check that the given identifier is conform with the naming scheme. Otherwise issue an error.
+   */
+  std::string validation_error;
+  if(!ros::names::validate(identifier,validation_error))
+  {
+    outError("**********");
+    outError("Given identifier '"<< identifier <<"' for VGM is not ROS compliant!");
+    outError("This might happen if the name of the AAE you want to run contains bad characters.");
+    outError("Check https://wiki.ros.org/Names for more information.");
+    outError("Validation error: " << validation_error);
+    outError("**********");
+  }
+
 
   /* this string is needed such that the services and topics get namespaced correctly
    * when the identifier is an empty string otherwise they end up in the global
