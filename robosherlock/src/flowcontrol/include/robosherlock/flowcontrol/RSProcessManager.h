@@ -159,6 +159,12 @@ public:
    */
   bool reconfigureAnnotator(std::string &annotatorName);
 
+  bool handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+          robosherlock_msgs::ReconfigureAnnotator::Respone &res);
+
+  bool handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
+          robosherlock_msgs::OverwriteParam::Response &res);
+
   /**
    * @brief setUseIdentityResolution run identiy resolution for tracking objects over multiple scenes
    * @param useIdentityResoltuion

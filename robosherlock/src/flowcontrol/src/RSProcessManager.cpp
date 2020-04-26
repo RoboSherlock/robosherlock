@@ -24,7 +24,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
     if(ros::service::waitForService("rosprolog/query", ros::Duration(60.0)))
       knowledge_engine_ = std::make_shared<rs::RosPrologInterface>();
     else
-      throw rs::Exception("rosprolog client sercivice not reachable");
+      throw rs::Exception("rosprolog client service not reachable");
 #else
     throw rs::Exception("rosprolog was not found at compile time!");
 #endif
@@ -45,6 +45,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+
 
   // ROS publisher declarations
   result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
@@ -583,6 +584,17 @@ bool RSProcessManager::reconfigureAnnotator(int annotatorIdx) {
 
 bool RSProcessManager::reconfigureAnnotator(std::string &annotatorName) {
   return reconfigureAnnotator(engine_->getIndexOfAnnotator(std::move(annotatorName)));
+}
+
+bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+                                                  robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
+  req.
+    return false;
+}
+
+bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+                                            robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
+    return false;
 }
 
 template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,

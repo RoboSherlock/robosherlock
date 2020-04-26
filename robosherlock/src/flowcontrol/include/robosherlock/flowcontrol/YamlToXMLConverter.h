@@ -126,9 +126,6 @@ private:
   string getType(const YAML::Node& node);
   string getTypeFilePath() const;
 
-  // TODO: Why identical function implementation?
-  //bool genAEInfo(const YAML::Node& node);
-
   bool parseAnnotatorInfo(const YAML::Node& node);
 
   bool generateAnnotatorConfigParamInfo(const YAML::Node& node);
