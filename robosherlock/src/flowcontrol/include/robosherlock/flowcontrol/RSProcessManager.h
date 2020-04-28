@@ -137,20 +137,7 @@ public:
    */
   bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
 
-  /**
-   * @brief RSProcessManager::resetAE reset analysis engine that was instantiated; Use this method i
-   * if you want to change the AAE loaded at startup
-   * @param newAAEName name of the new aggregate analysis engine;
-   * @return true/false
-   */
-  bool resetAE(std::string);
 
-  /**
-   * @brief Reconfigures a single annotator
-   * @param annotatorIdx Index of annotator in pipeline
-   * @return true on success
-   */
-  bool reconfigureAnnotator(int annotatorIdx);
 
   /**
    * @brief Reconfigures a single annotator

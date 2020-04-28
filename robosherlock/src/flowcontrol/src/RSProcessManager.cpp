@@ -574,25 +574,13 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
   return true;
 }
 
-bool RSProcessManager::reconfigureAnnotator(int annotatorIdx) {
-  if(annotatorIdx >= 0 && annotatorIdx < engine_->iv_annotatorMgr.iv_vecEntries.size()) {
-      return engine_->iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
-  }
-
-  return false;
-}
-
-bool RSProcessManager::reconfigureAnnotator(std::string &annotatorName) {
-  return reconfigureAnnotator(engine_->getIndexOfAnnotator(std::move(annotatorName)));
-}
-
 bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
                                                   robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
   req.
     return false;
 }
 
-bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam:: &req,
                                             robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
     return false;
 }

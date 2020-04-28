@@ -325,6 +325,21 @@ public:
     cr_context->assignValue(UnicodeString(param_name.c_str()), conversionString);
   }
 
+  /**
+   * @brief RSProcessManager::resetAE reset analysis engine that was instantiated; Use this method i
+   * if you want to change the AAE loaded at startup
+   * @param newAAEName name of the new aggregate analysis engine;
+   * @return true/false
+   */
+  bool resetAE(std::string);
+
+  /**
+   * @brief Reconfigures a single annotator
+   * @param annotatorIdx Index of annotator in pipeline
+   * @return true on success
+   */
+  bool reconfigureAnnotator(int annotatorIdx);
+
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
 
   bool querySuccess;
