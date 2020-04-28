@@ -590,7 +590,7 @@ bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::Reconfigure
     if(result != aCaps.end()) {
       aCap = result->second;
       // TODO: Update input- and output-capabilities here
-      res.result = true;
+      res.result = engine_->reconfigureAnnotator(req.annotatorName);
     }
     else {
       outError("Annotator " << req.annotatorName << " could not be found.");

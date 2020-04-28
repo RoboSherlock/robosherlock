@@ -59,7 +59,18 @@
    set_annotator_output_type_domain(r,t,r),
    set_annotator_input_type_constraint(r,t,r),
    compute_annotator_output_type_domain(r,r,t),
-   compute_annotator_input_type_restriction(r,r,t).
+   compute_annotator_input_type_restriction(r,r,t),
+   % reconfiguration:
+   set_annotator_setup_names(r,t),
+   set_annotator_setup_output_type_domain(r,t,t,t),
+   set_annotator_setup_input_type_constraint(r,t,t,t),
+   set_annotator_setup_parameter(r,t,t,t),
+   load_annotator_setup(r,t),
+   load_annotator_setup_input(r,t),
+   load_annotator_setup_output(r,t),
+   load_annotator_setup_parameter(r,t,t,t),
+   find_annotator_setup_for_output_type_domain(r,t,t,t),
+   find_annotator_setup_for_input_type_constraint(r,t,t,t).
 
 
 
@@ -70,13 +81,13 @@
 
 
 compute_annotators(A) :- 
-	owl_subclass_of(A,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
-        not(A = 'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#AnnotationComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#DetectionComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#IoComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#PeopleComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#SegmentationComponent').
+	owl_subclass_of(A,rs_components:'RoboSherlockComponent'),
+        not(A = rs_components:'RoboSherlockComponent'), 
+        not(A = rs_components:'AnnotationComponent'), 
+        not(A = rs_components:'DetectionComponent'), 
+        not(A = rs_components:'IoComponent'), 
+        not(A = rs_components:'PeopleComponent'), 
+        not(A = rs_components:'SegmentationComponent').
                 
         
 % cache the annotators
@@ -85,28 +96,28 @@ compute_annotators(A) :-
 
 % assert domain restriction for an individual generated from a RoboSherlockComponents
 set_annotator_domain(AnnotatorI, Domain):-
-    owl_individual_of(AnnotatorI,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
-    owl_restriction_assert(restriction('http://knowrob.org/kb/rs_components.owl#outputDomain',all_values_from(union_of(Domain))),R),
+    owl_individual_of(AnnotatorI,rs_components:'RoboSherlockComponent'),
+    owl_restriction_assert(restriction(rs_components:'outputDomain',all_values_from(union_of(Domain))),R),
     rdf_assert(AnnotatorI,rdf:type,R).
 
 %%%% set a domain constraint on the type of the annotator e.g. Primitive Shape annotator returns Shape annotations with value one of [a,b,c]
 %%%% 
 set_annotator_output_type_domain(AnnotatorI, Domain, Type):-
-    owl_individual_of(AnnotatorI,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
+    owl_individual_of(AnnotatorI,rs_components:'RoboSherlockComponent'),
     owl_individual_of(AnnotatorI,Annotator),!,
     compute_annotator_outputs(Annotator, Type),%% you can only set this restriction if the Type is defined as an output type 
     owl_restriction_assert(restriction(Type,all_values_from(union_of(Domain))),R),
     rdf_assert(AnnotatorI,rdf:type,R).
     
 set_annotator_input_type_constraint(AnnotatorI, Constraint, Type):-
-    owl_individual_of(AnnotatorI,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
+    owl_individual_of(AnnotatorI,rs_components:'RoboSherlockComponent'),
     owl_individual_of(AnnotatorI,Annotator),!,
     compute_annotator_inputs(Annotator, Type),%% you can only set this restriction if the Type is defined as an output type 
     owl_restriction_assert(restriction(Type,all_values_from(union_of(Constraint))),R),
     rdf_assert(AnnotatorI,rdf:type,R).
 
 compute_annotator_output_type_domain(AnnotatorI, Type, Domain):-
-    owl_individual_of(AnnotatorI,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
+    owl_individual_of(AnnotatorI,rs_components:'RoboSherlockComponent'),
     owl_individual_of(AnnotatorI,Annotator),!,
     compute_annotator_outputs(Annotator, Type),
     owl_has(AnnotatorI,rdf:type,R),   
@@ -114,7 +125,7 @@ compute_annotator_output_type_domain(AnnotatorI, Type, Domain):-
     rdf_has(R,owl:allValuesFrom,V),owl_description(V,union_of(Domain)).
     
 compute_annotator_input_type_restriction(AnnotatorI, Type, Domain):-
-    owl_individual_of(AnnotatorI,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
+    owl_individual_of(AnnotatorI,rs_components:'RoboSherlockComponent'),
     owl_individual_of(AnnotatorI,Annotator),!,
     compute_annotator_inputs(Annotator, Type),
     owl_has(AnnotatorI,rdf:type,R),   
@@ -126,13 +137,13 @@ compute_annotator_input_type_restriction(AnnotatorI, Type, Domain):-
 compute_annotator_outputs(Annotator,Output) :- 
 	annotators(Annotator), 
 	owl_has(Annotator,rdfs:subClassOf, O),
-    owl_restriction(O, restriction('http://knowrob.org/kb/rs_components.owl#perceptualOutput',some_values_from(Output))).
+    owl_restriction(O, restriction(rs_components:'perceptualOutput',some_values_from(Output))).
 
 % Get inputs of Annotator
 compute_annotator_inputs(Annotator,Input) :- 
 	annotators(Annotator), 
 	owl_has(Annotator,rdfs:subClassOf,O),
-    owl_restriction(O, restriction('http://knowrob.org/kb/rs_components.owl#perceptualInputRequired',some_values_from(Input))).
+    owl_restriction(O, restriction(rs_components:'perceptualInputRequired',some_values_from(Input))).
 
 % cache outputs/inputs
 :- forall(compute_annotator_outputs(A,O), assert(annotator_outputs(A,O)) ).
@@ -357,24 +368,24 @@ build_pipeline_from_predicates_no_constraints(ListOfPredicates,Pipeline):-
 	build_pipeline(Annotators, Pipeline).
 	
 assert_test_pipeline:-
-    kb_create('http://knowrob.org/kb/rs_components.owl#CollectionReader',_),kb_create('http://knowrob.org/kb/rs_components.owl#ImagePreprocessor',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#RegionFilter',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#NormalEstimator',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#PlaneAnnotator',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#ImageSegmentationAnnotator',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#PointCloudClusterExtractor',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#ClusterMerger',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#Cluster3DGeometryAnnotator',GI),set_annotator_output_type_domain(GI,['http://knowrob.org/kb/rs_components.owl#Small','http://knowrob.org/kb/rs_components.owl#Big','http://knowrob.org/kb/rs_components.owl#Medium'],'http://knowrob.org/kb/rs_components.owl#RsAnnotationGeometry'),
-    kb_create('http://knowrob.org/kb/rs_components.owl#PrimitiveShapeAnnotator',PI),set_annotator_output_type_domain(PI,['http://knowrob.org/kb/rs_components.owl#Box','http://knowrob.org/kb/rs_components.owl#Round'],'http://knowrob.org/kb/rs_components.owl#RsAnnotationShape'),
-    kb_create('http://knowrob.org/kb/rs_components.owl#ClusterColorHistogramCalculator',CI),set_annotator_output_type_domain(CI,['http://knowrob.org/kb/rs_components.owl#Yellow','http://knowrob.org/kb/rs_components.owl#Blue'],'http://knowrob.org/kb/rs_components.owl#RsAnnotationSemanticcolor'),
-    kb_create('http://knowrob.org/kb/rs_components.owl#SacModelAnnotator',SI),set_annotator_output_type_domain(SI,['http://knowrob.org/kb/rs_components.owl#Cylinder'],'http://knowrob.org/kb/rs_components.owl#RsAnnotationShape'),
-    kb_create('http://knowrob.org/kb/rs_components.owl#PCLDescriptorExtractor',_),	
-    kb_create('http://knowrob.org/kb/rs_components.owl#CaffeAnnotator',_),
-    kb_create('http://knowrob.org/kb/rs_components.owl#KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], 'http://knowrob.org/kb/rs_components.owl#RsAnnotationClassification'),
-    kb_create('http://knowrob.org/kb/rs_components.owl#HandleAnnotator',HI),set_annotator_output_type_domain(HI,['http://knowrob.org/kb/rs_components.owl#Handle'], 'http://knowrob.org/kb/rs_components.owl#RsAnnotationDetection').
+    kb_create(rs_components:'CollectionReader',_),kb_create(rs_components:'ImagePreprocessor',_),
+    kb_create(rs_components:'RegionFilter',_),
+    kb_create(rs_components:'NormalEstimator',_),
+    kb_create(rs_components:'PlaneAnnotator',_),
+    kb_create(rs_components:'ImageSegmentationAnnotator',_),
+    kb_create(rs_components:'PointCloudClusterExtractor',_),
+    kb_create(rs_components:'ClusterMerger',_),
+    kb_create(rs_components:'Cluster3DGeometryAnnotator',GI),set_annotator_output_type_domain(GI,[rs_components:'Small',rs_components:'Big',rs_components:'Medium'],rs_components:'RsAnnotationGeometry'),
+    kb_create(rs_components:'PrimitiveShapeAnnotator',PI),set_annotator_output_type_domain(PI,[rs_components:'Box',rs_components:'Round'],rs_components:'RsAnnotationShape'),
+    kb_create(rs_components:'ClusterColorHistogramCalculator',CI),set_annotator_output_type_domain(CI,[rs_components:'Yellow',rs_components:'Blue'],rs_components:'RsAnnotationSemanticcolor'),
+    kb_create(rs_components:'SacModelAnnotator',SI),set_annotator_output_type_domain(SI,[rs_components:'Cylinder'],rs_components:'RsAnnotationShape'),
+    kb_create(rs_components:'PCLDescriptorExtractor',_),	
+    kb_create(rs_components:'CaffeAnnotator',_),
+    kb_create(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
+    kb_create(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection').
 
 assert_query:-
-    assert(requestedValueForKey(shape,'http://knowrob.org/kb/rs_components.owl#Box')).
+    assert(requestedValueForKey(shape,rs_components:'Box')).
  
 assert_query_lang:-
 	assert(rs_query_predicate(shape)),
@@ -391,12 +402,12 @@ assert_query_lang:-
 	assert(rs_query_predicate(timestamp)),
 	assert(rs_query_predicate(location)),
 	assert(rs_query_predicate(has-ingredient)),
-	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationShape',A),assert(rs_type_for_predicate(shape, A)),
-	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationSemanticcolor',B),assert(rs_type_for_predicate(color, B)),
-	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationGeometry',C),
-	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationDetection',D),
- 	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationClassification',E),
-	rdf_global_id('http://knowrob.org/kb/rs_components.owl#RsAnnotationPose',F),
+	rdf_global_id(rs_components:'RsAnnotationShape',A),assert(rs_type_for_predicate(shape, A)),
+	rdf_global_id(rs_components:'RsAnnotationSemanticcolor',B),assert(rs_type_for_predicate(color, B)),
+	rdf_global_id(rs_components:'RsAnnotationGeometry',C),
+	rdf_global_id(rs_components:'RsAnnotationDetection',D),
+ 	rdf_global_id(rs_components:'RsAnnotationClassification',E),
+	rdf_global_id(rs_components:'RsAnnotationPose',F),
     assert(rs_type_for_predicate(size, C)),
 	assert(rs_type_for_predicate(detection, D)),
 	assert(rs_type_for_predicate(class, E)),
@@ -419,7 +430,7 @@ retract_query_lang:-
 	retractall(rs_type_for_predicate(_,_)).
    	
 retract_all_annotators:-
-    forall(owl_subclass_of(S,'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'),
+    forall(owl_subclass_of(S,rs_components:'RoboSherlockComponent'),
     rdf_retractall(_,rdf:type,S)).   
     
 retract_query_assertions:-
@@ -429,11 +440,11 @@ retract_query_assertions:-
 
 assert_reconfiguration_pipeline:-
     assert_test_pipeline,
-    owl_individual_of(I, 'http://knowrob.org/kb/rs_components.owl#SacModelAnnotator'),
+    owl_individual_of(I, rs_components:'SacModelAnnotator'),
     set_annotator_setup_names(I, ['SetupCylinder', 'SetupSphere']),
-    set_annotator_setup_output_type_domain(I, 'SetupCylinder', 'http://knowrob.org/kb/rs_components.owl#RsAnnotationShape', ['http://knowrob.org/kb/rs_components.owl#Cylinder']),
-    set_annotator_setup_output_type_domain(I, 'SetupSphere', 'http://knowrob.org/kb/rs_components.owl#RsAnnotationShape', ['http://knowrob.org/kb/rs_components.owl#Sphere']),
-    set_annotator_setup_input_type_constraint(I, 'SetupSphere', 'http://knowrob.org/kb/rs_components.owl#perceptualInputRequired', ['http://knowrob.org/kb/rs_components.owl#RsSceneMergedhypothesis'] ).
+    set_annotator_setup_output_type_domain(I, 'SetupCylinder', rs_components:'RsAnnotationShape', [rs_components:'Cylinder']),
+    set_annotator_setup_output_type_domain(I, 'SetupSphere', rs_components:'RsAnnotationShape', [rs_components:'Sphere']),
+    set_annotator_setup_input_type_constraint(I, 'SetupSphere', rs_components:'perceptualInputRequired', [rs_components:'RsSceneMergedhypothesis'] ).
 
 
 set_annotator_setup_names(AnnotatorI, Setups) :-
@@ -495,12 +506,12 @@ find_annotator_setup_for_input_type_constraint(AnnotatorI, Setup, Type, Constrai
 
 %% TEST TODO: REMOVE
 find_sphere_setup(A, S) :-
-    find_annotator_setup_for_output_type_domain(A, S, 'http://knowrob.org/kb/rs_components.owl#RsAnnotationShape', ['http://knowrob.org/kb/rs_components.owl#Sphere']).
+    find_annotator_setup_for_output_type_domain(A, S, rs_components:'RsAnnotationShape', [rs_components:'Sphere']).
 
 load_sphere_setup:-
-    owl_individual_of(I,'http://knowrob.org/kb/rs_components.owl#SacModelAnnotator'),
+    owl_individual_of(I,rs_components:'SacModelAnnotator'),
     load_annotator_setup_output(I, 'SetupSphere').
 
 load_cylinder_setup:-
-    owl_individual_of(I,'http://knowrob.org/kb/rs_components.owl#SacModelAnnotator'),
+    owl_individual_of(I,rs_components:'SacModelAnnotator'),
     load_annotator_setup(I, 'SetupCylinder').
