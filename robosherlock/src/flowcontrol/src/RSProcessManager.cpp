@@ -580,12 +580,24 @@ bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::Reconfigure
   if(req.setupName.empty()) {
     // No setup provided; reconfigure only.
     outInfo("No setup name provided, just calling reconfigure() now.");
-    engine_->reconfigureAnnotator(req.annotatorName);
+    res.result = engine_->reconfigureAnnotator(req.annotatorName);
   }
   else {
+    auto aCaps = engine_->getDelegateAnnotatorCapabilities();
+    auto result = aCaps.find(req.annotatorName);
+    rs::AnnotatorCapabilities aCap;
 
+    if(result != aCaps.end()) {
+      aCap = result->second;
+      // TODO: Update input- and output-capabilities here
+      res.result = true;
+    }
+    else {
+      outError("Annotator " << req.annotatorName << " could not be found.");
+      res.result = false;
+    }
   }
-  return true;
+  return res.result;
 }
 
 bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
@@ -601,8 +613,11 @@ bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam::R
       engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBool);
       break;
     case robosherlock_msgs::OverwriteParamRequest::BOOL_VECTOR:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBoolVector);
-      break;
+      //engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBoolVector);
+      // REASON: No valid template-function found during compile-time
+      outError("Vectors of booleans are currently not supported by the OverwriteParamService.");
+      res.result = false;
+      return false;
     case robosherlock_msgs::OverwriteParamRequest::FLOAT:
       engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterFloat);
       break;
