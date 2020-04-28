@@ -366,6 +366,18 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
   }
 }
 
+bool RSAggregateAnalysisEngine::reconfigureAnnotator(int annotatorIdx) {
+  if(annotatorIdx >= 0 && annotatorIdx < iv_annotatorMgr.iv_vecEntries.size()) {
+    return iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
+  }
+
+  return false;
+}
+
+bool RSAggregateAnalysisEngine::reconfigureAnnotator(std::string &annotatorName) {
+  return reconfigureAnnotator(getIndexOfAnnotator(std::move(annotatorName)));
+}
+
 namespace rs
 {
 std::string convertAnnotatorYamlToXML(std::string annotator_name,
@@ -642,17 +654,4 @@ RSAggregateAnalysisEngine* createParallelAnalysisEngine(uima::AnnotatorContext& 
   }
   return NULL;
 }
-
-bool RSProcessManager::reconfigureAnnotator(int annotatorIdx) {
-  if(annotatorIdx >= 0 && annotatorIdx < engine_->iv_annotatorMgr.iv_vecEntries.size()) {
-    return engine_->iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
-  }
-
-  return false;
-}
-
-bool RSProcessManager::reconfigureAnnotator(std::string &annotatorName) {
-  return reconfigureAnnotator(engine_->getIndexOfAnnotator(std::move(annotatorName)));
-}
-
 }  // namespace rs

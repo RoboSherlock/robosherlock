@@ -45,7 +45,8 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
-
+  reconfigureService_ = nh_.advertiseService("reconfigure_annotator", &RSProcessManager::handleReconfigureAnnotator, this);
+  overwriteParamService_ = nh_.advertiseService("overwrite_param", &RSProcessManager::handleOverwriteParam, this);
 
   // ROS publisher declarations
   result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
@@ -575,14 +576,55 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
 }
 
 bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
-                                                  robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
-  req.
-    return false;
+                                                  robosherlock_msgs::ReconfigureAnnotator::Response &res) {
+  if(req.setupName.empty()) {
+    // No setup provided; reconfigure only.
+    outInfo("No setup name provided, just calling reconfigure() now.");
+    engine_->reconfigureAnnotator(req.annotatorName);
+  }
+  else {
+
+  }
+  return true;
 }
 
-bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam:: &req,
-                                            robosherlock_msgs::ReconfigureAnnotator::Respone &res) {
-    return false;
+bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
+                                            robosherlock_msgs::OverwriteParam::Response &res) {
+  switch(req.parameterType) {
+    case robosherlock_msgs::OverwriteParamRequest::INT:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterInteger);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::INT_VECTOR:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterIntegerVector);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::BOOL:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBool);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::BOOL_VECTOR:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBoolVector);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::FLOAT:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterFloat);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::FLOAT_VECTOR:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterFloatVector);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::STRING:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterString);
+      break;
+    case robosherlock_msgs::OverwriteParamRequest::STRING_VECTOR:
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterStringVector);
+      break;
+
+    default:
+      outError("Invalid data type in OverwriteParam Service Request.");
+      res.result = false;
+      return false;
+  }
+
+  outInfo("OverwriteParam finished successfully.");
+  res.result = true;
+  return true;
 }
 
 template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,

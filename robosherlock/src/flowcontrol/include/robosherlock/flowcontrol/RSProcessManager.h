@@ -12,6 +12,8 @@
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 #include <robosherlock_msgs/RSVisControl.h>
 #include <robosherlock_msgs/ExecutePipeline.h>
+#include <robosherlock_msgs/ReconfigureAnnotator.h>
+#include <robosherlock_msgs/OverwriteParam.h>
 
 #include <mongo/client/dbclient.h>
 
@@ -58,7 +60,7 @@ public:
 
   ros::AsyncSpinner spinner_;
 
-  ros::ServiceServer setContextService_, queryService_, setFlowService_;
+  ros::ServiceServer setContextService_, queryService_, setFlowService_, reconfigureService_, overwriteParamService_;
   ros::Publisher result_pub_;
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
@@ -137,17 +139,16 @@ public:
    */
   bool virtual handleQuery(std::string &req, std::vector<std::string> &res);
 
-
-
   /**
-   * @brief Reconfigures a single annotator
-   * @param annotatorName Name of annotator in pipeline
-   * @return true on success
+   * @brief RSProcessManager::resetAE reset analysis engine that was instantiated; Use this method i
+   * if you want to change the AAE loaded at startup
+   * @param newAAEName name of the new aggregate analysis engine;
+   * @return true/false
    */
-  bool reconfigureAnnotator(std::string &annotatorName);
+  bool resetAE(std::string);
 
   bool handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
-          robosherlock_msgs::ReconfigureAnnotator::Respone &res);
+          robosherlock_msgs::ReconfigureAnnotator::Response &res);
 
   bool handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
           robosherlock_msgs::OverwriteParam::Response &res);

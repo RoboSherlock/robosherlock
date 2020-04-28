@@ -190,38 +190,6 @@ string YamlToXMLConverter::getType(const YAML::Node &node)
   }
 }
 
-
-/*bool YamlToXMLConverter::genAEInfo(const YAML::Node &node)
-{
-  if(node.Type() == YAML::NodeType::Map)
-  {
-    for(YAML::const_iterator mit = node.begin(); mit != node.end(); ++mit)
-    {
-      string name = mit->first.as<string>();
-
-      if(name == "name")
-        AEName = mit->second.as<string>();
-      else if(name == "implementation")
-        AEImpl = mit->second.as<string>();
-      else if(name == "description")
-        AEDescription = mit->second.as<string>();
-      else
-      {
-        cerr << mit->second.as<string>() << " is an unknown annotator info to us." << endl;
-        return false;
-      }
-    }
-  }
-  else
-  {
-    cerr << "Please use map structure under annotator node." << endl;
-    return false;
-  }
-
-  return true;
-}*/
-
-// TODO: Why two equal functions?
 bool YamlToXMLConverter::parseAnnotatorInfo(const YAML::Node &node)
 {
   if(node.Type() == YAML::NodeType::Map)
