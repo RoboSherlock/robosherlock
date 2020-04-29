@@ -1,5 +1,5 @@
 ae:
-  name: Storage pipeline
+  name: StoragePipeline
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
