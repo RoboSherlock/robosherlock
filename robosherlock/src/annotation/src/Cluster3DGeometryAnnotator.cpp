@@ -122,8 +122,6 @@ public:
       return UIMA_ERR_ANNOTATOR_MISSING_INFO;
     }
 
-    tf::StampedTransform head_to_map;
-    rs::conversion::from(scene.viewPoint.get(), head_to_map);
     plane_model = planes[0].model();
 
     scene.identifiables.filter(clusters);
@@ -137,7 +135,7 @@ public:
     }
     else
     {
-      outInfo("No camera to world transformation!!!");
+      outWarn("No camera to world transformation!!!");
     }
     worldToCam = tf::StampedTransform(camToWorld.inverse(), camToWorld.stamp_, camToWorld.child_frame_id_, camToWorld.frame_id_);
     Eigen::Affine3d eigenTransform;
