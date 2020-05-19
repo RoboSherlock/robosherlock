@@ -37,11 +37,32 @@
 
 #include <tf/tf.h>
 
+
 namespace rs
 {
 
 #define AE_SEARCHPATH "/descriptors/analysis_engines/"
 #define ANNOT_SEARCHPATH "/descriptors/annotators/"
+
+struct AnnotatorSetup
+{
+  /**
+   * @brief Holds the type name for each parameter:
+   */
+  std::map<std::string, std::string> paramTypes;
+  /**
+   * @brief Holds the value for each parameter in this setup:
+   */
+  std::map<std::string, std::vector<std::string>> paramValues;
+  /**
+   * @brief rOutputTypeValueDomains mapping of output domain values after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rOutputTypeValueDomains;
+  /**
+   * @brief rInputTypeValueRestrictions mapping of input restrictions after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rInputTypeValueRestrictions;
+};
 
 struct AnnotatorCapabilities
 {
@@ -58,15 +79,14 @@ struct AnnotatorCapabilities
    */
   std::map<std::string, std::vector<std::string>> iTypeValueRestrictions;
   /**
-   * @brief rOutputTypeValueDomains mapping of output domain values after reconfiguring
+   * @brief The default setup
    */
-  std::map<std::string, std::vector<std::string>> rOutputTypeValueDomains;
+  AnnotatorSetup defaultSetup;
   /**
-   * @brief rInputTypeValueRestrictions mapping of input restrictions after reconfiguring
+   * @brief Contains all setups for this annotator
    */
-  std::map<std::string, std::vector<std::string>> rInputTypeValueRestrictions;
+  std::map<std::string, AnnotatorSetup> reconfigurationSetups;
 };
-
 
 namespace common
 {

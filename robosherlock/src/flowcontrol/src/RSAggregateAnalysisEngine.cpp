@@ -406,12 +406,9 @@ std::string convertAnnotatorYamlToXML(std::string annotator_name,
         if (delegate_capabilities[annotator_name].iTypeValueRestrictions.empty())
           delegate_capabilities[annotator_name].iTypeValueRestrictions =
               converter.getAnnotatorCapabilities().iTypeValueRestrictions;
-        if (delegate_capabilities[annotator_name].rOutputTypeValueDomains.empty())
-          delegate_capabilities[annotator_name].rOutputTypeValueDomains =
-              converter.getAnnotatorCapabilities().rOutputTypeValueDomains;
-        if(delegate_capabilities[annotator_name].rInputTypeValueRestrictions.empty())
-          delegate_capabilities[annotator_name].rInputTypeValueRestrictions =
-              converter.getAnnotatorCapabilities().rInputTypeValueRestrictions;
+
+        delegate_capabilities[annotator_name].defaultSetup = converter.getAnnotatorCapabilities().defaultSetup;
+        delegate_capabilities[annotator_name].reconfigurationSetups = converter.getAnnotatorCapabilities().reconfigurationSetups;
       }
     }
     catch (YAML::ParserException e)

@@ -11,4 +11,4 @@ fixedflow:
   - ClusterMerger
   - SacModelAnnotator
 CollectionReader:
-  camera_config_files: ['config_kinect_robot.ini']
+  camera_config_files: ['config_reconfig_demo.ini']

@@ -466,6 +466,9 @@ bool YamlToXMLConverter::generateAnnotatorConfigParamInfo(const YAML::Node &node
         configParamSettings.append("</value>\n");
         configParamSettings.append("</nameValuePair>\n");
 
+        // Save parameter info into default setup:
+        annotCap.defaultSetup.paramTypes[configName] = type;
+        annotCap.defaultSetup.paramValues[configName] = { mit->second.as<string>() };
       }
       else if(mit->second.Type() == YAML::NodeType::Sequence)      // list
       {
@@ -524,6 +527,8 @@ bool YamlToXMLConverter::generateAnnotatorConfigParamInfo(const YAML::Node &node
         configParamSettings.append("</value>\n");
         configParamSettings.append("</nameValuePair>\n");
 
+        annotCap.defaultSetup.paramTypes[configName] = type;
+        annotCap.defaultSetup.paramValues[configName] = listValue;
       }
       else
       {
@@ -643,9 +648,7 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
               }
               else
               {
-                ostringstream id;
-                id << setup_name << ":" << val;
-                annotCap.rInputTypeValueRestrictions[id.str()] = std::vector<std::string>();
+                annotCap.reconfigurationSetups[setup_name].rInputTypeValueRestrictions[val] = std::vector<std::string>();
               }
             }
             if(sit->Type() == YAML::NodeType::Map)
@@ -664,9 +667,7 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
                     }
                     else
                     {
-                      ostringstream id;
-                      id << setup_name << ":" << val;
-                      annotCap.rInputTypeValueRestrictions[id.str()] = e.second.as<std::vector<std::string>>();
+                      annotCap.reconfigurationSetups[setup_name].rInputTypeValueRestrictions[val] = e.second.as<std::vector<std::string>>();
                     }
                   }
                 }
@@ -700,9 +701,7 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
               }
               else
               {
-                ostringstream id;
-                id << setup_name << ":" << val;
-                annotCap.rOutputTypeValueDomains[id.str()] = std::vector<std::string>();
+                annotCap.reconfigurationSetups[setup_name].rOutputTypeValueDomains[val] = std::vector<std::string>();
               }
             }
             if(n.Type() == YAML::NodeType::Map)
@@ -720,9 +719,7 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
                     }
                     else
                     {
-                      ostringstream id;
-                      id << setup_name << ":" << val;
-                      annotCap.rOutputTypeValueDomains[id.str()] = e.second.as<std::vector<std::string>>();
+                      annotCap.reconfigurationSetups[setup_name].rOutputTypeValueDomains[val] = e.second.as<std::vector<std::string>>();
                     }
                   }
                 }
@@ -800,6 +797,12 @@ bool YamlToXMLConverter::parseReconfigurationInfo(const YAML::Node &node)
   {
     string setup_name = it->first.as<string>();
 
+    if(setup_name.empty()){
+      continue;
+    }
+
+    outInfo("Reconfiguration: Found setup " << setup_name);
+
     for(YAML::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
     {
       if(sit->first.Type() == YAML::NodeType::Scalar)
@@ -808,11 +811,48 @@ bool YamlToXMLConverter::parseReconfigurationInfo(const YAML::Node &node)
 
         if(node_name == CAPAB_NODE_NAME)
         {
+          outInfo("Reconfiguration: Found capabilities for setup " << setup_name);
           parseCapabInfo(sit->second, "", setup_name);
         }
         else if(node_name == CONFIG_PARAM_NODE_NAME)
         {
-          // TODO: Also save params for reconfiguration?
+          outInfo("Reconfiguration: Found parameter definition for " << setup_name);
+
+          if(sit->second.Type() == YAML::NodeType::Map)
+          {
+            for(YAML::const_iterator mit = sit->second.begin(); mit != sit->second.end(); ++mit)
+            {
+              string configName = mit->first.as<string>();
+              outInfo("Reconfiguration: Saving parameter " << configName);
+
+              if(mit->second.Type() == YAML::NodeType::Scalar)
+              {
+                // Single values:
+                outInfo("Saving " << setup_name << " - " << configName << " : " << getType(mit->second) << " value:" << mit->second.as<string>());
+                annotCap.reconfigurationSetups[setup_name].paramTypes[configName] = getType(mit->second);
+                annotCap.reconfigurationSetups[setup_name].paramValues[configName] = { mit->second.as<string>() };
+              }
+              else if(mit->second.Type() == YAML::NodeType::Sequence)
+              {
+                // Lists:
+                YAML::const_iterator listIt = mit->second.begin();
+                string type = getType(*listIt);
+                vector<string> listValue = mit->second.as<std::vector<string>>();
+
+                outInfo("Saving " << setup_name << " - " << configName << " : " << getType(mit->second) << " value:" << mit->second.as<string>());
+                annotCap.reconfigurationSetups[setup_name].paramTypes[configName] = "List" + getType(mit->second);
+                annotCap.reconfigurationSetups[setup_name].paramValues[configName] = listValue;
+              }
+              else {
+                // ERROR: Invalid type
+                outError("Reconfiguration: Invalid data type");
+              }
+            }
+          }
+          else {
+            // ERROR: use map structure
+            outError("Reconfiguration: Please use map structure");
+          }
         }
         else
         {

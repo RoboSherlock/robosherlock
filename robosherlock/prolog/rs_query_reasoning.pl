@@ -43,9 +43,11 @@
   assert_test_case/0,
   retract_all_annotators/0,
   retract_query_assertions/0,
-
   set_annotator_setup_names/2,
-  assert_reconfiguration_pipeline/0
+  assert_reconfiguration_pipeline/0,
+  load_sphere_setup/0,
+  find_sphere_setup/2,
+  test_overwrite_param/0
 ]).
 
 :- rdf_meta
@@ -72,6 +74,8 @@
    find_annotator_setup_for_output_type_domain(r,t,t,t),
    find_annotator_setup_for_input_type_constraint(r,t,t,t).
 
+
+:- use_foreign_library('librs_prologQueries.so').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -470,8 +474,9 @@ load_annotator_setup(AnnotatorI, Setup) :-
     annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
     %% Update output and input
     load_annotator_setup_input(AnnotatorI, Setup),
-    load_annotator_setup_output(AnnotatorI, Setup).
-    %% TODO: Call Cpp Rule to reconfigure annotator
+    load_annotator_setup_output(AnnotatorI, Setup),
+    write('Loading new setup: '), nl, write(AnnotatorI), nl, write(Setup),
+    cpp_reconfigure_annotator(AnnotatorI, Setup).
 
 load_annotator_setup_input(AnnotatorI, Setup) :-
     annotator_setup_input_type((AnnotatorI, Setup), Type),
@@ -491,8 +496,9 @@ load_annotator_setup_output(AnnotatorI, Setup) :-
 
 load_annotator_setup_parameter(AnnotatorI, Setup, Parameter, Value) :-
     annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
-    annotator_setup_parameter((AnnotatorI, Setup), Parameter, Value).
-    %% TODO: Overwrite param with Cpp Rule
+    annotator_setup_parameter((AnnotatorI, Setup), Parameter, Value),
+    write('Overwriting param now'), nl, write(AnnotatorI), nl,
+    cpp_overwrite_param(AnnotatorI, Parameter, 2, Value).
 
 
 find_annotator_setup_for_output_type_domain(AnnotatorI, Setup, Type, Domain) :-
@@ -509,9 +515,11 @@ find_sphere_setup(A, S) :-
     find_annotator_setup_for_output_type_domain(A, S, rs_components:'RsAnnotationShape', [rs_components:'Sphere']).
 
 load_sphere_setup:-
-    owl_individual_of(I,rs_components:'SacModelAnnotator'),
-    load_annotator_setup_output(I, 'SetupSphere').
+    cpp_reconfigure_annotator('SacModelAnnotator', 'setup_spheres').
 
 load_cylinder_setup:-
     owl_individual_of(I,rs_components:'SacModelAnnotator'),
     load_annotator_setup(I, 'SetupCylinder').
+
+test_overwrite_param:-
+    cpp_overwrite_param('SacModelAnnotator', 'sacModel', ['CYLINDER']).

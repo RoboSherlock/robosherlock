@@ -21,7 +21,7 @@ parameters:
   minPoints: 200
   radiusLimit1: 0.01
   radiusLimit2: 0.5
-  sacModel: Cylinder
+  sacModel: "CYLINDER"
   useNormals: true
 
 reconfiguration:
@@ -34,15 +34,14 @@ reconfiguration:
 
     # Overwrite or define new parameters:
     parameters:
-      test_param: "success"
-      sacModel: Sphere
+      sacModel: "SPHERE"
 
   # Example setup
-  setup_example:
+  setup_cylinder:
     capabilities:
       outputs:
-      - rs.annotation.Shape: [example]
-      domain: [example]
+      - rs.annotation.Shape: [cylinder]
+      domain: [cylinder]
 
     parameters:
-      useNormals: false
+      sacModel: "CYLINDER"

@@ -577,9 +577,15 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
 
 bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
                                                   robosherlock_msgs::ReconfigureAnnotator::Response &res) {
+  if(req.annotatorName.empty()) {
+    outError("No annotator name set. Aborting..");
+    res.result = false;
+    return false;
+  }
+
   if(req.setupName.empty()) {
     // No setup provided; reconfigure only.
-    outInfo("No setup name provided, just calling reconfigure() now.");
+    outInfo("No setup name provided, just calling reconfigure() on \"" << req.annotatorName << "\".");
     res.result = engine_->reconfigureAnnotator(req.annotatorName);
   }
   else {
@@ -589,8 +595,30 @@ bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::Reconfigure
 
     if(result != aCaps.end()) {
       aCap = result->second;
-      // TODO: Update input- and output-capabilities here
-      res.result = engine_->reconfigureAnnotator(req.annotatorName);
+      auto setup = aCap.reconfigurationSetups.find(req.setupName);
+
+      // Check if requested setup exists:
+      if(setup != aCap.reconfigurationSetups.end()) {
+        // Load all parameters from setup:
+        map<std::string, std::string>::iterator paramIt;
+        for( paramIt = aCap.reconfigurationSetups[req.setupName].paramTypes.begin();
+             paramIt != aCap.reconfigurationSetups[req.setupName].paramTypes.end();
+             paramIt++)
+        {
+          std::string parameter = paramIt->first;
+          std::string type = paramIt->second;
+          std::vector<std::string> values = aCap.reconfigurationSetups[req.setupName].paramValues[paramIt->first];
+
+          outInfo("Updating parameter \"" << parameter << "\" of type " << type << " with the new value \"" << values[0] << "\".");
+          engine_->overwriteParam(req.annotatorName, parameter, values, type);
+        }
+
+        outInfo("Loading setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\".");
+        res.result = engine_->reconfigureAnnotator(req.annotatorName);
+      }
+      else {
+        outError("The requested setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\" could not be found.");
+      }
     }
     else {
       outError("Annotator " << req.annotatorName << " could not be found.");
@@ -602,44 +630,25 @@ bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::Reconfigure
 
 bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
                                             robosherlock_msgs::OverwriteParam::Response &res) {
-  switch(req.parameterType) {
-    case robosherlock_msgs::OverwriteParamRequest::INT:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterInteger);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::INT_VECTOR:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterIntegerVector);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::BOOL:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBool);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::BOOL_VECTOR:
-      //engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterBoolVector);
-      // REASON: No valid template-function found during compile-time
-      outError("Vectors of booleans are currently not supported by the OverwriteParamService.");
-      res.result = false;
-      return false;
-    case robosherlock_msgs::OverwriteParamRequest::FLOAT:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterFloat);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::FLOAT_VECTOR:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterFloatVector);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::STRING:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterString);
-      break;
-    case robosherlock_msgs::OverwriteParamRequest::STRING_VECTOR:
-      engine_->overwriteParam(req.annotatorName, req.parameterName, req.parameterStringVector);
-      break;
+  auto aCaps = engine_->getDelegateAnnotatorCapabilities();
+  auto result = aCaps.find(req.annotatorName);
+  rs::AnnotatorCapabilities aCap;
 
-    default:
-      outError("Invalid data type in OverwriteParam Service Request.");
+  if(result != aCaps.end()) {
+    aCap = result->second;
+
+    if(aCap.defaultSetup.paramTypes.count(req.parameterName) == 1) {
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.values, aCap.defaultSetup.paramTypes[req.parameterName]);
+      outInfo("OverwriteParam finished successfully.");
+      res.result = true;
+    }
+    else {
+      outError("OverwriteParam failed!");
       res.result = false;
-      return false;
+    }
+
+    return res.result;
   }
-
-  outInfo("OverwriteParam finished successfully.");
-  res.result = true;
-  return true;
 }
 
 template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,

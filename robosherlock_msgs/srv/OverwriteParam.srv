@@ -1,26 +1,7 @@
 string annotatorName
 string parameterName
-uint8 parameterType
+string[] values
 
-int32 parameterInteger
-float64 parameterFloat
-string parameterString
-bool parameterBool
-
-int32[] parameterIntegerVector
-float64[] parameterFloatVector
-string[] parameterStringVector
-bool[] parameterBoolVector
-
-# Parameter Types:
-uint8 INT = 0
-uint8 FLOAT = 1
-uint8 STRING = 2
-uint8 BOOL = 3
-uint8 INT_VECTOR = 4
-uint8 FLOAT_VECTOR = 5
-uint8 STRING_VECTOR = 6
-uint8 BOOL_VECTOR = 7
 ---
 bool result
 
