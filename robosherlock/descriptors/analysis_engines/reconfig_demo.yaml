@@ -6,9 +6,21 @@ fixedflow:
   - PointCloudFilter
   - NormalEstimator
   - PlaneAnnotator
-  - ImageSegmentationAnnotator
   - PointCloudClusterExtractor
   - ClusterMerger
   - SacModelAnnotator
+  - CaffeAnnotator
+  - KnnAnnotator
+  #- ReconfigAnnotator
+
 CollectionReader:
   camera_config_files: ['config_reconfig_demo.ini']
+
+PointCloudFilter:
+  minX: -1.0
+  maxX: 1.0
+  minY: 0.0
+  maxY: 1.0
+  minZ: 0.0
+  maxZ: 1.0
+  transform_cloud: true

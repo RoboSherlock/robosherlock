@@ -41,6 +41,7 @@
 #include <uima/pragmas.hpp> // must be first file to be included to get pragmas
 ////#include "uima/annotator_api.h"
 #include <uima/cas.hpp>
+#include <iostream>
 
 /* ----------------------------------------------------------------------- */
 /*       Constants                                                         */
@@ -177,6 +178,7 @@ namespace uima {
   }
 
   inline TyErrorId Annotator::reconfigure() {
+    std::cout << "\n\nCalling base reconfigure()\n\n";
     return (TyErrorId)UIMA_ERR_NONE;
   }
 

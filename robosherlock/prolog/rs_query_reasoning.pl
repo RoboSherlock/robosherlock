@@ -47,7 +47,9 @@
   assert_reconfiguration_pipeline/0,
   load_sphere_setup/0,
   find_sphere_setup/2,
-  test_overwrite_param/0
+  test_overwrite_param/0,
+  load_knn_one/0,
+  load_knn_two/0
 ]).
 
 :- rdf_meta
@@ -523,3 +525,9 @@ load_cylinder_setup:-
 
 test_overwrite_param:-
     cpp_overwrite_param('SacModelAnnotator', 'sacModel', ['CYLINDER']).
+
+load_knn_one:-
+    cpp_reconfigure_annotator('KnnAnnotator', 'setup_one').
+
+load_knn_two:-
+    cpp_reconfigure_annotator('KnnAnnotator', 'setup_two').

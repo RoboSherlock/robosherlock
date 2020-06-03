@@ -615,6 +615,9 @@ bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::Reconfigure
 
         outInfo("Loading setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\".");
         res.result = engine_->reconfigureAnnotator(req.annotatorName);
+
+        // TODO: Remove it
+        engine_->reconfigure();
       }
       else {
         outError("The requested setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\" could not be found.");

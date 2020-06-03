@@ -211,7 +211,8 @@ PREDICATE(cpp_reconfigure_annotator, 2)
   setupName = (std::string) PL_A2;
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::ReconfigureAnnotator>(std::string("RoboSherlock_") + getenv("USER") + "/reconfigure_annotator");
+  // TODO: Change to nodename String name
+  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::ReconfigureAnnotator>("RoboSherlock/reconfigure_annotator");
   robosherlock_msgs::ReconfigureAnnotator srv;
 
   srv.request.annotatorName = annotatorName;
@@ -237,7 +238,8 @@ PREDICATE(cpp_overwrite_param, 3)
   values = (std::vector<std::string>) PL_A3;
 
   ros::NodeHandle n;
-  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::OverwriteParam>(std::string("RoboSherlock_") + getenv("USER") + "/overwrite_param");
+  // TODO: Change to nodename String name
+  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::OverwriteParam>("RoboSherlock/overwrite_param");
   robosherlock_msgs::OverwriteParam srv;
 
   srv.request.annotatorName = annotatorName;

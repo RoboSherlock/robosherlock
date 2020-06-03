@@ -370,6 +370,9 @@ bool RSAggregateAnalysisEngine::reconfigureAnnotator(int annotatorIdx) {
   if(annotatorIdx >= 0 && annotatorIdx < iv_annotatorMgr.iv_vecEntries.size()) {
     return iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
   }
+  else {
+    outError("Annotator index is invalid.");
+  }
 
   return false;
 }

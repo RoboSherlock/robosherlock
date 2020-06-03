@@ -34,6 +34,7 @@ reconfiguration:
 
     # Overwrite or define new parameters:
     parameters:
+      distanceThreshold: 0.10
       sacModel: "SPHERE"
 
   # Example setup
@@ -44,4 +45,5 @@ reconfiguration:
       domain: [cylinder]
 
     parameters:
+      minPoints: 400
       sacModel: "CYLINDER"
