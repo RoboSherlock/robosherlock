@@ -165,6 +165,66 @@
         </featureDescription>
       </features>
     </typeDescription>
+    
+     <typeDescription>
+      <name>rs.annotation.SemanticMaterial</name>
+      <description/>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>material</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>confidence</name>
+          <description/>
+          <rangeTypeName>uima.cas.Float</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+    
+     <typeDescription>
+      <name>rs.annotation.SemanticSpatialRelation</name>
+      <description/>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>relation</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+         <featureDescription>
+          <name>target</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>confidence</name>
+          <description/>
+          <rangeTypeName>uima.cas.Float</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
+
+    
+    <typeDescription>
+      <name>rs.annotation.SemanticOpenability</name>
+      <description/>
+      <supertypeName>rs.core.Annotation</supertypeName>
+      <features>
+        <featureDescription>
+          <name>openability</name>
+          <description/>
+          <rangeTypeName>uima.cas.String</rangeTypeName>
+        </featureDescription>
+        <featureDescription>
+          <name>confidence</name>
+          <description/>
+          <rangeTypeName>uima.cas.Float</rangeTypeName>
+        </featureDescription>
+      </features>
+    </typeDescription>
 
     <typeDescription>
       <name>rs.annotation.Shape</name>

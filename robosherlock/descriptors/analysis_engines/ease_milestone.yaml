@@ -1,0 +1,16 @@
+ae:
+  name: demo
+fixedflow:
+  - Trigger
+  - CollectionReader
+  - ImagePreprocessor
+  - PointCloudFilter
+  - NormalEstimator
+  - PlaneAnnotator
+  - SceneGraphAnnotator
+  - Object6DPoseAnnotator
+CollectionReader:
+  camera_config_files: ['config_kinect_robot.ini']
+SceneGraphAnnotator:
+  fromScene: false
+

@@ -1,0 +1,17 @@
+annotator:
+  name: Cluster3DGeometryAnnotator 
+  implementation: rs_Cluster3DGeometryAnnotator
+  description: 'estimates 3D oriented bounding box of an object hypotheses; 
+and calculates geometrical primitive data'
+parameters:
+  projectOnPlane: false
+  sor_filter: false # apply statistical outlier removal to hypotheses before estimating BB; 
+                    # this can be useful when data is very noisy 
+  overwriteExistingPoseEstimate: false 
+capabilities:
+  inputs: ['rs.scene.MergedHypothesis']
+  outputs: 
+    - rs.annotation.Geometry
+    - rs.annotation.Pose
+    - rs.annotation.SemanticSize: [small, medium, big]
+    

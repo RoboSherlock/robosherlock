@@ -3,8 +3,14 @@ project(rs_annotation)
 rs_add_library(rs_Cluster3DGeometryAnnotator src/Cluster3DGeometryAnnotator.cpp)
 target_link_libraries(rs_Cluster3DGeometryAnnotator rs_core)
 
+rs_add_library(rs_Object6DPoseAnnotator src/Object6DPoseAnnotator.cpp)
+target_link_libraries(rs_Object6DPoseAnnotator rs_core)
+
 rs_add_library(rs_ClusterColorHistogramCalculator src/ClusterColorHistogramCalculator.cpp)
 target_link_libraries(rs_ClusterColorHistogramCalculator rs_core )
+
+rs_add_library(rs_SceneGraphAnnotator src/SceneGraphAnnotator.cpp)
+target_link_libraries(rs_SceneGraphAnnotator rs_core )
 
 rs_add_library(rs_ClusterTFLocationAnnotator src/ClusterTFLocationAnnotator.cpp)
 target_link_libraries(rs_ClusterTFLocationAnnotator rs_core)

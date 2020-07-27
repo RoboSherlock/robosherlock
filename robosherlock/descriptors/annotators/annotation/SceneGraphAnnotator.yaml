@@ -1,0 +1,16 @@
+annotator:
+  name: SceneGraphAnnotator
+  implementation: rs_SceneGraphAnnotator
+  description: 'return the actual semantic graph of the scene'
+parameters:
+  fromScene: true
+capabilities:
+  inputs:  ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
+  outputs:
+  - rs.scene.MergedHypothesis
+  - rs.annotation.Classification
+  - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange]
+  - rs.annotation.SemanticMaterial
+  - rs.annotation.SemanticOpenability
+  - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat]
+  
