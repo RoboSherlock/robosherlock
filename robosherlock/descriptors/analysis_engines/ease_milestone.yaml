@@ -1,5 +1,5 @@
 ae:
-  name: demo
+  name: ease_milestone
 fixedflow:
   - Trigger
   - CollectionReader
