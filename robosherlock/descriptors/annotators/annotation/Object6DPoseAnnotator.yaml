@@ -1,6 +1,6 @@
 annotator:
-  name: Cluster3DGeometryAnnotator 
-  implementation: rs_Cluster3DGeometryAnnotator
+  name: Object6DPoseAnnotator 
+  implementation: rs_Object6DPoseAnnotator
   description: 'estimates 3D oriented bounding box of an object hypotheses; 
 and calculates geometrical primitive data'
 parameters:
