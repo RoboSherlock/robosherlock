@@ -7,7 +7,7 @@
   <maintainer email="balintbe@cs.uni-bremen.de">Ferenc Balint-Benczedi</maintainer>
   <maintainer email="wiedemeyer@cs.uni-bremen.de">Thiemo Wiedemeyer</maintainer>
   <maintainer email="jworch@cs.uni-bremen.de">Jan-Hendirk Worch</maintainer>
-
+  <maintainer email="fkenghag@cs.uni-bremen.de">Franklin Kenghagho Kenfack</maintainer>
   <license>Apacehe 2.0</license>
 
   <url type="website">https://github.com/robosherlock/robosherlock</url>
@@ -15,6 +15,7 @@
   <author email="balintbe@cs.uni-bremen.de">Ferenc Balint-Benczedi</author>
   <author email="wiedemeyer@cs.uni-bremen.de">Thiemo Wiedemeyer</author>
   <author email="jworch@cs.uni-bremen.de">Jan-Hendirk Worch</author>
+  <author email="fkenghag@cs.uni-bremen.de">Franklin Kenghagho Kenfack</author>
 
   <buildtool_depend>catkin</buildtool_depend>
 
@@ -35,6 +36,8 @@
   <depend>image_geometry             </depend>
   <depend>pcl_ros		     </depend>
   <depend>pcl_conversions	     </depend>
+  
+  <depend>rs_robotvqa_msgs           </depend>
 
   <!--local dependencies-->
   <depend>robosherlock_msgs          </depend>
