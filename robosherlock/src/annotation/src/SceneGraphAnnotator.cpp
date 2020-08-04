@@ -47,13 +47,12 @@
 #include <rs/utils/output.h>
 #include <rs/utils/common.h>
 #include <rs/annotation/SceneGraphAnnotator.h>
+#include <rs/annotation/ObjectNameMapItem.h>
 
 #include <sensor_msgs/image_encodings.h>
 #include <cv_bridge/cv_bridge.h>
 #include <ros/package.h>
 #include <mutex> // std::mutex
-
-
 
 //#define DEBUG_OUTPUT 1;
 using namespace uima;
@@ -64,6 +63,9 @@ using namespace uima;
  */
 class SceneGraphAnnotator : public DrawingAnnotator
 {
+
+
+
 private:
   typedef pcl::PointXYZRGBA PointT;
 
@@ -91,7 +93,11 @@ private:
   bool from_real_scene;
   long start_fake_time;
   long end_fake_time;
-
+  std::string serverName_;
+  YAML::Node config;
+  std::string sceneObjectNameMap_;
+  std::vector<ObjectNameMapItem> object_name_map_items;
+  std::vector<std::string> target_object_names;
 
 public:
 
@@ -104,6 +110,8 @@ public:
     from_real_scene=false;
     start_fake_time=1473860925000000000;
     end_fake_time=1473860937000000000;
+    serverName_="/get_scene_graph";
+    sceneObjectNameMap_="scene_object_name_map.yaml";
   }
 
   void  unrealImage(sensor_msgs::Image image_msg)
@@ -117,15 +125,24 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
+
+
+    if(ctx.isParameterDefined("sceneObjectNameMap"))
+    {
+      ctx.extractValue("sceneObjectNameMap", sceneObjectNameMap_);
+    }
     if(ctx.isParameterDefined("fromScene"))
-     {
-         std::string frs;
-         ctx.extractValue("fromScene", from_real_scene);
-     }
-     if(!from_real_scene)
-         client = n.serviceClient<rs_robotvqa_msgs::GetSceneGraph>("/get_scene_graph");
-     else
-         client = n.serviceClient<rs_robotvqa_msgs::GetSceneGraph>("/get_scene_graph_1");
+    {
+       ctx.extractValue("fromScene", from_real_scene);
+    }
+    if(ctx.isParameterDefined("serverName"))
+    {
+       ctx.extractValue("serverName", serverName_);
+    }
+     std::string filename=ros::package::getPath("robosherlock")+"/config/"+sceneObjectNameMap_;
+    readObjectNameMapItem(filename, target_object_names, object_name_map_items);
+
+    client = n.serviceClient<rs_robotvqa_msgs::GetSceneGraph>(serverName_);
     setAnnotatorContext(ctx);
     return UIMA_ERR_NONE;
   }
@@ -263,32 +280,70 @@ private:
 
         //adding annotation to cluster
         if(!from_real_scene){
+
+          ObjectNameMapItem item;
+          bool found=false;
+          for(int k=0;k<object_name_map_items.size();k++){
+              item=object_name_map_items[k];
+              if(property.at(0).first.find(target_object_names[k])!=std::string::npos){
+                   found=true;
+                   break;
+              }
+          }
+          if(!found)
+              continue;
+
           //Category
           rs::Classification classResult = rs::create<rs::Classification>(tcas);
-          classResult.classname.set(property.at(0).first);
-          classResult.classifier("RobotVQA");
-          classResult.featurename("Category");
-          classResult.source.set("RobotVQA");
+          classResult.classname.set(item.category);
+          classResult.classifier("RS_RobotVQA");
+          classResult.featurename("type");
+          classResult.source.set("RS_RobotVQA");
           rs::ClassConfidence confidence = rs::create<rs::ClassConfidence>(tcas);
           confidence.score.set(property.at(0).second);
           confidence.name.set(property.at(0).first);
-          confidence.source.set("RobotVQA");
+          confidence.source.set("RS_RobotVQA");
           classResult.confidences.set({confidence});
           uimaCluster.annotations.append(classResult);
 
+          rs::Classification classResult1 = rs::create<rs::Classification>(tcas);
+          classResult1.classname.set(property.at(0).first);
+          classResult1.classifier("RobotVQA");
+          classResult1.featurename("Category");
+          classResult1.source.set("RobotVQA");
+          rs::ClassConfidence confidence1 = rs::create<rs::ClassConfidence>(tcas);
+          confidence1.score.set(property.at(0).second);
+          confidence1.name.set(property.at(0).first);
+          confidence1.source.set("RobotVQA");
+          classResult1.confidences.set({confidence1});
+          uimaCluster.annotations.append(classResult1);
+
           //Color
           rs::SemanticColor colorAnnotation = rs::create<rs::SemanticColor>(tcas);
-          colorAnnotation.color.set(property.at(1).first);
+          colorAnnotation.color.set(item.color.at(0));
           colorAnnotation.ratio.set(property.at(1).second);
-          colorAnnotation.source.set("RobotVQA");
+          colorAnnotation.source.set("RS_RobotVQA");
           uimaCluster.annotations.append(colorAnnotation);
+
+          rs::SemanticColor colorAnnotation1 = rs::create<rs::SemanticColor>(tcas);
+          colorAnnotation1.color.set(property.at(1).first);
+          colorAnnotation1.ratio.set(property.at(1).second);
+          colorAnnotation1.source.set("RobotVQA");
+          uimaCluster.annotations.append(colorAnnotation1);
 
           //Shape
           rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
-          shapeAnnotation.shape.set(property.at(2).first);
+          shapeAnnotation.shape.set(item.shape.at(0));
           shapeAnnotation.confidence.set(property.at(2).second);
-          shapeAnnotation.source.set("RobotVQA");
+          shapeAnnotation.source.set("RS_RobotVQA");
           uimaCluster.annotations.append(shapeAnnotation);
+
+          //Shape
+          rs::Shape shapeAnnotation1 = rs::create<rs::Shape>(tcas);
+          shapeAnnotation1.shape.set(property.at(2).first);
+          shapeAnnotation1.confidence.set(property.at(2).second);
+          shapeAnnotation1.source.set("RobotVQA");
+          uimaCluster.annotations.append(shapeAnnotation1);
 
           //Material
           rs::SemanticMaterial materialAnnotation = rs::create<rs::SemanticMaterial>(tcas);
@@ -296,6 +351,7 @@ private:
           materialAnnotation.confidence.set(property.at(3).second);
           materialAnnotation.source.set("RobotVQA");
           uimaCluster.annotations.append(materialAnnotation);
+
 
           //Openability
           rs::SemanticOpenability openabilityAnnotation = rs::create<rs::SemanticOpenability>(tcas);
@@ -307,7 +363,7 @@ private:
           //Spatial Relation
           for(size_t j = 0; j < interface.response.answer.relations.size(); ++j)
           {
-               if(interface.response.answer.relations.at(j).object_id1==classResult.classname.get()){
+               if(interface.response.answer.relations.at(j).object_id1==classResult1.classname.get()){
                    rs::SemanticSpatialRelation srAnnotation = rs::create<rs::SemanticSpatialRelation>(tcas);
                    srAnnotation.target.set(interface.response.answer.relations.at(j).object_id2);
                    srAnnotation.relation.set(interface.response.answer.relations.at(j).text_value.at(0));
@@ -319,15 +375,12 @@ private:
           }
           cv::Rect rect(clusters[i].roi_hires_.x,clusters[i].roi_hires_.y,clusters[i].roi_hires_.width,clusters[i].roi_hires_.height);
           if(!from_real_scene)
-            rois[classResult.classname.get()]=rect;
+            rois[classResult1.classname.get()]=rect;
 
         }
           cv::Rect rect(clusters[i].roi_hires_.x,clusters[i].roi_hires_.y,clusters[i].roi_hires_.width,clusters[i].roi_hires_.height);
           uimaClusters.push_back(uimaCluster);
           scene.identifiables.append(uimaCluster);
-
-
-
     }
     ROS_WARN("+++++++++++++++++++++++++++++++++++Merging clusters terminated ++++++++++++++++++++++++++");
     outDebug("adding clusters took: " << clock.getTime() - t << " ms.");
@@ -368,7 +421,7 @@ private:
            std::string ss=classes.at(0).confidences.get().at(0).name.get();
            ROS_WARN("Classes %d = %d",i,std::stoi(ss.substr(0,1)));
            for(size_t j = 0; j < sRelations.size(); ++j){
-                cv::Rect rect1=rois[sRelations.at(0).target.get()];
+                cv::Rect rect1=rois[sRelations.at(j).target.get()];
                 cv::Rect rect2((clusters[i].roi_hires_.x+clusters[i].roi_hires_.width/2),(clusters[i].roi_hires_.y+clusters[i].roi_hires_.height/2),(rect1.x+rect1.width/2),(rect1.y+rect1.height/2));
                 cv::Scalar color;
                 if(sRelations.at(j).relation.get()=="On")
