@@ -38,6 +38,7 @@
 #include <rs/utils/time.h>
 #include <rs/utils/common.h>
 #include <rs/DrawingAnnotator.h>
+#include <rs/annotation/ObjectNameMapItem.h>
 
 #include <tf/transform_datatypes.h>
 #include <tf_conversions/tf_eigen.h>
@@ -71,6 +72,14 @@ private:
   tf::StampedTransform camToWorld, worldToCam;
   std::vector<float> plane_model;
   bool projectOnPlane_, overwriteExistingPoseEstimate_, sorFilter_;
+  int  icpMaximumIterations_, maxClusterPoints_, minClusterPoints_;
+  float icpTransformationEpsilon_, icpMaxCorrespondenceDistance_,
+        icpEuclideanFitnessEpsilon_, icpRANSACOutlierRejectionThreshold_,
+        maxClusterDistance_;
+  int intersectionDeviation_;
+  std::string sceneObjectNameMap_;
+  std::vector<ObjectNameMapItem> object_name_map_items;
+  std::vector<std::string> target_object_names;
 
 public:
 
@@ -81,6 +90,60 @@ public:
   TyErrorId initialize(AnnotatorContext &ctx)
   {
     outInfo("initialize");
+
+    icpMaximumIterations_=1000000;
+    icpTransformationEpsilon_=1e-19;
+    icpMaxCorrespondenceDistance_=1;
+    icpEuclideanFitnessEpsilon_=9e-7;
+    icpRANSACOutlierRejectionThreshold_=0.01;
+    maxClusterPoints_=20000;
+    minClusterPoints_=0;
+    maxClusterDistance_=0.08;
+    intersectionDeviation_=100;
+    projectOnPlane_=false;
+    sorFilter_=false;
+    sceneObjectNameMap_="scene_object_name_map.yaml";
+
+    if(ctx.isParameterDefined("sceneObjectNameMap"))
+    {
+      ctx.extractValue("sceneObjectNameMap", sceneObjectNameMap_);
+    }
+    if(ctx.isParameterDefined("icpMaximumIterations"))
+    {
+      ctx.extractValue("icpMaximumIterations", icpMaximumIterations_);
+    }
+    if(ctx.isParameterDefined("icpTransformationEpsilon"))
+    {
+      ctx.extractValue("icpTransformationEpsilon", icpTransformationEpsilon_);
+    }
+    if(ctx.isParameterDefined("icpMaxCorrespondenceDistance"))
+    {
+      ctx.extractValue("icpMaxCorrespondenceDistance", icpMaxCorrespondenceDistance_);
+    }
+    if(ctx.isParameterDefined("icpEuclideanFitnessEpsilon"))
+    {
+      ctx.extractValue("icpEuclideanFitnessEpsilon", icpEuclideanFitnessEpsilon_);
+    }
+    if(ctx.isParameterDefined("icpRANSACOutlierRejectionThreshold"))
+    {
+      ctx.extractValue("icpRANSACOutlierRejectionThreshold", icpRANSACOutlierRejectionThreshold_);
+    }
+    if(ctx.isParameterDefined("maxClusterPoints"))
+    {
+      ctx.extractValue("maxClusterPoints", maxClusterPoints_);
+    }
+    if(ctx.isParameterDefined("minClusterPoints"))
+    {
+      ctx.extractValue("minClusterPoints", minClusterPoints_);
+    }
+    if(ctx.isParameterDefined("maxClusterDistance"))
+    {
+      ctx.extractValue("maxClusterDistance", maxClusterDistance_);
+    }
+    if(ctx.isParameterDefined("intersectionDeviation"))
+    {
+      ctx.extractValue("intersectionDeviation", intersectionDeviation_);
+    }
     if(ctx.isParameterDefined("projectOnPlane"))
     {
       ctx.extractValue("projectOnPlane", projectOnPlane_);
@@ -117,17 +180,6 @@ public:
     std::vector<rs::Plane> planes;
 
     cas.get(VIEW_CLOUD, *cloud_ptr);
-
-
-    /***************************** CAD Models **********************************************************************************/
-    std::map<std::string,std::string> cad_models={};
-    std::string path = ros::package::getPath("rs_resources");
-    cad_models.insert(std::pair<std::string,std::string>("KoellnMuesliKnusperHonigNuss",path+"/pcd_models/KoellnMuesliKnusperHonigNuss/KoellnMuesliKnusperHonigNuss.pcd"));
-    cad_models.insert(std::pair<std::string,std::string>("BluePlasticSpoon",path+"/pcd_models/BluePlasticSpoon/BluePlasticSpoon.pcd"));
-    cad_models.insert(std::pair<std::string,std::string>("WeideMilchSmall",path+"/pcd_models/WeideMilchSmall/WeideMilchSmall.pcd"));
-    cad_models.insert(std::pair<std::string,std::string>("EdekaRedBowl",path+"/pcd_models/EdekaRedBowl/EdekaRedBowl.pcd"));
-    cad_models.insert(std::pair<std::string,std::string>("CupEcoOrange",path+"/pcd_models/CupEcoOrange/CupEcoOrange.pcd"));
-    /****************************************************************************************************************************/
 
     dispCloud = cloud_ptr;
     cas.get(VIEW_COLOR_IMAGE, disp);
@@ -173,74 +225,27 @@ public:
         continue;
       }
       std::string obj_name="";
-      std::string obj_color="";
-      std::string obj_shape="";
-      std::vector<rs::Classification>  classes;
-      std::vector< rs::SemanticColor> colors;
-      std::vector<rs::Shape> shapes;
+      std::vector<rs::Classification> classes;
       cluster.annotations.filter(classes);
-      cluster.annotations.filter(colors);
-      cluster.annotations.filter(shapes);
       if(classes.size()<=0)
           continue;
 
       for(int r=0;r<classes.size();r++)
-          if(classes[r].source.get()=="RobotVQA" && classes[r].featurename.get()==("Category")){
+          if(classes[r].source.get()=="RS_RobotVQA" && classes[r].featurename.get()==("type")){
               obj_name=classes[r].classname.get();
               break;
           }
-
-      for(int r=0;r<shapes.size();r++)
-          if(shapes[r].source.get()=="RobotVQA"){
-              obj_shape=shapes[r].shape.get();
+      std::string filename=ros::package::getPath("robosherlock")+"/config/"+sceneObjectNameMap_;
+      readObjectNameMapItem(filename, target_object_names, object_name_map_items);
+      ObjectNameMapItem item;
+      for(int k=0;k<object_name_map_items.size();k++){
+          item = object_name_map_items[k];
+          if(obj_name.find(item.category)!=std::string::npos){
+              obj_name=item.category;
               break;
           }
-
-      for(int r=0;r<colors.size();r++)
-          if(colors[r].source.get()=="RobotVQA"){
-              obj_color=colors[r].color.get();
-              break;
-          }
-
-      if(obj_name.find("Milk")!=std::string::npos)
-          obj_name="WeideMilchSmall";
-      else{
-          if(obj_name.find("Mug")!=std::string::npos)
-              obj_name="CupEcoOrange";
-          else
-              if(obj_name.find("Bowl")!=std::string::npos)
-                  obj_name="EdekaRedBowl";
-              else
-                  if(obj_name.find("Spoon")!=std::string::npos)
-                      obj_name="BluePlasticSpoon";
-                  else{
-                       obj_name="";
-                      for(int r=0;r<classes.size();r++)
-                          if(classes[r].source.get()=="Knn"){
-                              obj_name=classes[r].classname.get();
-                              break;
-                          }
-                  }
       }
 
-
-     /* for(int r=0;r<classes.size();r++){
-          ROS_WARN(" +++++++++++++++++++++++ %s ++ %s +++ %s",classes[r].source.get().data(),classes[r].classname.get().data(), classes[r].featurename.get().data());
-          if(classes[r].source.get()=="RobotVQA"){
-              if(classes[r].classname.get().find("Milk")!=std::string::npos && classes[r].featurename.get()==("Category")){
-                obj_name="WeideMilchSmall";
-                break;
-              }
-              else
-                  continue;
-          }else{
-
-              if(classes[r].source.get()=="Knn"){
-                  obj_name=classes[r].classname.get();
-                  break;
-              }
-          }
-      }*/
 
       if(obj_name=="")
           continue;
@@ -255,20 +260,29 @@ public:
       ei.setIndices(indices);
       ei.filter(*cluster_cloud);
       std::vector<PointT> scene_points;
-      if(cluster_cloud->size()>20000 || cluster_cloud->size()<=0 )
+
+      if(cluster_cloud->size()>maxClusterPoints_ || cluster_cloud->size()<=minClusterPoints_ )
       {
         continue;
       }
+
       //centroid
       Eigen::Vector4f pcaCentroid;
       std::map<std::string,std::string>::iterator it;
-      it=cad_models.find(obj_name);
+
+
+      std::string cad_model_path="";
+      if(item.fromPackage){
+          cad_model_path=ros::package::getPath("rs_resources")+"/"+item.filePath;
+
+      }
+       ROS_WARN("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX %s",cad_model_path.data());
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud1 (new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud2 (new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud0 (new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudf (new pcl::PointCloud<pcl::PointXYZRGBA>);
       pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudff (new pcl::PointCloud<pcl::PointXYZRGBA>);
-      if (pcl::io::loadPCDFile<pcl::PointXYZRGBA> (it->second, *cloud1) == -1) //* load the file
+      if (pcl::io::loadPCDFile<pcl::PointXYZRGBA> (cad_model_path, *cloud1) == -1) //* load the file
         {
          ROS_WARN("++++++++++++++++++++++ POINTCLOUD NOT LOADED ********************");
 
@@ -277,20 +291,33 @@ public:
          ROS_WARN("++++++++++++++++++++++ POINTCLOUD LOADED: %d %d points +++++++",cloud1->points.size(),cloud_ptr->points.size());
         // cloud_ptr=cloud1;
          for(int l=0;l<cloud1->points.size();l++){
-             float scale=(obj_name=="BluePlasticSpoon" || obj_name=="EdekaRedBowl")?50.0:100.0;
-             scale=(obj_name=="EdekaRedBowl")?80.0:scale;
+             float scale=item.scale;
              cloud1->points.at(l)._PointXYZRGBA::x/=scale;
              cloud1->points.at(l)._PointXYZRGBA::y/=scale;
              cloud1->points.at(l)._PointXYZRGBA::z/=scale;
-             //cloud_ptr->points.push_back(cloud1->points.at(l));
          }
          pcl::compute3DCentroid(*cloud1, pcaCentroid);
 
       }
+      if(!sorFilter_)
+      {
       refinePointcloud(cluster_cloud, scene_points);
       cluster_cloud->points.clear();
       for(int i=0;i<scene_points.size();i++)
           cluster_cloud->points.push_back(scene_points.at(i));
+      }
+
+      if(sorFilter_)
+      {
+        outDebug("Before SOR filter: " << cluster_cloud->points.size());
+        pcl::StatisticalOutlierRemoval<PointT> sor;
+        sor.setInputCloud(cluster_cloud);
+        sor.setMeanK(100);
+        sor.setStddevMulThresh(1.0);
+        sor.filter(*cluster_cloud);
+        outDebug("After SOR filter: " << cluster_cloud->points.size());
+      }
+
 
       /******************* Shift testing cloud *********************************/
       //centroid
@@ -317,7 +344,7 @@ public:
       ROS_WARN("///////////////////////// 1. Size Franklin %d *********************",cluster_cloud->size());
       /*********************************************************************************/
 
-      if(cluster_cloud->size()>20000 || cluster_cloud->size()<=0 )
+      if(cluster_cloud->size()>maxClusterPoints_ || cluster_cloud->size()<=minClusterPoints_ )
       {
         continue;
       }
@@ -335,7 +362,7 @@ public:
       //transform Point Cloud to map coordinates
       pcl::transformPointCloud<PointT>(*cluster_cloud, *cloud2, eigenTransform);
       computePCAAxis(cloud2, pcaCentroid2, eigenVectorsPCA);
-      getAllTransforms(eigenVectorsPCA,transformation_true, eigenTransformWtC, pcaCentroid, pcaCentroid1, pcaCentroid2,obj_name);
+      getAllTransforms(eigenVectorsPCA,transformation_true, eigenTransformWtC, pcaCentroid, pcaCentroid1, pcaCentroid2,item);
       scores.resize(transformation_true.size());
       listTransform.resize(transformation_true.size());
       listTransformr.resize(transformation_true.size());
@@ -345,12 +372,14 @@ public:
       for(int n=0;n<transformation_true.size();n++){
            //random_transform(transformation_true);
            //pcl::transformPointCloud( *cluster_cloud, *cloudff, transformation_true.at(n));
+
+
           pcl::IterativeClosestPoint<pcl::PointXYZRGBA, pcl::PointXYZRGBA> icp;
-          icp.setMaximumIterations (1000000);
-          icp.setTransformationEpsilon (1e-19);
-          icp.setMaxCorrespondenceDistance (1);
-          icp.setEuclideanFitnessEpsilon (9e-7);
-          icp.setRANSACOutlierRejectionThreshold (0.01);
+          icp.setMaximumIterations (icpMaximumIterations_);
+          icp.setTransformationEpsilon (icpTransformationEpsilon_);
+          icp.setMaxCorrespondenceDistance (icpMaxCorrespondenceDistance_);
+          icp.setEuclideanFitnessEpsilon (icpEuclideanFitnessEpsilon_);
+          icp.setRANSACOutlierRejectionThreshold (icpRANSACOutlierRejectionThreshold_);
            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud3 (new pcl::PointCloud<pcl::PointXYZRGBA>);
             pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloudg (new pcl::PointCloud<pcl::PointXYZRGBA>);
            pcl::transformPointCloud( *cloud1, *cloud3, transformation_true.at(n));
@@ -408,7 +437,7 @@ public:
        OrientedBoundingBox &box = orientedBoundingBoxes[i];
        rs::conversion::from(cluster.rois().roi.get(),box.rect_);
 
-       computeBoundingBoxPCA(cluster_transformed, box, eigenTransformobj,obj_name);
+       computeBoundingBoxPCA(cluster_transformed, box, eigenTransformobj,item);
       //computeBoundingBoxMinArea(cluster_transformed, box);
       // computeBoundingBoxMoments(cluster_transformed, box);
 
@@ -494,32 +523,14 @@ public:
     return UIMA_ERR_NONE;
   }
 
-  void  getAllTransforms(Eigen::Matrix3f eigenVectorsPCA,std::vector<Eigen::Affine3f>& transformation_true, Eigen::Affine3d eigenTransformWtC, Eigen::Vector4f pcaCentroid, Eigen::Vector4f pcaCentroid1, Eigen::Vector4f pcaCentroid2, std::string obj_name){
+  void  getAllTransforms(Eigen::Matrix3f eigenVectorsPCA,std::vector<Eigen::Affine3f>& transformation_true, Eigen::Affine3d eigenTransformWtC, Eigen::Vector4f pcaCentroid, Eigen::Vector4f pcaCentroid1, Eigen::Vector4f pcaCentroid2, ObjectNameMapItem item){
         Eigen::Matrix3f M;
         Eigen::Matrix3f N=Eigen::Matrix3f::Identity();
 
-        if(obj_name=="CupEcoOrange"){
-            M.matrix().col(2)=eigenVectorsPCA.col(2);
-            M.matrix().col(0)=eigenVectorsPCA.col(0);
-            M.matrix().col(1)=eigenVectorsPCA.col(1);
-        }else{
-              if(obj_name=="KoellnMuesliKnusperHonigNuss" || obj_name=="EdekaRedBowl"){
-                  M.matrix().col(2)=eigenVectorsPCA.col(0);
-                  M.matrix().col(0)=eigenVectorsPCA.col(1);
-                  M.matrix().col(1)=eigenVectorsPCA.col(2);
-              }else{
-                    if(obj_name=="WeideMilchSmall"){
-                        M.matrix().col(2)=-eigenVectorsPCA.col(1);
-                        M.matrix().col(0)=eigenVectorsPCA.col(0);
-                        M.matrix().col(1)=eigenVectorsPCA.col(2);
-                    }else{
-                        M.matrix().col(2)=-eigenVectorsPCA.col(0);
-                        M.matrix().col(0)=-eigenVectorsPCA.col(1);
-                        M.matrix().col(1)=eigenVectorsPCA.col(2);
-                    }
-              }
+        M.matrix().col(2)=eigenVectorsPCA.col(item.axisMap[2]);
+        M.matrix().col(0)=eigenVectorsPCA.col(item.axisMap[0]);
+        M.matrix().col(1)=eigenVectorsPCA.col(item.axisMap[1]);
 
-        }
         Eigen::Affine3f R (eigenTransformWtC.matrix().block<3,3>(0,0).cast<float>()*M);
         Eigen::Translation3f T ( (pcaCentroid1.x()-0*pcaCentroid.x()), (pcaCentroid1.y()-0*pcaCentroid.y()), (pcaCentroid1.z()-0*pcaCentroid.z()) );
         //Eigen::Translation3f T (0.0,0.0,0.0);
@@ -656,8 +667,8 @@ public:
 
       //max distance among clusters
       //ROS_WARN("max distance among clusters");
-      double max_cluster_distance=0.08;
-      int intersection_deviation=100;
+      double max_cluster_distance= maxClusterDistance_;
+      int intersection_deviation=intersectionDeviation_;
       //initialize the set of points
       //ROS_WARN("initialize the set of points");
       std::vector<int> set_points;
@@ -826,127 +837,13 @@ public:
     }
 
     cv::Point corner((max.x - min.x) * 1000, (max.y - min.y) * 1000);
-       for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
-       {
+    for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
+    {
          const PointT &point = scene_points[i];
          points[i] = cv::Point((point.x - min.x) * 1000, (point.y - min.y) * 1000);
-         //points[j] = corner - points[i];
-   }
-    /*
-    double threshold=3.0;
-    double threshold1=0.001;
-    double threshold2=0.001;
-    cv::Point3f min_depth = cv::Point3f(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-    cv::Point3f max_depth = cv::Point3f(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
-    double average_depth=0.0;
-    double nber_pts=0.0;
-    double weights=0.0;
-    double deviation=0.00001;
-    cv::Point corner((max.x - min.x) * 1000, (max.y - min.y) * 1000);
-
-
-
-
-   /*  for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
-    {
-      const PointT &point = scene_points[i];
-      if((int)((point.x - min.x) * 1000)>0  && (int)((point.y - min.y) * 1000)>0 && (-point.x+max.x)<threshold){
-          //points.push_back(cv::Point((int)((point.x - min.x) * 1000),(int)((point.y - min.y) * 1000)));
-              ////ROS_WARN("STAT =(%f,%f,%f,%f)",min_depth,max_depth,point.z,average_depth);
-          //points[j] = corner - points[i];
-              min_depth=(min_depth>point.x)?point.x:min_depth;
-              max_depth=(max_depth<point.x)?point.x:max_depth;
-              average_depth+=point.x;
-              nber_pts+=1.0;
-     }
+         points[j] = corner - points[i];
     }
 
-    min.x=min_depth;
-    max.x=max_depth;
-     */
-
-
-  /*   for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
-    {
-      const PointT &point = scene_points[i];
-      if((int)((point.x - min.x) * 1000)>0  && (int)((point.y - min.y) * 1000)>0 && (-point.x+max.x)<threshold){
-          //points.push_back(cv::Point((int)((point.x - min.x) * 1000),(int)((point.y - min.y) * 1000)));
-              ////ROS_WARN("STAT =(%f,%f,%f,%f)",min_depth,max_depth,point.z,average_depth);
-          //points[j] = corner - points[i];
-              //min_depth=(min_depth>point.x)?point.x:min_depth;
-              //max_depth=(max_depth<point.x)?point.x:max_depth;
-           //   average_depth+=(point.x)/*///(log(1+max.x-point.x)+deviation));
-          //    weights+=1.0/*/(log(1+max.x-point.x)+deviation)*/;
-      /*        nber_pts+=1.0;
-     }
-    }
-
-
-    average_depth=(weights>0.0)?average_depth/weights:average_depth;
-
-
-   for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
-    {
-      const PointT &point = scene_points[i];
-      if((int)((point.x - min.x) * 1000)>0  && (int)((point.y - min.y) * 1000)>0 && fabs(-point.x+average_depth)<fabs(max.x-average_depth+threshold1)){
-          //points.push_back(cv::Point((int)((point.x - min.x) * 1000),(int)((point.y - min.y) * 1000)));
-              ////ROS_WARN("STAT =(%f,%f,%f,%f)",min_depth,max_depth,point.z,average_depth);
-          //points[j] = corner - points[i];
-              min_depth.x=(min_depth.x>point.x)?point.x:min_depth.x;
-              max_depth.x=(max_depth.x<point.x)?point.x:max_depth.x;
-
-              min_depth.y=(min_depth.y>point.y)?point.y:min_depth.y;
-              max_depth.y=(max_depth.y<point.y)?point.y:max_depth.y;
-
-              min_depth.z=(min_depth.z>point.z)?point.z:min_depth.z;
-              max_depth.z=(max_depth.z<point.z)?point.z:max_depth.z;
-
-     }
-    }
-
-    min.x=min_depth.x;
-    max.x=max_depth.x;
-
-    min.y=min_depth.y;
-    max.y=max_depth.y;
-
-    min.z=min_depth.z;
-    max.z=max_depth.z;
-
-    cv::Point3f min_depth1 = cv::Point3f(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
-    cv::Point3f max_depth1 = cv::Point3f(std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest(), std::numeric_limits<float>::lowest());
-
-     for(size_t i = 0, j = scene_points.size(); i < scene_points.size(); ++i, ++j)
-    {
-      const PointT &point = scene_points[i];
-      if((int)((point.x - min.x) * 1000)>0  && (int)((point.y - min.y) * 1000)>0  && fabs(-point.x+average_depth)<fabs(max.x-average_depth+threshold2)){
-          points.push_back(cv::Point((int)((point.x - min.x) * 1000),(int)((point.y - min.y) * 1000)));
-
-          //points[j] = corner - points[i];
-              min_depth1.x=(min_depth1.x>point.x)?point.x:min_depth1.x;
-              max_depth1.x=(max_depth1.x<point.x)?point.x:max_depth1.x;
-
-              min_depth1.y=(min_depth1.y>point.y)?point.y:min_depth1.y;
-              max_depth1.y=(max_depth1.y<point.y)?point.y:max_depth1.y;
-
-              min_depth1.z=(min_depth1.z>point.z)?point.z:min_depth1.z;*/
-              //max_depth1.z=(max_depth1.z<point.z)?point.z:max_depth1.z;/**/
-              //ROS_WARN("STAT =(%f,%f)",min_depth1.y,max_depth1.y);
-     /* }
-    }*/
-
-    /*min.x=min_depth1.x;
-    max.x=max_depth1.x;
-
-    min.y=min_depth1.y;
-    max.y=max_depth1.y;*/
-
-    /*min.z=min_depth1.z;
-    max.z=max_depth1.z;*/
-
-   /* if(points.size()==0){
-      points.push_back(cv::Point(0,0));
-    }*/
 
   }
 
@@ -982,7 +879,7 @@ public:
 
 
 
-  void computeBoundingBoxPCA(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box, Eigen::Affine3d eigenTransformobj, std::string obj_name)
+  void computeBoundingBoxPCA(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box, Eigen::Affine3d eigenTransformobj, ObjectNameMapItem item)
   {
     try{pcl::PCA<PointT> pca;
         pcl::PointCloud<PointT> cloudProjected;
@@ -1011,28 +908,11 @@ public:
             //Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
             Eigen::Matrix3f eigenVectorsPCA;
 
-            if(obj_name=="CupEcoOrange"){
-                eigenVectorsPCA.col(0)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(0);
-                eigenVectorsPCA.col(1)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(1);
-                eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(2);
-            }else{
-                  if(obj_name=="KoellnMuesliKnusperHonigNuss" || obj_name=="EdekaRedBowl"){
-                      eigenVectorsPCA.col(0)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(2);
-                      eigenVectorsPCA.col(1)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(0);
-                      eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(1);
-                  }else{
-                        if(obj_name=="WeideMilchSmall"){
-                            eigenVectorsPCA.col(0)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(0);
-                            eigenVectorsPCA.col(1)=-eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(2);
-                            eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(1);
-                        }else{
-                            eigenVectorsPCA.col(0)=-eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(2);
-                            eigenVectorsPCA.col(1)=-eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(0);
-                            eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(1);
-                        }
-                  }
 
-            }
+            eigenVectorsPCA.col(0)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[0]);
+            eigenVectorsPCA.col(1)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[1]);
+            eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[2]);
+
             eigenVectorsPCA.col(2)=eigenVectorsPCA.col(0).cross(eigenVectorsPCA.col(1));
             // Transform the original cloud to the origin where the principal components correspond to the axes.
             Eigen::Matrix4f projectionTransform(Eigen::Matrix4f::Identity());
@@ -1079,48 +959,6 @@ public:
       }
   }
 
-
- /* void computeBoundingBoxPCA(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box)
-  {
-    try{pcl::PCA<PointT> pca;
-        pcl::PointCloud<PointT> cloudProjected;
-
-        std::vector<PointT> scene_points;
-        refinePointcloud(cloud, scene_points);
-        cloud->points.clear();
-        for(int i=0;i<scene_points.size();i++)
-            cloud->points.push_back(scene_points.at(i));
-        if(cloud->points.size()>=3){
-            pca.setInputCloud(cloud);
-            pca.project(*cloud, cloudProjected);
-
-            PointT proj_min, proj_max, min_pt, max_pt;
-            pcl::getMinMax3D(cloudProjected, proj_min, proj_max);
-            pca.reconstruct(proj_min, min_pt);
-            pca.reconstruct(proj_max, max_pt);
-
-            tf::Transform objectToWorld;
-
-            tf::Vector3 trans;
-            Eigen::Vector3d translation = pca.getMean().head(3).cast<double>();
-            tf::vectorEigenToTF(translation, trans);
-            objectToWorld.setOrigin(trans);
-
-            Eigen::Quaterniond quaternion(pca.getEigenVectors().cast<double>());
-            tf::Quaternion quat;
-            tf::quaternionEigenToTF(quaternion, quat);
-           // objectToWorld.setRotation(quaternion);
-
-            box.objectToWorld = objectToWorld;
-            box.width = fabs(proj_max.x - proj_min.x);
-            box.height = fabs(proj_max.y - proj_min.y);
-            box.depth = fabs(proj_max.z - proj_min.z);
-            box.volume = box.width * box.depth * box.height;
-        }
-      }catch(Exception e){
-          ROS_WARN("Failure on pose estimation: %s",e.asString().data());
-      }
-  }*/
 
   void computeBoundingBoxMinArea(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box) const
   {
