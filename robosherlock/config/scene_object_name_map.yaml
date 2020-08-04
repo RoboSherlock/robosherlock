@@ -1,0 +1,67 @@
+%YAML:1.0
+names:
+   - Muesli
+   - Spoon
+   - Milk
+   - Bowl
+   - Mug
+Muesli:
+   category: KoellnMuesliKnusperHonigNuss
+   color: [green,Green]
+   shape: [box,Cubic]
+   material: [Cartoon]
+   openability: true
+   folderPath: none
+   filePath: pcd_models/KoellnMuesliKnusperHonigNuss/KoellnMuesliKnusperHonigNuss.pcd
+   fromPackage: true
+   packageName: rs_resources
+   scale: 100.0
+   axisMap: [2,0,1]
+Spoon:
+   category: BluePlasticSpoon
+   color: [blue,Blue]
+   shape: [flat, Filiform]
+   material: [Plastic]
+   openability: false
+   folderPath: none
+   filePath: pcd_models/BluePlasticSpoon/BluePlasticSpoon.pcd
+   fromPackage: true
+   packageName: rs_resources
+   scale: 50.0
+   axisMap: [2,0,1]
+Milk:
+   category: WeideMilchSmall
+   color: [blue, white,Blue, White]
+   shape: [box,Cylindrical]
+   material: [Cartoon]
+   openability: true
+   folderPath: none
+   filePath: pcd_models/WeideMilchSmall/WeideMilchSmall.pcd
+   fromPackage: true
+   packageName: rs_resources
+   scale: 100.0
+   axisMap: [0,2,1]
+Bowl:
+   category: EdekaRedBowl
+   color: [white,red,White,Red]
+   shape: [round,Conical]
+   material: [Plastic]
+   openability: false
+   folderPath: none
+   filePath: pcd_models/EdekaRedBowl/EdekaRedBowl.pcd
+   fromPackage: true
+   packageName: rs_resources
+   scale: 80.0
+   axisMap: [2,0,1]
+Mug:
+   category: CupEcoOrange
+   color: [yellow,Brown]
+   shape: [round,Cylindrical]
+   material: [Plastic]
+   openability: false
+   folderPath: none
+   filePath: pcd_models/CupEcoOrange/CupEcoOrange.pcd
+   fromPackage: true
+   packageName: rs_resources
+   scale: 100.0
+   axisMap: [0,1,2]
