@@ -4,13 +4,16 @@ annotator:
   description: 'return the actual semantic graph of the scene'
 parameters:
   fromScene: true
+  serverName: /get_scene_graph
+  sceneObjectNameMap: scene_object_name_map.yaml
 capabilities:
   inputs:  ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
   outputs:
   - rs.scene.MergedHypothesis
   - rs.annotation.Classification
-  - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange]
+  - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange,yellow, blue, black, white, red, green, cyan, magenta]
   - rs.annotation.SemanticMaterial
   - rs.annotation.SemanticOpenability
-  - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat]
+  - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat,box,round,flat]
+  - rs::SemanticSpatialRelation
   
