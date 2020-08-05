@@ -12,6 +12,11 @@ capabilities:
   inputs: ['rs.scene.MergedHypothesis']
   outputs: 
     - rs.annotation.Geometry
-    - rs.annotation.Pose
+    - rs.annotation.PoseAnnotation
     - rs.annotation.SemanticSize: [small, medium, big]
-    
+    - rs.annotation.Classification
+    - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange,yellow, blue, black, white, red, green, cyan, magenta]
+    - rs.annotation.SemanticMaterial
+    - rs.annotation.SemanticOpenability
+    - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat,box,round,flat]
+    - rs::SemanticSpatialRelation
