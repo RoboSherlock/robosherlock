@@ -316,7 +316,7 @@ private:
           confidence1.name.set(property.at(0).first);
           confidence1.source.set("RobotVQA");
           classResult1.confidences.set({confidence1});
-          uimaCluster.annotations.append(classResult1);
+          //uimaCluster.annotations.append(classResult1);
 
           //Color
           rs::SemanticColor colorAnnotation = rs::create<rs::SemanticColor>(tcas);
@@ -329,7 +329,7 @@ private:
           colorAnnotation1.color.set(property.at(1).first);
           colorAnnotation1.ratio.set(property.at(1).second);
           colorAnnotation1.source.set("RobotVQA");
-          uimaCluster.annotations.append(colorAnnotation1);
+          //uimaCluster.annotations.append(colorAnnotation1);
 
           //Shape
           rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
@@ -343,7 +343,7 @@ private:
           shapeAnnotation1.shape.set(property.at(2).first);
           shapeAnnotation1.confidence.set(property.at(2).second);
           shapeAnnotation1.source.set("RobotVQA");
-          uimaCluster.annotations.append(shapeAnnotation1);
+          //uimaCluster.annotations.append(shapeAnnotation1);
 
           //Material
           rs::SemanticMaterial materialAnnotation = rs::create<rs::SemanticMaterial>(tcas);
