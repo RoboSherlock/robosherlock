@@ -165,7 +165,7 @@ public:
       ei.setIndices(indices);
       ei.filter(*cluster_cloud);
 
-      if(sorFilter_)
+      if(!sorFilter_)
       {
         outDebug("Before SOR filter: " << cluster_cloud->points.size());
         pcl::StatisticalOutlierRemoval<PointT> sor;
@@ -174,6 +174,14 @@ public:
         sor.setStddevMulThresh(1.0);
         sor.filter(*cluster_cloud);
         outDebug("After SOR filter: " << cluster_cloud->points.size());
+      }
+      std::vector<PointT> scene_points;
+      if(!sorFilter_)
+      {
+      refinePointcloud(cluster_cloud, scene_points);
+      cluster_cloud->points.clear();
+      for(int i=0;i<scene_points.size();i++)
+          cluster_cloud->points.push_back(scene_points.at(i));
       }
 
       //transform Point Cloud to map coordinates
@@ -268,6 +276,179 @@ public:
     return UIMA_ERR_NONE;
   }
 
+
+
+  double cluster_distance( PointT p,  PointT q) const{
+      return std::sqrt(std::pow(p.x-q.x,2.0)+std::pow(p.y-q.y,2.0)+std::pow(p.z-q.z,2.0));
+  }
+
+
+  void computeBoundingBoxMinArea(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box) const
+  {
+    cv::Point3f min, max;
+    std::vector<cv::Point> points;
+
+    project2D(cloud, points, min, max);
+    //ROS_WARN("CLOUD = (%d,%d,%d)",cloud->size(), cloud->width, cloud->height);
+     //ROS_WARN("MINMAX = (%f,%f,%f,%f,%f,%f)",min.x,min.y,min.z,max.x,max.y,max.z);
+    cv::RotatedRect rect = cv::minAreaRect(points);
+    if(rect.size.width < rect.size.height)
+    {
+      rect.angle += 90;
+      rect.size = cv::Size2f(rect.size.height, rect.size.width);
+    }
+     //ROS_WARN("RECT = (%f,%f,%d)",rect.size.height, rect.size.width,points.size());
+    tf::Vector3 trans = tf::Vector3((max.x + min.x) / 2.0, (max.y + min.y) / 2.0, (max.z + min.z) / 2.0);
+    float sinA, cosA;
+
+    sinA = sin(rect.angle / 180.0 * M_PI);
+    cosA = cos(rect.angle / 180.0 * M_PI);
+
+    tf::Matrix3x3 rot;
+    rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
+
+    tf::Transform objectToWorld;
+    objectToWorld.setOrigin(trans);
+    objectToWorld.setBasis(rot);
+
+    box.objectToWorld = objectToWorld;
+    box.width = rect.size.width / 1000.0;
+    box.height = rect.size.height / 1000.0;
+    box.depth = max.z - min.z;
+    box.volume = box.width * box.depth * box.height;
+    //ROS_WARN("BOX = (%f,%f,%f)",box.width, box.height, box.depth);
+  }
+
+  void refinePointcloud( const pcl::PointCloud<PointT>::ConstPtr &cloud, std::vector<PointT> &scene_points) const{
+
+      /***** HIERARCHICAL SEMANTIC CLUSTERING: REMOVING MISSEGMENTATION POINTS ************************************************************************************/
+
+      //max distance among clusters
+      //ROS_WARN("max distance among clusters");
+      double max_cluster_distance= 0.05;
+      int intersection_deviation=100;
+      //initialize the set of points
+      //ROS_WARN("initialize the set of points");
+      std::vector<int> set_points;
+      for(size_t i = 0; i < cloud->points.size(); ++i)
+      {
+        set_points.push_back(i);
+         //ROS_WARN("points:   %f %f %f",cloud->points.at(i)._PointXYZRGBA::x,cloud->points.at(i).y,cloud->points.at(i).z);
+      }
+
+      //initialize set of clusters
+      //ROS_WARN("initialize the set of cluster");
+      std::vector<std::vector<int>> clusters;
+      //build list of clusters
+      //ROS_WARN("build list of clusters");
+     for(int k=0;k<set_points.size();k++){
+          //set the tracker
+          //ROS_WARN("set the tracker");
+          //ROS_WARN("size backup  %d %d",set_points.size(),cloud->points.size());
+          //initialize cluster
+          //ROS_WARN("initialize cluster");
+          std::vector<int> cluster;
+          int origin=set_points.at(k);
+          cluster.push_back(origin);
+          //look for cluster points
+          //ROS_WARN("look for cluster points");
+          //ROS_WARN(" mittel size backup  %d %d",set_points.size(),cluster.size());
+          for(int i=k+1;i<set_points.size();i++){
+              // //ROS_WARN("points: %d %d %d %d %f %f %f, %f %f %f",origin, set_points.at(i),set_points.size(),cloud->points.size(),cloud->points.at(origin)._PointXYZRGBA::x,cloud->points.at(origin).y,cloud->points.at(origin).z,cloud->points.at(set_points.at(i)).x,cloud->points.at(set_points.at(i)).y,cloud->points.at(set_points.at(i)).z);
+              ////ROS_WARN("point distance %f",this->cluster_distance(cloud->points.at(origin),cloud->points.at(set_points.at(i))));
+              if(this->cluster_distance(cloud->points.at(origin),cloud->points.at(set_points.at(i)))<=max_cluster_distance){
+                   ////ROS_WARN("track touched points start %d %d %d %d",origin,set_points.at(i),set_points.size(),cloud->points.size());
+                  cluster.push_back(set_points.at(i));
+                  // //ROS_WARN("track touched points end %d %d %d %d",origin,set_points.at(i),set_points.size(),cloud->points.size());
+              }
+
+          }
+
+          //add cluster to list of clusters
+          //ROS_WARN("add cluster to list of clusters");
+          std::sort(cluster.begin(),cluster.end());
+          clusters.push_back(cluster);
+      }
+      //aggregation of clusters
+      //ROS_WARN("aggregation of clusters");
+      std::vector<std::vector<int>> backup_clusters;
+      std::vector<std::vector<int>> aggregate_clusters;
+      std::vector<std::vector<int>> tracker;
+      for(int i=0;i<clusters.size();i++)
+          backup_clusters.push_back(clusters.at(i));
+      //ROS_WARN("building aggregations");
+
+      do{
+          tracker=aggregate_clusters;
+          aggregate_clusters.clear();
+          //ROS_WARN(" tracker vs aggregation %d %d",tracker.size(),aggregate_clusters.size());
+          while(!backup_clusters.empty()){
+              std::vector<int> cluster;
+              std::vector<int> aggregate_cluster;
+              backup_clusters.clear();
+              cluster=clusters.at(0);
+              //ROS_WARN("building an aggregation");
+              for(int i=0;i<clusters.size();i++){
+                  //ROS_WARN("size of an aggregation: %d %d %d ",cluster.size(),clusters.size(),aggregate_cluster.size());
+                  std::set_union(cluster.begin(),cluster.end(), clusters.at(i).begin(), clusters.at(i).end(),  std::back_inserter(aggregate_cluster));
+                   //ROS_WARN("size1 of an aggregation: %d",cluster.size() );
+                  //aggregate_cluster.resize(iter_end-aggregate_cluster.begin());
+                   //ROS_WARN("size2 of an aggregation: %d",cluster.size() );
+                  if(aggregate_cluster.size()<cluster.size()+clusters.at(i).size()){
+                      cluster=aggregate_cluster;
+                      aggregate_cluster.clear();
+                      //aggregate_cluster.resize(cloud->points.size());
+                       //ROS_WARN("size3 of an aggregation: %d",cluster.size() );
+                  }else{
+                      aggregate_cluster.clear();
+                      //aggregate_cluster.resize(cloud->points.size());
+                      backup_clusters.push_back(clusters.at(i));
+                      //ROS_WARN("size4 of an aggregation: %d",cluster.size() );
+                  }
+              }
+              //unexamined clusters
+              //ROS_WARN("unexamined clusters");
+              clusters.clear();
+              for(int i=0;i<backup_clusters.size();i++)
+                 clusters.push_back(backup_clusters.at(i));
+              //add aggregate cluster to list of final clusters
+              //ROS_WARN("add aggregate cluster to list of final clusters %d",cluster.size());
+              aggregate_clusters.push_back(cluster);
+          }
+          backup_clusters=aggregate_clusters;
+          clusters=aggregate_clusters;
+      }while(aggregate_clusters.size()!=tracker.size());
+
+
+      //look for the biggest cluster
+      //ROS_WARN("look for the biggest cluster %d",aggregate_clusters.size());
+      if(aggregate_clusters.size()>0){
+        int max_size=aggregate_clusters.at(0).size();
+        int max_index=0;
+        for(int i=0;i<aggregate_clusters.size();i++)
+            if(aggregate_clusters.at(i).size()>max_size){
+                max_size=aggregate_clusters.at(i).size();
+                max_index=i;
+            }
+        //filter out outliers
+        //ROS_WARN("filter out outliers %d %d", max_size, max_index);
+        for(int i=0;i<aggregate_clusters.at(max_index).size();i++){
+             //ROS_WARN("filter out index %d %d", cloud->points.size(), max_index,aggregate_clusters.at(max_index).at(i));
+            scene_points.push_back(cloud->points.at(aggregate_clusters.at(max_index).at(i)));}
+        //ROS_WARN("filtering outliers ...");
+      }else{
+          //nothing to filter out
+          //ROS_WARN("nothing to filter out");
+          for(size_t i = 0; i < cloud->points.size(); ++i)
+            scene_points.push_back(cloud->points.at(i));
+      }
+       //ROS_WARN("end of hierarchical clustering");
+      /*************************************************************************************************************************************************************/
+
+
+  }
+
+
   void project2D(const pcl::PointCloud<PointT>::ConstPtr &cloud, std::vector<cv::Point> &points, cv::Point3f &min, cv::Point3f &max) const
   {
     min = cv::Point3f(std::numeric_limits<float>::max(), std::numeric_limits<float>::max(), std::numeric_limits<float>::max()),
@@ -318,68 +499,82 @@ public:
 
   void computeBoundingBoxPCA(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box)
   {
-    pcl::PCA<PointT> pca;
-    pcl::PointCloud<PointT> cloudProjected;
+    try{pcl::PCA<PointT> pca;
+        pcl::PointCloud<PointT> cloudProjected;
+        std::vector<PointT> scene_points;
+        /*refinePointcloud(cloud, scene_points);
+        cloud->points.clear();
+        for(int i=0;i<scene_points.size();i++)
+            cloud->points.push_back(scene_points.at(i));*/
+        if(cloud->points.size()>=3){
+            pca.setInputCloud(cloud);
+            pca.project(*cloud, cloudProjected);
 
-    pca.setInputCloud(cloud);
-    pca.project(*cloud, cloudProjected);
+            //centroid
+            Eigen::Vector4f pcaCentroid;
+            pcl::compute3DCentroid(*cloud, pcaCentroid);
 
-    PointT proj_min, proj_max, min_pt, max_pt;
-    pcl::getMinMax3D(cloudProjected, proj_min, proj_max);
-    pca.reconstruct(proj_min, min_pt);
-    pca.reconstruct(proj_max, max_pt);
 
-    tf::Transform objectToWorld;
+            //rotation matrix
+            // random rotation matrix
 
-    tf::Vector3 trans;
-    Eigen::Vector3d translation = pca.getMean().head(3).cast<double>();
-    tf::vectorEigenToTF(translation, trans);
-    objectToWorld.setOrigin(trans);
 
-    Eigen::Quaterniond quaternion(pca.getEigenVectors().cast<double>());
-    tf::Quaternion quat;
-    tf::quaternionEigenToTF(quaternion, quat);
-    objectToWorld.setRotation(quat);
+            //Eigen::Affine3f RX ( Eigen::AngleAxis<float> (M_PI/2.0, Eigen::Matrix3f::Identity().matrix().block<1,3>(0,0)));
+            //Eigen::Affine3f RZ ( Eigen::AngleAxis<float> (M_PI/2.0, Eigen::Matrix3f::Identity().matrix().block<1,3>(2,0)));
 
-    box.objectToWorld = objectToWorld;
-    box.width = fabs(proj_max.x - proj_min.x);
-    box.height = fabs(proj_max.y - proj_min.y);
-    box.depth = fabs(proj_max.z - proj_min.z);
-    box.volume = box.width * box.depth * box.height;
-  }
+            //eigenvectors
+            Eigen::Matrix3f eigenVectorsPCA = pca.getEigenVectors();
+            //Eigen::Matrix3f eigenVectorsPCA;
 
-  void computeBoundingBoxMinArea(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box) const
-  {
-    cv::Point3f min, max;
-    std::vector<cv::Point> points;
 
-    project2D(cloud, points, min, max);
+            /*eigenVectorsPCA.col(0)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[0]);
+            eigenVectorsPCA.col(1)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[1]);
+            eigenVectorsPCA.col(2)=eigenTransformobj.cast<float>().matrix().block<3,3>(0,0).col(item.axisMap[2]);*/
 
-    cv::RotatedRect rect = cv::minAreaRect(points);
-    if(rect.size.width < rect.size.height)
-    {
-      rect.angle += 90;
-      rect.size = cv::Size2f(rect.size.height, rect.size.width);
-    }
+            eigenVectorsPCA.col(2)=eigenVectorsPCA.col(0).cross(eigenVectorsPCA.col(1));
+            // Transform the original cloud to the origin where the principal components correspond to the axes.
+            Eigen::Matrix4f projectionTransform(Eigen::Matrix4f::Identity());
+            projectionTransform.block<3,3>(0,0) = eigenVectorsPCA.transpose();
+            projectionTransform.block<3,1>(0,3) = -1.f * (projectionTransform.block<3,3>(0,0) * pcaCentroid.head<3>());
+            pcl::PointCloud<pcl::PointXYZ>::Ptr cloudPointsProjected (new pcl::PointCloud<pcl::PointXYZ>);
+            pcl::transformPointCloud(*cloud, cloudProjected, projectionTransform);
 
-    tf::Vector3 trans = tf::Vector3((max.x + min.x) / 2.0, (max.y + min.y) / 2.0, (max.z + min.z) / 2.0);
-    float sinA, cosA;
+            // Get the minimum and maximum points of the transformed cloud.
+            PointT proj_min, proj_max;
+            pcl::getMinMax3D(cloudProjected, proj_min, proj_max);
+            const Eigen::Vector3f meanDiagonal = 0.5f*(proj_max.getVector3fMap() + proj_min.getVector3fMap());
 
-    sinA = sin(rect.angle / 180.0 * M_PI);
-    cosA = cos(rect.angle / 180.0 * M_PI);
+            // Final transform
+            const Eigen::Quaternionf bboxQuaternion(eigenVectorsPCA); //Quaternions are a way to do rotations https://www.youtube.com/watch?v=mHVwd8gYLnI
+            const Eigen::Vector3f bboxTransform = eigenVectorsPCA * meanDiagonal + pcaCentroid.head<3>();
 
-    tf::Matrix3x3 rot;
-    rot.setValue(cosA, -sinA, 0, sinA, cosA,  0, 0, 0, 1);
+            PointT /*proj_min, proj_max,*/ min_pt, max_pt;
+            /*pcl::getMinMax3D(cloudProjected, proj_min, proj_max);
+            pca.reconstruct(proj_min, min_pt);
+            pca.reconstruct(max_pt, max_pt);*/
 
-    tf::Transform objectToWorld;
-    objectToWorld.setOrigin(trans);
-    objectToWorld.setBasis(rot);
+            tf::Transform objectToWorld;
 
-    box.objectToWorld = objectToWorld;
-    box.width = rect.size.width / 1000.0;
-    box.height = rect.size.height / 1000.0;
-    box.depth = max.z - min.z;
-    box.volume = box.width * box.depth * box.height;
+            tf::Vector3 trans;
+           // Eigen::Vector3d translation = pca.getMean().head(3).cast<double>();
+            tf::vectorEigenToTF(bboxTransform.cast<double>(), trans);
+            objectToWorld.setOrigin(trans);
+
+            //Eigen::Quaterniond quaternion(pca.getEigenVectors().cast<double>());
+            tf::Quaternion quat;
+            tf::quaternionEigenToTF(bboxQuaternion.cast<double>(), quat);
+            objectToWorld.setRotation(quat);
+
+            box.objectToWorld = objectToWorld;
+            box.width = fabs(proj_max.x - proj_min.x);
+            box.height = fabs(proj_max.y - proj_min.y);
+            box.depth = fabs(proj_max.z - proj_min.z);
+            box.volume = box.width * box.depth * box.height;
+            ROS_WARN("4DBBox: %f,%f,%f",box.width,box.height, box.volume);
+        }
+      }catch(Exception e){
+          ROS_WARN("Failure on pose estimation: %s",e.asString().data());
+      }
   }
 
   void computeBoundingBoxMoments(pcl::PointCloud<PointT>::Ptr cloud, OrientedBoundingBox &box) const
