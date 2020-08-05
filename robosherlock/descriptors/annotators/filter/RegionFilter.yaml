@@ -13,10 +13,11 @@ parameters:
   defaultRegions:
   - kitchen_sink_block_counter_top
   - kitchen_island_counter_top
+  - drawer_fridge_door_open
   depth_threshold: 0.01
   enable_change_detection: true
   enable_frustum_culling: false 
   global_threshold: 0.12
   pixel_threshold: 0.15
-  semantic_map_definition: "semantic_map_iai_kitchen.yaml"
+  semantic_map_definition: "semantic_map_iai_kitchen_ease.yaml"
 
