@@ -1,14 +1,13 @@
 ae:
   name: ease_milestone
 fixedflow:
-  - Trigger
   - CollectionReader
   - ImagePreprocessor
   - PointCloudFilter
   - NormalEstimator
   - PlaneAnnotator
   - SceneGraphAnnotator
-  - Object6DPoseAnnotator
+  - Cluster3DGeometryAnnotator
 CollectionReader:
   camera_config_files: ['config_kinect_robot.ini']
 SceneGraphAnnotator:
