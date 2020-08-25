@@ -323,27 +323,27 @@ private:
           colorAnnotation.color.set(item.color.at(0));
           colorAnnotation.ratio.set(property.at(1).second);
           colorAnnotation.source.set("RS_RobotVQA");
-          uimaCluster.annotations.append(colorAnnotation);
+          //uimaCluster.annotations.append(colorAnnotation);
 
           rs::SemanticColor colorAnnotation1 = rs::create<rs::SemanticColor>(tcas);
           colorAnnotation1.color.set(property.at(1).first);
           colorAnnotation1.ratio.set(property.at(1).second);
           colorAnnotation1.source.set("RobotVQA");
-          //uimaCluster.annotations.append(colorAnnotation1);
+          uimaCluster.annotations.append(colorAnnotation1);
 
           //Shape
           rs::Shape shapeAnnotation = rs::create<rs::Shape>(tcas);
           shapeAnnotation.shape.set(item.shape.at(0));
           shapeAnnotation.confidence.set(property.at(2).second);
           shapeAnnotation.source.set("RS_RobotVQA");
-          uimaCluster.annotations.append(shapeAnnotation);
+          //uimaCluster.annotations.append(shapeAnnotation);
 
           //Shape
           rs::Shape shapeAnnotation1 = rs::create<rs::Shape>(tcas);
           shapeAnnotation1.shape.set(property.at(2).first);
           shapeAnnotation1.confidence.set(property.at(2).second);
           shapeAnnotation1.source.set("RobotVQA");
-          //uimaCluster.annotations.append(shapeAnnotation1);
+          uimaCluster.annotations.append(shapeAnnotation1);
 
           //Material
           rs::SemanticMaterial materialAnnotation = rs::create<rs::SemanticMaterial>(tcas);
