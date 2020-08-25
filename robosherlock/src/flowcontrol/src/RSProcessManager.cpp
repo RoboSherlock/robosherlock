@@ -84,7 +84,7 @@ RSProcessManager::~RSProcessManager()
 
 void RSProcessManager::run()
 {
-  ros::Rate rate(30.0);
+  ros::Rate rate(0.1);
   for(; ros::ok();)
   {
     signal(SIGINT, RSProcessManager::signalHandler);
@@ -105,7 +105,8 @@ void RSProcessManager::run()
         result_pub_.publish(objDescr);
       }
     }
-    rate.sleep();
+    //rate.sleep();
+    ros::Duration(10).sleep();
   }
 }
 
