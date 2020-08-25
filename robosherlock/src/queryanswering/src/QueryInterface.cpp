@@ -136,6 +136,7 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
     return false;
   }
 
+
   if(new_pipeline_order.empty())
   {
     outInfo("Can't find solution for pipeline planning");
@@ -148,11 +149,11 @@ bool QueryInterface::handleDetect(std::vector<std::string> &res)
   });
 
   //always estimate a pose...these could go directly into the planning phase in Prolog?
-  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "Cluster3DGeometryAnnotator") == new_pipeline_order.end())
+  if(std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "Object6DPoseAnnotator") == new_pipeline_order.end())
   {
-    std::vector<std::string>::iterator it = std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "ClusterMerger");
+    std::vector<std::string>::iterator it = std::find(new_pipeline_order.begin(), new_pipeline_order.end(), "SceneGraphAnnotator");
     if(it != new_pipeline_order.end())
-      new_pipeline_order.insert(it + 1, "Cluster3DGeometryAnnotator");
+      new_pipeline_order.insert(it + 1, "Object6DPoseAnnotator");
   }
 
   //  for debugging advertise TF
