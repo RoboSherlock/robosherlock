@@ -7,8 +7,13 @@ parameters:
   serverName: /get_scene_graph
   sceneObjectNameMap: scene_object_name_map.yaml
 capabilities:
-  inputs:  ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
+  inputs:  ['rs.annotation.Plane', 'rs.pcl.PointCloud', 'rs.pcl.FilteredPointCloud']
   outputs:
-  - rs.scene.MergedHypothesis
-  
-  
+    - rs.scene.MergedHypothesis
+    - rs.annotation.Classification: [Spoon, Muesli, Cup, Bowl, Milk]
+    - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange,yellow, blue, black, white, red, green, cyan, magenta]
+    - rs.annotation.SemanticMaterial: ['Plastic', 'Wood', 'Glass', 'Steel', 'Cartoon', 'Ceramic']
+    - rs.annotation.SemanticOpenability
+    - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat,box,round,flat]
+    - rs.annotation.SemanticSpatialRelation
+    
