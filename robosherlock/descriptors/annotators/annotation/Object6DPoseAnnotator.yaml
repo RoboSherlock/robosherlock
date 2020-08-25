@@ -4,30 +4,24 @@ annotator:
   description: 'estimates 3D oriented bounding box of an object hypotheses; 
 and calculates geometrical primitive data'
 parameters:
-  icpMaximumIterations: 1000000
+  icpMaximumIterations: 1000
   icpTransformationEpsilon: 1.0e-19
-  icpMaxCorrespondenceDistance: 1.0
+  icpMaxCorrespondenceDistance: 5.0
   icpEuclideanFitnessEpsilon: 9.0e-7
   icpRANSACOutlierRejectionThreshold: 0.01
-  maxClusterPoints: 20000
+  maxClusterPoints: 2000000
   minClusterPoints: 0
   maxClusterDistance: 0.08
   intersectionDeviation: 100
   projectOnPlane: false
-  sor_filter: false # apply statistical outlier removal to hypotheses before estimating BB; 
+  sor_filter: true # apply statistical outlier removal to hypotheses before estimating BB; 
                     # this can be useful when data is very noisy 
   overwriteExistingPoseEstimate: false 
   sceneObjectNameMap: scene_object_name_map.yaml
+  domain: ['IkeaRedBowl','IkeaRedCup','SoupSpoon']
 capabilities:
-  inputs: ['rs.scene.MergedHypothesis']
+  inputs: ['rs.scene.MergedHypothesis','rs.annotation.Classification','rs.annotation.SemanticColor','rs.annotation.Shape','rs.annotation.SemanticOpenability','rs.annotation.SemanticMaterial',' rs.annotation.SemanticSpatialRelation']
   outputs: 
     - rs.annotation.Geometry
     - rs.annotation.PoseAnnotation
     - rs.annotation.SemanticSize: [small, medium, big]
-    - rs.annotation.Classification
-    - rs.annotation.SemanticColor: [Yellow, Blue, Black, White, Red, Green, Brown, Pink, Violet, Gray, Orange,yellow, blue, black, white, red, green, cyan, magenta]
-    - rs.annotation.SemanticMaterial
-    - rs.annotation.SemanticOpenability
-    - rs.annotation.Shape: [Cubic, Conical, Cylindrical, Filiform, Flat,box,round,flat]
-    - rs::SemanticSpatialRelation
-    
