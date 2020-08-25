@@ -172,6 +172,15 @@
     
 
 
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#IkeaRedBowl -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#IkeaRedBowl">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Bowl"/>
+    </owl:Class>
+
+
+
     <!-- http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#EdekaRedBowl">
@@ -270,10 +279,20 @@
     
 
 
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#Muesli -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#Muesli">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
+    </owl:Class>
+
+
+
     <!-- http://knowrob.org/kb/iai-kitchen.owl#KoellnMuesliKnusperHonigNuss -->
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#KoellnMuesliKnusperHonigNuss">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+	<rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#Muesli"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#BreakfastCereal"/>
         <rdfs:subClassOf>
             <owl:Restriction>
@@ -291,6 +310,15 @@
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spoon"/>
     </owl:Class>
+
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#SoupSpoon -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#SoupSpoon">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Spoon"/>
+    </owl:Class>
     
 
 
@@ -298,6 +326,26 @@
 
     <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#LinuxCup">
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#IkeaRedCup -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#IkeaRedCup">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Cup"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
+    </owl:Class>
+
+
+
+    <!-- http://knowrob.org/kb/iai-kitchen.owl#Mug -->
+
+    <owl:Class rdf:about="http://knowrob.org/kb/iai-kitchen.owl#Mug">
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/iai-kitchen.owl#KitchenObject"/>
+        <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#Cup"/>
         <rdfs:subClassOf rdf:resource="http://knowrob.org/kb/knowrob.owl#DrinkingMug"/>
     </owl:Class>
     
