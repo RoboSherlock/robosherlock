@@ -7,7 +7,9 @@ fixedflow:
   - NormalEstimator
   - PlaneAnnotator
   - SceneGraphAnnotator
-  - Cluster3DGeometryAnnotator
+# - Cluster3DGeometryAnnotator
+  - Object6DPoseAnnotator
+#  - Trigger
 CollectionReader:
   camera_config_files: ['config_kinect_robot.ini']
 SceneGraphAnnotator:
