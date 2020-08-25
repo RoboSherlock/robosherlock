@@ -16,19 +16,19 @@ Muesli:
    fromPackage: true
    packageName: rs_resources
    scale: 100.0
-   axisMap: [2,0,1]
+   axisMap: [3,1,2]
 Spoon:
-   category: BluePlasticSpoon
-   color: [blue,Blue]
+   category: SoupSpoon
+   color: [white, White, black, Black, gray, Gray]
    shape: [flat, Filiform]
    material: [Plastic]
    openability: false
    folderPath: none
-   filePath: pcd_models/BluePlasticSpoon/BluePlasticSpoon.pcd
+   filePath: pcd_models/SoupSpoon/SoupSpoon.pcd
    fromPackage: true
    packageName: rs_resources
-   scale: 50.0
-   axisMap: [2,0,1]
+   scale: 100.0
+   axisMap: [1,-3,2]
 Milk:
    category: WeideMilchSmall
    color: [blue, white,Blue, White]
@@ -40,28 +40,64 @@ Milk:
    fromPackage: true
    packageName: rs_resources
    scale: 100.0
-   axisMap: [0,2,1]
+   axisMap: [1,-3,2]
 Bowl:
-   category: EdekaRedBowl
-   color: [white,red,White,Red]
+   category: IkeaRedBowl
+   color: [red,Red]
    shape: [round,Conical]
    material: [Plastic]
    openability: false
    folderPath: none
-   filePath: pcd_models/EdekaRedBowl/EdekaRedBowl.pcd
+   filePath: pcd_models/IkeaRedBowl/IkeaRedBowl.pcd
    fromPackage: true
    packageName: rs_resources
-   scale: 80.0
-   axisMap: [2,0,1]
+   scale: 100.0
+   axisMap: [-1,2,-3]
 Mug:
-   category: CupEcoOrange
-   color: [yellow,Brown]
+   category: IkeaRedCup
+   color: [red, Red]
    shape: [round,Cylindrical]
    material: [Plastic]
    openability: false
    folderPath: none
-   filePath: pcd_models/CupEcoOrange/CupEcoOrange.pcd
+   filePath: pcd_models/IkeaRedCup/IkeaRedCup.pcd
    fromPackage: true
    packageName: rs_resources
    scale: 100.0
-   axisMap: [0,1,2]
+   axisMap: [3,1,2]
+#Spoon:
+#   category: BluePlasticSpoon
+#   color: [blue,Blue]
+#   shape: [flat, Filiform]
+#   material: [Plastic]
+#   openability: false
+#   folderPath: none
+#   filePath: pcd_models/BluePlasticSpoon/BluePlasticSpoon.pcd
+#   fromPackage: true
+#   packageName: rs_resources
+#   scale: 50.0
+#   axisMap: [-3,-1,2]
+#Bowl:
+#   category: EdekaRedBowl
+#   color: [white,red,White,Red]
+#   shape: [round,Conical]
+#   material: [Plastic]
+#   openability: false
+#   folderPath: none
+#   filePath: pcd_models/EdekaRedBowl/EdekaRedBowl.pcd
+#   fromPackage: true
+#   packageName: rs_resources
+#   scale: 80.0
+#   axisMap: [3,1,2]
+#Mug:
+#   category: CupEcoOrange
+#   color: [yellow,Brown]
+#   shape: [round,Cylindrical]
+#   material: [Plastic]
+#   openability: false
+#   folderPath: none
+#   filePath: pcd_models/CupEcoOrange/CupEcoOrange.pcd
+#   fromPackage: true
+#   packageName: rs_resources
+#   scale: 100.0
+#   axisMap: [1,2,3]
