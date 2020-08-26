@@ -1,0 +1,4 @@
+<launch>
+   <include file="$(find robosherlock)/launch/json_prolog.launch"/>
+   <include file="$(find robosherlock)/launch/rs.launch"/>
+</launch>
