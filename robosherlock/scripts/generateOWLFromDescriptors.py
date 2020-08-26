@@ -643,6 +643,12 @@ if __name__ == "__main__":
     
     owl_manager.addOWLClass(OWLClass("Metal", OWLSubClassOf("Material") ))
     owl_manager.addOWLClass(OWLClass("Carton", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Cartoon", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Steel", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Wood", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Plastic", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Glass", OWLSubClassOf("Material") ))
+    owl_manager.addOWLClass(OWLClass("Ceramic", OWLSubClassOf("Material") ))
 
     owl_manager.addOWLClass(OWLClass("Handle", OWLSubClassOf("ObjectPart") ))
 
@@ -664,8 +670,17 @@ if __name__ == "__main__":
     owl_manager.addOWLClass(OWLClass("Sphere", OWLSubClassOf("Shape") ))
     owl_manager.addOWLClass(OWLClass("Cone", OWLSubClassOf("Shape") ))
     owl_manager.addOWLClass(OWLClass("Round", OWLSubClassOf("Shape") ))
+    owl_manager.addOWLClass(OWLClass("Conical", OWLSubClassOf("Shape") ))
+    owl_manager.addOWLClass(OWLClass("Filiform", OWLSubClassOf("Shape") ))
+    owl_manager.addOWLClass(OWLClass("Cylindrical", OWLSubClassOf("Shape") ))
+    owl_manager.addOWLClass(OWLClass("Cubic", OWLSubClassOf("Shape") ))
 
     owl_manager.addOWLClass(OWLClass("Yellow", OWLSubClassOf("Color") ))
+    owl_manager.addOWLClass(OWLClass("Gray", OWLSubClassOf("Color") ))
+    owl_manager.addOWLClass(OWLClass("Brown", OWLSubClassOf("Color") ))
+    owl_manager.addOWLClass(OWLClass("Pink", OWLSubClassOf("Color") ))
+    owl_manager.addOWLClass(OWLClass("Violet", OWLSubClassOf("Color") ))
+    owl_manager.addOWLClass(OWLClass("Orange", OWLSubClassOf("Color") ))
     owl_manager.addOWLClass(OWLClass("Blue", OWLSubClassOf("Color") ))
     owl_manager.addOWLClass(OWLClass("Green", OWLSubClassOf("Color") ))
     owl_manager.addOWLClass(OWLClass("Red", OWLSubClassOf("Color") ))
