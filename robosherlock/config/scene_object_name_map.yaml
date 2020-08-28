@@ -6,7 +6,7 @@ names:
    - Bowl
    - Mug
 Muesli:
-   category: KoellnMuesliKnusperHonigNuss
+   category: Muesli
    color: [green,Green]
    shape: [box,Cubic]
    material: [Cartoon]
@@ -18,7 +18,7 @@ Muesli:
    scale: 100.0
    axisMap: [3,1,2]
 Spoon:
-   category: SoupSpoon
+   category: Spoon
    color: [white, White, black, Black, gray, Gray]
    shape: [flat, Filiform]
    material: [Plastic]
@@ -30,7 +30,7 @@ Spoon:
    scale: 100.0
    axisMap: [1,-3,2]
 Milk:
-   category: WeideMilchSmall
+   category: Milk
    color: [blue, white,Blue, White]
    shape: [box,Cylindrical]
    material: [Cartoon]
@@ -42,7 +42,7 @@ Milk:
    scale: 100.0
    axisMap: [1,-3,2]
 Bowl:
-   category: IkeaRedBowl
+   category: Bowl
    color: [red,Red]
    shape: [round,Conical]
    material: [Plastic]
@@ -54,7 +54,7 @@ Bowl:
    scale: 100.0
    axisMap: [-1,2,-3]
 Mug:
-   category: IkeaRedCup
+   category: Mug
    color: [red, Red]
    shape: [round,Cylindrical]
    material: [Plastic]
