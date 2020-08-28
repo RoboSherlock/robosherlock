@@ -296,13 +296,13 @@ private:
           //Category
           rs::Classification classResult = rs::create<rs::Classification>(tcas);
           classResult.classname.set(item.category);
-          classResult.classifier("RS_RobotVQA");
+          classResult.classifier("RobotVQA");
           classResult.featurename("type");
-          classResult.source.set("RS_RobotVQA");
+          classResult.source.set("RobotVQA");
           rs::ClassConfidence confidence = rs::create<rs::ClassConfidence>(tcas);
           confidence.score.set(property.at(0).second);
           confidence.name.set(property.at(0).first);
-          confidence.source.set("RS_RobotVQA");
+          confidence.source.set("RobotVQA");
           classResult.confidences.set({confidence});
           uimaCluster.annotations.append(classResult);
 
