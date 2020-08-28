@@ -80,7 +80,8 @@ private:
   std::string sceneObjectNameMap_;
   std::vector<ObjectNameMapItem> object_name_map_items;
   std::vector<std::string> target_object_names;
-  std::vector<icu::UnicodeString> domain_;
+  std::vector<icu::UnicodeString> icp_domain_;
+  std::vector<icu::UnicodeString> cls_domain_;
 
 public:
 
@@ -104,10 +105,17 @@ public:
     projectOnPlane_=false;
     sorFilter_=false;
     sceneObjectNameMap_="scene_object_name_map.yaml";
-    domain_.clear();
-    if(ctx.isParameterDefined("domain"))
+     printf("\nOK1\n");
+    icp_domain_.clear();
+    cls_domain_.clear();
+     printf("\nOK2\n");
+    if(ctx.isParameterDefined("icp_domain"))
     {
-      ctx.extractValue("domain", domain_);
+      ctx.extractValue("icp_domain", icp_domain_);
+    }
+    if(ctx.isParameterDefined("cls_domain"))
+    {
+      ctx.extractValue("cls_domain", cls_domain_);
     }
     if(ctx.isParameterDefined("sceneObjectNameMap"))
     {
@@ -234,16 +242,26 @@ public:
         continue;
       }
       std::string obj_name="";
+      std::string obj_color="";
       std::vector<rs::Classification> classes;
+      std::vector<rs::SemanticColor> colors;
       cluster.annotations.filter(classes);
+      cluster.annotations.filter(colors);
       if(classes.size()<=0)
           continue;
 
       for(int r=0;r<classes.size();r++)
-          if(classes[r].source.get()=="RS_RobotVQA" && classes[r].featurename.get()==("type")){
+          if(classes[r].source.get()=="RobotVQA" && classes[r].featurename.get()==("type")){
               obj_name=classes[r].classname.get();
               break;
           }
+
+      for(int r=0;r<colors.size();r++)
+          if(colors[r].source.get()=="RobotVQA"){
+              obj_color=colors[r].color.get();
+              break;
+          }
+
       std::string filename=ros::package::getPath("robosherlock")+"/config/"+sceneObjectNameMap_;
       readObjectNameMapItem(filename, target_object_names, object_name_map_items);
       ObjectNameMapItem item;
@@ -257,6 +275,9 @@ public:
 
 
       ROS_WARN("********* Object Name: %s ***************",obj_name.data());
+      icu::UnicodeString object_name;
+      object_name=object_name.fromUTF8(obj_name+";"+obj_color) ;
+
       pcl::PointIndicesPtr indices(new pcl::PointIndices());
       rs::conversion::from(static_cast<rs::ReferenceClusterPoints>(cluster.points.get()).indices.get(), *indices);
 
@@ -276,7 +297,7 @@ public:
 
       if(sorFilter_)
       {
-          if(obj_name=="SoupSpoon")
+          if((std::find(cls_domain_.begin(), cls_domain_.end(), object_name) != cls_domain_.end()))
               maxClusterDistance_=1.08;
       refinePointcloud(cluster_cloud, scene_points);
       cluster_cloud->points.clear();
@@ -327,15 +348,13 @@ public:
       }
 
       OrientedBoundingBox &box = orientedBoundingBoxes[i];
-      icu::UnicodeString object_name;
-      object_name=object_name.fromUTF8(obj_name) ;
-      if(!(std::find(domain_.begin(), domain_.end(), object_name) != domain_.end())){
+      if(!(std::find(icp_domain_.begin(), icp_domain_.end(), object_name) != icp_domain_.end())){
           //transform Point Cloud to map coordinates
           pcl::transformPointCloud<PointT>(*cluster_cloud, *cluster_transformed, eigenTransform1);
           OrientedBoundingBox &box = orientedBoundingBoxes[i];
           rs::conversion::from(cluster.rois().roi.get(),box.rect_);
           ROS_WARN("Hello Frank");
-          if(obj_name=="SoupSpoon")
+          if((std::find(cls_domain_.begin(), cls_domain_.end(), object_name) != cls_domain_.end()))
               computeBoundingBoxPCA2(cluster_transformed, box);
           else
               computeBoundingBoxMinArea(cluster_transformed, box);
