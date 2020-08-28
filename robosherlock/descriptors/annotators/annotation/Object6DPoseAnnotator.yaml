@@ -4,7 +4,7 @@ annotator:
   description: 'estimates 3D oriented bounding box of an object hypotheses; 
 and calculates geometrical primitive data'
 parameters:
-  icpMaximumIterations: 1000
+  icpMaximumIterations: 1000000
   icpTransformationEpsilon: 1.0e-19
   icpMaxCorrespondenceDistance: 5.0
   icpEuclideanFitnessEpsilon: 9.0e-7
@@ -18,7 +18,8 @@ parameters:
                     # this can be useful when data is very noisy 
   overwriteExistingPoseEstimate: false 
   sceneObjectNameMap: scene_object_name_map.yaml
-  domain: ['IkeaRedBowl','IkeaRedCup','SoupSpoon']
+  icp_domain: [Bowl;Red, Spoon;Black, Spoon;Gray,  Spoon;White, Spoon;Blue, Spoon;Orange, Mug;Red]
+  cls_domain: [Spoon;Black, Spoon;Gray,  Spoon;White, Spoon;Blue, Spoon;Orange]
 capabilities:
   inputs: ['rs.scene.MergedHypothesis','rs.annotation.Classification','rs.annotation.SemanticColor','rs.annotation.Shape','rs.annotation.SemanticOpenability','rs.annotation.SemanticMaterial',' rs.annotation.SemanticSpatialRelation']
   outputs: 
