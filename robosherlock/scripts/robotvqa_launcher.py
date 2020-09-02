@@ -46,5 +46,7 @@ if __name__=="__main__":
     try:
         #start the launcher
 	rvqa=RobotVQA()
+	while not rospy.is_shutdown():
+		rospy.sleep(100)
     except Exception as e:
 	rospy.logwarn('Shutting down RobotVQA launcher ...'+str(e))
