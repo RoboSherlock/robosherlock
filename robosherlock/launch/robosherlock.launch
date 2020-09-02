@@ -1,0 +1,7 @@
+<launch>
+   <arg name="ip_address"              default="192.168.102.3"/>
+   <arg name="port"                    default="9001"/>
+   <param name="ip_address"              type="str" value="$(arg ip_address)"/>
+   <param name="port"                    type="str" value="$(arg port)"/>
+   <node name="robosherlock_launcher" pkg="robosherlock" type="robosherlock_launcher.py" output="screen"/>
+</launch>
