@@ -76,7 +76,7 @@ private:
   float icpTransformationEpsilon_, icpMaxCorrespondenceDistance_,
         icpEuclideanFitnessEpsilon_, icpRANSACOutlierRejectionThreshold_,
         maxClusterDistance_;
-  int intersectionDeviation_;
+  float intersectionDeviation_;
   std::string sceneObjectNameMap_;
   std::vector<ObjectNameMapItem> object_name_map_items;
   std::vector<std::string> target_object_names;
@@ -101,7 +101,7 @@ public:
     maxClusterPoints_=20000;
     minClusterPoints_=0;
     maxClusterDistance_=0.08;
-    intersectionDeviation_=100;
+    intersectionDeviation_=0.5;
     projectOnPlane_=false;
     sorFilter_=false;
     sceneObjectNameMap_="scene_object_name_map.yaml";
@@ -725,7 +725,7 @@ public:
       //max distance among clusters
       //ROS_WARN("max distance among clusters");
       double max_cluster_distance= maxClusterDistance_;
-      int intersection_deviation=intersectionDeviation_;
+      double intersection_deviation=intersectionDeviation_;
       //initialize the set of points
       //ROS_WARN("initialize the set of points");
       std::vector<int> set_points;
@@ -762,7 +762,6 @@ public:
               }
 
           }
-
           //add cluster to list of clusters
           //ROS_WARN("add cluster to list of clusters");
           std::sort(cluster.begin(),cluster.end());
@@ -824,16 +823,25 @@ public:
       if(aggregate_clusters.size()>0){
         int max_size=aggregate_clusters.at(0).size();
         int max_index=0;
+        int max_index2=max_index;
         for(int i=0;i<aggregate_clusters.size();i++)
             if(aggregate_clusters.at(i).size()>max_size){
                 max_size=aggregate_clusters.at(i).size();
+                max_index2=max_index;
                 max_index=i;
+            }else{
+                 if(aggregate_clusters.at(i).size()>aggregate_clusters.at(max_index2).size())
+                    max_index2=i;
             }
         //filter out outliers
         //ROS_WARN("filter out outliers %d %d", max_size, max_index);
         for(int i=0;i<aggregate_clusters.at(max_index).size();i++){
              //ROS_WARN("filter out index %d %d", cloud->points.size(), max_index,aggregate_clusters.at(max_index).at(i));
             scene_points.push_back(cloud->points.at(aggregate_clusters.at(max_index).at(i)));}
+        if(max_index!=max_index2 && (float)aggregate_clusters.at(max_index2).size()>intersection_deviation*(float)aggregate_clusters.at(max_index).size())
+            for(int i=0;i<aggregate_clusters.at(max_index2).size();i++){
+                 //ROS_WARN("filter out index %d %d", cloud->points.size(), max_index,aggregate_clusters.at(max_index).at(i));
+                scene_points.push_back(cloud->points.at(aggregate_clusters.at(max_index2).at(i)));}
         //ROS_WARN("filtering outliers ...");
       }else{
           //nothing to filter out
@@ -843,8 +851,6 @@ public:
       }
        //ROS_WARN("end of hierarchical clustering");
       /*************************************************************************************************************************************************************/
-
-
   }
 
   void project2D(const pcl::PointCloud<PointT>::ConstPtr &cloud, std::vector<cv::Point> &points, cv::Point3f &min, cv::Point3f &max) const
