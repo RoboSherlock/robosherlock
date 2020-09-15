@@ -11,8 +11,8 @@ parameters:
   icpRANSACOutlierRejectionThreshold: 0.01
   maxClusterPoints: 2000000
   minClusterPoints: 0
-  maxClusterDistance: 0.08
-  intersectionDeviation: 100
+  maxClusterDistance: 0.01
+  intersectionDeviation: 0.5
   projectOnPlane: false
   sor_filter: true # apply statistical outlier removal to hypotheses before estimating BB; 
                     # this can be useful when data is very noisy 
