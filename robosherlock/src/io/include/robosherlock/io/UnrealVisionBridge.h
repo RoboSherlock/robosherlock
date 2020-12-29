@@ -32,14 +32,56 @@
 //TF
 #include <tf/transform_broadcaster.h>
 
-
-class IUVBDINotification{
+/**
+ * Interface class for objects that need to be notified when UnrealVisionBridgeDataInterface
+ * receives new data. Please refer to UnrealVisionBridgeDataInterface::data_observer_ if you
+ * want to register an observer.
+ */
+class IUnrealVisionBridgeDataInterfaceNotification{
 public:
   virtual void notifyNewDataAvailable() = 0;
 };
 
+/**
+ * Communication related class to gather data from URoboVision.
+ * Interested classes can register as observers and get notified when new data is available.
+ * Currently, this class is only used by the UnrealVisionBridge camera interface.
+ *
+ * Make sure to call init() once before using the class.
+ *
+ * Please note that this class has been designed under the assumption that there will always be only ONE
+ * class per data receipt that is actually retrieving the data.
+ * Having more classes that need to retreive the data at the same time requires a redesign in the mutex and copy handling
+ * of the observer classes. However, for RS, Pipelines(AAEs) usually begin with a CollectionReader that
+ * reads in data from a single URoboVision. This is supported.
+ * However, if you need to run parallel AAEs or have two URoboVisions in the same AAE, it might not work.
+ */
 class UnrealVisionBridgeDataInterface{
 public:
+  static UnrealVisionBridgeDataInterface& getInstance()
+  {
+    // Since it's a static variable, if the class has already been created,
+    // it won't be created again.
+    // And it **is** thread-safe in C++11.
+    static UnrealVisionBridgeDataInterface instance;
+
+    // Return a reference to our instance.
+    return instance;
+  }
+
+  // delete copy and move ctors and assign operators
+  UnrealVisionBridgeDataInterface(UnrealVisionBridgeDataInterface const&) = delete;
+  UnrealVisionBridgeDataInterface(UnrealVisionBridgeDataInterface&&) = delete;
+  UnrealVisionBridgeDataInterface& operator=(UnrealVisionBridgeDataInterface const&) = delete;
+  UnrealVisionBridgeDataInterface& operator=(UnrealVisionBridgeDataInterface&&) = delete;
+
+  UnrealVisionBridgeDataInterface() : sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)),
+  running(false), isConnected(false), init_called_(false)
+  {
+    outInfo("UnrealVisionBridgeDataInterface Singleton instantiated");
+  }
+
+
 
   struct Vector
   {
@@ -92,7 +134,7 @@ public:
 
   std::thread receiver;
   std::mutex lockBuffer;
-  bool running, isConnected, _newData;
+  bool running, isConnected, _newData, init_called_;
 
   std::string address;
   uint16_t port;
@@ -104,11 +146,19 @@ public:
   uint32_t exponentTable[64];
   uint16_t offsetTable[64];
 
-  std::vector<IUVBDINotification*> data_observer_;
+  std::vector<IUnrealVisionBridgeDataInterfaceNotification*> data_observer_;
 
-  UnrealVisionBridgeDataInterface(std::string address, uint16_t port) :  sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)),
-                                                                         running(false), isConnected(false), address(address), port(port)
+  void init(std::string address, uint16_t port)
   {
+    if(init_called_)
+      return;
+
+    outInfo("UnrealVisionBridgeDataInterface received first init() call.");
+
+    init_called_ = true;
+
+    this->address = address;
+    this->port = port;
     const size_t bufferSize = 1024 * 1024 * 10;
     bufferComplete.resize(bufferSize);
     bufferActive.resize(bufferSize);
@@ -135,8 +185,13 @@ public:
   uint32_t convertMantissa(const uint32_t i) const;
 };
 
-
-class UnrealVisionBridge : public CamInterface, IUVBDINotification
+/**
+ * Camera Interface to gather data from the URoboVision camera currently hosted at
+ * https://github.com/robcog-iai/URoboVision
+ * This class access a separate singleton class called UnrealVisionBridgeDataInterface
+ * which handles the communication between the URoboVision Plugin and RoboSherlock.
+ */
+class UnrealVisionBridge : public CamInterface, IUnrealVisionBridgeDataInterfaceNotification
 {
 private:
 
@@ -150,9 +205,6 @@ private:
 
   tf::TransformBroadcaster broadcaster;
 
-  std::shared_ptr<UnrealVisionBridgeDataInterface> uvb_datainterface_;
-
-
   void readConfig(const boost::property_tree::ptree &pt);
 
 public:
@@ -161,7 +213,9 @@ public:
 
   bool setData(uima::CAS &tcas, u_int64_t = 0);
 
-//  bool newData() const;
+  /**
+   * This class is called when UnrealVisionBridgeDataInterface receives new data.
+   */
   void notifyNewDataAvailable() override;
 };
 

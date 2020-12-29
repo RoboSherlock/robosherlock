@@ -35,7 +35,9 @@
 #include <robosherlock/utils/time.h>
 
 
-
+/*********************************************
+ ** UnrealVisionBridgeDataInterface classes **
+ ********************************************/
 
 
 uint32_t UnrealVisionBridgeDataInterface::convertMantissa(const uint32_t i) const
@@ -244,15 +246,18 @@ void UnrealVisionBridgeDataInterface::receive()
 
 
 
-
+/*********************************************
+ **       UnrealVisionBridge classes        **
+ ********************************************/
 
 
 UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt),
  advertiseTf(false)
 {
   readConfig(pt);
-  uvb_datainterface_ = std::make_shared<UnrealVisionBridgeDataInterface>(address, port);
-  uvb_datainterface_->data_observer_.push_back(this);
+
+  UnrealVisionBridgeDataInterface::getInstance().init(address, port);
+  UnrealVisionBridgeDataInterface::getInstance().data_observer_.push_back(this);
 
   lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
   onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
@@ -263,8 +268,7 @@ UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : 
 
 UnrealVisionBridge::~UnrealVisionBridge()
 {
-//  running = false;
-//  receiver.join();
+
 }
 
 void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
@@ -287,17 +291,17 @@ void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
 
 bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 {
-  if(!uvb_datainterface_->_newData)
+  if(!UnrealVisionBridgeDataInterface::getInstance()._newData)
   {
     return false;
   }
   MEASURE_TIME;
 
-  uvb_datainterface_->lockBuffer.lock();
-  uvb_datainterface_->bufferComplete.swap(uvb_datainterface_->bufferInUse);
-  UnrealVisionBridgeDataInterface::Packet packet = uvb_datainterface_->packet;
+  UnrealVisionBridgeDataInterface::getInstance().lockBuffer.lock();
+  UnrealVisionBridgeDataInterface::getInstance().bufferComplete.swap(UnrealVisionBridgeDataInterface::getInstance().bufferInUse);
+  UnrealVisionBridgeDataInterface::Packet packet = UnrealVisionBridgeDataInterface::getInstance().packet;
   _newData = false;
-  uvb_datainterface_->lockBuffer.unlock();
+  UnrealVisionBridgeDataInterface::getInstance().lockBuffer.unlock();
 
   // set transform and timestamp
   //uint64_t now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
@@ -333,7 +337,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 #ifdef __F16C__
   convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<__m128>());
 #else
-  uvb_datainterface_->convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<uint32_t>());
+  UnrealVisionBridgeDataInterface::getInstance().convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<uint32_t>());
 #endif
   // getting object color map
   std::map<std::string, cv::Vec3b> objectMap;
@@ -453,21 +457,10 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   cas.set(VIEW_CAMERA_INFO, cameraInfo);
   cas.set(VIEW_CAMERA_INFO_HD, cameraInfoHD);
 
-
   cas.set(VIEW_OBJECT_MAP, objectMap);
-
-  //so we can run other annotators on the image
-
-
-
 
   return true;
 }
-
-//bool UnrealVisionBridge::newData() const
-//{
-//  return uvb_datainterface_->_newData;
-//}
 
 void UnrealVisionBridge::notifyNewDataAvailable()
 {
