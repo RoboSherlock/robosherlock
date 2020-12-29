@@ -42,17 +42,17 @@ public:
   {
   }
 
-  void readAndSetData(uima::CAS& tcas, uint64_t timestamp = std::numeric_limits<uint64_t>::max())
-  {
-    rs::StopWatch clock;
-    outInfo("waiting for all cameras to have new data...");
-    double t1 = clock.getTime();
-    while (!cam_interface_->newData())
-      usleep(100);
-    outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
-    bool ret = cam_interface_->setData(tcas, timestamp);
-    check_expression(ret, "Could not receive data from camera.");
-  }
+//  void readAndSetData(uima::CAS& tcas, uint64_t timestamp = std::numeric_limits<uint64_t>::max())
+//  {
+//    rs::StopWatch clock;
+//    outInfo("waiting for all cameras to have new data...");
+//    double t1 = clock.getTime();
+//    while (!cam_interface_->newData())
+//      usleep(100);
+//    outInfo("Cameras got new data after waiting " << clock.getTime() - t1 << " ms. Receiving...");
+//    bool ret = cam_interface_->setData(tcas, timestamp);
+//    check_expression(ret, "Could not receive data from camera.");
+//  }
 
   /**
    * @brief getConfigFilePath find the path to the collection reader with the fgiven file name;

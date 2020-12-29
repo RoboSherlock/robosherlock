@@ -34,53 +34,11 @@
 #include <robosherlock/utils/output.h>
 #include <robosherlock/utils/time.h>
 
-UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt), sizeRGB(3 * sizeof(uint8_t)), sizeFloat(sizeof(uint16_t)), running(false), isConnected(false), advertiseTf(false)
-{
-  readConfig(pt);
-
-  const size_t bufferSize = 1024 * 1024 * 10;
-  bufferComplete.resize(bufferSize);
-  bufferActive.resize(bufferSize);
-  bufferInUse.resize(bufferSize);
-
-  outInfo("starting receiver and transmitter threads.");
-  running = true;
-  receiver = std::thread(&UnrealVisionBridge::receive, this);
-  createLookupTables();
-
-  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
-  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
-
-  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
-  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
-}
-
-UnrealVisionBridge::~UnrealVisionBridge()
-{
-  running = false;
-  receiver.join();
-}
-
-void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
-{
-  address = pt.get<std::string>("server.address", "127.0.0.1");
-  port = (uint16_t)pt.get<int>("server.port", 10000);
-  tfFrom = pt.get<std::string>("tf.from", "unreal_vision_optical_frame");
-  tfTo = pt.get<std::string>("tf.to", "map");
-  advertiseTf = pt.get<bool>("tf.advertise", false);
-  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
-  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
-
-  outInfo("Address: " FG_BLUE << address);
-  outInfo("   Port: " FG_BLUE << port);
-  outInfo("TF From: " FG_BLUE << tfFrom);
-  outInfo("  TF To: " FG_BLUE << tfTo);
-  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
-  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
-}
 
 
-uint32_t UnrealVisionBridge::convertMantissa(const uint32_t i) const
+
+
+uint32_t UnrealVisionBridgeDataInterface::convertMantissa(const uint32_t i) const
 {
   uint32_t m = i << 13; // Zero pad mantissa bits
   uint32_t e = 0; // Zero exponent
@@ -94,7 +52,7 @@ uint32_t UnrealVisionBridge::convertMantissa(const uint32_t i) const
   return m | e; // Return combined number
 }
 
-void UnrealVisionBridge::createLookupTables()
+void UnrealVisionBridgeDataInterface::createLookupTables()
 {
   mantissaTable[0] = 0;
   for(size_t i = 1; i < 1024; ++i)
@@ -128,7 +86,7 @@ void UnrealVisionBridge::createLookupTables()
 }
 
 
-void UnrealVisionBridge::convertDepth(const uint16_t *in, uint32_t *out) const
+void UnrealVisionBridgeDataInterface::convertDepth(const uint16_t *in, uint32_t *out) const
 {
   const size_t size = packet.header.width * packet.header.height;
   for(size_t i = 0; i < size; ++i, ++in, ++out)
@@ -136,7 +94,7 @@ void UnrealVisionBridge::convertDepth(const uint16_t *in, uint32_t *out) const
     *out = mantissaTable[offsetTable[*in >> 10] + (*in & 0x3ff)] + exponentTable[*in >> 10];
   }
 }
-void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
+void UnrealVisionBridgeDataInterface::convertDepth(const uint16_t *in, __m128 *out) const
 {
 #ifdef __F16C__
   const size_t size = (packet.header.width * packet.header.height) / 4;
@@ -147,7 +105,7 @@ void UnrealVisionBridge::convertDepth(const uint16_t *in, __m128 *out) const
 #endif
 }
 
-void UnrealVisionBridge::connectToServer()
+void UnrealVisionBridgeDataInterface::connectToServer()
 {
   outInfo("creating socket.");
   connection = socket(AF_INET, SOCK_STREAM, 0);
@@ -192,7 +150,7 @@ void UnrealVisionBridge::connectToServer()
   outInfo("socket receive buffer size is: " << receiveBufferSize);
 }
 
-void UnrealVisionBridge::receive()
+void UnrealVisionBridgeDataInterface::receive()
 {
   const size_t minSize = std::min((size_t)1024, bufferActive.size());
   uint8_t *pPackage = &bufferActive[0];
@@ -259,6 +217,11 @@ void UnrealVisionBridge::receive()
       packet.pDepth = packet.pColor + packet.sizeColor;
       packet.pObject = packet.pDepth + packet.sizeDepth;
       packet.pMap = packet.pObject + packet.sizeColor;
+
+      for(auto data_observer : data_observer_)
+      {
+        data_observer->notifyNewDataAvailable();
+      }
       _newData = true;
 
       pPackage = &bufferActive[0];
@@ -275,22 +238,69 @@ void UnrealVisionBridge::receive()
   outInfo("receiver stopped.");
 }
 
+
+
+
+
+
+
+
+
+
+UnrealVisionBridge::UnrealVisionBridge(const boost::property_tree::ptree &pt) : CamInterface(pt),
+ advertiseTf(false)
+{
+  readConfig(pt);
+  uvb_datainterface_ = std::make_shared<UnrealVisionBridgeDataInterface>(address, port);
+  uvb_datainterface_->data_observer_.push_back(this);
+
+  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
+
+  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
+}
+
+UnrealVisionBridge::~UnrealVisionBridge()
+{
+//  running = false;
+//  receiver.join();
+}
+
+void UnrealVisionBridge::readConfig(const boost::property_tree::ptree &pt)
+{
+  address = pt.get<std::string>("server.address", "127.0.0.1");
+  port = (uint16_t)pt.get<int>("server.port", 10000);
+  tfFrom = pt.get<std::string>("tf.from", "unreal_vision_optical_frame");
+  tfTo = pt.get<std::string>("tf.to", "map");
+  advertiseTf = pt.get<bool>("tf.advertise", false);
+  lookUpViewpoint = pt.get<bool>("tf.lookupViewpoint", false);
+  onlyStableViewpoints = pt.get<bool>("tf.onlyStableViewpoints", true);
+
+  outInfo("Address: " FG_BLUE << address);
+  outInfo("   Port: " FG_BLUE << port);
+  outInfo("TF From: " FG_BLUE << tfFrom);
+  outInfo("  TF To: " FG_BLUE << tfTo);
+  outInfo("             TF Lookup: " FG_BLUE << (lookUpViewpoint ? "ON" : "OFF"));
+  outInfo("Only Stable Viewpoints: " FG_BLUE << onlyStableViewpoints);
+}
+
 bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 {
-  if(!newData())
+  if(!uvb_datainterface_->_newData)
   {
     return false;
   }
   MEASURE_TIME;
 
-  lockBuffer.lock();
-  bufferComplete.swap(bufferInUse);
-  Packet packet = this->packet;
+  uvb_datainterface_->lockBuffer.lock();
+  uvb_datainterface_->bufferComplete.swap(uvb_datainterface_->bufferInUse);
+  UnrealVisionBridgeDataInterface::Packet packet = uvb_datainterface_->packet;
   _newData = false;
-  lockBuffer.unlock();
+  uvb_datainterface_->lockBuffer.unlock();
 
   // set transform and timestamp
-  uint64_t now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
+  //uint64_t now = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::high_resolution_clock::now().time_since_epoch()).count();
   ros::Time stamp;
   stamp.fromNSec(packet.header.timestampCapture);
   rs::SceneCas cas(tcas);
@@ -323,7 +333,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 #ifdef __F16C__
   convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<__m128>());
 #else
-  convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<uint32_t>());
+  uvb_datainterface_->convertDepth(reinterpret_cast<uint16_t *>(packet.pDepth), depth.ptr<uint32_t>());
 #endif
   // getting object color map
   std::map<std::string, cv::Vec3b> objectMap;
@@ -331,7 +341,7 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
   uint8_t *it = packet.pMap;
   for(uint32_t i = 0; i < packet.header.mapEntries; ++i)
   {
-    const MapEntry *entry = reinterpret_cast<MapEntry *>(it);
+    const UnrealVisionBridgeDataInterface::MapEntry *entry = reinterpret_cast<UnrealVisionBridgeDataInterface::MapEntry *>(it);
     cv::Vec3b color;
     color.val[0] = entry->b;
     color.val[1] = entry->g;
@@ -452,4 +462,14 @@ bool UnrealVisionBridge::setData(uima::CAS &tcas, uint64_t ts)
 
 
   return true;
+}
+
+//bool UnrealVisionBridge::newData() const
+//{
+//  return uvb_datainterface_->_newData;
+//}
+
+void UnrealVisionBridge::notifyNewDataAvailable()
+{
+  _newData = true;
 }
