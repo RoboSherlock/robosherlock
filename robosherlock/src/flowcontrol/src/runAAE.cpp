@@ -43,6 +43,8 @@
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <robosherlock/io/visualizer.h>
 #include <robosherlock/CASConsumerContext.h>
+#include <robosherlock/scene_cas.h>
+
 
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 
@@ -147,7 +149,8 @@ int main(int argc, char* argv[])
     result_pub = nh.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
   }
 
-  std::vector<RSAggregateAnalysisEngine*> rsaaes;
+  std::vector<RSAggregateAnalysisEngine*> loaded_rsaaes;
+  std::vector<RSAggregateAnalysisEngine*> running_rsaaes;
   try
   {
     // singl
@@ -161,7 +164,7 @@ int main(int argc, char* argv[])
     for (auto ae_path : analysis_engine_file_paths)
     {
       RSAggregateAnalysisEngine* engine = rs::createRSAggregateAnalysisEngine(ae_path);
-      rsaaes.push_back(engine);
+      loaded_rsaaes.push_back(engine);
       vis.addVisualizableGroupManager(engine->getAAEName());
     }
     vis.start();
@@ -172,23 +175,51 @@ int main(int argc, char* argv[])
       signal(SIGINT, signalHandler);
 
       // Analysis Engine processing
-      for (auto rsaae : rsaaes)
+      // Copy the loaded RSAAE pointers into a runtime var to be able to modify it
+      running_rsaaes = loaded_rsaaes;
+
+      auto size = running_rsaaes.size();
+
+      for (auto i = 0; i < size; i++)
       {
+        RSAggregateAnalysisEngine* rsaae = running_rsaaes[i];
         rsaae->resetCas();
         rsaae->processOnce();
-        // Add the finished CAS ptr to the CASConsumerContext 
-        rs::CASConsumerContext::getInstance().addCAS(rsaae->getAAEName(), rsaae->getCas());
 
-        if (publishResults)
+        rs::SceneCas scene_cas(*rsaae->getCas());
+        cv::Mat dummy_mat;
+        if(scene_cas.get(VIEW_AAE_RERUN,dummy_mat)){
+
+//
+//        // Check if this AAE should be rerun, for example when refinements are requested.
+//        try
+//        {
+          // We check if there exists a VIEW_AAE_RERUN. We don't take about the particular value right now.
+//          uima::CAS *view = rsaae->getCas()->getView(VIEW_AAE_RERUN);
+          outInfo("RUNAAE : Got AAE RERUN view. Re-Adding AAE=" << rsaae->getAAEName() << " to running RSAAEs.");
+          running_rsaaes.insert(running_rsaaes.begin() + i+1, rsaae);
+          size++;
+        }
+        else
+//        catch(const uima::CASException &e)
         {
-          std::vector<std::string> obj_descriptions;
-          rs::ObjectDesignatorFactory dw(rsaae->getCas(), rs::ObjectDesignatorFactory::Mode::CLUSTER);
-          dw.getObjectDesignators(obj_descriptions);
-          robosherlock_msgs::RSObjectDescriptions objDescr;
-          objDescr.obj_descriptions = obj_descriptions;
-          result_pub.publish(objDescr);
+            outInfo("RUNAAE : AAE_RERUN DOESN'T EXIST.");
+          // Add the finished CAS ptr to the CASConsumerContext
+          // We only do this when a AAE is finished, because otherwise we'll keep them in the CASConsumerContext
+          // and couldn't directly use the previous CAS when we want to access the previous AAE CAS.
+          rs::CASConsumerContext::getInstance().addCAS(rsaae->getAAEName(), rsaae->getCas());
+          if (publishResults)
+          {
+            std::vector<std::string> obj_descriptions;
+            rs::ObjectDesignatorFactory dw(rsaae->getCas(), rs::ObjectDesignatorFactory::Mode::CLUSTER);
+            dw.getObjectDesignators(obj_descriptions);
+            robosherlock_msgs::RSObjectDescriptions objDescr;
+            objDescr.obj_descriptions = obj_descriptions;
+            result_pub.publish(objDescr);
+          }
         }
       } // end of AE processing
+      outInfo("--------------------------------------- END OF RSAAE ITERATION");
 
       // Clear up CASes after consumption modules are done
       rs::CASConsumerContext::getInstance().clearCASes();
@@ -213,7 +244,7 @@ int main(int argc, char* argv[])
     outError("Unknown exception!");
   }
   ros::shutdown();
-  for (auto rsaae : rsaaes)
+  for (auto rsaae : loaded_rsaaes)
     delete rsaae;
 
   return 0;

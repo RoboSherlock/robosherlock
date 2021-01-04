@@ -61,4 +61,6 @@
 #define VIEW_SEMANTIC_MAP        "semantic_map"
 #define VIEW_SCENE               "scene"
 
+#define VIEW_AAE_RERUN           "aae_rerun"
+
 #endif /* VIEW_NAMES_H_ */
