@@ -722,6 +722,37 @@ public:
 
     return success;
   }
+  template <typename TargetT>
+  bool filterOverAllSubtypes(std::vector<TargetT>& result)
+  {
+    bool success = false;
+
+    if (!empty())
+    {
+      typename trait::ListType listfs = _get();
+
+      uima::Type type = rs::type<TargetT>(this->fs().getCAS());
+      std::vector<uima::Type> subTypes;
+//      type.getDirectSubTypes(subTypes);
+      type.getSubTypes(subTypes);
+
+      while (!listfs.isEmpty())
+      {
+        uima::FeatureStructure fs = listfs.getHead();
+
+        if (fs.getType() == type || std::find(subTypes.begin(), subTypes.end(),fs.getType())!=subTypes.end())
+        {
+          success = true;
+          TargetT elem(fs);
+          result.push_back(elem);
+        }
+
+        listfs = listfs.getTail();
+      }
+    }
+
+    return success;
+  }
 
   /*
    *    Example code:

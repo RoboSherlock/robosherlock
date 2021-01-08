@@ -179,8 +179,13 @@ private:
       }
     }
 
+    // --Jan. 2021
+    // This annotator will be a testbed for a new filter method.
+    // If you encounter any problems with this annotator
+    // because of the usage of the new .filterOverAllSubtypes method, please report back.
+    scene.identifiables.filterOverAllSubtypes(clusters);
+    //scene.identifiables.filter(clusters);
 
-    scene.identifiables.filter(clusters);
     cluster_rois_.resize(clusters.size());
     color_ids_.resize(clusters.size(), std::vector<int>(COUNT));
     color_ratios_.resize(clusters.size(), std::vector<float>(COUNT));
@@ -194,9 +199,9 @@ private:
       cv::Rect roi;
       rs::conversion::from(image_rois.roi(), roi);
       rs::conversion::from(image_rois.mask(), mask);
-
       cluster_rois_[idx] = roi;
-
+      assert(roi.width == mask.size().width);
+      assert(roi.height == mask.size().height);
       color_mat_(roi).copyTo(rgb, mask);
 
       cv::Mat hsv, hist;
@@ -268,7 +273,7 @@ private:
 
       rs::ColorHistogram color_hist_annotation = rs::create<rs::ColorHistogram>(tcas);
       color_hist_annotation.hist.set(rs::conversion::to(tcas, hist));
-      outDebug("Conatiners for annotations created");
+      outDebug("Containers for annotations created");
 
       clusters[idx].annotations.append(color_hist_annotation);
     }
