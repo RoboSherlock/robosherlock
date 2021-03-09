@@ -169,6 +169,9 @@ public:
           outDebug(individualOfAnnotator);
           std::map<std::string, std::vector<std::string>> inputRestrictions = annotatorData.second.iTypeValueRestrictions;
           std::map<std::string, std::vector<std::string>> outputDomains = annotatorData.second.oTypeValueDomains;
+          //std::map<std::string, std::vector<std::string>> reconfigInputRestrictions = annotatorData.second.rInputTypeValueRestrictions;
+          //std::map<std::string, std::vector<std::string>> reconfigOutputDomains = annotatorData.second.rOutputTypeValueDomains;
+          // TODO: Get info from RSAnnotatorSetup object
 
           if(!inputRestrictions.empty())
           {
@@ -239,6 +242,20 @@ public:
               }
             }
           }
+
+          /*if(!reconfigInputRestrictions.empty()) {
+            // TODO: Add assertations regarding to input restriction reconfiguration
+          }
+
+          if(!reconfigOutputDomains.empty()) {
+            outInfo(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+            for(auto e : reconfigOutputDomains){
+              if(!e.second.empty())
+              outInfo(e.first << " <==> " << e.second[0]);
+            }
+            outInfo(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+          }*/
         }
       }
       else

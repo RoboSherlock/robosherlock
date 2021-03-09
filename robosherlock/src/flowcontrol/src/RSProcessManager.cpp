@@ -24,7 +24,7 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
     if(ros::service::waitForService("rosprolog/query", ros::Duration(60.0)))
       knowledge_engine_ = std::make_shared<rs::RosPrologInterface>();
     else
-      throw rs::Exception("rosprolog client sercivice not reachable");
+      throw rs::Exception("rosprolog client service not reachable");
 #else
     throw rs::Exception("rosprolog was not found at compile time!");
 #endif
@@ -45,6 +45,8 @@ RSProcessManager::RSProcessManager(std::string engineFile, const bool useVisuali
   setContextService_ = nh_.advertiseService("set_context", &RSProcessManager::resetAECallback, this);
   setFlowService_ = nh_.advertiseService("execute_pipeline", &RSProcessManager::executePipelineCallback, this);
   queryService_ = nh_.advertiseService("query", &RSProcessManager::jsonQueryCallback, this);
+  reconfigureService_ = nh_.advertiseService("reconfigure_annotator", &RSProcessManager::handleReconfigureAnnotator, this);
+  overwriteParamService_ = nh_.advertiseService("overwrite_param", &RSProcessManager::handleOverwriteParam, this);
 
   // ROS publisher declarations
   result_pub_ = nh_.advertise<robosherlock_msgs::RSObjectDescriptions>(std::string("result_advertiser"), 1);
@@ -571,6 +573,85 @@ bool RSProcessManager::highlightResultsInCloud(const std::vector<bool> &filter,
   pcl::copyPointCloud(*dsCloud, *cloud);
   cloud->header.frame_id = camToWorld.frame_id_;
   return true;
+}
+
+bool RSProcessManager::handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+                                                  robosherlock_msgs::ReconfigureAnnotator::Response &res) {
+  if(req.annotatorName.empty()) {
+    outError("No annotator name set. Aborting..");
+    res.result = false;
+    return false;
+  }
+
+  if(req.setupName.empty()) {
+    // No setup provided; reconfigure only.
+    outInfo("No setup name provided, just calling reconfigure() on \"" << req.annotatorName << "\".");
+    res.result = engine_->reconfigureAnnotator(req.annotatorName);
+  }
+  else {
+    auto aCaps = engine_->getDelegateAnnotatorCapabilities();
+    auto result = aCaps.find(req.annotatorName);
+    rs::AnnotatorCapabilities aCap;
+
+    if(result != aCaps.end()) {
+      aCap = result->second;
+      auto setup = aCap.reconfigurationSetups.find(req.setupName);
+
+      // Check if requested setup exists:
+      if(setup != aCap.reconfigurationSetups.end()) {
+        // Load all parameters from setup:
+        map<std::string, std::string>::iterator paramIt;
+        for( paramIt = aCap.reconfigurationSetups[req.setupName].paramTypes.begin();
+             paramIt != aCap.reconfigurationSetups[req.setupName].paramTypes.end();
+             paramIt++)
+        {
+          std::string parameter = paramIt->first;
+          std::string type = paramIt->second;
+          std::vector<std::string> values = aCap.reconfigurationSetups[req.setupName].paramValues[paramIt->first];
+
+          outInfo("Updating parameter \"" << parameter << "\" of type " << type << " with the new value \"" << values[0] << "\".");
+          engine_->overwriteParam(req.annotatorName, parameter, values, type);
+        }
+
+        outInfo("Loading setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\".");
+        res.result = engine_->reconfigureAnnotator(req.annotatorName);
+
+        // TODO: Remove it
+        engine_->reconfigure();
+      }
+      else {
+        outError("The requested setup \"" << req.setupName << "\" for the annotator \"" << req.annotatorName << "\" could not be found.");
+      }
+    }
+    else {
+      outError("Annotator " << req.annotatorName << " could not be found.");
+      res.result = false;
+    }
+  }
+  return res.result;
+}
+
+bool RSProcessManager::handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
+                                            robosherlock_msgs::OverwriteParam::Response &res) {
+  auto aCaps = engine_->getDelegateAnnotatorCapabilities();
+  auto result = aCaps.find(req.annotatorName);
+  rs::AnnotatorCapabilities aCap;
+
+  if(result != aCaps.end()) {
+    aCap = result->second;
+
+    if(aCap.defaultSetup.paramTypes.count(req.parameterName) == 1) {
+      engine_->overwriteParam(req.annotatorName, req.parameterName, req.values, aCap.defaultSetup.paramTypes[req.parameterName]);
+      outInfo("OverwriteParam finished successfully.");
+      res.result = true;
+    }
+    else {
+      outError("OverwriteParam failed!");
+      res.result = false;
+    }
+
+    return res.result;
+  }
 }
 
 template bool RSProcessManager::drawResultsOnImage<rs::Object>(const std::vector<bool> &filter,

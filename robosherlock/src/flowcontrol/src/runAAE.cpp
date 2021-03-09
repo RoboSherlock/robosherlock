@@ -83,7 +83,7 @@ int main(int argc, char* argv[])
     return 1;
   }
 
-  ros::init(argc, argv, std::string("RoboSherlock_") + getenv("USER"));
+  ros::init(argc, argv, std::string("RoboSherlock"));
 
   if( ros::console::set_logger_level(ROSCONSOLE_DEFAULT_NAME, ros::console::levels::Debug) )
      ros::console::notifyLoggerLevelsChanged();

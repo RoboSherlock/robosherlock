@@ -11,3 +11,22 @@ parameters:
 capabilities:
   inputs: ['rs.scene.MergedHypothesis']
   outputs: ['rs.annotation.Features']
+
+reconfiguration:
+  # BVLC setup
+  setup_bvlc:
+    parameters:
+      caffe_annotator_model_file: '/caffe/models/bvlc_reference_caffenet/deploy.prototxt' # paths are relative to rs_resources
+      caffe_annotator_trained_file: '/caffe/models/bvlc_reference_caffenet/bvlc_reference_caffenet.caffemodel'
+      caffe_annotator_mean_file: '/caffe/data/imagenet_mean.binaryproto'
+      caffe_annotator_label_file: '/caffe/data/synset_words.txt'
+      caffe_annotator_noramlize: true
+
+  # VHF setup
+  setup_vfh:
+    parameters:
+      caffe_annotator_model_file: 'vfh path' # paths are relative to rs_resources
+      caffe_annotator_trained_file: 'vfh path'
+      caffe_annotator_mean_file: 'vfh path'
+      caffe_annotator_label_file: 'vfh path'
+      caffe_annotator_noramlize: true

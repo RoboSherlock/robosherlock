@@ -311,6 +311,12 @@ public:
     cr_context->assignValue(UnicodeString(param_name.c_str()), (UnicodeString) param.c_str());
   }
 
+  /**
+   * @brief overwriteParam specific case for vectors of strings because of uima working with UnicodeStrings
+   * @param ae_ame
+   * @param param_name
+   * @param param
+   */
   void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<std::string> &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
@@ -324,6 +330,55 @@ public:
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
     cr_context->assignValue(UnicodeString(param_name.c_str()), conversionString);
   }
+
+    /**
+   * @brief overwriteParam specific case for strings because of uima working with UnicodeStrings
+   * @param ae_ame Name of the Annotator
+   * @param param_name Name of the parameter
+   * @param param_value New value
+   * @param param_type Name of the type as string
+   */
+  void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<std::string> &param_value, const std::string &param_type){
+      if(param_type == "String")
+        overwriteParam(ae_name, param_name, param_value[0]);
+      else if(param_type == "Integer")
+        overwriteParam(ae_name, param_name, std::stoi(param_value[0]));
+      else if(param_type == "Float")
+        overwriteParam(ae_name, param_name, std::stod(param_value[0]));
+      else if(param_type == "Boolean")
+        overwriteParam(ae_name, param_name, param_value[0] == "True");
+      else if(param_type == "ListString")
+        overwriteParam(ae_name, param_name, param_value);
+      else if(param_type == "ListInteger") {
+        std::vector<int> temp;
+        for(string s : param_value)
+          temp.push_back(std::stoi(s));
+
+        overwriteParam(ae_name, param_name, temp);
+      }
+      else if(param_type == "ListFloat") {
+        std::vector<double> temp;
+        for(string s : param_value)
+          temp.push_back(std::stod(s));
+
+        overwriteParam(ae_name, param_name, temp);
+      }
+      // ListBoolean not supported.
+  }
+
+  /**
+   * @brief Reconfigures a single annotator
+   * @param annotatorIdx Index of annotator in pipeline
+   * @return true on success
+   */
+  bool reconfigureAnnotator(int annotatorIdx);
+
+  /**
+   * @brief Reconfigures a single annotator
+   * @param annotatorName Name of annotator in pipeline
+   * @return true on success
+   */
+  bool reconfigureAnnotator(std::string &annotatorName);
 
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail
 
