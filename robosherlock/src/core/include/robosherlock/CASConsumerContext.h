@@ -4,7 +4,7 @@
 
 #include <map>
 #include "uima/api.hpp"
-
+#include "uima/xmlwriter.hpp"
 
 namespace rs
 {
@@ -62,6 +62,23 @@ public:
    */
   std::vector<std::string> getCASIdentifiers();
 
+  /**
+   * Convert the CAS to std::string, optional all the ByteArray and Integer Array are removed (point clouds and depth)
+   * @param CAS that should be converted
+   * @param saveWithPointCloud, if TRUE then the whole point clouds are converted too, if FALSE point clouds are removed
+   * @return std::string that contains the cas
+   */
+  std::string getCAStoString(uima::CAS &tcas, bool saveWithPointCloud);
+
+  /**
+   * Convert the CAS to std::string and saving it as xml file, optional all the ByteArray and Integer Array are removed
+   * (point clouds and depth)
+   * @param CAS that should be converted
+   * @param saveWithPointCloud, if TRUE then the whole point clouds are converted too, if FALSE point clouds are removed
+   * @param strOutDir the output directory fr the file
+   * @param docnum the number that the nme is containing (iteration 0, 1, 2..)
+   */
+  void saveCASToXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum);
 };
 } // End of namespace 'rs'
 #endif  // ROBOSHERLOCK_CASCONSUMERCONTEXT_H
