@@ -4,7 +4,6 @@
 
 #include <map>
 #include "uima/api.hpp"
-#include "uima/xmlwriter.hpp"
 
 namespace rs
 {

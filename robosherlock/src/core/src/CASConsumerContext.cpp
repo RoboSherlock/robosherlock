@@ -41,4 +41,3 @@ std::vector<std::string> CASConsumerContext::getCASIdentifiers() {
     }
     return ret;
 }
-
