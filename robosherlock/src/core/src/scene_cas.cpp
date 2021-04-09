@@ -26,6 +26,8 @@
 
 #include <robosherlock/scene_cas.h>
 #include <robosherlock/utils/output.h>
+#include "uima/api.hpp"
+#include "uima/xmlwriter.hpp"
 
 namespace rs
 {
@@ -110,6 +112,61 @@ void SceneCas::setFS(const char *name, const uima::FeatureStructure &fs)
   const std::string mime = std::string("application/x-") + name;
 
   view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
+}
+
+std::string SceneCas::getCAStoString(uima::CAS &tcas, bool saveWithPointCloud)
+{
+  outInfo("saving cas to xml process starts");
+  uima::XCASWriter writer(tcas, true);
+
+  std::stringstream casAsStringStream;
+  // writing whole cas to stringstream
+  writer.write(casAsStringStream);
+
+  // define parameter for point clouds stuff
+  std::string byteArrayB = "<uima.cas.ByteArray";
+  std::string byteArrayE = " </uima.cas.ByteArray>";
+
+  std::string intArrayB = "<uima.cas.IntegerArray";
+  std::string intArrayE = "</uima.cas.IntegerArray>";
+
+  std::string removedPointsString = casAsStringStream.str();
+
+  if (!saveWithPointCloud)
+  {
+    while (removedPointsString.find(byteArrayB) != std::string::npos)
+    {
+      // find the specific beginning and ending of uima.cas.ByteArray child
+      std::string::size_type ByteABegin = removedPointsString.find(byteArrayB);
+      std::string::size_type ByteAEnd = removedPointsString.find(byteArrayE);
+
+      // remove ByteArray from CAS
+      removedPointsString = removedPointsString.erase(ByteABegin, ((ByteAEnd - ByteABegin) + byteArrayE.length()));
+
+      if (removedPointsString.find(intArrayB) != std::string::npos)
+      {
+        // find the specific beginning and ending of uima.cas.IntegerArray child
+        std::string::size_type IntegerABegin = removedPointsString.find(intArrayB);
+        std::string::size_type IntegerAEnd = removedPointsString.find(intArrayE);
+
+        // remove IntegerArray from CAS
+        removedPointsString =
+            removedPointsString.erase(IntegerABegin, ((IntegerAEnd - IntegerABegin) + intArrayE.length()));
+      }
+    }
+    outInfo("saving cas to xml process finished");
+  }
+
+  return removedPointsString;
+}
+
+void SceneCas::saveCASToXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum)
+{
+  std::string removedPointsString = getCAStoString(tcas, saveWithPointCloud);
+
+  std::string createFileName = "" + strOutDir + "/doc" + std::to_string(docnum++) + ".xml";
+  std::ofstream file(createFileName);
+  file << removedPointsString;
 }
 
 }
