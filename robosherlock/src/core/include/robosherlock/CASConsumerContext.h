@@ -5,6 +5,7 @@
 #include <map>
 #include "uima/api.hpp"
 
+
 namespace rs
 {
 /**
