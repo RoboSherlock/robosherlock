@@ -279,19 +279,19 @@ public:
    * Convert the CAS to std::string, optional all the ByteArray and Integer Array are removed (point clouds and depth)
    * @param CAS that should be converted
    * @param saveWithPointCloud, if TRUE then the whole point clouds are converted too, if FALSE point clouds are removed
-   * @return std::string that contains the cas
+   * @return std::string cas as a string
    */
-  std::string getCAStoString(uima::CAS &tcas, bool saveWithPointCloud);
+  std::string getCASAsString(uima::CAS &tcas, bool saveWithPointCloud);
 
   /**
    * Convert the CAS to std::string and saving it as xml file, optional all the ByteArray and Integer Array are removed
    * (point clouds and depth)
-   * @param CAS that should be converted
+   * @param CAS that should be saved
    * @param saveWithPointCloud, if TRUE then the whole point clouds are converted too, if FALSE point clouds are removed
    * @param strOutDir the output directory for the file
    * @param docnum the number in the name of the file e.g cas0.xml -> iteration 0
    */
-  void saveCASToXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum);
+  void saveCASAsXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum);
 
 };
 

@@ -114,9 +114,9 @@ void SceneCas::setFS(const char *name, const uima::FeatureStructure &fs)
   view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
 }
 
-std::string SceneCas::getCAStoString(uima::CAS &tcas, bool saveWithPointCloud)
+std::string SceneCas::getCASAsString(uima::CAS &tcas, bool saveWithPointCloud)
 {
-  outInfo("saving cas to xml process starts");
+  outInfo("saving cas to string process starts");
   uima::XCASWriter writer(tcas, true);
 
   std::stringstream casAsStringStream;
@@ -154,18 +154,19 @@ std::string SceneCas::getCAStoString(uima::CAS &tcas, bool saveWithPointCloud)
             removedPointsString.erase(IntegerABegin, ((IntegerAEnd - IntegerABegin) + intArrayE.length()));
       }
     }
-    outInfo("saving cas to xml process finished");
+    outInfo("saving cas to string process finished");
   }
 
   return removedPointsString;
 }
 
-void SceneCas::saveCASToXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum)
+void SceneCas::saveCASAsXML(uima::CAS &tcas, std::string strOutDir, bool saveWithPointCloud, int docnum)
 {
-  std::string removedPointsString = getCAStoString(tcas, saveWithPointCloud);
+  std::string removedPointsString = getCASAsString(tcas, saveWithPointCloud);
 
   std::string createFileName = "" + strOutDir + "/doc" + std::to_string(docnum++) + ".xml";
   std::ofstream file(createFileName);
+  outInfo("saving cas as XML at: " << createFileName);
   file << removedPointsString;
 }
 
