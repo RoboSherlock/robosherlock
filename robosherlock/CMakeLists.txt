@@ -202,6 +202,7 @@ add_subdirectory(src/queryanswering)
 catkin_add_gtest(${PROJECT_NAME}-test
     test/main.cpp
     test/robosherlock/test_casconsumercontext.cpp
+        test/robosherlock/test_scene_cas.cpp
     test/robosherlock/test_swipl_interface.cpp
     test/robosherlock/test_queryinterface.cpp
     test/robosherlock/test_parallelism.cpp
