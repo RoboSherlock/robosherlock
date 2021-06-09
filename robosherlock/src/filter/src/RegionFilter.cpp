@@ -153,7 +153,7 @@ class RegionFilter : public DrawingAnnotator
   }
 
 public:
-  SuturoRegionFilter()
+  RegionFilter()
     : DrawingAnnotator(__func__)
     , point_size_(1)
     , border_(0.05)
