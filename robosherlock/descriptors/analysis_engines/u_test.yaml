@@ -1,29 +1,11 @@
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
-  - RegionFilter
-  - PlaneAnnotator
-  - PointCloudFilter
-  - PointCloudClusterExtractor
-  - ImageSegmentationAnnotator
-  - ClusterMerger
-  - PointCloudFilter
-  - Cluster3DGeometryAnnotator
-  - ClusterColorHistogramCalculator
-  - PrimitiveShapeAnnotator
-  - NormalEstimator
-  - FeatureAnnotator
-  - SacModelAnnotator
-  - PCLDescriptorExtractor
   - StorageWriter
 ae:
   name: u_test
 CollectionReader:
   camera_config_files : ['config_data_loader_utest.ini']
-RegionFilter: 
-  defaultRegions: 
-  - test_region
-  enable_frustum_culling: true
 StorageWriter:
   storagedb: 'Scenes'
 

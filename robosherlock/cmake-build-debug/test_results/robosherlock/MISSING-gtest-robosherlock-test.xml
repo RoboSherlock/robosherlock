@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite tests="1" failures="1" time="1" errors="0" name="gtest-robosherlock-test.xml">
+  <testcase name="test_ran" status="run" time="1" classname="Results">
+    <failure message="Unable to find test results for gtest-robosherlock-test.xml, test did not run.
+Expected results in /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/test_results/robosherlock/gtest-robosherlock-test.xml" type=""/>
+  </testcase>
+</testsuite>

@@ -1,0 +1,7 @@
+set(robosherlock_NAMESPACE rs)
+set(robosherlock_TYPESYSTEM_CPP_PATH "${robosherlock_PREFIX}/include/robosherlock/types")
+set(robosherlock_TYPESYSTEM_XML_PATH "${robosherlock_PREFIX}/share/robosherlock/descriptors/typesystem")
+set(robosherlock_ANNOTATOR_PATH      "${robosherlock_PREFIX}/share/robosherlock/descriptors/annotators")
+set(robosherlock_ENGINE_PATH         "${robosherlock_PREFIX}/share/robosherlock/descriptors/analysis_engines")
+set(RS_SCRIPT_PATH         "${robosherlock_PREFIX}/share/robosherlock/scripts")
+set(RS_PROJECT_CONFIG      "${robosherlock_PREFIX}/share/robosherlock/cmake/project_config.cmake.in")
