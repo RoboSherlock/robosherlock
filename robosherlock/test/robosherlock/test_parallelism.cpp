@@ -19,15 +19,12 @@ class ParallelismTest : public testing::Test
 protected:
     std::vector<std::string> engineList = {"CollectionReader",
                                            "ImagePreprocessor",
-                                           "PointCloudFilter",
-                                           "NormalEstimator",
-                                           "PlaneAnnotator"};
+                                           };
 
     RSAggregateAnalysisEngine::AnnotatorOrderings orderings = {{"CollectionReader"},
                                                                 {"ImagePreprocessor"},
-                                                                {"PointCloudFilter"},
-                                                                {"NormalEstimator", "PlaneAnnotator"}};
-    RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}, {2}, {3, 4}};
+                                                                };
+    RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}};
 
 
     virtual void SetUp()

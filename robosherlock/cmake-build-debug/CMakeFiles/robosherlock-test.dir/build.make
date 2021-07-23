@@ -167,22 +167,9 @@ CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.s: cma
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_visualizables.cpp -o CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.s
 
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o: CMakeFiles/robosherlock-test.dir/flags.make
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o: ../test/annotators_utest/symmetry_segmentation_test.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/symmetry_segmentation_test.cpp
-
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/symmetry_segmentation_test.cpp > CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.i
-
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/symmetry_segmentation_test.cpp -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.s
-
 CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o: CMakeFiles/robosherlock-test.dir/flags.make
 CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o: ../test/annotators_utest/test_storage.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/test_storage.cpp
 
 CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.i: cmake_force
@@ -193,18 +180,18 @@ CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.s: cmake
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/test_storage.cpp -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.s
 
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o: CMakeFiles/robosherlock-test.dir/flags.make
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o: ../test/annotators_utest/reconf_utest.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/reconf_utest.cpp
+CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o: CMakeFiles/robosherlock-test.dir/flags.make
+CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o: ../test/annotators_utest/ImagePreprocessor_utest.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp
 
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/reconf_utest.cpp > CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.i
+CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp > CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.i
 
-CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/reconf_utest.cpp -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.s
+CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp -o CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.s
 
 # Object files for target robosherlock-test
 robosherlock__test_OBJECTS = \
@@ -215,9 +202,8 @@ robosherlock__test_OBJECTS = \
 "CMakeFiles/robosherlock-test.dir/test/robosherlock/test_queryinterface.cpp.o" \
 "CMakeFiles/robosherlock-test.dir/test/robosherlock/test_parallelism.cpp.o" \
 "CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.o" \
-"CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o" \
 "CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o" \
-"CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o"
+"CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o"
 
 # External object files for target robosherlock-test
 robosherlock__test_EXTERNAL_OBJECTS =
@@ -229,9 +215,8 @@ devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/robosherlock/test_queryinterface.cpp.o
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/robosherlock/test_parallelism.cpp.o
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.o
-devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o
-devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o
+devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/build.make
 devel/lib/robosherlock/robosherlock-test: gtest/googlemock/gtest/libgtest.so
 devel/lib/robosherlock/robosherlock-test: devel/lib/librs_flowcontrol.so
@@ -719,7 +704,7 @@ devel/lib/robosherlock/robosherlock-test: /usr/lib/jvm/default-java/lib/server/l
 devel/lib/robosherlock/robosherlock-test: /usr/lib/x86_64-linux-gnu/libicuuc.so
 devel/lib/robosherlock/robosherlock-test: /usr/lib/x86_64-linux-gnu/libyaml-cpp.so.0.5.2
 devel/lib/robosherlock/robosherlock-test: CMakeFiles/robosherlock-test.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Linking CXX executable devel/lib/robosherlock/robosherlock-test"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable devel/lib/robosherlock/robosherlock-test"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/robosherlock-test.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

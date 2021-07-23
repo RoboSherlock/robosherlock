@@ -1876,59 +1876,32 @@ rs_ImagePreprocessor/fast:
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build
 .PHONY : rs_ImagePreprocessor/fast
 
-test/annotators_utest/reconf_utest.o: test/annotators_utest/reconf_utest.cpp.o
+test/annotators_utest/ImagePreprocessor_utest.o: test/annotators_utest/ImagePreprocessor_utest.cpp.o
 
-.PHONY : test/annotators_utest/reconf_utest.o
-
-# target to build an object file
-test/annotators_utest/reconf_utest.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o
-.PHONY : test/annotators_utest/reconf_utest.cpp.o
-
-test/annotators_utest/reconf_utest.i: test/annotators_utest/reconf_utest.cpp.i
-
-.PHONY : test/annotators_utest/reconf_utest.i
-
-# target to preprocess a source file
-test/annotators_utest/reconf_utest.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.i
-.PHONY : test/annotators_utest/reconf_utest.cpp.i
-
-test/annotators_utest/reconf_utest.s: test/annotators_utest/reconf_utest.cpp.s
-
-.PHONY : test/annotators_utest/reconf_utest.s
-
-# target to generate assembly for a file
-test/annotators_utest/reconf_utest.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.s
-.PHONY : test/annotators_utest/reconf_utest.cpp.s
-
-test/annotators_utest/symmetry_segmentation_test.o: test/annotators_utest/symmetry_segmentation_test.cpp.o
-
-.PHONY : test/annotators_utest/symmetry_segmentation_test.o
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.o
 
 # target to build an object file
-test/annotators_utest/symmetry_segmentation_test.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o
-.PHONY : test/annotators_utest/symmetry_segmentation_test.cpp.o
+test/annotators_utest/ImagePreprocessor_utest.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.cpp.o
 
-test/annotators_utest/symmetry_segmentation_test.i: test/annotators_utest/symmetry_segmentation_test.cpp.i
+test/annotators_utest/ImagePreprocessor_utest.i: test/annotators_utest/ImagePreprocessor_utest.cpp.i
 
-.PHONY : test/annotators_utest/symmetry_segmentation_test.i
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.i
 
 # target to preprocess a source file
-test/annotators_utest/symmetry_segmentation_test.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.i
-.PHONY : test/annotators_utest/symmetry_segmentation_test.cpp.i
+test/annotators_utest/ImagePreprocessor_utest.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.i
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.cpp.i
 
-test/annotators_utest/symmetry_segmentation_test.s: test/annotators_utest/symmetry_segmentation_test.cpp.s
+test/annotators_utest/ImagePreprocessor_utest.s: test/annotators_utest/ImagePreprocessor_utest.cpp.s
 
-.PHONY : test/annotators_utest/symmetry_segmentation_test.s
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.s
 
 # target to generate assembly for a file
-test/annotators_utest/symmetry_segmentation_test.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.s
-.PHONY : test/annotators_utest/symmetry_segmentation_test.cpp.s
+test/annotators_utest/ImagePreprocessor_utest.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/robosherlock-test.dir/build.make CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.s
+.PHONY : test/annotators_utest/ImagePreprocessor_utest.cpp.s
 
 test/annotators_utest/test_storage.o: test/annotators_utest/test_storage.cpp.o
 
@@ -2289,12 +2262,9 @@ help:
 	@echo "... rs_utils"
 	@echo "... run"
 	@echo "... runAAE"
-	@echo "... test/annotators_utest/reconf_utest.o"
-	@echo "... test/annotators_utest/reconf_utest.i"
-	@echo "... test/annotators_utest/reconf_utest.s"
-	@echo "... test/annotators_utest/symmetry_segmentation_test.o"
-	@echo "... test/annotators_utest/symmetry_segmentation_test.i"
-	@echo "... test/annotators_utest/symmetry_segmentation_test.s"
+	@echo "... test/annotators_utest/ImagePreprocessor_utest.o"
+	@echo "... test/annotators_utest/ImagePreprocessor_utest.i"
+	@echo "... test/annotators_utest/ImagePreprocessor_utest.s"
 	@echo "... test/annotators_utest/test_storage.o"
 	@echo "... test/annotators_utest/test_storage.i"
 	@echo "... test/annotators_utest/test_storage.s"

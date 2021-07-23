@@ -1,6 +1,5 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/robosherlock-test.dir/test/annotators_utest/reconf_utest.cpp.o"
-  "CMakeFiles/robosherlock-test.dir/test/annotators_utest/symmetry_segmentation_test.cpp.o"
+  "CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o"
   "CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o"
   "CMakeFiles/robosherlock-test.dir/test/main.cpp.o"
   "CMakeFiles/robosherlock-test.dir/test/robosherlock/test_casconsumercontext.cpp.o"

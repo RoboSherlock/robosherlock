@@ -5268,10 +5268,7 @@
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/WeightedGraph.cpp">
 			<Option target="rs_utils"/>
 		</Unit>
-		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/reconf_utest.cpp">
-			<Option target="robosherlock-test"/>
-		</Unit>
-		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/symmetry_segmentation_test.cpp">
+		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp">
 			<Option target="robosherlock-test"/>
 		</Unit>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/test_storage.cpp">

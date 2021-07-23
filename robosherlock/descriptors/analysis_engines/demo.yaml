@@ -4,10 +4,10 @@ fixedflow:
   - CollectionReader
   - ImagePreprocessor
   - PointCloudFilter
-  - NormalEstimator
-  - PlaneAnnotator
-  - ImageSegmentationAnnotator
-  - PointCloudClusterExtractor
-  - ClusterMerger
+#  - NormalEstimator
+#  - PlaneAnnotator
+#  - ImageSegmentationAnnotator
+#  - PointCloudClusterExtractor
+#  - ClusterMerger
 CollectionReader:
   camera_config_files: ['config_kinect_robot.ini']
