@@ -17,366 +17,6 @@
 					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="rs_ClusterMerger">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ClusterMerger.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ClusterMerger"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rs_ClusterMerger/fast">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ClusterMerger.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ClusterMerger/fast"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rs_PointCloudDownsampler">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_PointCloudDownsampler.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_PointCloudDownsampler"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rs_PointCloudDownsampler/fast">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_PointCloudDownsampler.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_PointCloudDownsampler/fast"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 			<Target title="rs_Trigger">
 				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_Trigger.so" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
@@ -552,6 +192,186 @@
 				</Compiler>
 				<MakeCommands>
 					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_Trigger/fast"/>
+					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rs_ImagePreprocessor">
+				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImagePreprocessor.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
+					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
+					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
+					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
+					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
+					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
+					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
+					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
+					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
+					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
+					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
+					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
+					<Add option="-DDISABLE_ENSENSO"/>
+					<Add option="-DDISABLE_DAVIDSDK"/>
+					<Add option="-DDISABLE_DSSDK"/>
+					<Add option="-DDISABLE_PCAP"/>
+					<Add option="-DDISABLE_PNG"/>
+					<Add option="-DDISABLE_LIBUSB_1_0"/>
+					<Add option="-DFLANN_STATIC"/>
+					<Add option="-DDISABLE_RSSDK"/>
+					<Add option="-Dqh_QHpointer"/>
+					<Add option="-DQT_WIDGETS_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add directory="/usr/include/vtk-6.3"/>
+					<Add directory="/usr/include/freetype2"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
+					<Add directory="/usr/include/python2.7"/>
+					<Add directory="/usr/include/hdf5/openmpi"/>
+					<Add directory="/usr/include/libxml2"/>
+					<Add directory="/usr/include/jsoncpp"/>
+					<Add directory="/usr/include/tcl"/>
+					<Add directory="/usr/lib/swi-prolog/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
+					<Add directory="/usr/include/apr-1.0"/>
+					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
+					<Add directory="/opt/ros/melodic/include"/>
+					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
+					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/pcl-1.8"/>
+					<Add directory="/usr/include/ni"/>
+					<Add directory="/usr/include/openni2"/>
+					<Add directory="/usr/lib/jvm/default-java/include"/>
+					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
+					<Add directory="/usr/include/opencv"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ImagePreprocessor"/>
+					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
+					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
+					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
+				</MakeCommands>
+			</Target>
+			<Target title="rs_ImagePreprocessor/fast">
+				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImagePreprocessor.so" prefix_auto="0" extension_auto="0"/>
+				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
+				<Option object_output="./"/>
+				<Option type="3"/>
+				<Option compiler="gcc"/>
+				<Compiler>
+					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
+					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
+					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
+					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
+					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
+					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
+					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
+					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
+					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
+					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
+					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
+					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
+					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
+					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
+					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
+					<Add option="-DDISABLE_ENSENSO"/>
+					<Add option="-DDISABLE_DAVIDSDK"/>
+					<Add option="-DDISABLE_DSSDK"/>
+					<Add option="-DDISABLE_PCAP"/>
+					<Add option="-DDISABLE_PNG"/>
+					<Add option="-DDISABLE_LIBUSB_1_0"/>
+					<Add option="-DFLANN_STATIC"/>
+					<Add option="-DDISABLE_RSSDK"/>
+					<Add option="-Dqh_QHpointer"/>
+					<Add option="-DQT_WIDGETS_LIB"/>
+					<Add option="-DQT_GUI_LIB"/>
+					<Add option="-DQT_CORE_LIB"/>
+					<Add directory="/usr/include/vtk-6.3"/>
+					<Add directory="/usr/include/freetype2"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
+					<Add directory="/usr/include/python2.7"/>
+					<Add directory="/usr/include/hdf5/openmpi"/>
+					<Add directory="/usr/include/libxml2"/>
+					<Add directory="/usr/include/jsoncpp"/>
+					<Add directory="/usr/include/tcl"/>
+					<Add directory="/usr/lib/swi-prolog/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
+					<Add directory="/usr/include/apr-1.0"/>
+					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
+					<Add directory="/opt/ros/melodic/include"/>
+					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
+					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
+					<Add directory="/usr/include/eigen3"/>
+					<Add directory="/usr/include/pcl-1.8"/>
+					<Add directory="/usr/include/ni"/>
+					<Add directory="/usr/include/openni2"/>
+					<Add directory="/usr/lib/jvm/default-java/include"/>
+					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
+					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
+					<Add directory="/usr/include/opencv"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
+					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
+					<Add directory="/usr/include/c++/7"/>
+					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
+					<Add directory="/usr/include/c++/7/backward"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
+					<Add directory="/usr/local/include"/>
+					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
+					<Add directory="/usr/include/x86_64-linux-gnu"/>
+					<Add directory="/usr/include"/>
+				</Compiler>
+				<MakeCommands>
+					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ImagePreprocessor/fast"/>
 					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
@@ -917,195 +737,12 @@
 					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="rs_ImagePreprocessor">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImagePreprocessor.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ImagePreprocessor"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="rs_ImagePreprocessor/fast">
-				<Option output="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImagePreprocessor.so" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils"/>
-				<Option object_output="./"/>
-				<Option type="3"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-DROS_BUILD_SHARED_LIBS=1"/>
-					<Add option="-DROS_PACKAGE_NAME=&quot;robosherlock&quot;"/>
-					<Add option="-DROSCONSOLE_BACKEND_LOG4CXX"/>
-					<Add option="-DvtkFiltersFlowPaths_AUTOINIT=1(vtkFiltersParallelFlowPaths)"/>
-					<Add option="-DvtkIOExodus_AUTOINIT=1(vtkIOParallelExodus)"/>
-					<Add option="-DvtkIOGeometry_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOImage_AUTOINIT=1(vtkIOMPIImage)"/>
-					<Add option="-DvtkIOParallel_AUTOINIT=1(vtkIOMPIParallel)"/>
-					<Add option="-DvtkIOSQL_AUTOINIT=2(vtkIOMySQL,vtkIOPostgreSQL)"/>
-					<Add option="-DvtkRenderingContext2D_AUTOINIT=1(vtkRenderingContextOpenGL)"/>
-					<Add option="-DvtkRenderingCore_AUTOINIT=3(vtkInteractionStyle,vtkRenderingFreeType,vtkRenderingOpenGL)"/>
-					<Add option="-DvtkRenderingFreeType_AUTOINIT=2(vtkRenderingFreeTypeFontConfig,vtkRenderingMatplotlib)"/>
-					<Add option="-DvtkRenderingLIC_AUTOINIT=1(vtkRenderingParallelLIC)"/>
-					<Add option="-DvtkRenderingVolume_AUTOINIT=1(vtkRenderingVolumeOpenGL)"/>
-					<Add option="-DRAPIDJSON_HAS_STDSTRING"/>
-					<Add option="-DDISABLE_ENSENSO"/>
-					<Add option="-DDISABLE_DAVIDSDK"/>
-					<Add option="-DDISABLE_DSSDK"/>
-					<Add option="-DDISABLE_PCAP"/>
-					<Add option="-DDISABLE_PNG"/>
-					<Add option="-DDISABLE_LIBUSB_1_0"/>
-					<Add option="-DFLANN_STATIC"/>
-					<Add option="-DDISABLE_RSSDK"/>
-					<Add option="-Dqh_QHpointer"/>
-					<Add option="-DQT_WIDGETS_LIB"/>
-					<Add option="-DQT_GUI_LIB"/>
-					<Add option="-DQT_CORE_LIB"/>
-					<Add directory="/usr/include/vtk-6.3"/>
-					<Add directory="/usr/include/freetype2"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include/openmpi/opal/mca/event/libevent2022/libevent/include"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/openmpi/include"/>
-					<Add directory="/usr/include/python2.7"/>
-					<Add directory="/usr/include/hdf5/openmpi"/>
-					<Add directory="/usr/include/libxml2"/>
-					<Add directory="/usr/include/jsoncpp"/>
-					<Add directory="/usr/include/tcl"/>
-					<Add directory="/usr/lib/swi-prolog/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/flowcontrol/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/include"/>
-					<Add directory="/usr/include/apr-1.0"/>
-					<Add directory="/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"/>
-					<Add directory="/opt/ros/melodic/include"/>
-					<Add directory="/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"/>
-					<Add directory="/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"/>
-					<Add directory="/usr/include/eigen3"/>
-					<Add directory="/usr/include/pcl-1.8"/>
-					<Add directory="/usr/include/ni"/>
-					<Add directory="/usr/include/openni2"/>
-					<Add directory="/usr/lib/jvm/default-java/include"/>
-					<Add directory="/usr/lib/jvm/default-java/include/linux"/>
-					<Add directory="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug"/>
-					<Add directory="/usr/include/opencv"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtWidgets"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtGui"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/qt5/QtCore"/>
-					<Add directory="/usr/lib/x86_64-linux-gnu/qt5/mkspecs/linux-g++"/>
-					<Add directory="/usr/include/c++/7"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/7"/>
-					<Add directory="/usr/include/c++/7/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/7/include-fixed"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 rs_ImagePreprocessor/fast"/>
-					<CompileFile command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j20 -f &quot;/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 		</Build>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/BlurDetector.cpp">
 			<Option target="rs_utils"/>
 		</Unit>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/BlurDetectorAnnotator.cpp">
 			<Option target="rs_BlurDetectorAnnotator"/>
-		</Unit>
-		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/ClusterMerger.cpp">
-			<Option target="rs_ClusterMerger"/>
 		</Unit>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/DepthImageProcessing.cpp">
 			<Option target="rs_utils"/>
@@ -1121,9 +758,6 @@
 		</Unit>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/ImagePreprocessor.cpp">
 			<Option target="rs_ImagePreprocessor"/>
-		</Unit>
-		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/PointCloudDownsampler.cpp">
-			<Option target="rs_PointCloudDownsampler"/>
 		</Unit>
 		<Unit filename="/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/utils/src/Trigger.cpp">
 			<Option target="rs_Trigger"/>

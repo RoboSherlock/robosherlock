@@ -6,6 +6,12 @@
 
 #IncludeRegexTransform: 
 
+../src/core/include/robosherlock/CASConsumerContext.h
+map
+-
+uima/api.hpp
+../src/core/include/robosherlock/uima/api.hpp
+
 ../src/core/include/robosherlock/conversion/conversion.h
 string
 -
@@ -189,6 +195,10 @@ vector
 -
 opencv2/opencv.hpp
 -
+
+/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/src/CASConsumerContext.cpp
+robosherlock/CASConsumerContext.h
+/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/src/robosherlock/CASConsumerContext.h
 
 /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/core/src/conversion/cv_conversion.cpp
 cstring

@@ -2,13 +2,9 @@
 #include <gtest/gtest.h>
 
 #include <uima/api.hpp>
-#include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <robosherlock/queryanswering/SWIPLInterface.h>
-#include <robosherlock/utils/common.h>
 #include <robosherlock/types/all_types.h>
-#include <robosherlock/scene_cas.h>
 
-#include <pcl/point_types.h>
 #include <ros/ros.h>
 
 #include <iostream>

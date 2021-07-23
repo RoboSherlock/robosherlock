@@ -12,24 +12,8 @@
 
 
 
-#include <stdio.h>
 #include <string.h>
-#include <gtest/gtest.h>
-#include <errno.h>
-#include <sys/stat.h>
-#include <thread>
-#include <mutex>
-#include <chrono>
-#include <condition_variable>
-
-#include <ros/ros.h>
-#include <robosherlock/flowcontrol/RSProcessManager.h>
-#include <robosherlock/utils/common.h>
-#include <robosherlock/io/Storage.h>
-
-#include <ros/ros.h>
 #include <ros/package.h>
-#include <robosherlock/scene_cas.h>
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 
 #include "../main.h"

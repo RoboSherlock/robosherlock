@@ -1799,32 +1799,6 @@ rs_ImageSegmentationAnnotator/fast:
 .PHONY : rs_ImageSegmentationAnnotator/fast
 
 #=============================================================================
-# Target rules for targets named rs_ClusterMerger
-
-# Build rule for target.
-rs_ClusterMerger: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rs_ClusterMerger
-.PHONY : rs_ClusterMerger
-
-# fast build rule for target.
-rs_ClusterMerger/fast:
-	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ClusterMerger.dir/build.make src/utils/CMakeFiles/rs_ClusterMerger.dir/build
-.PHONY : rs_ClusterMerger/fast
-
-#=============================================================================
-# Target rules for targets named rs_PointCloudDownsampler
-
-# Build rule for target.
-rs_PointCloudDownsampler: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rs_PointCloudDownsampler
-.PHONY : rs_PointCloudDownsampler
-
-# fast build rule for target.
-rs_PointCloudDownsampler/fast:
-	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build.make src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build
-.PHONY : rs_PointCloudDownsampler/fast
-
-#=============================================================================
 # Target rules for targets named rs_Trigger
 
 # Build rule for target.
@@ -1836,6 +1810,19 @@ rs_Trigger: cmake_check_build_system
 rs_Trigger/fast:
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_Trigger.dir/build.make src/utils/CMakeFiles/rs_Trigger.dir/build
 .PHONY : rs_Trigger/fast
+
+#=============================================================================
+# Target rules for targets named rs_ImagePreprocessor
+
+# Build rule for target.
+rs_ImagePreprocessor: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rs_ImagePreprocessor
+.PHONY : rs_ImagePreprocessor
+
+# fast build rule for target.
+rs_ImagePreprocessor/fast:
+	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build
+.PHONY : rs_ImagePreprocessor/fast
 
 #=============================================================================
 # Target rules for targets named rs_utils
@@ -1862,19 +1849,6 @@ rs_BlurDetectorAnnotator: cmake_check_build_system
 rs_BlurDetectorAnnotator/fast:
 	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/build.make src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/build
 .PHONY : rs_BlurDetectorAnnotator/fast
-
-#=============================================================================
-# Target rules for targets named rs_ImagePreprocessor
-
-# Build rule for target.
-rs_ImagePreprocessor: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 rs_ImagePreprocessor
-.PHONY : rs_ImagePreprocessor
-
-# fast build rule for target.
-rs_ImagePreprocessor/fast:
-	$(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build
-.PHONY : rs_ImagePreprocessor/fast
 
 test/annotators_utest/ImagePreprocessor_utest.o: test/annotators_utest/ImagePreprocessor_utest.cpp.o
 
@@ -2244,12 +2218,10 @@ help:
 	@echo "... gtest_main"
 	@echo "... robosherlock-test"
 	@echo "... rs_BlurDetectorAnnotator"
-	@echo "... rs_ClusterMerger"
 	@echo "... rs_CollectionReader"
 	@echo "... rs_DrawResultImage"
 	@echo "... rs_ImagePreprocessor"
 	@echo "... rs_ImageSegmentationAnnotator"
-	@echo "... rs_PointCloudDownsampler"
 	@echo "... rs_StorageWriter"
 	@echo "... rs_TFBroadcaster"
 	@echo "... rs_Trigger"

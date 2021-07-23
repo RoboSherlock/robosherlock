@@ -75,41 +75,6 @@ CMAKE_BINARY_DIR = /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target install/local
-install/local: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local
-
-# Special rule for the target install/local
-install/local/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
-	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
-.PHONY : install/local/fast
-
-# Special rule for the target install
-install: preinstall
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -P cmake_install.cmake
-.PHONY : install
-
-# Special rule for the target install
-install/fast: preinstall/fast
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
-	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -P cmake_install.cmake
-.PHONY : install/fast
-
-# Special rule for the target edit_cache
-edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
-.PHONY : edit_cache
-
-# Special rule for the target edit_cache
-edit_cache/fast: edit_cache
-
-.PHONY : edit_cache/fast
-
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
@@ -132,6 +97,17 @@ test/fast: test
 
 .PHONY : test/fast
 
+# Special rule for the target edit_cache
+edit_cache:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
+	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+.PHONY : edit_cache
+
+# Special rule for the target edit_cache
+edit_cache/fast: edit_cache
+
+.PHONY : edit_cache/fast
+
 # Special rule for the target install/strip
 install/strip: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing the project stripped..."
@@ -153,6 +129,30 @@ list_install_components:
 list_install_components/fast: list_install_components
 
 .PHONY : list_install_components/fast
+
+# Special rule for the target install
+install: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -P cmake_install.cmake
+.PHONY : install
+
+# Special rule for the target install
+install/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Install the project..."
+	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -P cmake_install.cmake
+.PHONY : install/fast
+
+# Special rule for the target install/local
+install/local: preinstall
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local
+
+# Special rule for the target install/local
+install/local/fast: preinstall/fast
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Installing only the local directory..."
+	/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -DCMAKE_INSTALL_LOCAL_ONLY=1 -P cmake_install.cmake
+.PHONY : install/local/fast
 
 # The main all target
 all: cmake_check_build_system
@@ -187,36 +187,6 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/utils/CMakeFiles/rs_ClusterMerger.dir/rule:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/rs_ClusterMerger.dir/rule
-.PHONY : src/utils/CMakeFiles/rs_ClusterMerger.dir/rule
-
-# Convenience name for target.
-rs_ClusterMerger: src/utils/CMakeFiles/rs_ClusterMerger.dir/rule
-
-.PHONY : rs_ClusterMerger
-
-# fast build rule for target.
-rs_ClusterMerger/fast:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ClusterMerger.dir/build.make src/utils/CMakeFiles/rs_ClusterMerger.dir/build
-.PHONY : rs_ClusterMerger/fast
-
-# Convenience name for target.
-src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/rule:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/rule
-.PHONY : src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/rule
-
-# Convenience name for target.
-rs_PointCloudDownsampler: src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/rule
-
-.PHONY : rs_PointCloudDownsampler
-
-# fast build rule for target.
-rs_PointCloudDownsampler/fast:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build.make src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build
-.PHONY : rs_PointCloudDownsampler/fast
-
-# Convenience name for target.
 src/utils/CMakeFiles/rs_Trigger.dir/rule:
 	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/rs_Trigger.dir/rule
 .PHONY : src/utils/CMakeFiles/rs_Trigger.dir/rule
@@ -230,6 +200,21 @@ rs_Trigger: src/utils/CMakeFiles/rs_Trigger.dir/rule
 rs_Trigger/fast:
 	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_Trigger.dir/build.make src/utils/CMakeFiles/rs_Trigger.dir/build
 .PHONY : rs_Trigger/fast
+
+# Convenience name for target.
+src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule:
+	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
+.PHONY : src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
+
+# Convenience name for target.
+rs_ImagePreprocessor: src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
+
+.PHONY : rs_ImagePreprocessor
+
+# fast build rule for target.
+rs_ImagePreprocessor/fast:
+	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build
+.PHONY : rs_ImagePreprocessor/fast
 
 # Convenience name for target.
 src/utils/CMakeFiles/rs_utils.dir/rule:
@@ -260,21 +245,6 @@ rs_BlurDetectorAnnotator: src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/rule
 rs_BlurDetectorAnnotator/fast:
 	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/build.make src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/build
 .PHONY : rs_BlurDetectorAnnotator/fast
-
-# Convenience name for target.
-src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
-.PHONY : src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
-
-# Convenience name for target.
-rs_ImagePreprocessor: src/utils/CMakeFiles/rs_ImagePreprocessor.dir/rule
-
-.PHONY : rs_ImagePreprocessor
-
-# fast build rule for target.
-rs_ImagePreprocessor/fast:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build
-.PHONY : rs_ImagePreprocessor/fast
 
 src/BlurDetector.o: src/BlurDetector.cpp.o
 
@@ -329,33 +299,6 @@ src/BlurDetectorAnnotator.s: src/BlurDetectorAnnotator.cpp.s
 src/BlurDetectorAnnotator.cpp.s:
 	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/build.make src/utils/CMakeFiles/rs_BlurDetectorAnnotator.dir/src/BlurDetectorAnnotator.cpp.s
 .PHONY : src/BlurDetectorAnnotator.cpp.s
-
-src/ClusterMerger.o: src/ClusterMerger.cpp.o
-
-.PHONY : src/ClusterMerger.o
-
-# target to build an object file
-src/ClusterMerger.cpp.o:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ClusterMerger.dir/build.make src/utils/CMakeFiles/rs_ClusterMerger.dir/src/ClusterMerger.cpp.o
-.PHONY : src/ClusterMerger.cpp.o
-
-src/ClusterMerger.i: src/ClusterMerger.cpp.i
-
-.PHONY : src/ClusterMerger.i
-
-# target to preprocess a source file
-src/ClusterMerger.cpp.i:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ClusterMerger.dir/build.make src/utils/CMakeFiles/rs_ClusterMerger.dir/src/ClusterMerger.cpp.i
-.PHONY : src/ClusterMerger.cpp.i
-
-src/ClusterMerger.s: src/ClusterMerger.cpp.s
-
-.PHONY : src/ClusterMerger.s
-
-# target to generate assembly for a file
-src/ClusterMerger.cpp.s:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ClusterMerger.dir/build.make src/utils/CMakeFiles/rs_ClusterMerger.dir/src/ClusterMerger.cpp.s
-.PHONY : src/ClusterMerger.cpp.s
 
 src/DepthImageProcessing.o: src/DepthImageProcessing.cpp.o
 
@@ -492,33 +435,6 @@ src/ImagePreprocessor.cpp.s:
 	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_ImagePreprocessor.dir/build.make src/utils/CMakeFiles/rs_ImagePreprocessor.dir/src/ImagePreprocessor.cpp.s
 .PHONY : src/ImagePreprocessor.cpp.s
 
-src/PointCloudDownsampler.o: src/PointCloudDownsampler.cpp.o
-
-.PHONY : src/PointCloudDownsampler.o
-
-# target to build an object file
-src/PointCloudDownsampler.cpp.o:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build.make src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/src/PointCloudDownsampler.cpp.o
-.PHONY : src/PointCloudDownsampler.cpp.o
-
-src/PointCloudDownsampler.i: src/PointCloudDownsampler.cpp.i
-
-.PHONY : src/PointCloudDownsampler.i
-
-# target to preprocess a source file
-src/PointCloudDownsampler.cpp.i:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build.make src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/src/PointCloudDownsampler.cpp.i
-.PHONY : src/PointCloudDownsampler.cpp.i
-
-src/PointCloudDownsampler.s: src/PointCloudDownsampler.cpp.s
-
-.PHONY : src/PointCloudDownsampler.s
-
-# target to generate assembly for a file
-src/PointCloudDownsampler.cpp.s:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(MAKE) $(MAKESILENT) -f src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/build.make src/utils/CMakeFiles/rs_PointCloudDownsampler.dir/src/PointCloudDownsampler.cpp.s
-.PHONY : src/PointCloudDownsampler.cpp.s
-
 src/Trigger.o: src/Trigger.cpp.o
 
 .PHONY : src/Trigger.o
@@ -587,9 +503,7 @@ help:
 	@echo "... rebuild_cache"
 	@echo "... test"
 	@echo "... rs_BlurDetectorAnnotator"
-	@echo "... rs_ClusterMerger"
 	@echo "... rs_ImagePreprocessor"
-	@echo "... rs_PointCloudDownsampler"
 	@echo "... rs_Trigger"
 	@echo "... rs_utils"
 	@echo "... src/BlurDetector.o"
@@ -598,9 +512,6 @@ help:
 	@echo "... src/BlurDetectorAnnotator.o"
 	@echo "... src/BlurDetectorAnnotator.i"
 	@echo "... src/BlurDetectorAnnotator.s"
-	@echo "... src/ClusterMerger.o"
-	@echo "... src/ClusterMerger.i"
-	@echo "... src/ClusterMerger.s"
 	@echo "... src/DepthImageProcessing.o"
 	@echo "... src/DepthImageProcessing.i"
 	@echo "... src/DepthImageProcessing.s"
@@ -616,9 +527,6 @@ help:
 	@echo "... src/ImagePreprocessor.o"
 	@echo "... src/ImagePreprocessor.i"
 	@echo "... src/ImagePreprocessor.s"
-	@echo "... src/PointCloudDownsampler.o"
-	@echo "... src/PointCloudDownsampler.i"
-	@echo "... src/PointCloudDownsampler.s"
 	@echo "... src/Trigger.o"
 	@echo "... src/Trigger.i"
 	@echo "... src/Trigger.s"
