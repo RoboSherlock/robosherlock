@@ -17,8 +17,7 @@
 
 // RS
 #include <robosherlock/utils/BlurDetector.h>
-#include <robosherlock/utils/time.h>
-#include <robosherlock/utils/output.h>
+
 
 #define BLUR_FUNC funcSobelStdDevOptimized
 
