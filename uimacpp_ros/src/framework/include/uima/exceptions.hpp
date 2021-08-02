@@ -152,7 +152,7 @@ namespace uima {
       const UChar *                    cpuszParam1
     );
 
-    ///Constructor with a single UnicodeString parameter
+    ///Constructor with a single icu::UnicodeString parameter
     ErrorMessage(
       TyMessageId                      utMsgId,
       const icu::UnicodeString &       crustrParam1

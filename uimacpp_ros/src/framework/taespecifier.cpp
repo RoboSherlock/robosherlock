@@ -990,7 +990,7 @@ namespace uima {
 
 
 
-  void AnalysisEngineDescription::appendConfigParamsAndSettingsToXMLBuffer(UnicodeString & s) const  {
+  void AnalysisEngineDescription::appendConfigParamsAndSettingsToXMLBuffer(icu::UnicodeString & s) const  {
 
 
     AnalysisEngineMetaData const & md = * getAnalysisEngineMetaData();
@@ -1200,7 +1200,7 @@ namespace uima {
     ///AnalysisEngineMetaData const & md = * getAnalysisEngineMetaData();
     
     //    name
-    UnicodeString out;
+    icu::UnicodeString out;
     s.append("<name>");
     XMLWriterABase::normalize(UnicodeStringRef(md.getName()), out);
     s.append(out);

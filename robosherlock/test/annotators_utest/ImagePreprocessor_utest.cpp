@@ -25,7 +25,7 @@
 int preprocessingTest()
 {
 
-  UnicodeString ustrInputText;
+  icu::UnicodeString ustrInputText;
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
 
@@ -102,7 +102,7 @@ int preprocessingTest()
     }
   }
   
-  std::vector<UnicodeString> new_configs;
+  std::vector<icu::UnicodeString> new_configs;
   new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
    
   cr_context->assignValue(UnicodeString("camera_config_files"),new_configs); */

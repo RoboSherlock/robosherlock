@@ -120,15 +120,15 @@ namespace uima {
 
   private:
 
-    void readFS(UnicodeString & qualifiedName, const Attributes & attrs);
+    void readFS(icu::UnicodeString & qualifiedName, const Attributes & attrs);
     void readFS(lowlevel::TyFS addr, const Attributes  & attrs, bool toIndex);
-    void handleFeature(lowlevel::TyFS addr, UnicodeString & featName, UnicodeString & featVal, bool lenient);
-    void handleFeature(Type & type, lowlevel::TyFS addr, UnicodeString & featName, UnicodeString & featVal,
+    void handleFeature(lowlevel::TyFS addr, icu::UnicodeString & featName, icu::UnicodeString & featVal, bool lenient);
+    void handleFeature(Type & type, lowlevel::TyFS addr, icu::UnicodeString & featName, icu::UnicodeString & featVal,
                        bool lenient);
     void finalizeFS(FSInfo & fsInfo);
     void readArray(Type & type, const Attributes & attrs);
-    void readArrayElement(UnicodeString & qualifiedName, const Attributes & attrs);
-    void addArrayElement(UnicodeString & buffer);
+    void readArrayElement(icu::UnicodeString & qualifiedName, const Attributes & attrs);
+    void addArrayElement(icu::UnicodeString & buffer);
     void finalizeArray(Type & type, lowlevel::TyFS addr, FSInfo & fsInfo);
 
     const Locator *  iv_locator;
@@ -136,14 +136,14 @@ namespace uima {
     internal::CASImpl & iv_casimpl;
     const lowlevel::TypeSystem * iv_typesystem;
     int iv_state;
-    UnicodeString buffer;
+    icu::UnicodeString buffer;
 
     // The address of the most recently created FS.  Needed for array elements
     // and embedded feature values.
     lowlevel::TyFS currentAddr;
 
     // The name of the content feature, if we've seen one.
-    UnicodeString currentContentFeat;
+    icu::UnicodeString currentContentFeat;
 
     // The current position when parsing array elements.
     size_t arrayPos;

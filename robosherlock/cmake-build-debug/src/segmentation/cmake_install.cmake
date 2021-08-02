@@ -1,4 +1,4 @@
-# Install script for directory: /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/segmentation
+# Install script for directory: /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/segmentation
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -49,12 +49,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_segmentation.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_segmentation.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_segmentation.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_segmentation.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_segmentation.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_segmentation.so"
-         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib:/opt/ros/melodic/lib:/home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:"
+         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib:/opt/ros/melodic/lib:/home/rin/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_segmentation.so")
@@ -72,12 +72,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/rs_ImageSegmentationAnnotator.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImageSegmentationAnnotator.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/rs_ImageSegmentationAnnotator.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/rs_ImageSegmentationAnnotator.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/rs_ImageSegmentationAnnotator.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/rs_ImageSegmentationAnnotator.so"
-         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib:"
+         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/rin/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/rs_ImageSegmentationAnnotator.so")

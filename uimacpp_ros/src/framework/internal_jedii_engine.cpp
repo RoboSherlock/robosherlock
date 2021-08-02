@@ -304,7 +304,7 @@ namespace uima {
       jsize len = iv_env->GetArrayLength(ar);
       checkForUnexpectedJNIException();
       result.reserve(len);
-      pool.reserve(len); // with this reserve, the vector will never be re-allocated, thus the internal pointer in the UnicodeString objects remain valid throughout this method!
+      pool.reserve(len); // with this reserve, the vector will never be re-allocated, thus the internal pointer in the icu::UnicodeString objects remain valid throughout this method!
       int i;
       for (i=0; i<len; ++i) {
         jstring js = (jstring) iv_env->GetObjectArrayElement(ar, i);

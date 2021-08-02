@@ -76,7 +76,7 @@ namespace uima {
   }
 
   UnicodeStringRef adjustTypeName(UnicodeStringRef ulstrName) {
-    UnicodeString ustrTypePfx( "uima" );                         // Our namespace
+    icu::UnicodeString ustrTypePfx( "uima" );                         // Our namespace
     ustrTypePfx.append( (UChar) uima::TypeSystem::NAMESPACE_SEPARATOR );
     if (u_strncmp(ulstrName.getBuffer(), ustrTypePfx.getBuffer(), min(ulstrName.length(), ustrTypePfx.length())) == 0) {
       ulstrName = UnicodeStringRef(ulstrName.getBuffer() + ustrTypePfx.length(),

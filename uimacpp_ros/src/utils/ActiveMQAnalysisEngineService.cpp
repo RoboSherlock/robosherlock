@@ -960,7 +960,7 @@ void AMQListener::receiveAndProcessMessages(apr_thread_t * thd) {
         int payload = textMessage->getIntProperty("Payload");
         //get the text in the payload 
         string text = textMessage->getText().c_str();
-        UnicodeString utext(text.c_str());
+        icu::UnicodeString utext(text.c_str());
 		text = UnicodeStringRef(utext).asUTF8();
         astr.str("");
         astr << "Payload: " << payload << " Content: " << text ;
@@ -1280,8 +1280,8 @@ void AMQListener::receiveAndProcessMessages(apr_thread_t * thd) {
         uima::ResourceManager::createInstance("ActiveMQAnalysisEngineService");
       }
       ErrorInfo errInfo;
-      UnicodeString ustr(this->iv_aeDescriptor.c_str());
-      UnicodeString ufn = ResourceManager::resolveFilename(ustr,ustr);
+      icu::UnicodeString ustr(this->iv_aeDescriptor.c_str());
+      icu::UnicodeString ufn = ResourceManager::resolveFilename(ustr,ustr);
 
       //create a AnalysisEngine and CAS for each instance
       for (int i=0; i < iv_numInstances; i++) {

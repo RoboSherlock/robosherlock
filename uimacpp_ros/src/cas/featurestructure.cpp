@@ -470,7 +470,7 @@ namespace uima {
         }
       }
       if (! bStringFound) {
-        UnicodeString us(uls.getBuffer(), uls.length() );
+        icu::UnicodeString us(uls.getBuffer(), uls.length() );
         ErrorMessage errMess(UIMA_MSG_ID_EXC_WRONG_STRING_VALUE);
         errMess.addParam(us);
         errMess.addParam(crTypeSystem.getTypeName(tyRangeType) );

@@ -1,4 +1,4 @@
-# Install script for directory: /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/queryanswering
+# Install script for directory: /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/queryanswering
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -49,12 +49,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_queryanswering.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_queryanswering.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_queryanswering.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_queryanswering.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_queryanswering.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_queryanswering.so"
-         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:"
+         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/rin/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_queryanswering.so")
@@ -72,12 +72,12 @@ if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_prologQueries.so"
          RPATH "")
   endif()
-  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_prologQueries.so")
+  file(INSTALL DESTINATION "${CMAKE_INSTALL_PREFIX}/lib" TYPE SHARED_LIBRARY FILES "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/lib/librs_prologQueries.so")
   if(EXISTS "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_prologQueries.so" AND
      NOT IS_SYMLINK "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_prologQueries.so")
     file(RPATH_CHANGE
          FILE "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_prologQueries.so"
-         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:"
+         OLD_RPATH "/usr/lib/swi-prolog/lib/amd64:/opt/ros/melodic/lib:/usr/lib/x86_64-linux-gnu/hdf5/openmpi:/usr/lib/x86_64-linux-gnu/openmpi/lib:/home/rin/rs_ws/devel/.private/uimacpp_ros/lib:/usr/lib/jvm/default-java/lib:/usr/lib/jvm/default-java/lib/server:"
          NEW_RPATH "")
     if(CMAKE_INSTALL_DO_STRIP)
       execute_process(COMMAND "/usr/bin/strip" "$ENV{DESTDIR}${CMAKE_INSTALL_PREFIX}/lib/librs_prologQueries.so")

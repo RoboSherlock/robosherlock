@@ -231,7 +231,7 @@ void JNIUtils::createStringVector(JNIEnv* jeEnv, jobjectArray joArray, vector<ui
       JNIUString uString(jeEnv, js);
       uima::UnicodeStringRef ref = uString.toUStrPtrLenPair();
 //         cout << __FILE__ << __LINE__ << ":" << i << "  string " << uString.toUStrPtrLenPair() << endl;
-      rStringPool[i] = UnicodeString( ref.getBuffer(), ref.length() );
+      rStringPool[i] = icu::UnicodeString( ref.getBuffer(), ref.length() );
       rResult[i] = uima::UnicodeStringRef(rStringPool[i]);
     } else {
       rResult[i] = uima::UnicodeStringRef();

@@ -467,7 +467,7 @@ namespace uima {
           vector<uima::lowlevel::internal::SingleIndex*> const & crSingleIndexes =
             crIndexRep->getAllSingleIndexesForType(vecAllTypes[i]);
           for (size_t j=0; j<crSingleIndexes.size(); ++j) {
-            auto_ptr<uima::lowlevel::IndexIterator> apIt(crSingleIndexes[j]->createIterator());
+            unique_ptr<uima::lowlevel::IndexIterator> apIt(crSingleIndexes[j]->createIterator());
             for (apIt->moveToFirst(); apIt->isValid(); apIt->moveToNext()) {
               uima::lowlevel::TyHeapCell pHeapCell = (uima::lowlevel::TyHeapCell) apIt->get();
               SerializedCAS::TyNum tyFSHeapIndex =  (SerializedCAS::TyNum) pHeapCell;

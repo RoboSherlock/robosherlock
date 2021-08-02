@@ -53,19 +53,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /snap/clion/158/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -E rm -f
+RM = /snap/clion/158/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock
+CMAKE_SOURCE_DIR = /home/rin/tmp_rs_ws/src/robosherlock/robosherlock
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug
+CMAKE_BINARY_DIR = /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug
 
 # Include any dependencies generated for this target.
 include src/io/CMakeFiles/rs_io.dir/depend.make
@@ -78,211 +78,211 @@ include src/io/CMakeFiles/rs_io.dir/flags.make
 
 src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.o: ../src/io/src/CamInterface.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/CamInterface.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/CamInterface.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/CamInterface.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp > CMakeFiles/rs_io.dir/src/CamInterface.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp > CMakeFiles/rs_io.dir/src/CamInterface.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/CamInterface.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/CamInterface.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp -o CMakeFiles/rs_io.dir/src/CamInterface.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/CamInterface.cpp -o CMakeFiles/rs_io.dir/src/CamInterface.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o: ../src/io/src/ROSCamInterface.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp > CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp > CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp -o CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCamInterface.cpp -o CMakeFiles/rs_io.dir/src/ROSCamInterface.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o: ../src/io/src/ROSKinectBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp > CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp > CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSKinectBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSKinectBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o: ../src/io/src/ROSRealSenseBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp > CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp > CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSRealSenseBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSRealSenseBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o: ../src/io/src/ROSTangoBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp > CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp > CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSTangoBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSTangoBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o: ../src/io/src/ROSThermalCamBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp > CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp > CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSThermalCamBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSThermalCamBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o: ../src/io/src/ROSCameraBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp > CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp > CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/ROSCameraBridge.cpp -o CMakeFiles/rs_io.dir/src/ROSCameraBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o: ../src/io/src/UnrealVisionBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp > CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp > CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp -o CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealVisionBridge.cpp -o CMakeFiles/rs_io.dir/src/UnrealVisionBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o: ../src/io/src/UnrealROSIntegrationVisionBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp > CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp > CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp -o CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/UnrealROSIntegrationVisionBridge.cpp -o CMakeFiles/rs_io.dir/src/UnrealROSIntegrationVisionBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o: ../src/io/src/DataLoaderBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp > CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp > CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp -o CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/DataLoaderBridge.cpp -o CMakeFiles/rs_io.dir/src/DataLoaderBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o: ../src/io/src/MongoDBBridge.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_11) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp > CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp > CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp -o CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/MongoDBBridge.cpp -o CMakeFiles/rs_io.dir/src/MongoDBBridge.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o: ../src/io/src/TFListenerProxy.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_12) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp > CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp > CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp -o CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/TFListenerProxy.cpp -o CMakeFiles/rs_io.dir/src/TFListenerProxy.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.o: ../src/io/src/Storage.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/Storage.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_13) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/Storage.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/Storage.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp > CMakeFiles/rs_io.dir/src/Storage.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp > CMakeFiles/rs_io.dir/src/Storage.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/Storage.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/Storage.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp -o CMakeFiles/rs_io.dir/src/Storage.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Storage.cpp -o CMakeFiles/rs_io.dir/src/Storage.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.o: ../src/io/src/visualizer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/visualizer.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_14) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/visualizer.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/visualizer.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp > CMakeFiles/rs_io.dir/src/visualizer.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp > CMakeFiles/rs_io.dir/src/visualizer.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/visualizer.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/visualizer.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp -o CMakeFiles/rs_io.dir/src/visualizer.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/visualizer.cpp -o CMakeFiles/rs_io.dir/src/visualizer.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o: ../src/io/src/VisualizableGroupManager.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_15) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp > CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp > CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp -o CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/VisualizableGroupManager.cpp -o CMakeFiles/rs_io.dir/src/VisualizableGroupManager.cpp.s
 
 src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.o: src/io/CMakeFiles/rs_io.dir/flags.make
 src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.o: ../src/io/src/Visualizable.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.o"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/Visualizable.cpp.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_16) "Building CXX object src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.o"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/rs_io.dir/src/Visualizable.cpp.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp
 
 src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/rs_io.dir/src/Visualizable.cpp.i"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp > CMakeFiles/rs_io.dir/src/Visualizable.cpp.i
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp > CMakeFiles/rs_io.dir/src/Visualizable.cpp.i
 
 src/io/CMakeFiles/rs_io.dir/src/Visualizable.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/rs_io.dir/src/Visualizable.cpp.s"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp -o CMakeFiles/rs_io.dir/src/Visualizable.cpp.s
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && /usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io/src/Visualizable.cpp -o CMakeFiles/rs_io.dir/src/Visualizable.cpp.s
 
 # Object files for target rs_io
 rs_io_OBJECTS = \
@@ -587,7 +587,7 @@ devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_date_time.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_atomic.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libpthread.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
-devel/lib/librs_io.so: /home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib/libuimacpp_ros.so
+devel/lib/librs_io.so: /home/rin/rs_ws/devel/.private/uimacpp_ros/lib/libuimacpp_ros.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libxerces-c.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libapr-1.so
 devel/lib/librs_io.so: /usr/lib/jvm/default-java/lib/libjawt.so
@@ -705,7 +705,6 @@ devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_system.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_thread.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_date_time.so
-devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_python.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_chrono.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_atomic.so
 devel/lib/librs_io.so: devel/lib/librs_utils.so
@@ -1180,7 +1179,7 @@ devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_date_time.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libboost_atomic.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libpthread.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libconsole_bridge.so.0.4
-devel/lib/librs_io.so: /home/hassouna/perception/rs_ws/devel/.private/uimacpp_ros/lib/libuimacpp_ros.so
+devel/lib/librs_io.so: /home/rin/rs_ws/devel/.private/uimacpp_ros/lib/libuimacpp_ros.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libxerces-c.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libapr-1.so
 devel/lib/librs_io.so: /usr/lib/jvm/default-java/lib/libjawt.so
@@ -1189,8 +1188,8 @@ devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libicuuc.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libmongoclient.so
 devel/lib/librs_io.so: /usr/lib/x86_64-linux-gnu/libyaml-cpp.so.0.5.2
 devel/lib/librs_io.so: src/io/CMakeFiles/rs_io.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX shared library ../../devel/lib/librs_io.so"
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rs_io.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles --progress-num=$(CMAKE_PROGRESS_17) "Linking CXX shared library ../../devel/lib/librs_io.so"
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/rs_io.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 src/io/CMakeFiles/rs_io.dir/build: devel/lib/librs_io.so
@@ -1198,10 +1197,10 @@ src/io/CMakeFiles/rs_io.dir/build: devel/lib/librs_io.so
 .PHONY : src/io/CMakeFiles/rs_io.dir/build
 
 src/io/CMakeFiles/rs_io.dir/clean:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && $(CMAKE_COMMAND) -P CMakeFiles/rs_io.dir/cmake_clean.cmake
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io && $(CMAKE_COMMAND) -P CMakeFiles/rs_io.dir/cmake_clean.cmake
 .PHONY : src/io/CMakeFiles/rs_io.dir/clean
 
 src/io/CMakeFiles/rs_io.dir/depend:
-	cd /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/src/io /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io/CMakeFiles/rs_io.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/rin/tmp_rs_ws/src/robosherlock/robosherlock /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/src/io /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io/CMakeFiles/rs_io.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : src/io/CMakeFiles/rs_io.dir/depend
 

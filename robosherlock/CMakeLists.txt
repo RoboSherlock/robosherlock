@@ -80,7 +80,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system thread date_time python)
+find_package(Boost REQUIRED COMPONENTS system thread date_time)
 
 find_package(APR REQUIRED)
 find_package(ICUUC REQUIRED)
@@ -127,6 +127,8 @@ if(yaml-cpp_FOUND)
 else()
   message(STATUS "libyaml_cpp not found.")
 endif()
+
+find_package(Python3 COMPONENTS Interpreter Development)
 
 ################################################################################
 ## CMake variables                                                            ##

@@ -44,7 +44,7 @@ namespace uima {
     TyVecpFeatureDescriptions::iterator ite;
     for (ite = otherDescs.begin(); ite != otherDescs.end(); ite++) {
       bool takesMemoryOwnership;
-      auto_ptr<FeatureDescription> desc ( new FeatureDescription(**ite) );
+      unique_ptr<FeatureDescription> desc ( new FeatureDescription(**ite) );
       addFeatureDescription(desc.get(), takesMemoryOwnership);
       if (takesMemoryOwnership) {
         desc.release();
@@ -55,7 +55,7 @@ namespace uima {
     TyVecpAllowedValues::iterator ite1;
     for (ite1 = otherAllowedValues.begin(); ite1 != otherAllowedValues.end(); ite1++) {
       bool takesMemoryOwnership;
-      auto_ptr<AllowedValue> allowedval ( new AllowedValue(**ite1) );
+      unique_ptr<AllowedValue> allowedval ( new AllowedValue(**ite1) );
       addAllowedValue(allowedval.get(), takesMemoryOwnership);
       if (takesMemoryOwnership) {
         allowedval.release();
@@ -219,7 +219,7 @@ namespace uima {
       //we do not handle import by 'name' which requires looking into
       //classpath and needs to be handle in Java.
       if (pImport->getLocation().length() > 0) {
-        const UnicodeString & fileLocation = pImport->findAbsoluteUrl(iv_xmlFileLoc);
+        const icu::UnicodeString & fileLocation = pImport->findAbsoluteUrl(iv_xmlFileLoc);
         //check it is not in already Imported list
 		bool needsToBeResolved=true;
         for (size_t j=0; j < alreadyImportedTypeSystemLocations.size() ;j++) {

@@ -277,9 +277,9 @@ public:
   void overwriteParam(const std::string &ae_name, const std::string &param_name, T const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(ae_name.c_str());
+    icu::UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(param_name.c_str()), param);
+    cr_context->assignValue(icu::UnicodeString(param_name.c_str()), param);
   }
 
   /**
@@ -292,9 +292,9 @@ public:
   void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<T> &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(ae_name.c_str());
+    icu::UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(param_name.c_str()), param);
+    cr_context->assignValue(icu::UnicodeString(param_name.c_str()), param);
   }
 
   /**
@@ -306,23 +306,23 @@ public:
   void overwriteParam(const std::string &ae_name, const std::string &param_name, std::string const &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(ae_name.c_str());
+    icu::UnicodeString ucs_delegate(ae_name.c_str());
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(param_name.c_str()), (UnicodeString) param.c_str());
+    cr_context->assignValue(icu::UnicodeString(param_name.c_str()), (icu::UnicodeString) param.c_str());
   }
 
   void overwriteParam(const std::string &ae_name, const std::string &param_name, const std::vector<std::string> &param)
   {
     uima::AnnotatorContext &annotContext = getAnnotatorContext();
-    UnicodeString ucs_delegate(ae_name.c_str());
+    icu::UnicodeString ucs_delegate(ae_name.c_str());
     //Convert the std::string vector into UnicodeString and then overwrite with that variable
-    std::vector<UnicodeString> conversionString;
+    std::vector<icu::UnicodeString> conversionString;
     for(std::string i : param)
     {
-      conversionString.push_back(UnicodeString(i.c_str()));
+      conversionString.push_back(icu::UnicodeString(i.c_str()));
     }
     uima::AnnotatorContext *cr_context =  annotContext.getDelegate(ucs_delegate);
-    cr_context->assignValue(UnicodeString(param_name.c_str()), conversionString);
+    cr_context->assignValue(icu::UnicodeString(param_name.c_str()), conversionString);
   }
 
   // this variable is for fail safe mechanism to fall back to linear execution if query orderings fail

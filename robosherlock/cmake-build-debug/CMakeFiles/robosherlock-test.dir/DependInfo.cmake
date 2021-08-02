@@ -4,20 +4,21 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/annotators_utest/test_storage.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/main.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/main.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_casconsumercontext.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_casconsumercontext.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_parallelism.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_parallelism.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_queryinterface.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_queryinterface.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_scene_cas.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_scene_cas.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_swipl_interface.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_swipl_interface.cpp.o"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_visualizables.cpp" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/annotators_utest/ImagePreprocessor_utest.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/annotators_utest/ImagePreprocessor_utest.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/annotators_utest/test_storage.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/annotators_utest/test_storage.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/main.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/main.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_casconsumercontext.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_casconsumercontext.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_parallelism.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_parallelism.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_queryinterface.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_queryinterface.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_scene_cas.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_scene_cas.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_swipl_interface.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_swipl_interface.cpp.o"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/test/robosherlock/test_visualizables.cpp" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/robosherlock-test.dir/test/robosherlock/test_visualizables.cpp.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "CAFFE_FOUND"
   "DISABLE_DAVIDSDK"
   "DISABLE_DSSDK"
   "DISABLE_ENSENSO"
@@ -61,18 +62,18 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
   "/usr/include/jsoncpp"
   "/usr/include/tcl"
   "/usr/lib/swi-prolog/include"
-  "../src/queryanswering/include"
-  "../src/segmentation/include"
-  "../src/flowcontrol/include"
   "../src/core/include"
-  "../src/io/include"
   "../src/utils/include"
+  "../src/segmentation/include"
+  "../src/io/include"
+  "../src/flowcontrol/include"
+  "../src/queryanswering/include"
   "/usr/include/apr-1.0"
-  "/home/hassouna/perception/rs_ws/devel/.private/robosherlock_msgs/include"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"
+  "/home/rin/rs_ws/devel/.private/robosherlock_msgs/include"
+  "/home/rin/rs_ws/src/robosherlock/rapidjson_ros/include/rapidjson/include"
+  "/home/rin/rs_ws/src/robosherlock/uimacpp_ros/src/cas/include"
+  "/home/rin/rs_ws/src/robosherlock/uimacpp_ros/src/framework/include"
+  "/home/rin/rs_ws/src/robosherlock/uimacpp_ros/src/jni/include"
   "/opt/ros/melodic/include"
   "/opt/ros/melodic/share/xmlrpcpp/cmake/../../../include/xmlrpcpp"
   "/opt/ros/melodic/share/orocos_kdl/cmake/../../../include"
@@ -94,12 +95,12 @@ set(CMAKE_CXX_TARGET_INCLUDE_PATH
 
 # Targets to which this target links.
 set(CMAKE_TARGET_LINKED_INFO_FILES
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/gtest/CMakeFiles/gtest.dir/DependInfo.cmake"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/flowcontrol/CMakeFiles/rs_flowcontrol.dir/DependInfo.cmake"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io/CMakeFiles/rs_io.dir/DependInfo.cmake"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/CMakeFiles/rs_utils.dir/DependInfo.cmake"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/queryanswering/CMakeFiles/rs_queryanswering.dir/DependInfo.cmake"
-  "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/core/CMakeFiles/rs_core.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/gtest/CMakeFiles/gtest.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/flowcontrol/CMakeFiles/rs_flowcontrol.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/io/CMakeFiles/rs_io.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/utils/CMakeFiles/rs_utils.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/queryanswering/CMakeFiles/rs_queryanswering.dir/DependInfo.cmake"
+  "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/src/core/CMakeFiles/rs_core.dir/DependInfo.cmake"
   )
 
 # Fortran module output directory.

@@ -567,7 +567,7 @@ namespace uima {
 
       // generic implementation here, may be optimized for subclasses
       bool SingleIndex::contains(TyFS tyFS) const {
-        auto_ptr<IndexIterator> it( createIterator() );
+        unique_ptr<IndexIterator> it( createIterator() );
         for (it->moveToFirst(); it->isValid(); it->moveToNext()) {
           if ( it->get() == tyFS ) {
             return true;
@@ -589,7 +589,7 @@ namespace uima {
 
       TyFS ComparatorSingleIndex::find(TyFS fs) const {
         assert( EXISTS(iv_cpComparator) );
-        auto_ptr<IndexIterator> it(createIterator());
+        unique_ptr<IndexIterator> it(createIterator());
         assert( EXISTS(it.get()) );
         TyFS result = 0;
         for (it->moveToFirst(); it->isValid(); it->moveToNext() ) {

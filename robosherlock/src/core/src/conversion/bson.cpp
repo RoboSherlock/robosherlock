@@ -111,7 +111,7 @@ void fromFeatureString(const uima::FeatureStructure &fs, const uima::Feature &fe
 
 void toFeatureString(uima::CAS &cas, uima::FeatureStructure &fs, const uima::Feature &feature, const mongo::BSONElement &elem)
 {
-  UnicodeString value = UnicodeString::fromUTF8(elem.String());
+  icu::UnicodeString value = icu::UnicodeString::fromUTF8(elem.String());
   fs.setStringValue(feature, value);
 }
 
@@ -170,7 +170,7 @@ void fromFeature(const uima::FeatureStructure &fs, const uima::Feature &feature,
 
 void toFeature(uima::CAS &cas, uima::FeatureStructure fs, const uima::Type &fsType, const mongo::BSONElement &elem)
 {
-  const UnicodeString name = UnicodeString::fromUTF8(elem.fieldName());
+  const icu::UnicodeString name = icu::UnicodeString::fromUTF8(elem.fieldName());
   uima::Feature feature = fsType.getFeatureByBaseName(name);
   uima::Type featureType;
   feature.getRangeType(featureType);
@@ -238,7 +238,7 @@ uima::FeatureStructure toBasicFeatureStructure(uima::CAS &cas, const uima::Type 
     if(fsType.isAppropriateFeature(idFeature)) {
       mongo::BSONElement elem;
       if(object.getObjectID(elem)) {
-        newFS.setStringValue(idFeature, UnicodeString::fromUTF8(elem.OID().toString()));
+        newFS.setStringValue(idFeature, icu::UnicodeString::fromUTF8(elem.OID().toString()));
       }
     }
   }

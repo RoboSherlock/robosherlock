@@ -1188,7 +1188,7 @@ namespace uima {
               continue;
             }
             bool takesMemoryOwnerShip;
-            auto_ptr<TypeDescription> desc( buildTypeDesc((DOMElement *) typeDescs->item(i)) );
+            unique_ptr<TypeDescription> desc( buildTypeDesc((DOMElement *) typeDescs->item(i)) );
             typeSystemDesc.addTypeDescription(desc.get(), takesMemoryOwnerShip);
             if (takesMemoryOwnerShip) {
               desc.release();
@@ -1197,7 +1197,7 @@ namespace uima {
         }
       } else if (childTag.compare(TAG_IMPORT_DESC) == 0) {
         bool takesMemoryOwnerShip;
-        auto_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) children->item(j)) );
+        unique_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) children->item(j)) );
         typeSystemDesc.addImportDescription(desc.get(), takesMemoryOwnerShip);
         if (takesMemoryOwnerShip) {
           desc.release();
@@ -1211,7 +1211,7 @@ namespace uima {
               continue;
             }
             bool takesMemoryOwnerShip;
-            auto_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) importDescs->item(i)) );
+            unique_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) importDescs->item(i)) );
             typeSystemDesc.addImportDescription(desc.get(), takesMemoryOwnerShip);
             if (takesMemoryOwnerShip) {
               desc.release();
@@ -1280,7 +1280,7 @@ namespace uima {
             if ((features->item(j))->getNodeType() != DOMNode::ELEMENT_NODE) {
               continue;
             }
-            auto_ptr<FeatureDescription> desc( buildFeatureDesc((DOMElement *) features->item(j)) );
+            unique_ptr<FeatureDescription> desc( buildFeatureDesc((DOMElement *) features->item(j)) );
             bool takesMemoryOwnership;
             typeDesc->addFeatureDescription(desc.get(), takesMemoryOwnership);
             if (takesMemoryOwnership) {
@@ -1296,7 +1296,7 @@ namespace uima {
             if ((allowedVals->item(j))->getNodeType() != DOMNode::ELEMENT_NODE) {
               continue;
             }
-            auto_ptr<AllowedValue> desc( buildAllowedValue((DOMElement *) allowedVals->item(j)) );
+            unique_ptr<AllowedValue> desc( buildAllowedValue((DOMElement *) allowedVals->item(j)) );
             bool takesMemoryOwnership;
             typeDesc->addAllowedValue(desc.get(), takesMemoryOwnership);
             if (takesMemoryOwnership) {
@@ -1450,12 +1450,12 @@ namespace uima {
             if ((importDescs->item(j))->getNodeType() != DOMNode::ELEMENT_NODE) {
               continue;
             }
-            UnicodeString location = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_LOCATION)));
+	    icu::UnicodeString location = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_LOCATION)));
             if (location.length() > 0)
               buildTypePriorityFromImportLocation(aeMetaData, location, xmlFileLoc, alreadyImportedLocations);
             else {
               //throw exception if import location not specified
-              UnicodeString name = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_NAME)));
+		    icu::UnicodeString name = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_NAME)));
               //throw exception if import location not set.
               ErrorMessage errMsg = ErrorMessage(UIMA_MSG_ID_EXC_UNSUPPORTED_XML_ATTRIBUTE);
               errMsg.addParam(xmlFileLoc);
@@ -1470,7 +1470,7 @@ namespace uima {
 
             }
             /**bool takesMemoryOwnerShip;
-            auto_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) importDescs->item(j)) );
+            unique_ptr<ImportDescription> desc( buildImportDesc((DOMElement *) importDescs->item(j)) );
             aeMetaData.addTypePriorityImportDescription(desc.get(), takesMemoryOwnerShip);
             if (takesMemoryOwnerShip) {
                 desc.release();
@@ -1575,7 +1575,7 @@ namespace uima {
   void XMLParser::buildFSIndexCollection(AnalysisEngineMetaData & aeMetaData,
       DOMElement * descElem,
       vector<icu::UnicodeString> & alreadyImportedLocations,
-      UnicodeString const & lastFileName) {
+      icu::UnicodeString const & lastFileName) {
 
     assert(EXISTS(descElem));
     assert( XMLString::compareString(descElem->getNodeName(), convert(TAG_FS_INDEX_COLLECTION)) == 0
@@ -1604,14 +1604,14 @@ namespace uima {
             if ((importDescs->item(j))->getNodeType() != DOMNode::ELEMENT_NODE) {
               continue;
             }
-            UnicodeString loc = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_LOCATION)));
+	    icu::UnicodeString loc = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_LOCATION)));
             if (loc.length() > 0) {
               buildFSIndexFromImportLocation(aeMetaData,
                                              loc,
                                              alreadyImportedLocations,
                                              lastFileName);
             } else {
-              UnicodeString name = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_NAME)));
+		    icu::UnicodeString name = convert(((DOMElement *) importDescs->item(j))->getAttribute(convert(ATTR_IMPORT_DESC_NAME)));
               //throw exception if import location not set.
               ErrorMessage errMsg = ErrorMessage(UIMA_MSG_ID_EXC_UNSUPPORTED_XML_ATTRIBUTE);
               errMsg.addParam(lastFileName);
@@ -1632,7 +1632,7 @@ namespace uima {
 
   FSIndexDescription * XMLParser::buildFSIndexDesc(DOMElement * descElem) {
     assert(EXISTS(descElem));
-	//cout << __FILE__ <<  " " << UnicodeString((UChar*)descElem->getNodeName()) << endl;
+	//cout << __FILE__ <<  " " <<icu::UnicodeString((UChar*)descElem->getNodeName()) << endl;
     assert( XMLString::compareString(descElem->getNodeName(), convert(TAG_FS_INDEX_DESC)) == 0);
     DOMNodeList * children = descElem->getChildNodes();
     assert(EXISTS(children));
@@ -1845,7 +1845,7 @@ namespace uima {
                   const TypeDescription::TyVecpFeatureDescriptions & featDescs = cpTypeDesc->getFeatureDescriptions();
                   TypeDescription::TyVecpFeatureDescriptions::const_iterator ite;
                   for (ite = featDescs.begin(); ite != featDescs.end(); ite++) {
-                    UnicodeString featName(typeName);
+			  icu::UnicodeString featName(typeName);
                     featName += UIMA_TYPE_FEATURE_SEPARATOR;
                     featName += (*ite)->getName();
                     capability->addCapabilityFeature(featName, typeStyle);
@@ -2086,7 +2086,7 @@ void XMLParser::buildFSIndexFromImportLocation(AnalysisEngineMetaData& fsDesc,
       vector<icu::UnicodeString> & alreadyImportedLocations,
       icu::UnicodeString const & lastFileName) {
 
-    UnicodeString importfn = ResourceManager::resolveFilename(fileName, lastFileName);
+	icu::UnicodeString importfn = ResourceManager::resolveFilename(fileName, lastFileName);
 
     for (size_t i=0; i < alreadyImportedLocations.size() ;i++) {
       if (importfn.compare(alreadyImportedLocations[i]) == 0 )  {
@@ -2168,7 +2168,7 @@ void XMLParser::buildFSIndexFromImportLocation(AnalysisEngineMetaData& fsDesc,
 
 
 
-    UnicodeString importfn = ResourceManager::resolveFilename(fileName, lastFileName);
+	  icu::UnicodeString importfn = ResourceManager::resolveFilename(fileName, lastFileName);
 
     for (size_t i=0; i < alreadyImportedLocations.size(); i++) {
       if (importfn.compare(alreadyImportedLocations[i]) == 0 )  {
@@ -2461,11 +2461,11 @@ void XMLParser::buildFSIndexFromImportLocation(AnalysisEngineMetaData& fsDesc,
     return gs_tempXMLChBuffer;
   }
 
-  UnicodeString XMLParser::convert( XMLCh const * cpUCBuf ) const {
+  icu::UnicodeString XMLParser::convert( XMLCh const * cpUCBuf ) const {
     assertWithMsg( sizeof(XMLCh) == sizeof(UChar), "Port required!");
     if (EXISTS(cpUCBuf)) {
       unsigned int uiLen = XMLString::stringLen( cpUCBuf );
-      return UnicodeString( (UChar const *) cpUCBuf, uiLen);
+      return icu::UnicodeString( (UChar const *) cpUCBuf, uiLen);
     } else {
       return "";
     }

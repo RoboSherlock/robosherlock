@@ -298,7 +298,7 @@ namespace uima {
  }
 
  void XmiWriter::writeView(ostream & os,int sofaXmiId, vector<lowlevel::TyFS>& members) {
-   UnicodeString viewType(UnicodeString("uima.cas.View"));
+   icu::UnicodeString viewType(icu::UnicodeString("uima.cas.View"));
    UnicodeStringRef uref(viewType.getBuffer(), viewType.length());
    XmlElementName * elemName = uimaTypeName2XmiElementName(uref);
 
@@ -548,7 +548,7 @@ namespace uima {
       case internal::gs_tyStringArrayType: {
         StringArrayFS arrayfs(fs);
         size_t n = arrayfs.size();
-         UnicodeString ustr;       
+         icu::UnicodeString ustr;       
         for (size_t i=0; i < n;i++) {
           ustr.setTo("");
           normalize( arrayfs.get(i), ustr );
@@ -1153,7 +1153,7 @@ void XmiWriter::write(ostream & os) {
                                     }
     case internal::gs_tyNEStringListType:  {
       StringListFS curNode(fs);
-      UnicodeString ustr;
+      icu::UnicodeString ustr;
       while (!curNode.isEmpty()) { 
         ///string head = curNode.getHead().asUTF8();
         ustr.setTo("");

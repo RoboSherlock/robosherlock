@@ -683,7 +683,7 @@ namespace uima {
       } 
 
       //instantiate framework logger
-      cv_pclSingletonInstance->iv_frameworkLogger = new LogFacility(UnicodeString("org.apache.uima.cpp"), cv_pclSingletonInstance->iv_logLevel);
+      cv_pclSingletonInstance->iv_frameworkLogger = new LogFacility(icu::UnicodeString("org.apache.uima.cpp"), cv_pclSingletonInstance->iv_logLevel);
 
       cv_pclSingletonInstance->iv_frameworkLogger->logMessage("ResourceManager Instance created.");
     } // release mutex

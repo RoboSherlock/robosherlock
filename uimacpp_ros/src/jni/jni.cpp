@@ -194,10 +194,10 @@ using namespace std;
         str << lUserCode << " " << message;
       }
       
-      UnicodeString msg(str.str().c_str());
+      icu::UnicodeString msg(str.str().c_str());
       // Convert the std::strings to Unicode using the default converter
-      UnicodeString ustrsource(classname.c_str(), classname.length());
-      UnicodeString ustrmethod(methodname.c_str(), methodname.length());
+      icu::UnicodeString ustrsource(classname.c_str(), classname.length());
+      icu::UnicodeString ustrmethod(methodname.c_str(), methodname.length());
       jstring jsrcclass = jnienv->NewString((jchar const *) ustrsource.getBuffer(), ustrsource.length());
       jstring jsrcmethod = jnienv->NewString((jchar const *) ustrmethod.getBuffer(), ustrmethod.length());
       jstring jmessage = jnienv->NewString((jchar const *) msg.getBuffer(), msg.length());
@@ -742,7 +742,7 @@ JNIEXPORT void JNICALL JAVA_PREFIX(processJNI) (JNIEnv* jeEnv,
       uima::SofaID sofaid;
       uima::UnicodeStringRef ref = usSofaName.toUStrPtrLenPair();
       icu::UnicodeString usofa = icu::UnicodeString( ref.getBuffer(), ref.length() );
-      sofaid.setSofaId( UnicodeString(usofa) );
+      sofaid.setSofaId( icu::UnicodeString(usofa) );
       sofaid.setComponentSofaName(usofa);
       tcas = cas.getView(cas.getSofa(sofaid));
       ///tyErrorId = ((uima::AnalysisEngine*) pEngine)->process(*tcas);

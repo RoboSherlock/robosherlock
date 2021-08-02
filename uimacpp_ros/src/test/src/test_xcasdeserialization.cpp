@@ -58,8 +58,8 @@ int main(int argc, char * argv[]) /*
 
     TextAnalysisEngineSpecifierBuilder builder;
     TextAnalysisEngineSpecifier apTAESpecifier;
-    UnicodeString dataFile("ExampleCas/testTae.xml");
-    UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
+    icu::UnicodeString dataFile("ExampleCas/testTae.xml");
+    icu::UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
     builder.buildTaeFromFile(apTAESpecifier, datafn);
 
     internal::CASDefinition * casDef = internal::CASDefinition::createCASDefinition(*apTAESpecifier.getAnalysisEngineMetaData());
@@ -70,13 +70,13 @@ int main(int argc, char * argv[]) /*
     ASSERT_OR_THROWEXCEPTION( EXISTS(v1cas) );
 
     // get a v2 CAS
-    UnicodeString v2casFile("ExampleCas/cas.xml");
-    UnicodeString v2casfn = ResourceManager::resolveFilename(v2casFile, v2casFile);
+    icu::UnicodeString v2casFile("ExampleCas/cas.xml");
+    icu::UnicodeString v2casfn = ResourceManager::resolveFilename(v2casFile, v2casFile);
     XCASDeserializer::deserialize(v2casfn, *cas);
 
     // get a v1.x version of the same CAS
-    UnicodeString v1casFile("ExampleCas/v1cas.xml");
-    UnicodeString v1casfn = ResourceManager::resolveFilename(v1casFile, v1casFile);
+    icu::UnicodeString v1casFile("ExampleCas/v1cas.xml");
+    icu::UnicodeString v1casfn = ResourceManager::resolveFilename(v1casFile, v1casFile);
     XCASDeserializer::deserialize(v1casfn, *v1cas);
 
     // compare
@@ -132,8 +132,8 @@ int main(int argc, char * argv[]) /*
 
 //     // now a v1.x version of a multiple Sofa CAS
     v1cas->reset();
-    UnicodeString v1McasFile("ExampleCas/v1MultiSofaCas.xml");
-    UnicodeString v1Mcasfn = ResourceManager::resolveFilename(v1McasFile, v1McasFile);
+    icu::UnicodeString v1McasFile("ExampleCas/v1MultiSofaCas.xml");
+    icu::UnicodeString v1Mcasfn = ResourceManager::resolveFilename(v1McasFile, v1McasFile);
     XCASDeserializer::deserialize(v1Mcasfn, *v1cas);
 
     // test it

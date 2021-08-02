@@ -1,25 +1,25 @@
 Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
-Change Dir: /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_431f6/fast && /usr/bin/make  -f CMakeFiles/cmTC_431f6.dir/build.make CMakeFiles/cmTC_431f6.dir/build
-make[1]: Entering directory '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_431f6.dir/src.c.o
-/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_431f6.dir/src.c.o -c /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
-Linking C executable cmTC_431f6
-/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_431f6.dir/link.txt --verbose=1
-/usr/bin/cc -rdynamic CMakeFiles/cmTC_431f6.dir/src.c.o -o cmTC_431f6 
-CMakeFiles/cmTC_431f6.dir/src.c.o: In function `main':
+Run Build Command(s):/usr/bin/make cmTC_e3e46/fast && /usr/bin/make  -f CMakeFiles/cmTC_e3e46.dir/build.make CMakeFiles/cmTC_e3e46.dir/build
+make[1]: Entering directory '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_e3e46.dir/src.c.o
+/usr/bin/cc -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_e3e46.dir/src.c.o -c /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_e3e46
+/snap/clion/158/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_e3e46.dir/link.txt --verbose=1
+/usr/bin/cc -rdynamic CMakeFiles/cmTC_e3e46.dir/src.c.o -o cmTC_e3e46 
+CMakeFiles/cmTC_e3e46.dir/src.c.o: In function `main':
 src.c:(.text+0x3e): undefined reference to `pthread_create'
 src.c:(.text+0x4a): undefined reference to `pthread_detach'
 src.c:(.text+0x56): undefined reference to `pthread_cancel'
 src.c:(.text+0x67): undefined reference to `pthread_join'
 src.c:(.text+0x7b): undefined reference to `pthread_atfork'
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_431f6.dir/build.make:105: recipe for target 'cmTC_431f6' failed
-make[1]: *** [cmTC_431f6] Error 1
-make[1]: Leaving directory '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:140: recipe for target 'cmTC_431f6/fast' failed
-make: *** [cmTC_431f6/fast] Error 2
+CMakeFiles/cmTC_e3e46.dir/build.make:105: recipe for target 'cmTC_e3e46' failed
+make[1]: *** [cmTC_e3e46] Error 1
+make[1]: Leaving directory '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
+Makefile:140: recipe for target 'cmTC_e3e46/fast' failed
+make: *** [cmTC_e3e46/fast] Error 2
 
 
 Source file was:
@@ -44,22 +44,22 @@ int main(void)
 }
 
 Determining if the function pthread_create exists in the pthreads failed with the following output:
-Change Dir: /home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp
+Change Dir: /home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp
 
-Run Build Command(s):/usr/bin/make cmTC_58452/fast && /usr/bin/make  -f CMakeFiles/cmTC_58452.dir/build.make CMakeFiles/cmTC_58452.dir/build
-make[1]: Entering directory '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_58452.dir/CheckFunctionExists.c.o
-/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_58452.dir/CheckFunctionExists.c.o -c /home/hassouna/clion-2021.1.3/bin/cmake/linux/share/cmake-3.19/Modules/CheckFunctionExists.c
-Linking C executable cmTC_58452
-/home/hassouna/clion-2021.1.3/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_58452.dir/link.txt --verbose=1
-/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_58452.dir/CheckFunctionExists.c.o -o cmTC_58452  -lpthreads 
+Run Build Command(s):/usr/bin/make cmTC_3baa7/fast && /usr/bin/make  -f CMakeFiles/cmTC_3baa7.dir/build.make CMakeFiles/cmTC_3baa7.dir/build
+make[1]: Entering directory '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_3baa7.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create -o CMakeFiles/cmTC_3baa7.dir/CheckFunctionExists.c.o -c /snap/clion/158/bin/cmake/linux/share/cmake-3.19/Modules/CheckFunctionExists.c
+Linking C executable cmTC_3baa7
+/snap/clion/158/bin/cmake/linux/bin/cmake -E cmake_link_script CMakeFiles/cmTC_3baa7.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create -rdynamic CMakeFiles/cmTC_3baa7.dir/CheckFunctionExists.c.o -o cmTC_3baa7  -lpthreads 
 /usr/bin/ld: cannot find -lpthreads
 collect2: error: ld returned 1 exit status
-CMakeFiles/cmTC_58452.dir/build.make:105: recipe for target 'cmTC_58452' failed
-make[1]: *** [cmTC_58452] Error 1
-make[1]: Leaving directory '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
-Makefile:140: recipe for target 'cmTC_58452/fast' failed
-make: *** [cmTC_58452/fast] Error 2
+CMakeFiles/cmTC_3baa7.dir/build.make:105: recipe for target 'cmTC_3baa7' failed
+make[1]: *** [cmTC_3baa7] Error 1
+make[1]: Leaving directory '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/CMakeFiles/CMakeTmp'
+Makefile:140: recipe for target 'cmTC_3baa7/fast' failed
+make: *** [cmTC_3baa7/fast] Error 2
 
 
 

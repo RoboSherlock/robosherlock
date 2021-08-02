@@ -119,8 +119,8 @@ namespace uima {
 		const   XMLCh* const    localname,
 		const   XMLCh* const    qname,
 		const Attributes & attrs) {
-			//cout << " XmiDeserializerHandler::startElement() qname " << UnicodeString((UChar*)qname, XMLString::stringLen(qname)) << endl;
-			//cout << "startElement localname " << UnicodeString(localname) << " uri " << UnicodeString(uri) << endl;
+			//cout << " XmiDeserializerHandler::startElement() qname " <<icu::UnicodeString((UChar*)qname, XMLString::stringLen(qname)) << endl;
+			//cout << "startElement localname " << icu::UnicodeString(localname) << " uri " << icu::UnicodeString(uri) << endl;
 			//cout << "startElement attrs " << attrs.getLength() << endl;
 
 
@@ -137,12 +137,12 @@ namespace uima {
 			// resolve the prefixes even with a non-namespace-aware parser
 			if (attrs.getLength() != 0) {
 				for (size_t i = 0; i < attrs.getLength(); i++) {
-					UnicodeString attrName(attrs.getQName(i));
+					icu::UnicodeString attrName(attrs.getQName(i));
 					//cout << "xmlns attrName " << attrName << endl;
 					if (attrName.indexOf("xmlns:") > -1 ) {
-						UnicodeString prefix;
+						icu::UnicodeString prefix;
 						attrName.extract(6, attrName.length()-6, prefix);
-						UnicodeString uri(attrs.getValue(i));
+						icu::UnicodeString uri(attrs.getValue(i));
 						nsPrefixToUriMap[prefix]= uri;
 					}
 				}
@@ -158,16 +158,16 @@ namespace uima {
 				return;
 			}
 
-			UnicodeString unsuri(uri);
-			UnicodeString ulocalname(localname);
+			icu::UnicodeString unsuri(uri);
+			icu::UnicodeString ulocalname(localname);
 			// parser not namespace-enabled, so try to resolve NS ourselves
 			// TODO test with non namespace-enabled
 			/**
 			int colonIndex = qualifiedName.indexOf(":");
 			if (colonIndex != -1) {
-			UnicodeString prefix;
+			icu::UnicodeString prefix;
 			qualifiedName.extract(0, colonIndex,prefix);
-			map<UnicodeString,UnicodeString>::iterator uriite = nsPrefixToUriMap.find(prefix);
+			map<icu::UnicodeString,UnicodeString>::iterator uriite = nsPrefixToUriMap.find(prefix);
 			if (uriite != nsPrefixToUriMap.end()) { 
 			nameSpaceURI = uriite->second;
 			} else {
@@ -186,7 +186,7 @@ namespace uima {
 			//readFS(typeName, attrs);
 			readFS(unsuri, ulocalname, qualifiedName, attrs);
 
-			map<UnicodeString, vector<UnicodeString>*>::iterator mite;
+			map<icu::UnicodeString, vector<icu::UnicodeString>*>::iterator mite;
             for (mite=multiValuedFeatures.begin();
 				mite != multiValuedFeatures.end(); mite++) {
 					if (mite->second != NULL) {
@@ -243,13 +243,13 @@ namespace uima {
 						const XMLCh* const qname) {
 		/**
 		cout << " XmiDeserializerHandler::endElement() qname " 
-		<< UnicodeString( (UChar*) qname, XMLString::stringLen(qname) ) << endl;
+		<< icu::UnicodeString( (UChar*) qname, XMLString::stringLen(qname) ) << endl;
 		cout << " XmiDeserializerHandler::endElement() uri " 
-		<< UnicodeString( (UChar*) nsuri, XMLString::stringLen(nsuri) ) << endl;
+		<< icu::UnicodeString( (UChar*) nsuri, XMLString::stringLen(nsuri) ) << endl;
 		**/
 
 		assert(sizeof(XMLCh) == sizeof(UChar));
-		UnicodeString qualifiedName( (UChar const *) qname, XMLString::stringLen(qname));
+		icu::UnicodeString qualifiedName( (UChar const *) qname, XMLString::stringLen(qname));
 		//cout << "endElement qualifiedname " << qualifiedName << endl;
 		switch (iv_state) {
 		case DOC_STATE: {
@@ -264,11 +264,11 @@ namespace uima {
 			// We have just processed one of possibly many values for a feature.
 			// Store this value in the multiValuedFeatures map for later use.
 			//cout << "endELement FEAT_CONTENT_STATE " << buffer << endl;
-			map<UnicodeString, vector<UnicodeString>*>::iterator ite =
+			map<icu::UnicodeString, vector<icu::UnicodeString>*>::iterator ite =
 				multiValuedFeatures.find(qualifiedName);
-			vector<UnicodeString> * valuesList=0; 
+			vector<icu::UnicodeString> * valuesList=0; 
 			if (ite == multiValuedFeatures.end()) {
-				valuesList = new vector<UnicodeString>;
+				valuesList = new vector<icu::UnicodeString>;
 				multiValuedFeatures[qualifiedName] = valuesList;
 			} else {
 				valuesList = ite->second;
@@ -287,10 +287,10 @@ namespace uima {
 			// encoded as subelements
 			if (this->outOfTypeSystemElement != NULL) {
 				if (this->multiValuedFeatures.size() > 0) {
-					map<UnicodeString,vector<UnicodeString>*>::iterator ite;
+					map<icu::UnicodeString,vector<icu::UnicodeString>*>::iterator ite;
 					for (ite=multiValuedFeatures.begin(); ite != multiValuedFeatures.end();ite++) {
-						UnicodeString featName = ite->first;
-						vector<UnicodeString>* featVals = ite->second;
+						icu::UnicodeString featName = ite->first;
+						vector<icu::UnicodeString>* featVals = ite->second;
 						addOutOfTypeSystemFeature(outOfTypeSystemElement, featName, *featVals);
 					}
 				}
@@ -312,10 +312,10 @@ namespace uima {
 						//	    currentArrayElements.length() << endl;
 						if (currentArrayElements.length()==0) // were not specified as attributes
 						{
-							map<UnicodeString, vector<UnicodeString>*>::iterator ite =
-								multiValuedFeatures.find(UnicodeString("elements"));
+							map<icu::UnicodeString, vector<icu::UnicodeString>*>::iterator ite =
+								multiValuedFeatures.find(icu::UnicodeString("elements"));
 							if (ite != multiValuedFeatures.end()) {
-								vector<UnicodeString>* vals = ite->second;
+								vector<icu::UnicodeString>* vals = ite->second;
 								for (size_t i=0; i<vals->size(); i++) {
 									featVals.push_back( ((UnicodeStringRef)vals->at(i)).asUTF8()); 
 								}
@@ -325,10 +325,10 @@ namespace uima {
 						}         
 						createArray(internal::FSPromoter::demoteType(currentType), featVals, currentArrayId);
 					} else {
-						map<UnicodeString,vector<UnicodeString>*>::iterator ite;
+						map<icu::UnicodeString,vector<icu::UnicodeString>*>::iterator ite;
 						for (ite=multiValuedFeatures.begin(); ite != multiValuedFeatures.end();ite++) {
-							UnicodeString featName = ite->first;
-							vector<UnicodeString>* featVals = ite->second;
+							icu::UnicodeString featName = ite->first;
+							vector<icu::UnicodeString>* featVals = ite->second;
 							vector<string> stringList;
 							for (size_t i=0; i< featVals->size();i++) {
 								stringList.push_back( ((UnicodeStringRef)featVals->at(i)).asUTF8());
@@ -388,10 +388,10 @@ namespace uima {
    * Converts an XMI element name to a UIMA-style dotted type name.
    * 
    */
-	UnicodeString XmiDeserializerHandler::xmiElementName2uimaTypeName(UnicodeString& nsUri, UnicodeString& localName) {
+icu::UnicodeString XmiDeserializerHandler::xmiElementName2uimaTypeName(icu::UnicodeString& nsUri, icu::UnicodeString& localName) {
 		// check map first to see if we've already computed the namespace mapping
-		map<UnicodeString,UnicodeString>::iterator ite = xmiNamespaceToUimaNamespaceMap.find(nsUri);
-		UnicodeString uimaNamespace;
+		map<icu::UnicodeString,icu::UnicodeString>::iterator ite = xmiNamespaceToUimaNamespaceMap.find(nsUri);
+		icu::UnicodeString uimaNamespace;
 		if (ite != xmiNamespaceToUimaNamespaceMap.end()) {
 			uimaNamespace = ite->second;
 		} else {
@@ -417,26 +417,26 @@ namespace uima {
 
 
 // Create a new FS.
-	void XmiDeserializerHandler::readFS(UnicodeString & nsUri, UnicodeString & localName,
-		UnicodeString & qualifiedName, const Attributes & attrs) {
-			UnicodeString typeName = xmiElementName2uimaTypeName(nsUri, localName);
+	void XmiDeserializerHandler::readFS(icu::UnicodeString & nsUri, icu::UnicodeString & localName,
+		icu::UnicodeString & qualifiedName, const Attributes & attrs) {
+			icu::UnicodeString typeName = xmiElementName2uimaTypeName(nsUri, localName);
 			Type type = iv_cas->getTypeSystem().getType(typeName);
 			currentType=type;
 			
 			if (!type.isValid()) {
-				if (typeName.compare(UnicodeString("uima.cas.NULL"))==0) {
+				if (typeName.compare(icu::UnicodeString("uima.cas.NULL"))==0) {
 					//cout << "readFS ignore " << typeName << endl;
 					return; //ignore
 				}
-				if (typeName.compare(UnicodeString("uima.cas.View"))==0) {
+				if (typeName.compare(icu::UnicodeString("uima.cas.View"))==0) {
 					//cout << "readFS  " << typeName << endl;
-					UnicodeString attrName; 
+					icu::UnicodeString attrName; 
 					int sofaXmiId=0;
-					UnicodeString members;
+					icu::UnicodeString members;
 					for (size_t i = 0; i < attrs.getLength(); i++) {
 						attrName =  attrs.getQName(i);
 						if (attrName.compare(CAS::FEATURE_BASE_NAME_SOFA) == 0) {
-							UnicodeString ustr(attrs.getValue(i));
+							icu::UnicodeString ustr(attrs.getValue(i));
 							sofaXmiId = atoi( ((UnicodeStringRef)ustr).asUTF8().c_str());
 						} else if (attrName.compare("members") == 0) {
 							members = attrs.getValue(i);
@@ -465,13 +465,13 @@ namespace uima {
 				}
 			} else if (iv_cas->getTypeSystem().isArrayType(internal::FSPromoter::demoteType(type)) ) {
 				
-        UnicodeString attrName; 
+				icu::UnicodeString attrName; 
 				int xmiId=0;
-				UnicodeString elements;
+				icu::UnicodeString elements;
 				for (size_t i = 0; i < attrs.getLength(); i++) {
 						attrName =  attrs.getQName(i);
 						if (attrName.compare(XMI_ID_ATTR_NAME) == 0) {
-							UnicodeString ustr(attrs.getValue(i));
+							icu::UnicodeString ustr(attrs.getValue(i));
 							currentArrayId = atoi( ((UnicodeStringRef)ustr).asUTF8().c_str());
 						} else if (attrName.compare("elements") == 0) {
 							currentArrayElements = attrs.getValue(i);
@@ -503,7 +503,7 @@ namespace uima {
 	*          whitespace-separated string of FS addresses. Each FS is to be added to the specified
 	*          sofa's index repository
 	*/
-	void XmiDeserializerHandler::processView(int sofaXmiId, UnicodeString & members) {
+	void XmiDeserializerHandler::processView(int sofaXmiId, icu::UnicodeString & members) {
 		// TODO: this requires View to come AFTER all of its members
 		//cout << "processView start " << sofaXmiId << "members=" << membersString << endl;
 		if (members.length() > 0) { 
@@ -544,7 +544,7 @@ namespace uima {
 	}
 
 
-	int XmiDeserializerHandler::createByteArray(UnicodeString& currentArrayElements, int currentArrayId) {
+	int XmiDeserializerHandler::createByteArray(icu::UnicodeString& currentArrayElements, int currentArrayId) {
 		string elemStr = ( (UnicodeStringRef) currentArrayElements).asUTF8();
 		int arrayLen = elemStr.length() / 2;
 		ByteArrayFS fs = iv_cas->createByteArrayFS(arrayLen);
@@ -579,8 +579,8 @@ namespace uima {
 		int id = -1;
 		//       int sofaRef = -1; // 0 ==> baseCas indexRepository
 		////vector<int>* sofaRef = new vector<int>;
-		UnicodeString attrName;
-		UnicodeString attrValue;
+		icu::UnicodeString attrName;
+		icu::UnicodeString attrValue;
 		bool nameMapping = false;
 		UChar ubuff[256];
 		UErrorCode errorCode = U_ZERO_ERROR;
@@ -589,16 +589,16 @@ namespace uima {
 
 
 		if (sofaTypeCode == heapValue) {
-			int extsz = UnicodeString(CAS::FEATURE_BASE_NAME_SOFAID).extract(ubuff, 256, errorCode);
+			int extsz = icu::UnicodeString(CAS::FEATURE_BASE_NAME_SOFAID).extract(ubuff, 256, errorCode);
 			if (extsz > 256) {
 				cout << "ACK!" << endl;
 			}
 			const UChar* sofaID = attrs.getValue(ubuff);
 
-			if (0==UnicodeStringRef(sofaID).compare(UnicodeString("_DefaultTextSofaName"))) {  
+			if (0==UnicodeStringRef(sofaID).compare(icu::UnicodeString("_DefaultTextSofaName"))) {  
 				// initial view Sofa always has sofaNum = 1
 				thisSofaNum = 1;
-			} else if (0==UnicodeStringRef(sofaID).compare(UnicodeString(CAS::NAME_DEFAULT_SOFA))) {   
+			} else if (0==UnicodeStringRef(sofaID).compare(icu::UnicodeString(CAS::NAME_DEFAULT_SOFA))) {   
 				thisSofaNum = 1;
 			}  else {
 				thisSofaNum = this->nextSofaNum++;
@@ -611,20 +611,20 @@ namespace uima {
 			attrName = (UChar*)attrs.getQName(i);
 			attrValue = (UChar*)attrs.getValue(i);
 
-			if (attrName.compare(UnicodeString(XMI_ID_ATTR_NAME)) == 0) {
+			if (attrName.compare(icu::UnicodeString(XMI_ID_ATTR_NAME)) == 0) {
 				id = atoi(UnicodeStringRef(attrValue).asUTF8().c_str());
 				//cout << "got " << XMI_ID_ATTR_NAME << " " << id << endl;
 			} else {       
 				if (sofaTypeCode == heapValue && attrName.compare(CAS::FEATURE_BASE_NAME_SOFAID)==0) {
-					if (attrValue.compare(UnicodeString("_DefaultTextSofaName"))==0 ) {
+					if (attrValue.compare(icu::UnicodeString("_DefaultTextSofaName"))==0 ) {
 						// First change old default Sofa name into the new one
-						attrValue = UnicodeString(CAS::NAME_DEFAULT_SOFA);
+						attrValue =icu::UnicodeString(CAS::NAME_DEFAULT_SOFA);
 					}
 				} else if (sofaTypeCode == heapValue 
-					&& attrName.compare(UnicodeString(CAS::FEATURE_BASE_NAME_SOFANUM))==0) {
+					&& attrName.compare(icu::UnicodeString(CAS::FEATURE_BASE_NAME_SOFANUM))==0) {
 						stringstream str;
 						str << thisSofaNum << endl;
-						attrValue = UnicodeString(str.str().c_str());
+						attrValue =icu::UnicodeString(str.str().c_str());
 					}
 					//cout << "readFS calling handleFeature " << attrName << " attrvalue= "
 					//	<< attrValue << endl;
@@ -696,7 +696,7 @@ namespace uima {
     case internal::gs_tyStringArrayType: {
         //add the striug
 				StringArrayFS strFS(fs);
-				UnicodeString strval(buffer.c_str());
+				icu::UnicodeString strval(buffer.c_str());
 				strFS.set( (size_t) arrayPos,strval);
 				break;
     }
@@ -760,7 +760,7 @@ namespace uima {
 
 
 	// Create a feature value from a string representation.
-	void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr, UnicodeString & featName, UnicodeString & featVal, bool lenient) {
+	void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,icu::UnicodeString & featName, icu::UnicodeString & featVal, bool lenient) {
 		lowlevel::TyFSType fstype = iv_casimpl.getHeap().getType(addr);
 		Type type = uima::internal::FSPromoter::promoteType(fstype, iv_cas->getTypeSystem().getLowlevelTypeSystem());
 		Feature feat = type.getFeatureByBaseName(featName);
@@ -790,7 +790,7 @@ namespace uima {
   void XmiDeserializerHandler::handleFeature(Type & type, 
     lowlevel::TyFS addr,
     lowlevel::TyFSFeature featCode, 
-    UnicodeString & featVal,
+    icu::UnicodeString & featVal,
     bool lenient) {
 
     FeatureStructure fs = uima::internal::FSPromoter::promoteFS(addr, *iv_cas);
@@ -965,7 +965,7 @@ namespace uima {
   }
  
   void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr, 
-                          UnicodeString & featName,
+                          icu::UnicodeString & featName,
                           vector<string> & featVal) {
     lowlevel::TyFSType fstype = iv_casimpl.getHeap().getType(addr);
     Type type = uima::internal::FSPromoter::promoteType(fstype, iv_cas->getTypeSystem().getLowlevelTypeSystem());
@@ -1046,7 +1046,7 @@ void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,
 		   } else {
 			   Type type = internal::FSPromoter::promoteType(rangeTypeCode,
 				   iv_cas->getTypeSystem().getLowlevelTypeSystem());
-				 UnicodeString val(featVals.at(0).c_str());
+			   icu::UnicodeString val(featVals.at(0).c_str());
 			   handleFeature(type,		   
 				   addr, featCode,val, true);
 		   }
@@ -1055,7 +1055,7 @@ void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,
 	  }
   }
 
-  void XmiDeserializerHandler::tokenize(UnicodeString & ustr, vector<string> & stringList ) {
+  void XmiDeserializerHandler::tokenize(icu::UnicodeString & ustr, vector<string> & stringList ) {
 
 	  string str = (UnicodeStringRef(ustr)).asUTF8();
 	  string::size_type lastPos = str.find_first_not_of(" ", 0); 
@@ -1156,7 +1156,7 @@ void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,
   int XmiDeserializerHandler::createStringList(vector<string>& stringList)	{   
     StringListFS listFS =   iv_cas->createStringListFS();
     for (size_t i = 0; i < stringList.size(); i++ ) {
-      UnicodeString value(stringList.at(i).c_str()); //use xmiId to look up addr
+	    icu::UnicodeString value(stringList.at(i).c_str()); //use xmiId to look up addr
 	    listFS.addLast(value);
     }
 	  return internal::FSPromoter::demoteFS(listFS);
@@ -1318,12 +1318,12 @@ void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,
     this->outOfTypeSystemElement = new OotsElementData();
     //this->outOfTypeSystemElement->elementName = xmlElementName->qualifiedName;
 	  this->outOfTypeSystemElement->elementName = xmlElementName;
-    UnicodeString attrName;
-	  UnicodeString attrValue;
+	  icu::UnicodeString attrName;
+	  icu::UnicodeString attrValue;
     for (size_t i = 0; i < attrs.getLength(); i++) {
       attrName = attrs.getQName(i);
       attrValue = attrs.getValue(i);
-      if (attrName.compare(UnicodeString(XMI_ID_ATTR_NAME))==0) {
+      if (attrName.compare(icu::UnicodeString(XMI_ID_ATTR_NAME))==0) {
 		    UnicodeStringRef uref(attrValue);
         this->outOfTypeSystemElement->xmiId = atoi(uref.asUTF8().c_str());
       }
@@ -1342,8 +1342,8 @@ void XmiDeserializerHandler::handleFeature(lowlevel::TyFS addr,
      * @param featVals feature values, as a list of strings
      */
   void XmiDeserializerHandler::addOutOfTypeSystemFeature(OotsElementData * ootsElem, 
-		UnicodeString & featName, 
-		vector<UnicodeString> & featVals) {
+		icu::UnicodeString & featName, 
+		vector<icu::UnicodeString> & featVals) {
 	  vector<string> * pVals = new vector<string>;
     for (size_t i=0;i<featVals.size();i++) {
 		  pVals->push_back(  ((UnicodeStringRef)featVals.at(i)).asUTF8());    

@@ -277,10 +277,10 @@ void testMultipleSofas(internal::CASDefinition * casDef)  {
     ASSERT_OR_THROWEXCEPTION(EXISTS(cas));
 
     // set document text for the initial view
-    cas->setDocumentText(UnicodeString("This is a test"));
+    cas->setDocumentText(icu::UnicodeString("This is a test"));
     // create a new view and set its document text
     CAS * cas2 = cas->createView("OtherSofa");
-    cas2->setDocumentText(UnicodeString("This is only a test"));
+    cas2->setDocumentText(icu::UnicodeString("This is only a test"));
 
     // create an annotation and add to index of both views
     Type annotType = cas->getTypeSystem().getType(CAS::TYPE_NAME_ANNOTATION);
@@ -313,9 +313,9 @@ void testMultipleSofas(internal::CASDefinition * casDef)  {
     for (int i = 0; i < 2; i++) {
       uima::XmiDeserializer::deserialize("temp.xmi",*newCas);
       // check sofas
-      ASSERT_OR_THROWEXCEPTION(newCas->getDocumentText().compare(UnicodeString("This is a test"))==0);
+      ASSERT_OR_THROWEXCEPTION(newCas->getDocumentText().compare(icu::UnicodeString("This is a test"))==0);
       CAS * newCas2 = newCas->getView("OtherSofa");
-      ASSERT_OR_THROWEXCEPTION(newCas2->getDocumentText().compare(UnicodeString("This is only a test"))==0);
+      ASSERT_OR_THROWEXCEPTION(newCas2->getDocumentText().compare(icu::UnicodeString("This is only a test"))==0);
       ASSERT_OR_THROWEXCEPTION(newCas->getAnnotationIndex().getSize() == 2); // document annot and new Annotation
       ASSERT_OR_THROWEXCEPTION(newCas2->getAnnotationIndex().getSize()== 2); 
       newCas->reset();
@@ -378,8 +378,8 @@ void doTestDeserializeAndReserialize(internal::CASDefinition * casDef) {
   //LOG("deserialize xcas into cas1");
   CAS * cas1 = uima::Framework::createCAS(*casDef, errInfo);
   ASSERT_OR_THROWEXCEPTION( EXISTS(cas1) );
-  UnicodeString xcasFile("ExampleCas/cas.xml");
-  UnicodeString xcasfn = ResourceManager::resolveFilename(xcasFile, xcasFile);
+  icu::UnicodeString xcasFile("ExampleCas/cas.xml");
+  icu::UnicodeString xcasfn = ResourceManager::resolveFilename(xcasFile, xcasFile);
   XCASDeserializer::deserialize(xcasfn, *cas1);
 
   // Serialize Xmi
@@ -434,8 +434,8 @@ void testOotsNewPrimitives(internal::CASDefinition * partialCasDef,
   //LOG("deserialize xcas into cas1 and serialize as XMI");
   CAS * cas1 = uima::Framework::createCAS(*casDef, errInfo);
   ASSERT_OR_THROWEXCEPTION( EXISTS(cas1) );
-  UnicodeString xFile(inputXCas);
-  UnicodeString xfn = ResourceManager::resolveFilename(xFile, xFile);
+  icu::UnicodeString xFile(inputXCas);
+  icu::UnicodeString xfn = ResourceManager::resolveFilename(xFile, xFile);
   XCASDeserializer::deserialize(xfn, *cas1);
 
 	ofstream outputStream;
@@ -477,8 +477,8 @@ void testOotsComplexCas(internal::CASDefinition * partialCasDef,
   //LOG("deserialize xcas into cas1 and serialize as XMI");
   CAS * cas1 = uima::Framework::createCAS(*casDef, errInfo);
   ASSERT_OR_THROWEXCEPTION( EXISTS(cas1) );
-  UnicodeString xFile(inputXCas);
-  UnicodeString xfn = ResourceManager::resolveFilename(xFile, xFile);
+  icu::UnicodeString xFile(inputXCas);
+  icu::UnicodeString xfn = ResourceManager::resolveFilename(xFile, xFile);
   XCASDeserializer::deserialize(xfn, *cas1);
 
 	ofstream outputStream;
@@ -522,7 +522,7 @@ void doTestFSRefReserialization(internal::CASDefinition * casDef) {
   CAS * cas = uima::Framework::createCAS(*casDef, errInfo);
   ASSERT_OR_THROWEXCEPTION( EXISTS(cas) );
   CAS * view = cas->createView("AView");
-  view->setDocumentText(UnicodeString("sample text for AView"));
+  view->setDocumentText(icu::UnicodeString("sample text for AView"));
 
   Type testType = view->getTypeSystem().getType("test.primitives.Example");
   ASSERT_OR_THROWEXCEPTION( testType.isValid() );
@@ -580,8 +580,8 @@ void doTestFSRefReserialization(internal::CASDefinition * casDef) {
   fs1.setFSValue(otherF, otherFS);
   //create a StringArray FS and set StringArrayFS ref feature
   StringArrayFS strArrayFS = view1->createStringArrayFS(5);
-  strArrayFS.set(0,UnicodeString("first string"));
-  strArrayFS.set(1, UnicodeString("second string"));
+  strArrayFS.set(0,icu::UnicodeString("first string"));
+  strArrayFS.set(1,icu::UnicodeString("second string"));
   fs1.setFSValue(stringArrayF, strArrayFS);
 
   //serialize
@@ -643,18 +643,18 @@ int main(int argc, char * argv[]) /*
     TextAnalysisEngineSpecifierBuilder builder;
 	
 	  //setup
-	  UnicodeString tsFile("ExampleCas/testTypeSystem.xml");
-    UnicodeString tsfn = ResourceManager::resolveFilename(tsFile, tsFile);
+	  icu::UnicodeString tsFile("ExampleCas/testTypeSystem.xml");
+    icu::UnicodeString tsfn = ResourceManager::resolveFilename(tsFile, tsFile);
     TypeSystem * ts = Framework::createTypeSystem( ((UnicodeStringRef)tsfn).asUTF8().c_str(),errorInfo);
     ASSERT_OR_THROWEXCEPTION( EXISTS(ts) );
 	
-	  UnicodeString tsFile2("ExampleCas/testTypeSystem_withMultiRefs.xml");
-    UnicodeString tsfn2 = ResourceManager::resolveFilename(tsFile2, tsFile2);
+	  icu::UnicodeString tsFile2("ExampleCas/testTypeSystem_withMultiRefs.xml");
+    icu::UnicodeString tsfn2 = ResourceManager::resolveFilename(tsFile2, tsFile2);
     TypeSystem * ts2 = Framework::createTypeSystem( ((UnicodeStringRef)tsfn2).asUTF8().c_str(),errorInfo);
     ASSERT_OR_THROWEXCEPTION( EXISTS(ts2) );
 
-    UnicodeString indexFile("ExampleCas/testIndexes.xml");
-    UnicodeString indexfn = ResourceManager::resolveFilename(indexFile, indexFile);
+    icu::UnicodeString indexFile("ExampleCas/testIndexes.xml");
+    icu::UnicodeString indexfn = ResourceManager::resolveFilename(indexFile, indexFile);
 	  size_t uiLen = indexfn.length();
     auto_array<UChar> arBuffer( new UChar[uiLen + 1] );
     assert( EXISTS(arBuffer.get()));
@@ -701,24 +701,24 @@ int main(int argc, char * argv[]) /*
 	  TypeSystem * baseTS = Framework::createTypeSystem(*baseTSDesc,"base",errorInfo);
 	  internal::CASDefinition * baseCasDef = internal::CASDefinition::createCASDefinition(*baseTS);
 
-    UnicodeString newpFile("ExampleCas/newprimitivesTypeSystem.xml");
-    UnicodeString newpfn = ResourceManager::resolveFilename(newpFile, newpFile);
+    icu::UnicodeString newpFile("ExampleCas/newprimitivesTypeSystem.xml");
+    icu::UnicodeString newpfn = ResourceManager::resolveFilename(newpFile, newpFile);
 	  TypeSystem *primitivests = Framework::createTypeSystem( ((UnicodeStringRef)newpfn).asUTF8().c_str(),
 										errorInfo );
 	  internal::CASDefinition * primitivesCasDef = 
 	  internal::CASDefinition::createCASDefinition(*primitivests);
 
     LOG("UIMACPP_XMITEST OOTS new primitives missing type Start");
-	  UnicodeString newpxcasFile("ExampleCas/newprimitives.xcas");
-    UnicodeString newpxcasfn = ResourceManager::resolveFilename(newpxcasFile, newpxcasFile);
+	  icu::UnicodeString newpxcasFile("ExampleCas/newprimitives.xcas");
+    icu::UnicodeString newpxcasfn = ResourceManager::resolveFilename(newpxcasFile, newpxcasFile);
     testOotsNewPrimitives(baseCasDef, primitivesCasDef, ((UnicodeStringRef)newpxcasfn).asUTF8().c_str());
      LOG("UIMACPP_XMITEST OOTS new primitives missing type Finished");
 
 
     //test OOTS missing feature
 	  LOG("UIMACPP_XMITEST OOTS new primitives missing feature Start");
-	  UnicodeString newpPartialFile("ExampleCas/newprimitivesPartialTypeSystem.xml");
-    UnicodeString newpPartialfn = ResourceManager::resolveFilename(newpPartialFile, newpFile);
+	  icu::UnicodeString newpPartialFile("ExampleCas/newprimitivesPartialTypeSystem.xml");
+    icu::UnicodeString newpPartialfn = ResourceManager::resolveFilename(newpPartialFile, newpFile);
 	  TypeSystem * newpPartialts = Framework::createTypeSystem( ((UnicodeStringRef)newpPartialfn).asUTF8().c_str(),
 										errorInfo );
 	  internal::CASDefinition * newpPartialCasDef = 
@@ -733,8 +733,8 @@ int main(int argc, char * argv[]) /*
 	  testOotsComplexCas(baseCasDef, casDef, "ExampleCas/cas.xml");
 	  LOG("UIMACPP_XMITEST OOTS Complex CAS Missing Types Finished");
 
-    UnicodeString partialTSFile("ExampleCas/partialTestTypeSystem.xml");
-    UnicodeString partialTSfn = ResourceManager::resolveFilename(partialTSFile, partialTSFile);
+    icu::UnicodeString partialTSFile("ExampleCas/partialTestTypeSystem.xml");
+    icu::UnicodeString partialTSfn = ResourceManager::resolveFilename(partialTSFile, partialTSFile);
 	  TypeSystem * partialts = Framework::createTypeSystem( ((UnicodeStringRef)partialTSfn).asUTF8().c_str(),
 										errorInfo );
 	  internal::CASDefinition * partialTSCasDef = 
@@ -748,7 +748,7 @@ int main(int argc, char * argv[]) /*
  		//test that some xml doc fails
     LOG("UIMACPP_XMITEST Valid XML but not Xmi Cas doc Start");
  		UnicodeString someXmlFile("ExampleCas/cas.xml");
-    UnicodeString xmlfn = ResourceManager::resolveFilename(someXmlFile, someXmlFile);
+    icu::UnicodeString xmlfn = ResourceManager::resolveFilename(someXmlFile, someXmlFile);
  		CAS * pCas = Framework::createCAS(*casDef,errorInfo);
 
     bool bExceptionThrown = false;

@@ -640,7 +640,7 @@ namespace uima {
       deleteSofaID = true;
     }
     // test if this is the reserved name
-    if ( 0 == sid->getSofaId().compare(UnicodeString(CAS::NAME_DEFAULT_SOFA)) ) {
+    if ( 0 == sid->getSofaId().compare(icu::UnicodeString(CAS::NAME_DEFAULT_SOFA)) ) {
       ErrorMessage errMessage(UIMA_MSG_ID_EXC_SOFA_NAME_ALREADY_EXISTS);
       errMessage.addParam( localViewName );
       UIMA_EXC_THROW_NEW(DuplicateSofaNameException,
@@ -912,13 +912,13 @@ namespace uima {
   */
 
   SofaFS CAS::createLocalSofa(const char* sofaName, const char* mimeType) {
-    UnicodeString const uName(sofaName, strlen(sofaName), "utf8");
-    UnicodeString const uMime(mimeType, strlen(mimeType), "utf8");
+    icu::UnicodeString const uName(sofaName, strlen(sofaName), "utf8");
+    icu::UnicodeString const uMime(mimeType, strlen(mimeType), "utf8");
     return createSofa(uName, uMime);
   }
 
   SofaFS CAS::createSofa(const SofaID & sofaName, const char* mimeType) {
-    UnicodeString const uMime(mimeType, strlen(mimeType), "utf8");
+    icu::UnicodeString const uMime(mimeType, strlen(mimeType), "utf8");
     return createSofa(sofaName.getSofaId(), uMime);
   }
 
@@ -959,7 +959,7 @@ namespace uima {
   }
 
   SofaFS CAS::getSofa(char* sofaName) {
-    UnicodeString const uName(sofaName, strlen(sofaName), "utf8");
+    icu::UnicodeString const uName(sofaName, strlen(sofaName), "utf8");
     return getSofa(uName);
   }
 
@@ -1212,7 +1212,7 @@ namespace uima {
   }
 
   void SofaFS::setRemoteSofaURI(const char* aURI) {
-    UnicodeString const ucURI(aURI, strlen(aURI), "utf8");
+    icu::UnicodeString const ucURI(aURI, strlen(aURI), "utf8");
     return setRemoteSofaURI(ucURI);
   }
 

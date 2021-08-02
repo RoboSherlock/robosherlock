@@ -4,14 +4,15 @@ set(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 set(CMAKE_DEPENDS_CHECK_CXX
-  "/usr/src/googletest/googletest/src/gtest-all.cc" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/__/googletest/src/gtest-all.cc.o"
-  "/usr/src/googletest/googlemock/src/gmock-all.cc" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock-all.cc.o"
-  "/usr/src/googletest/googlemock/src/gmock_main.cc" "/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
+  "/usr/src/googletest/googletest/src/gtest-all.cc" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/__/googletest/src/gtest-all.cc.o"
+  "/usr/src/googletest/googlemock/src/gmock-all.cc" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock-all.cc.o"
+  "/usr/src/googletest/googlemock/src/gmock_main.cc" "/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/CMakeFiles/gmock_main.dir/src/gmock_main.cc.o"
   )
 set(CMAKE_CXX_COMPILER_ID "GNU")
 
 # Preprocessor definitions for this target.
 set(CMAKE_TARGET_DEFINITIONS_CXX
+  "CAFFE_FOUND"
   "GTEST_CREATE_SHARED_LIBRARY=1"
   "gmock_main_EXPORTS"
   )

@@ -44,7 +44,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/gtest/cmake_install.cmake")
+  include("/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/gtest/googlemock/gtest/cmake_install.cmake")
 
 endif()
 

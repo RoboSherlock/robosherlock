@@ -105,19 +105,19 @@ namespace uima {
 
   private:
   
-    //void readFS(UnicodeString & qualifiedName, const Attributes & attrs);
-    void readFS(UnicodeString & nsUri,
-		        UnicodeString & localName,
-				    UnicodeString & qualifiedName, 
+    //void readFS(icu::UnicodeString & qualifiedName, const Attributes & attrs);
+    void readFS(icu::UnicodeString & nsUri,
+		        icu::UnicodeString & localName,
+				    icu::UnicodeString & qualifiedName, 
 				    const Attributes & attrs);
     void readFS(lowlevel::TyFS addr, const Attributes  & attrs, bool toIndex);
     void handleFeature(lowlevel::TyFS addr, 
-		         UnicodeString & featName, 
-					   UnicodeString & featVal, 
+		         icu::UnicodeString & featName, 
+					   icu::UnicodeString & featVal, 
 					   bool lenient);
 	  void handleFeature(Type & type, lowlevel::TyFS addr, 
 					   lowlevel::TyFSFeature featCode, 
-					   UnicodeString & featVal,
+					   icu::UnicodeString & featVal,
              bool lenient);
 
     void finalizeFS(int addr);
@@ -128,14 +128,14 @@ namespace uima {
     internal::CASImpl & iv_casimpl;
     const lowlevel::TypeSystem * iv_typesystem;
     int iv_state;
-    UnicodeString buffer;
+    icu::UnicodeString buffer;
 
     // The address of the most recently created FS.  Needed for array elements
     // and embedded feature values.
     lowlevel::TyFS currentAddr;
 
     // The name of the content feature, if we've seen one.
-    UnicodeString currentContentFeat;
+    icu::UnicodeString currentContentFeat;
 
     // The current position when parsing array elements.
     size_t arrayPos;
@@ -155,11 +155,11 @@ namespace uima {
 
     int nextIndex;
 
-		UnicodeString xmiElementName2uimaTypeName(UnicodeString& nameSpaceURI, UnicodeString& localName);
-		int createByteArray(UnicodeString& currentArrayElements, int currentArrayId);
+    icu::UnicodeString xmiElementName2uimaTypeName(icu::UnicodeString& nameSpaceURI, icu::UnicodeString& localName);
+		int createByteArray(icu::UnicodeString& currentArrayElements, int currentArrayId);
 		void remapFSListHeads(int addr);
 
-		void tokenize(UnicodeString&, std::vector<std::string>&);
+		void tokenize(icu::UnicodeString&, std::vector<std::string>&);
 		int createIntList(  std::vector<std::string>& featVal);
 		int createFloatList( std::vector<std::string>& featVal);
 		int createStringList(  std::vector<std::string>& featVal);
@@ -168,7 +168,7 @@ namespace uima {
 		void addArrayElement(lowlevel::TyFS addr,lowlevel::TyFSType arrayType, 
 											int arrayPos, std::string & buffer);
 
-		void handleFeature(lowlevel::TyFS addr, UnicodeString & featName,
+		void handleFeature(lowlevel::TyFS addr, icu::UnicodeString & featName,
 												std::vector<std::string> & featVal);
 
 		void handleFeature(lowlevel::TyFS addr, lowlevel::TyFSFeature featCode,
@@ -177,11 +177,11 @@ namespace uima {
 		int createArray(  lowlevel::TyFSType typeCode,
 								std::vector<std::string>& featVal, int xmiID);
 
-		void processView(int sofaXmiId, UnicodeString & membersString) ;
+		void processView(int sofaXmiId, icu::UnicodeString & membersString) ;
 		int getFsAddrForXmiId(int xmiId);
 		void addToOutOfTypeSystemData(XmlElementName * xmlElementName, const Attributes & attrs);
 		void addOutOfTypeSystemFeature(OotsElementData * ootsElem, 
-					UnicodeString & featName, std::vector<UnicodeString> & featVals);
+				icu::UnicodeString & featName, std::vector<icu::UnicodeString> & featVals);
 
 		// container for data shared between the XmiCasSerialier and
 		// XmiDeserializer, to support things such as consistency of IDs across
@@ -198,12 +198,12 @@ namespace uima {
 		std::vector<int> deserializedFsAddrs;
 
 		// map from namespace prefixes to URIs.
-		std::map<UnicodeString, UnicodeString> nsPrefixToUriMap;
+		std::map<icu::UnicodeString, icu::UnicodeString> nsPrefixToUriMap;
 		// map from xmi namespace  to uima namespace 
-		std::map<UnicodeString, UnicodeString> xmiNamespaceToUimaNamespaceMap;
+		std::map<icu::UnicodeString, icu::UnicodeString> xmiNamespaceToUimaNamespaceMap;
 
 		//typename - values
-		std::map<UnicodeString, std::vector<UnicodeString>* > multiValuedFeatures; 
+		std::map<icu::UnicodeString, std::vector<icu::UnicodeString>* > multiValuedFeatures; 
 		int ignoreDepth;
 
 		// The type of the most recently created FS. Needed for arrays, also
@@ -215,7 +215,7 @@ namespace uima {
 		// String arrays serialized with the values as child elements, we can't create
 		// the array until we've seen all of the child elements.
 		int currentArrayId;
-		UnicodeString currentArrayElements;
+		icu::UnicodeString currentArrayElements;
 
 		int nextSofaNum; //number of sofas found so far
 

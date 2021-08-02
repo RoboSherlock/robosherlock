@@ -75,7 +75,7 @@ namespace uima {
      * generic implementation of find().
      */
     TyFS IndexABase::find(TyFS fs) const {
-      auto_ptr<IndexIterator> it(createIterator());
+      unique_ptr<IndexIterator> it(createIterator());
       assert( EXISTS(it.get()) );
       for (it->moveToFirst(); it->isValid(); it->moveToNext() ) {
         TyFS nextFS = it->get();

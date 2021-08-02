@@ -660,7 +660,7 @@ struct StrLemma {
 };
 
 
-void checkForwardOrder(lowlevel::FSHeap const & heap, auto_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
+void checkForwardOrder(lowlevel::FSHeap const & heap, unique_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
   size_t i=0;
   vector<lowlevel::TyFS> retrievedFSs;
   for (it->moveToFirst(); it->isValid(); it->moveToNext()) {
@@ -683,7 +683,7 @@ void checkForwardOrder(lowlevel::FSHeap const & heap, auto_ptr<uima::lowlevel::I
 }
 
 
-void checkReverseOrder(lowlevel::FSHeap const & heap,auto_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
+void checkReverseOrder(lowlevel::FSHeap const & heap,unique_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
   size_t i=0;
   vector<lowlevel::TyFS> retrievedFSs;
   for (it->moveToLast(); it->isValid(); it->moveToPrevious()) {
@@ -702,7 +702,7 @@ void checkReverseOrder(lowlevel::FSHeap const & heap,auto_ptr<uima::lowlevel::In
 
 }
 
-void checkPreviousNextMovements(auto_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
+void checkPreviousNextMovements(unique_ptr<uima::lowlevel::IndexIterator> & it, uima::lowlevel::IndexComparator const * cpComp, vector<lowlevel::TyFS> const & fsVec) {
   size_t i=0;
   vector<lowlevel::TyFS> retrievedFSs;
   for (it->moveToLast(); it->isValid(); it->moveToPrevious()) {
@@ -746,7 +746,7 @@ void checkOrderedIndex(uima::lowlevel::IndexABase const & ixBase, vector<lowleve
 
   }
   ASSERT_OR_THROWEXCEPTION( EXISTS(cpComp) );
-  auto_ptr<lowlevel::IndexIterator> it(ixBase.createIterator());
+  unique_ptr<lowlevel::IndexIterator> it(ixBase.createIterator());
 
   LOG("checking forward order");
   checkForwardOrder(heap, it, cpComp, fsVec);
@@ -772,7 +772,7 @@ void checkSetIndex(lowlevel::IndexABase const & ix, size_t num) {
   LOG("Checking set index");
   LOG("Index size: " << ix.getSize() );
   vector<lowlevel::TyFS> retrievedFSs;
-  auto_ptr<lowlevel::IndexIterator> it(ix.createIterator());
+  unique_ptr<lowlevel::IndexIterator> it(ix.createIterator());
   for (it->moveToFirst(); it->isValid(); it->moveToNext()) {
     retrievedFSs.push_back(it->get());
   }
@@ -1003,7 +1003,7 @@ void testLowLevelIndex() {
   LOG("Lemmas in index:");
   {
     i=0;
-    auto_ptr<uima::lowlevel::IndexIterator> it( ixStore.getLowlevelIndex(SETIX, lemmaType).createIterator() );
+    unique_ptr<uima::lowlevel::IndexIterator> it( ixStore.getLowlevelIndex(SETIX, lemmaType).createIterator() );
     for (it->moveToFirst(); it->isValid(); it->moveToNext() ) {
       LOG(" lemma number: " << i);
       uima::lowlevel::TyFS lemma = it->get();
@@ -1076,7 +1076,7 @@ void testLowLevelIndex() {
   // 4. test delete index
   icu::UnicodeString anIxID = tcasimpl.getAnnotationIndexID();
   ixStore.remove(tokens[0]);
-  auto_ptr<lowlevel::IndexIterator> it( ixStore.getLowlevelIndex( anIxID, tokenAnnotType).createIterator() );
+  unique_ptr<lowlevel::IndexIterator> it( ixStore.getLowlevelIndex( anIxID, tokenAnnotType).createIterator() );
 
   it->moveToFirst();
   ASSERT_OR_THROWEXCEPTION( it->get() != tokens[0]);
@@ -1749,8 +1749,8 @@ void testIteratorSetToPosition() {
 
   lowlevel::IndexABase const & ix = indexRep.getLowlevelIndex(ixID, tokenType);
 
-  auto_ptr<lowlevel::IndexIterator> it1(ix.createIterator() );
-  auto_ptr<lowlevel::IndexIterator> it2(ix.createIterator());
+  unique_ptr<lowlevel::IndexIterator> it1(ix.createIterator() );
+  unique_ptr<lowlevel::IndexIterator> it2(ix.createIterator());
 
   const size_t numberOfAdvances = 2;
   it1->moveToFirst();

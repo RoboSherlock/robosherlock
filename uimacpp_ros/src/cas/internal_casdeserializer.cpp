@@ -652,7 +652,7 @@ namespace uima {
       FSIterator fsIt = fsIdx.iterator();
       while (fsIt.isValid()) {
         SofaFS aSofa = (SofaFS) fsIt.get();
-        if ( 0 == aSofa.getSofaID().compare(UnicodeString(CAS::NAME_DEFAULT_SOFA)) ) {
+        if ( 0 == aSofa.getSofaID().compare(icu::UnicodeString(CAS::NAME_DEFAULT_SOFA)) ) {
           rCAS.registerInitialSofa();
         } else {
           // only bump sofa count if not initial View

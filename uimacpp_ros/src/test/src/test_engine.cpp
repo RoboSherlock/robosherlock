@@ -334,8 +334,8 @@ void testProcessDocu(uima::util::ConsoleUI & rclConsole,
   for (rclConsole.setToFirst(); rclConsole.isValid(); rclConsole.setToNext()) {
     ////uima::util::Filename     clInputFilename(rclConsole.getAsCString());
     //replaced with a hard wired data file
-    UnicodeString filename("tdoc_001_enus_850.asc");
-    UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+    icu::UnicodeString filename("tdoc_001_enus_850.asc");
+    icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
     uima::util::Filename clInputFilename(UnicodeStringRef(fn).asUTF8().c_str());
 
     size_t                  uiSize;
@@ -488,8 +488,8 @@ void testCasMultiplier(uima::util::ConsoleUI & rclConsole)
 
   ErrorInfo errInfo;
 
-  UnicodeString filename("SimpleTextSegmenter.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("SimpleTextSegmenter.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
   pEngine = TextAnalysisEngine::createTextAnalysisEngine(UnicodeStringRef(fn).asUTF8().c_str(), errInfo );
   failIfNotTrue(errInfo.getErrorId() == UIMA_ERR_NONE);
   failIfNotTrue(pEngine != NULL);
@@ -502,7 +502,7 @@ void testCasMultiplier(uima::util::ConsoleUI & rclConsole)
 
  
   CAS * cas = pEngine->newCAS();
-  cas->setDocumentText(UnicodeString("This is the first sentence. This is the second sentence. This is the third sentence."));
+  cas->setDocumentText(icu::UnicodeString("This is the first sentence. This is the second sentence. This is the third sentence."));
 
   CASIterator iter = pEngine->processAndOutputNewCASes(*cas);
   int num=0;
@@ -577,8 +577,8 @@ int main(int argc, char * argv[]) /*
     /* test registering user specified loggers */
     testRegisterLoggers(clConsole);
     ///mainTest(clConsole, lCCSID, cpszConfigFilename, cpszLanguage, (size_t) lNumberOfIterations);
-    UnicodeString filename("toktest.xml");
-    UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+    icu::UnicodeString filename("toktest.xml");
+    icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
     UnicodeStringRef fnRef(fn);
     string fnStr = fnRef.asUTF8();
     mainTest(clConsole, cpszCCSID, fnStr.c_str(),

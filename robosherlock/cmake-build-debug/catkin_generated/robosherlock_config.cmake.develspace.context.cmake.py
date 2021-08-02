@@ -2,7 +2,7 @@
 DEVELSPACE = 'TRUE' == 'TRUE'
 INSTALLSPACE = 'FALSE' == 'TRUE'
 
-CATKIN_DEVEL_PREFIX = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel'
+CATKIN_DEVEL_PREFIX = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel'
 
 CATKIN_GLOBAL_BIN_DESTINATION = 'bin'
 CATKIN_GLOBAL_ETC_DESTINATION = 'etc'
@@ -20,14 +20,14 @@ CATKIN_PACKAGE_LIBEXEC_DESTINATION = 'lib/robosherlock'
 CATKIN_PACKAGE_PYTHON_DESTINATION = 'lib/python2.7/dist-packages/robosherlock'
 CATKIN_PACKAGE_SHARE_DESTINATION = 'share/robosherlock'
 
-CMAKE_BINARY_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
-CMAKE_CURRENT_BINARY_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
-CMAKE_CURRENT_SOURCE_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock'
+CMAKE_BINARY_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
+CMAKE_CURRENT_BINARY_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
+CMAKE_CURRENT_SOURCE_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock'
 CMAKE_INSTALL_PREFIX = '/usr/local'
-CMAKE_SOURCE_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock'
+CMAKE_SOURCE_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock'
 
-PKG_CMAKE_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/share/robosherlock/cmake'
+PKG_CMAKE_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug/devel/share/robosherlock/cmake'
 
 PROJECT_NAME = 'robosherlock'
-PROJECT_BINARY_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
-PROJECT_SOURCE_DIR = '/home/hassouna/perception/rs_ws/src/robosherlock/robosherlock'
+PROJECT_BINARY_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock/cmake-build-debug'
+PROJECT_SOURCE_DIR = '/home/rin/tmp_rs_ws/src/robosherlock/robosherlock'

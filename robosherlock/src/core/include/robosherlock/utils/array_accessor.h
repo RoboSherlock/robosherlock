@@ -318,7 +318,7 @@ struct ArrayFSHelper2<std::string, std::allocator<std::string>, false>
   {
     for(size_t idx = 0; idx < fs.size(); idx++)
     {
-      UnicodeString ustr = UnicodeString::fromUTF8(value[idx]);
+      icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value[idx]);
       fs.set(idx, ustr);
     }
   }
@@ -328,7 +328,7 @@ struct ArrayFSHelper2<std::string, std::allocator<std::string>, false>
   */
   void set(uima::StringArrayFS fs, size_t idx, const std::string &value)
   {
-    UnicodeString ustr = UnicodeString::fromUTF8(value);
+    icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value);
     fs.set(idx, ustr);
   }
 };

@@ -924,7 +924,7 @@ public:
   {
     uima::StringListFS list = _get();
 
-    UnicodeString ustr = UnicodeString::fromUTF8(value);
+    icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value);
     list.addLast(ustr);
     _set(list);
   }
@@ -934,7 +934,7 @@ public:
     uima::StringListFS list = _get();
     for (int i = 0; i < value.size(); ++i)
     {
-      UnicodeString ustr = UnicodeString::fromUTF8(value[i]);
+      icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value[i]);
       list.addLast(ustr);
     }
     _set(list);
@@ -943,7 +943,7 @@ public:
   void prepend(const std::string& value)
   {
     uima::StringListFS list = _get();
-    UnicodeString ustr = UnicodeString::fromUTF8(value);
+    icu::UnicodeString ustr = UnicodeString::fromUTF8(value);
     list.addFirst(ustr);
     _set(list);
   }
@@ -951,7 +951,7 @@ public:
   void remove(const std::string& value)
   {
     uima::StringListFS list = _get();
-    UnicodeString ustr = UnicodeString::fromUTF8(value);
+    icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value);
     list.removeElement(ustr);
     _set(list);
   }

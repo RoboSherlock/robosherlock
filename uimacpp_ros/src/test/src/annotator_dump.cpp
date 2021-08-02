@@ -274,7 +274,7 @@ AnnotatorDump::process(CAS & tcas,
     assert(false);
   }
   assert( EXISTS(writer) );
-  auto_ptr<CASWriterABase> apWriter( writer );
+  unique_ptr<CASWriterABase> apWriter( writer );
   apWriter->write(iv_clOutputStream);
 
   // in append mode all data in a session/collection is dumped into one file
