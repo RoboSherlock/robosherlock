@@ -22,7 +22,7 @@ uima::TyErrorId RSAggregateAnalysisEngine::annotatorProcess(std::string annotato
                                                             uima::ResultSpecification& resultSpec)
 {
   // find target PrimitveEngine base on annotator name on current pipeline orderings
-  icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(StringPiece(annotatorName.c_str()));
+  icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(icu::StringPiece(annotatorName.c_str()));
   int index = 0;
 
   for (; index < iv_annotatorMgr.iv_vecEntries.size(); index++)
@@ -312,7 +312,7 @@ void RSAggregateAnalysisEngine::setContinuousPipelineOrder(std::vector<std::stri
 
 int RSAggregateAnalysisEngine::getIndexOfAnnotator(std::string annotator_name)
 {
-  icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(StringPiece(annotator_name.c_str()));
+  icu::UnicodeString icu_annotator_name = icu::UnicodeString::fromUTF8(icu::StringPiece(annotator_name.c_str()));
 
   std::vector<icu::UnicodeString>& nodes = this->getFlowConstraintNodes();
   auto it = std::find(nodes.begin(), nodes.end(), icu_annotator_name);

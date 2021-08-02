@@ -499,7 +499,7 @@ private:
     const int channels[] = {0, 1};
 
     cv::Mat hsv, hist;
-    cv::cvtColor(color, hsv, CV_BGR2HSV);
+    cv::cvtColor(color, hsv, cv::COLOR_BGR2HSV);
 
     cv::calcHist(&hsv, 1, channels, mask, hist, 2, histSize, ranges, true, false);
 
