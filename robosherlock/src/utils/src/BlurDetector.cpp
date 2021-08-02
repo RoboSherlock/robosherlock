@@ -178,7 +178,7 @@ double BlurDetector::funcNormalizedGraylevelVariance(const cv::Mat &img)
 bool BlurDetector::detectBlur(const cv::Mat &image)
 {
   cv::Mat grey;
-  cv::cvtColor(image, grey, CV_BGR2GRAY);
+  cv::cvtColor(image, grey, cv::COLOR_BGR2GRAY);
 
   double result = BLUR_FUNC(grey);
   bool blurred = detectBlur(result);

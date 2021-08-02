@@ -29,21 +29,21 @@ if(OPENMP_FOUND)
 endif()
 
 
-#############################################################################
-## Check for Caffe Support                                                 ##
-#############################################################################
-find_package(Caffe QUIET)
-if(Caffe_FOUND)
-  message(STATUS "Caffe FOUND! Building related components")
-
-  include_directories(${Caffe_INCLUDE_DIRS})
-  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
-
-  set(RS_CAFFE_LIB rs_caffeProxy)
-  set(RS_WITH_CAFFE TRUE)
-else()
-  set(RS_WITH_CAFFE FALSE)
-endif(Caffe_FOUND)
+##############################################################################
+### Check for Caffe Support                                                 ##
+##############################################################################
+#find_package(Caffe QUIET)
+#if(Caffe_FOUND)
+#  message(STATUS "Caffe FOUND! Building related components")
+#
+#  include_directories(${Caffe_INCLUDE_DIRS})
+#  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
+#
+#  set(RS_CAFFE_LIB rs_caffeProxy)
+#  set(RS_WITH_CAFFE TRUE)
+#else()
+#  set(RS_WITH_CAFFE FALSE)
+#endif(Caffe_FOUND)
 
 
 #############################################################################

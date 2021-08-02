@@ -720,7 +720,7 @@ private:
   void fuseRGBT(const cv::Mat &color, const cv::Mat &thermal, cv::Mat &fused)
   {
     cv::Mat grey, equalizedGrey, equalizedThermal;
-    cv::cvtColor(color, grey, CV_BGR2GRAY);
+    cv::cvtColor(color, grey, cv::COLOR_BGR2GRAY);
     cv::equalizeHist(grey, equalizedGrey);
     cv::equalizeHist(thermal, equalizedThermal);
 

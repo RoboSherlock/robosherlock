@@ -69,7 +69,7 @@ void Visualizer::addVisualizableGroupManager(std::string identifier)
 bool Visualizer::start()
 {
   outInfo("start");
-  saveParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
+  saveParams.push_back(cv::IMWRITE_PNG_COMPRESSION);
   saveParams.push_back(9);
 
   if (!multiAAEVisualizer_)
@@ -205,7 +205,7 @@ void Visualizer::imageViewer()
       if(!VisualizationAnnotatorMgr->isActive())
         continue;
 
-      cv::namedWindow(imageWindowName(*VisualizationAnnotatorMgr), CV_WINDOW_AUTOSIZE | CV_WINDOW_KEEPRATIO);
+      cv::namedWindow(imageWindowName(*VisualizationAnnotatorMgr), cv::WINDOW_AUTOSIZE | cv::WINDOW_KEEPRATIO);
 
       // TODO It's not so nice to point to the raw data in the shared_ptr.
       cv::setMouseCallback(imageWindowName(*VisualizationAnnotatorMgr), &Visualizer::callbackMouse, &(*(vgm.second)));
@@ -227,7 +227,7 @@ void Visualizer::imageViewer()
         visualizationAnnotatorMgr->updateImage = false;
         visualizationAnnotatorMgr->getCurrentVisualizable()->drawImage(disp);
         cv::putText(disp, "Annotator: " + visualizationAnnotatorMgr->getCurrentVisualizableName(), pos, font, sizeText,
-                    color, lineText, CV_AA);
+                    color, lineText, cv::LINE_AA);
         if (!headless_)
           cv::imshow(imageWindowName(*visualizationAnnotatorMgr), disp);
 

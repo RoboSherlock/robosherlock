@@ -259,7 +259,7 @@ private:
       std::vector<std::vector<cv::Point>> contours;
       std::vector<cv::Vec4i> hierarchy;
 
-      cv::findContours(planeMask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+      cv::findContours(planeMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
       int biggest = 0;
       for(size_t i = 1; i < contours.size(); ++i)
       {
@@ -269,8 +269,8 @@ private:
         }
       }
       planeMask.setTo(255);
-      cv::drawContours(planeMask, contours, biggest, CV_RGB(0, 0, 0), CV_FILLED);
-      cv::drawContours(maskPlane, contours, biggest, CV_RGB(255, 255, 255), CV_FILLED);
+      cv::drawContours(planeMask, contours, biggest, CV_RGB(0, 0, 0), cv::FILLED);
+      cv::drawContours(maskPlane, contours, biggest, CV_RGB(255, 255, 255), cv::FILLED);
       cv::dilate(planeMask, planeMask, cv::Mat(), cv::Point(-1, -1), 10);
       cv::resize(planeMask, mask, cv::Size(camInfo.width, camInfo.height), 0, 0, cv::INTER_NEAREST);
       planeRoi = cv::boundingRect(contours[biggest]);
@@ -456,7 +456,7 @@ private:
     std::vector<std::vector<cv::Point>> points;
     points.push_back(seg.contour);
     cv::Mat mask = cv::Mat(seg.rect.height, seg.rect.width, CV_8U);
-    cv::drawContours(mask, points, 0, CV_RGB(255, 255, 255), CV_FILLED, 8, cv::noArray(), INT_MAX, -seg.rect.tl());
+    cv::drawContours(mask, points, 0, CV_RGB(255, 255, 255), cv::FILLED, 8, cv::noArray(), INT_MAX, -seg.rect.tl());
     computeColorHist(color(seg.rect), mask, histogram);
 
     cv::Mat descriptor(1, 14 + histogram.cols, CV_32F);
