@@ -22,7 +22,7 @@
 
 // UNICODE STRING
 #include <unicode/unistr.h>
-
+#include <string>
 // RS
 #include <robosherlock/conversion/bson.h>
 #include <robosherlock/utils/output.h>
@@ -111,7 +111,7 @@ void fromFeatureString(const uima::FeatureStructure &fs, const uima::Feature &fe
 
 void toFeatureString(uima::CAS &cas, uima::FeatureStructure &fs, const uima::Feature &feature, const mongo::BSONElement &elem)
 {
-  UnicodeString value = UnicodeString::fromUTF8(elem.String());
+  icu::UnicodeString value = icu::UnicodeString::fromUTF8(elem.String());
   fs.setStringValue(feature, value);
 }
 
@@ -170,7 +170,7 @@ void fromFeature(const uima::FeatureStructure &fs, const uima::Feature &feature,
 
 void toFeature(uima::CAS &cas, uima::FeatureStructure fs, const uima::Type &fsType, const mongo::BSONElement &elem)
 {
-  const UnicodeString name = UnicodeString::fromUTF8(elem.fieldName());
+  const icu::UnicodeString name = icu::UnicodeString::fromUTF8(elem.fieldName());
   uima::Feature feature = fsType.getFeatureByBaseName(name);
   uima::Type featureType;
   feature.getRangeType(featureType);
@@ -238,7 +238,7 @@ uima::FeatureStructure toBasicFeatureStructure(uima::CAS &cas, const uima::Type 
     if(fsType.isAppropriateFeature(idFeature)) {
       mongo::BSONElement elem;
       if(object.getObjectID(elem)) {
-        newFS.setStringValue(idFeature, UnicodeString::fromUTF8(elem.OID().toString()));
+        newFS.setStringValue(idFeature, icu::UnicodeString::fromUTF8(elem.OID().toString()));
       }
     }
   }
@@ -458,7 +458,7 @@ uima::FeatureStructure toArrayFSString(uima::CAS &cas, const mongo::BSONElement 
   }
   uima::StringArrayFS arrayFS = cas.createStringArrayFS(data.size());
   for(size_t i = 0; i < data.size(); ++i) {
-    UnicodeString str = UnicodeString::fromUTF8(data[i]);
+    icu::UnicodeString str = icu::UnicodeString::fromUTF8(data[i]);
     arrayFS.set(i, uima::UnicodeStringRef(str));
   }
   return arrayFS;
@@ -645,7 +645,7 @@ uima::FeatureStructure toListFSString(uima::CAS &cas, const mongo::BSONElement &
   }
   uima::StringListFS listFS = cas.createStringListFS();
   for(int i = data.size() - 1; i >= 0; --i) {
-    UnicodeString str = UnicodeString::fromUTF8(data[i]);
+    icu::UnicodeString str = icu::UnicodeString::fromUTF8(data[i]);
     listFS.addFirst(uima::UnicodeStringRef(str));
   }
   return listFS;
@@ -729,7 +729,7 @@ uima::FeatureStructure toFeatureStructureAux(uima::CAS &cas, const mongo::BSONOb
     return uima::FeatureStructure();
   }
 
-  const UnicodeString type = UnicodeString::fromUTF8(object.getStringField(FIELD_TYPE));
+  const icu::UnicodeString type = icu::UnicodeString::fromUTF8(object.getStringField(FIELD_TYPE));
   const uima::TypeSystem &typeSys = cas.getTypeSystem();
   const uima::Type &fsType = typeSys.getType(type);
 

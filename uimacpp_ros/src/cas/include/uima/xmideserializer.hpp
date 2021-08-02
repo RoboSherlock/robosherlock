@@ -98,9 +98,9 @@ namespace uima {
     static void deserialize(char const * xmifilename, CAS &, bool lenient=false);
 
     /**
-     * Deserialize given an XMI filename UnicodeString and input CAS 
+     * Deserialize given an XMI filename icu::UnicodeString and input CAS 
      */
-    static void deserialize(UnicodeString & xmifilename, CAS &, bool lenient=false);
+    static void deserialize(icu::UnicodeString & xmifilename, CAS &, bool lenient=false);
 
     /**
      * Deserialize given an XMI InputSource and input CAS 
@@ -122,7 +122,7 @@ namespace uima {
      * Deserialize given an XMI filename UnicodeString, input CAS, and
 		 * XmiSerializationData.
      */
-    static void deserialize(UnicodeString & xmifilename, CAS &, XmiSerializationSharedData & sharedData);
+    static void deserialize(icu::UnicodeString & xmifilename, CAS &, XmiSerializationSharedData & sharedData);
 
   };
 

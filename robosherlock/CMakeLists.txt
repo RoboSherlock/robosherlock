@@ -80,7 +80,7 @@ endif()
 
 find_package(OpenCV REQUIRED)
 find_package(PCL REQUIRED)
-find_package(Boost REQUIRED COMPONENTS system thread date_time python)
+find_package(Boost REQUIRED COMPONENTS system thread date_time)
 
 find_package(APR REQUIRED)
 find_package(ICUUC REQUIRED)
@@ -128,6 +128,8 @@ else()
   message(STATUS "libyaml_cpp not found.")
 endif()
 
+find_package(Python3 COMPONENTS Interpreter Development)
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
@@ -141,19 +143,15 @@ add_definitions(${PCL_DEFINITIONS})
 # libraries to export
 set(RS_LIBS
   rs_core
-  rs_flowcontrol
   rs_io
-  rs_segmentation
-  rs_symmetrysegmentation
-  rs_recognition
   rs_queryanswering
+  rs_segmentation
   rs_utils
-  ${RS_CAFFE_LIB}
   ${RS_WEB_LIB}
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
+  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
   LIBRARIES ${RS_LIBS}
   CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
   DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
@@ -182,46 +180,30 @@ generate_type_system()
 ## Sub Projects                                                               ##
 ################################################################################
 
-add_subdirectory(src/annotation)
+
 add_subdirectory(src/core)
-add_subdirectory(src/detection)
-add_subdirectory(src/filter)
-add_subdirectory(src/io)
-add_subdirectory(src/recognition)
-add_subdirectory(src/segmentation)
-add_subdirectory(src/segmentation/symmetrysegmentation)
-add_subdirectory(src/utils)
-add_subdirectory(src/tracking)
 add_subdirectory(src/flowcontrol)
+add_subdirectory(src/io)
 add_subdirectory(src/queryanswering)
+add_subdirectory(src/segmentation)
+add_subdirectory(src/utils)
+
 
 ################################################################################
 ## Testing                                                                    ##
 ################################################################################
 
 catkin_add_gtest(${PROJECT_NAME}-test
-    test/main.cpp
-    test/robosherlock/test_casconsumercontext.cpp
+        test/main.cpp
+        test/robosherlock/test_casconsumercontext.cpp
         test/robosherlock/test_scene_cas.cpp
-    test/robosherlock/test_swipl_interface.cpp
-    test/robosherlock/test_queryinterface.cpp
-    test/robosherlock/test_parallelism.cpp
-    test/robosherlock/test_visualizables.cpp
-    test/annotators_utest/symmetry_segmentation_test.cpp
-    test/annotators_utest/test_storage.cpp
-    test/annotators_utest/ImagePreprocessor_utest.cpp
-    test/annotators_utest/PlaneAnnotator_utest.cpp
-    test/annotators_utest/PointCloudClusterExtractor_utest.cpp
-    test/annotators_utest/ImageSegmentationAnnotator_utest.cpp
-    test/annotators_utest/Cluster3DGeometry_utest.cpp
-    test/annotators_utest/ClusterColorHistogramCalculator_utest.cpp
-    test/annotators_utest/PrimitiveShapesAnnotator_utest.cpp
-    test/annotators_utest/RegionFilter_utest.cpp
-    test/annotators_utest/FeatureAnnotator_utest.cpp
-    test/annotators_utest/SacModelAnnotator_utest.cpp
-    #test/annotators_utest/MLNInferencer_utest.cpp
-    test/annotators_utest/PCLDescriptorExtractor_utest.cpp
-    test/annotators_utest/reconf_utest.cpp)
+        test/robosherlock/test_swipl_interface.cpp
+        test/robosherlock/test_queryinterface.cpp
+        test/robosherlock/test_parallelism.cpp
+        test/robosherlock/test_visualizables.cpp
+        test/annotators_utest/test_storage.cpp
+        test/annotators_utest/ImagePreprocessor_utest.cpp
+        )
 target_link_libraries(${PROJECT_NAME}-test
     rs_queryanswering
     rs_flowcontrol

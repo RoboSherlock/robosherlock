@@ -1,13 +1,13 @@
 
 #############################################################################
-## Check for c++11 support                                                 ##
+## Check for c++14 support                                                 ##
 #############################################################################
 include(CheckCXXCompilerFlag)
-check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
-if(COMPILER_SUPPORTS_CXX11)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+check_cxx_compiler_flag("-std=c++14" COMPILER_SUPPORTS_CXX14)
+if(COMPILER_SUPPORTS_CXX14)
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 else()
-  message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support. Please use a different C++ compiler.")
+  message(ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++14 support. Please use a different C++ compiler.")
 endif()
 
 #############################################################################
@@ -29,21 +29,21 @@ if(OPENMP_FOUND)
 endif()
 
 
-#############################################################################
-## Check for Caffe Support                                                 ##
-#############################################################################
-find_package(Caffe QUIET)
-if(Caffe_FOUND)
-  message(STATUS "Caffe FOUND! Building related components")
-
-  include_directories(${Caffe_INCLUDE_DIRS})
-  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
-
-  set(RS_CAFFE_LIB rs_caffeProxy)
-  set(RS_WITH_CAFFE TRUE)
-else()
-  set(RS_WITH_CAFFE FALSE)
-endif(Caffe_FOUND)
+##############################################################################
+### Check for Caffe Support                                                 ##
+##############################################################################
+#find_package(Caffe QUIET)
+#if(Caffe_FOUND)
+#  message(STATUS "Caffe FOUND! Building related components")
+#
+#  include_directories(${Caffe_INCLUDE_DIRS})
+#  add_definitions( -DCAFFE_FOUND ${Caffe_DEFINITIONS})
+#
+#  set(RS_CAFFE_LIB rs_caffeProxy)
+#  set(RS_WITH_CAFFE TRUE)
+#else()
+#  set(RS_WITH_CAFFE FALSE)
+#endif(Caffe_FOUND)
 
 
 #############################################################################
@@ -97,7 +97,7 @@ macro(generate_type_system)
     set(projects ${projects} ${arg}:${${arg}_NAMESPACE}:${${arg}_TYPESYSTEM_XML_PATH}:${${arg}_TYPESYSTEM_CPP_PATH})
   endforeach()
   
-  execute_process(COMMAND python ${script} ${projects})
+  execute_process(COMMAND python3 ${script} ${projects})
 endmacro(generate_type_system)
 
 #############################################################################

@@ -259,7 +259,7 @@ private:
       std::vector<std::vector<cv::Point>> contours;
       std::vector<cv::Vec4i> hierarchy;
 
-      cv::findContours(planeMask, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+      cv::findContours(planeMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
       int biggest = 0;
       for(size_t i = 1; i < contours.size(); ++i)
       {
@@ -269,8 +269,8 @@ private:
         }
       }
       planeMask.setTo(255);
-      cv::drawContours(planeMask, contours, biggest, CV_RGB(0, 0, 0), CV_FILLED);
-      cv::drawContours(maskPlane, contours, biggest, CV_RGB(255, 255, 255), CV_FILLED);
+      cv::drawContours(planeMask, contours, biggest, CV_RGB(0, 0, 0), cv::FILLED);
+      cv::drawContours(maskPlane, contours, biggest, CV_RGB(255, 255, 255), cv::FILLED);
       cv::dilate(planeMask, planeMask, cv::Mat(), cv::Point(-1, -1), 10);
       cv::resize(planeMask, mask, cv::Size(camInfo.width, camInfo.height), 0, 0, cv::INTER_NEAREST);
       planeRoi = cv::boundingRect(contours[biggest]);
@@ -327,17 +327,17 @@ private:
     case BIN:
       if(cannyEdgeSegmentation)
       {
-        cv::cvtColor(dilatedCanny, disp, CV_GRAY2BGR);
+        cv::cvtColor(dilatedCanny, disp, cv::COLOR_BGR2GRAY);
       }
       else
       {
 
-        cv::cvtColor(bin, disp, CV_GRAY2BGR);
+        cv::cvtColor(bin, disp, cv::COLOR_BGR2GRAY);
       }
       break;
     case GREY:
       {
-        cv::cvtColor(grey, disp, CV_GRAY2BGR);
+        cv::cvtColor(grey, disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case POSE:
@@ -348,7 +348,7 @@ private:
       }
       break;
     case SEGMENTS:
-      cv::cvtColor(grey, disp, CV_GRAY2BGR);
+      cv::cvtColor(grey, disp, cv::COLOR_BGR2GRAY);
       ImageSegmentation::drawSegments2D(disp, segments, std::vector<std::string>());
       break;
 
@@ -360,19 +360,19 @@ private:
         disp = hBinned.clone();
         //std::vector<cv::Mat> channels;
         //cv::split(hsv, channels);
-        //cv::cvtColor(channels[0], disp, CV_GRAY2BGR);
+        //cv::cvtColor(channels[0], disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case SATURATION:
       {
         std::vector<cv::Mat> channels;
         cv::split(hsv, channels);
-        cv::cvtColor(channels[1], disp, CV_GRAY2BGR);
+        cv::cvtColor(channels[1], disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case MASK:
       {
-        cv::cvtColor(maskPlane, disp, CV_GRAY2BGR);
+        cv::cvtColor(maskPlane, disp, cv::COLOR_BGR2GRAY);
         break;
       }
     }
@@ -456,7 +456,7 @@ private:
     std::vector<std::vector<cv::Point>> points;
     points.push_back(seg.contour);
     cv::Mat mask = cv::Mat(seg.rect.height, seg.rect.width, CV_8U);
-    cv::drawContours(mask, points, 0, CV_RGB(255, 255, 255), CV_FILLED, 8, cv::noArray(), INT_MAX, -seg.rect.tl());
+    cv::drawContours(mask, points, 0, CV_RGB(255, 255, 255), cv::FILLED, 8, cv::noArray(), INT_MAX, -seg.rect.tl());
     computeColorHist(color(seg.rect), mask, histogram);
 
     cv::Mat descriptor(1, 14 + histogram.cols, CV_32F);
@@ -499,7 +499,7 @@ private:
     const int channels[] = {0, 1};
 
     cv::Mat hsv, hist;
-    cv::cvtColor(color, hsv, CV_BGR2HSV);
+    cv::cvtColor(color, hsv, cv::COLOR_BGR2HSV);
 
     cv::calcHist(&hsv, 1, channels, mask, hist, 2, histSize, ranges, true, false);
 

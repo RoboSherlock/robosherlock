@@ -103,9 +103,9 @@ namespace uima {
     static void deserialize(char const * xcasfilename, CAS &);
 
     /**
-     * Deserialize given an XCAS filename UnicodeString and input CAS 
+     * Deserialize given an XCAS filename icu::UnicodeString and input CAS 
      */
-    static void deserialize(UnicodeString & xcasfilename, CAS &);
+    static void deserialize(icu::UnicodeString & xcasfilename, CAS &);
 
     /**
      * Deserialize given an XCAS filename, input CAS, and the 

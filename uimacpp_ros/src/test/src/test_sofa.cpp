@@ -95,7 +95,7 @@ int main(int argc, char * argv[]) /*
     delete id;
     // Set the document text
 //TODO?   es.setLocalSofaData("this beer is good");
-    es.setLocalSofaData(UnicodeString("this beer is good"));
+    es.setLocalSofaData(icu::UnicodeString("this beer is good"));
 
     // Test Multiple Sofas across XCAS serialization
     outputStream.open("temp.xcas");
@@ -122,7 +122,7 @@ int main(int argc, char * argv[]) /*
 
     // Set the document text
 //TODO?   gerTcas->setDocumentText("das bier ist gut");
-    gerTcas->setDocumentText(UnicodeString("das bier ist gut"));
+    gerTcas->setDocumentText(icu::UnicodeString("das bier ist gut"));
 
     // test getView()->getDocumentAnnotation()->getCoveredText()
     AnnotationFS gerDocAnn = cas->getView("GermanDocument")->getDocumentAnnotation();
@@ -179,7 +179,7 @@ int main(int argc, char * argv[]) /*
 
     // Set the document text off SofaFS after the CAS view exists
 //   frTcas->setSofaDataString("cette biere est bonne", "text");
-    frTcas->setSofaDataString(UnicodeString("cette biere est bonne"), "text");
+    frTcas->setSofaDataString(icu::UnicodeString("cette biere est bonne"), "text");
 
     // Create standard annotations against one and cross annotations against the other
     AnnotationFS engAnnot = engTcas->createAnnotation(annotationType, 0, 4);
@@ -291,7 +291,7 @@ int main(int argc, char * argv[]) /*
     // --------------------------------------------------------
 
 	cas->reset();
-	cas->setDocumentText(UnicodeString("setDocumentText creates the _InitialView Sofa"));
+	cas->setDocumentText(icu::UnicodeString("setDocumentText creates the _InitialView Sofa"));
 	CAS* testView = cas->createView("anotherView");
     ASSERT_OR_THROWEXCEPTION(0 == testView->getViewName().compare("anotherView"));
 	ASSERT_OR_THROWEXCEPTION(0 == cas->getViewName().compare("_InitialView"));
@@ -312,7 +312,7 @@ int main(int argc, char * argv[]) /*
     //Test reading sofa data set as String feature.
 	cas->reset();
     CAS * stringView = cas->createView("StringSofaData");
-    UnicodeString ustrText("this beer is good");
+    icu::UnicodeString ustrText("this beer is good");
     stringView->setDocumentText(ustrText);
     SofaDataStream * pStream = stringView->getSofaDataStream();
     ASSERT_OR_THROWEXCEPTION(pStream != NULL);

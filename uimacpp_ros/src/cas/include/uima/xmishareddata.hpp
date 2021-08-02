@@ -78,7 +78,7 @@ public:
  std::string name;
   std::string value;
   
-  XmlAttribute(UnicodeString name, UnicodeString value) {
+  XmlAttribute(icu::UnicodeString name, icu::UnicodeString value) {
     this->name = ((UnicodeStringRef)name).asUTF8();
     this->value = ((UnicodeStringRef)value).asUTF8();
   }
@@ -369,8 +369,8 @@ public:
     oed->attributes.push_back(new XmlAttribute(featName, featVal));
   }  
 
-  void addOutOfTypeSystemAttribute(int addr, UnicodeString& featName, 
-    UnicodeString & featVal) {
+  void addOutOfTypeSystemAttribute(int addr, icu::UnicodeString& featName, 
+    icu::UnicodeString & featVal) {
       //cout << "addOotsAttribute " << featName << "=" << featVal << endl;
       addOutOfTypeSystemAttribute(addr, ( (UnicodeStringRef)featName).asUTF8(),
         ( (UnicodeStringRef)featVal).asUTF8());

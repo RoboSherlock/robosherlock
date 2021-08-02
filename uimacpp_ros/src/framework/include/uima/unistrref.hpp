@@ -140,7 +140,7 @@ namespace uima {
     /**
      * Compare the characters bitwise in this UnicodeStringRef to
      * the characters in <TT>text</TT>.
-     * @param text The UnicodeString to compare to this one.
+     * @param text The icu::UnicodeString to compare to this one.
      * @return The result of bitwise character comparison: 0 if <TT>text</TT>
      * contains the same characters as this, -1 if the characters in
      * <TT>text</TT> are bitwise less than the characters in this, +1 if the
@@ -1172,26 +1172,26 @@ namespace uima {
      * <tt>dst</tt>.
      * @param start offset of first character which will be copied
      * @param length the number of characters to extract
-     * @param dst UnicodeString into which to copy characters.
+     * @param dst icu::UnicodeString into which to copy characters.
      * @return A reference to <TT>dst</TT>
      * @stable
      */
     inline void extract(int32_t start,
                         int32_t length,
-                        UnicodeString& dst) const;
+                        icu::UnicodeString& dst) const;
 
     /**
      * Copy the characters in the range [<tt>start</tt>, <tt>limit</tt>)
-     * into the UnicodeString <tt>dst</tt>.
+     * into the icu::UnicodeString <tt>dst</tt>.
      * @param start offset of first character which will be copied
      * @param limit offset immediately following the last character to be copied
-     * @param dst UnicodeString into which to copy characters.
+     * @param dst icu::UnicodeString into which to copy characters.
      * @return A reference to <TT>dst</TT>
      * @stable
      */
     inline void extractBetween(int32_t start,
                                int32_t limit,
-                               UnicodeString& dst) const;
+                               icu::UnicodeString& dst) const;
 
     /* Substring extraction with conversion */
 
@@ -1361,7 +1361,7 @@ namespace uima {
     inline bool isEmpty(void) const;
 
     /**
-     * Set the text in the UnicodeString object to the characters in
+     * Set the text in the icu::UnicodeString object to the characters in
      * <TT>srcText</TT>.
      * <TT>srcText</TT> is not modified.
      * @param srcText the source for the new characters
@@ -1371,17 +1371,17 @@ namespace uima {
     inline UnicodeStringRef& setTo(const UnicodeStringRef& srcText);
 
     /**
-     * Set the text in the UnicodeString object to the characters in
+     * Set the text in the icu::UnicodeString object to the characters in
      * <TT>srcText</TT>.
      * <TT>srcText</TT> is not modified.
      * @param srcText the source for the new characters
      * @return a reference to this
      * @stable
      */
-    inline UnicodeStringRef& setTo(const UnicodeString& srcText);
+    inline UnicodeStringRef& setTo(const icu::UnicodeString& srcText);
 
     /**
-     * Set the characters in the UnicodeString object to the characters
+     * Set the characters in the icu::UnicodeString object to the characters
      * in <TT>srcChars</TT>. <TT>srcChars</TT> is not modified.
      * @param srcChars the source for the new characters
      * @param srcLength the number of Unicode characters in srcChars.
@@ -1456,7 +1456,7 @@ namespace uima {
                           int32_t dstStart) const;
     inline void doExtract(int32_t start,
                           int32_t length,
-                          UnicodeString& dst) const;
+                          icu::UnicodeString& dst) const;
 
     inline void
     pinIndices(int32_t& start,
@@ -2074,7 +2074,7 @@ namespace uima {
   inline void
   UnicodeStringRef::extract(int32_t start,
                             int32_t length,
-                            UnicodeString& target) const {
+                            icu::UnicodeString& target) const {
     target.replace(0, target.length(), getBuffer(), start, length);
   }
 // Replaces all of target by substring of src
@@ -2091,7 +2091,7 @@ namespace uima {
   inline void
   UnicodeStringRef::extractBetween(int32_t start,
                                    int32_t limit,
-                                   UnicodeString& dst) const {
+                                   icu::UnicodeString& dst) const {
     extract(start, limit - start, dst);
   }
 
@@ -2188,7 +2188,7 @@ namespace uima {
     return (*this);
   }
 
-  inline UnicodeStringRef& UnicodeStringRef::setTo(const UnicodeString& srcText) {
+  inline UnicodeStringRef& UnicodeStringRef::setTo(const icu::UnicodeString& srcText) {
     iv_pUChars  = srcText.getBuffer();
     iv_uiLength = srcText.length();
     return (*this);

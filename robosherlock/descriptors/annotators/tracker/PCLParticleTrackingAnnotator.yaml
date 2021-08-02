@@ -1,6 +1,0 @@
-annotator:
-  name: PCLParticleTrackingAnnotator
-  implementation: rs_PCLParticleTrackingAnnotator
-capabilities:
-  inputs:
-  - rs.pcl.PointCloud

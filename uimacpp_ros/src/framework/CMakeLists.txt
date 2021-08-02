@@ -9,7 +9,7 @@ SET(SOURCES
   )
 
 ADD_LIBRARY(uimacpp_ros SHARED ${SOURCES})
-
+include_directories(/usr/include)
 # TARGET_COMPILE_OPTIONS(uima PRIVATE -Wno-deprecated)
 target_link_libraries(uimacpp_ros
   ${catkin_LIBRARIES}

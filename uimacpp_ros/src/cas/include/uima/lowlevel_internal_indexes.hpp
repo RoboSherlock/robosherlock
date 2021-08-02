@@ -346,7 +346,7 @@ namespace uima {
           TyComponents::const_iterator cit;
           for (cit = iv_tyComponents.begin(); cit != iv_tyComponents.end(); ++cit) {
             SingleIndex const * index = (*cit);
-	    std::auto_ptr<IndexIterator> apit( index->createIterator() );
+	    std::unique_ptr<IndexIterator> apit( index->createIterator() );
             for (apit->moveToFirst(); apit->isValid(); apit->moveToNext()) {
               iv_cache.insert(iv_cache.end(), apit->get() );
             }

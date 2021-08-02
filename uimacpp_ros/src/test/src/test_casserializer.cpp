@@ -107,8 +107,8 @@ void testSerializeDefinitions(util::ConsoleUI * pConsole) {
 
   /* create engine */
   ErrorInfo errInfo;
-  UnicodeString filename("toktest.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("toktest.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
 
   uima::TextAnalysisEngine * pEngine = TextAnalysisEngine::createTextAnalysisEngine
                                        (UnicodeStringRef(fn).asUTF8().c_str(), errInfo);
@@ -202,8 +202,8 @@ void testSerializeData(util::ConsoleUI * pConsole ) {
   uima::Timer iv_serializeTimerData;
 
   ErrorInfo errInfo;
-  UnicodeString filename("toktest.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("toktest.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
 
   uima::TextAnalysisEngine * pEngine =
     TextAnalysisEngine::createTextAnalysisEngine(UnicodeStringRef(fn).asUTF8().c_str(), errInfo);
@@ -215,8 +215,8 @@ void testSerializeData(util::ConsoleUI * pConsole ) {
   ASSERT_OR_THROWEXCEPTION( errInfo.getErrorId() == UIMA_ERR_NONE );
 
   /* read in a file */
-  UnicodeString dataFile("tdoc_001_en_850.asc");
-  UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
+  icu::UnicodeString dataFile("tdoc_001_en_850.asc");
+  icu::UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
   std::string dataFilename = UnicodeStringRef(datafn).asUTF8();
   /* open file for read */
   FILE * pFile = fopen( dataFilename.c_str(),"rb");
@@ -234,7 +234,7 @@ void testSerializeData(util::ConsoleUI * pConsole ) {
   fclose(pFile);
 
   /* convert to unicode and set tcas document text*/
-  UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
+  icu::UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
   delete[] pBuffer;
 
   /* set TCAS Document text */

@@ -646,7 +646,7 @@ public:
     return -1;
   }
 
-// the equivalent to auto_ptr for single objects for arrays
+// the equivalent to unique_ptr for single objects for arrays
   template<class T>
   class UIMA_LINK_IMPORTSPEC auto_array {
   private:

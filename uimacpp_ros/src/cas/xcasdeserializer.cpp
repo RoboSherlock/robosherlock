@@ -83,7 +83,7 @@ namespace uima {
 
   }
 
-  void XCASDeserializer::deserialize(UnicodeString & xcasFilename, CAS & cas) {
+  void XCASDeserializer::deserialize(icu::UnicodeString & xcasFilename, CAS & cas) {
     char buff[1024];
     xcasFilename.extract(0, xcasFilename.length(), buff);
 	XMLCh* native = XMLString::transcode(buff);

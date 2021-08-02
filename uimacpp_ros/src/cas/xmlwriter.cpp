@@ -334,7 +334,7 @@ namespace uima {
 
       uima::lowlevel::TyFSType tyIndexType = indexDef.getTypeForIndex(crIndexID);
       lowlevel::IndexABase const & crIndex = crIxRep.getLowlevelIndex(crIndexID, tyIndexType);
-      auto_ptr<uima::lowlevel::IndexIterator> pIterator(crIndex.createIterator());
+      unique_ptr<uima::lowlevel::IndexIterator> pIterator(crIndex.createIterator());
       for (pIterator->moveToFirst(); pIterator->isValid(); pIterator->moveToNext()) {
         lowlevel::TyFS tyFS = pIterator->get();
         writeFS(0, os, tyFS);
@@ -487,7 +487,7 @@ namespace uima {
 
 	void XCASWriter::writeStringArray(ostream & os, StringArrayFS const & array, char const * tag) {
     size_t i;
-		UnicodeString ustr;
+    icu::UnicodeString ustr;
     if (array.size() > 0) {
       os << " size=\"" << array.size() << "\">" << endl;
       for (i=0; i<array.size(); ++i) {

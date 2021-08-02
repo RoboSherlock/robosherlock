@@ -90,7 +90,7 @@ namespace uima {
     iv_vecParams.push_back(s);
   }
 
-///Constructor with a single UnicodeString parameter
+///Constructor with a single icu::UnicodeString parameter
   ErrorMessage::ErrorMessage(
     TyMessageId                         utMsgId,
     const icu::UnicodeString &             crustrParam1

@@ -174,12 +174,12 @@ void Storage::loadView(uima::CAS& cas, const mongo::BSONElement& elem)
   try
   {
     outDebug("try to get view " << viewName);
-    view = cas.getView(UnicodeString::fromUTF8(viewName));
+    view = cas.getView(icu::UnicodeString::fromUTF8(viewName));
   }
   catch (...)
   {
     outDebug("create view " << viewName);
-    view = cas.createView(UnicodeString::fromUTF8(viewName));
+    view = cas.createView(icu::UnicodeString::fromUTF8(viewName));
   }
 
   outDebug("getting referenced object...");
@@ -201,7 +201,7 @@ void Storage::loadView(uima::CAS& cas, const mongo::BSONElement& elem)
   }
 
   const std::string mime = "application/x-" + viewName;
-  view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
+  view->setSofaDataArray(fs, icu::UnicodeString::fromUTF8(mime));
 }
 
 uima::FeatureStructure Storage::loadArrayFS(uima::CAS* view, const std::string& viewName,
@@ -423,7 +423,7 @@ void Storage::storeCollection(uima::CAS& cas, const std::string& view, const std
   db.remove(dbCollection, mongo::Query());
   try
   {
-    uima::CAS* _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
+    uima::CAS* _view = cas.getView(icu::UnicodeString::fromUTF8(view_name.str()));
     uima::FeatureStructure fs = _view->getSofaDataArray();
     readArrayFS(fs, builder, casOID, view_name.str(), dbCollection) || readFS(fs, builder, casOID, view_name.str(), dbCollection);
   }
@@ -454,19 +454,19 @@ void Storage::loadCollection(uima::CAS& cas, const std::string& view, const std:
   try
   {
     outDebug("try to get view " << view);
-    _view = cas.getView(UnicodeString::fromUTF8(view_name.str()));
+    _view = cas.getView(icu::UnicodeString::fromUTF8(view_name.str()));
   }
   catch (...)
   {
     outDebug("create view " << view);
-    _view = cas.createView(UnicodeString::fromUTF8(view_name.str()));
+    _view = cas.createView(icu::UnicodeString::fromUTF8(view_name.str()));
   }
 
   outDebug("getting referenced object...");
   uima::FeatureStructure fs = loadArrayFS(_view, collection, ids);
 
   const std::string mime = "application/x-" + view;
-  _view->setSofaDataArray(fs, UnicodeString::fromUTF8(mime));
+  _view->setSofaDataArray(fs, icu::UnicodeString::fromUTF8(mime));
 }
 
 std::vector<rs::ObjectHypothesis> Storage::getClusters(uima::CAS& cas, const std::string& collection,

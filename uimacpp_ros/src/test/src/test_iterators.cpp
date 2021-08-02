@@ -551,8 +551,8 @@ void testSubIterators(util::ConsoleUI * pConsole) {
   pConsole->info("Testing SubIterators");
 
   ErrorInfo errInfo;
-  UnicodeString filename("toktest.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("toktest.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
 
   /* create engine */
   uima::TextAnalysisEngine * pEngine =
@@ -564,8 +564,8 @@ void testSubIterators(util::ConsoleUI * pConsole) {
   ASSERT_OR_THROWEXCEPTION(EXISTS(pEngine));
   ASSERT_OR_THROWEXCEPTION( errInfo.getErrorId() == UIMA_ERR_NONE );
 
-  UnicodeString dataFile("tdoc_001_en_850.asc");
-  UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
+  icu::UnicodeString dataFile("tdoc_001_en_850.asc");
+  icu::UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
   std::string dataFilename = UnicodeStringRef(datafn).asUTF8();
   /* read in file contents and set TCAS Document text */
   FILE * pFile = fopen( dataFilename.c_str(),"rb");
@@ -583,7 +583,7 @@ void testSubIterators(util::ConsoleUI * pConsole) {
   fclose(pFile);
 
   /* convert to unicode and set tcas document text*/
-  UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
+  icu::UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
   delete[] pBuffer;
   /* set TCAS Document text */
   CAS * tcas = pEngine->newCAS();
@@ -618,8 +618,8 @@ void testIterators(util::ConsoleUI * pConsole) {
   pConsole->info("Testing Iterators");
 
   ErrorInfo errInfo;
-  UnicodeString filename("toktest.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("toktest.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
 
   /* create engine */
   uima::TextAnalysisEngine * pEngine =
@@ -631,8 +631,8 @@ void testIterators(util::ConsoleUI * pConsole) {
   ASSERT_OR_THROWEXCEPTION(EXISTS(pEngine));
   ASSERT_OR_THROWEXCEPTION( errInfo.getErrorId() == UIMA_ERR_NONE );
 
-  UnicodeString dataFile("toktest.xml");
-  UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
+  icu::UnicodeString dataFile("toktest.xml");
+  icu::UnicodeString datafn = ResourceManager::resolveFilename(dataFile, dataFile);
   std::string dataFilename = UnicodeStringRef(datafn).asUTF8();
   /* read in file contents and set TCAS Document text */
   FILE * pFile = fopen( dataFilename.c_str(),"rb");
@@ -650,7 +650,7 @@ void testIterators(util::ConsoleUI * pConsole) {
   fclose(pFile);
 
   /* convert to unicode and set tcas document text*/
-  UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
+  icu::UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
   delete[] pBuffer;
   /* set TCAS Document text */
   CAS * tcas = pEngine->newCAS();
@@ -680,8 +680,8 @@ void testCaching(util::ConsoleUI * pConsole) {
   pConsole->info("Testing Caching");
 
   ErrorInfo errInfo;
-  UnicodeString filename("toktest.xml");
-  UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
+  icu::UnicodeString filename("toktest.xml");
+  icu::UnicodeString fn = ResourceManager::resolveFilename(filename, filename);
 
   uima::TextAnalysisEngine * pEngine =
     TextAnalysisEngine::createTextAnalysisEngine(UnicodeStringRef(fn).asUTF8().c_str(), errInfo);
@@ -695,7 +695,7 @@ void testCaching(util::ConsoleUI * pConsole) {
   /* set TCAS Document text */
   CAS * tcas = pEngine->newCAS();
   ASSERT_OR_THROWEXCEPTION( EXISTS(tcas) );
-  UnicodeString ustrInputText("This is test doc for testing iteration.");
+  icu::UnicodeString ustrInputText("This is test doc for testing iteration.");
   tcas->setDocumentText(ustrInputText.getBuffer(), ustrInputText.length(), true);
   tcas->getDocumentAnnotation().setLanguage("en");
 

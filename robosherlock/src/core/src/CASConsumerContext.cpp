@@ -3,7 +3,7 @@
 //
 
 #include "robosherlock/CASConsumerContext.h"
-#include <algorithm>
+
 
 using namespace rs;
 

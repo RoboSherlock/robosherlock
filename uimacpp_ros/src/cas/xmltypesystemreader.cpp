@@ -103,10 +103,10 @@ namespace uima {
     return gs_tempXMLChBuffer;
   }
 
-  UnicodeString convert( XMLCh const * cpUCBuf ) {
+  icu::UnicodeString convert( XMLCh const * cpUCBuf ) {
     assertWithMsg( sizeof(XMLCh) == sizeof(UChar), "Port required!");
     unsigned int uiLen = XMLString::stringLen( cpUCBuf );
-    return UnicodeString( (UChar const *) cpUCBuf, uiLen);
+    return icu::UnicodeString( (UChar const *) cpUCBuf, uiLen);
   }
 
 

@@ -83,7 +83,7 @@ namespace uima {
 
   }
 
-  void XmiDeserializer::deserialize(UnicodeString & xmiFilename, CAS & cas, bool lenient) {
+  void XmiDeserializer::deserialize(icu::UnicodeString & xmiFilename, CAS & cas, bool lenient) {
     char buff[1024];
     xmiFilename.extract(0, xmiFilename.length(), buff);
     XMLCh* native = XMLString::transcode(buff);
@@ -311,7 +311,7 @@ namespace uima {
 
  }
 
- void XmiDeserializer::deserialize(UnicodeString & xmiFilename, 
+ void XmiDeserializer::deserialize(icu::UnicodeString & xmiFilename, 
 									CAS & cas,
 									XmiSerializationSharedData & sharedData) {
     char buff[1024];

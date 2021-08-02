@@ -36,7 +36,7 @@ private:
   size_t delimLen;
   size_t remainingLen;
 
-  UnicodeString delimUS;
+  icu::UnicodeString delimUS;
   const UChar * delimP;
   const UChar * docTextBeginP;
   const UChar * remainingTextP;
@@ -74,7 +74,7 @@ public:
     delimUS = "\n";
 
     /* read in configuration parameter setting */
-    UnicodeString param("SegmentDelimiter");
+    icu::UnicodeString param("SegmentDelimiter");
     if (rclAnnotatorContext.isParameterDefined(param) ) {
       rclAnnotatorContext.extractValue(param, delimUS);
     }

@@ -1112,7 +1112,7 @@ namespace uima {
 	void toXMLBuffer(AnalysisEngineMetaData const & md,  
 													   bool isCasConsumer,
 													   icu::UnicodeString & s) const;
-    void appendConfigParamsAndSettingsToXMLBuffer(UnicodeString & s) const;
+    void appendConfigParamsAndSettingsToXMLBuffer(icu::UnicodeString & s) const;
 
     TyErrorId setFrameworkImplName(EnFrameworkImplName impl) {
       if (! isModifiable()) {

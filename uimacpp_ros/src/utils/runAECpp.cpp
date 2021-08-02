@@ -389,7 +389,7 @@ void process (AnalysisEngine * pEngine, CAS * cas, std::string in, std::string o
       size_t numread = fread(pBuffer,1,filesize,pFile);
       fclose(pFile);
       /* convert to unicode and set tcas document text*/
-      UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
+      icu::UnicodeString ustrInputText(pBuffer, (int32_t)numread, "utf-8");
       cas->setDocumentText(UnicodeStringRef(ustrInputText));
       delete[] pBuffer;
     }

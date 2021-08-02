@@ -50,7 +50,7 @@ void ImageSegmentation::segment(const cv::Mat &bin, std::vector<Segment> &segmen
 
   segments.clear();
 
-  cv::findContours(bin.clone(), contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE);
+  cv::findContours(bin.clone(), contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
 
   for(int32_t i = 0; i < contours.size(); ++i)
   {
@@ -119,10 +119,10 @@ void ImageSegmentation::computeMoments(const std::vector<std::vector<cv::Point>>
   bin = cv::Mat::zeros(seg.rect.size(), CV_8U);
 
   // Draw contour and holes
-  cv::drawContours(bin, contours, index, CV_RGB(255, 255, 255), CV_FILLED, 8, hierarchy, 0, -seg.rect.tl());
+  cv::drawContours(bin, contours, index, CV_RGB(255, 255, 255), cv::FILLED, 8, hierarchy, 0, -seg.rect.tl());
   for(int32_t child = hierarchy[index][2]; child >= 0; child = hierarchy[child][0])
   {
-    cv::drawContours(bin, contours, child, CV_RGB(0, 0, 0), CV_FILLED, 8, hierarchy, 0, -seg.rect.tl());
+    cv::drawContours(bin, contours, child, CV_RGB(0, 0, 0), cv::FILLED, 8, hierarchy, 0, -seg.rect.tl());
   }
 
   // Compute moments
@@ -277,7 +277,7 @@ void ImageSegmentation::drawSegments2D(cv::Mat &disp, const std::vector<Segment>
     drawSegment(disp, CV_RGB(128, 128, 128), CV_RGB(0, 0, 0), seg, 0, 1, true, sizeLine);
 
     cv::rectangle(disp, seg.rect, CV_RGB(0, 0, 255), sizeLine);
-    cv::circle(disp, seg.center, 5, CV_RGB(255, 255, 255), sizeLine, CV_AA);
+    cv::circle(disp, seg.center, 5, CV_RGB(255, 255, 255), sizeLine, cv::LINE_AA);
 
     cv::line(disp, seg.center, seg.center + seg.axisX, CV_RGB(255, 0, 0), sizeLine);
     cv::line(disp, seg.center, seg.center + seg.axisY, CV_RGB(0, 255, 0), sizeLine);
@@ -291,7 +291,7 @@ void ImageSegmentation::drawSegments2D(cv::Mat &disp, const std::vector<Segment>
     oss << i << " : " << text[i];
     int baseLine;
     cv::Size textSize = cv::getTextSize(oss.str(), font, sizeText, sizeLine, &baseLine);
-    cv::putText(disp, oss.str(), cv::Point(seg.rect.x + (seg.rect.width - textSize.width) / 2, seg.rect.y - textSize.height), font, sizeText, CV_RGB(255, 255, 255), sizeLine, CV_AA);
+    cv::putText(disp, oss.str(), cv::Point(seg.rect.x + (seg.rect.width - textSize.width) / 2, seg.rect.y - textSize.height), font, sizeText, CV_RGB(255, 255, 255), sizeLine, cv::LINE_AA);
   }
 }
 
@@ -315,9 +315,9 @@ void ImageSegmentation::drawSegments3D(cv::Mat &disp, const std::vector<Segment>
     cv::projectPoints(axis, seg.rotation, seg.translation, cameraMatrix, distCoefficients, pointsImage);
 
     //draw the axes on the colored image
-    cv::line(disp, pointsImage[0], pointsImage[1], CV_RGB(255, 0, 0), sizeLine, CV_AA);
-    cv::line(disp, pointsImage[0], pointsImage[2], CV_RGB(0, 255, 0), sizeLine, CV_AA);
-    cv::line(disp, pointsImage[0], pointsImage[3], CV_RGB(0, 0, 255), sizeLine, CV_AA);
+    cv::line(disp, pointsImage[0], pointsImage[1], CV_RGB(255, 0, 0), sizeLine, cv::LINE_AA);
+    cv::line(disp, pointsImage[0], pointsImage[2], CV_RGB(0, 255, 0), sizeLine, cv::LINE_AA);
+    cv::line(disp, pointsImage[0], pointsImage[3], CV_RGB(0, 0, 255), sizeLine, cv::LINE_AA);
   }
 
   for(int32_t i = 0; i < text.size(); ++i)
@@ -328,7 +328,7 @@ void ImageSegmentation::drawSegments3D(cv::Mat &disp, const std::vector<Segment>
     oss << i << " : " << text[i];
     int baseLine;
     cv::Size textSize = cv::getTextSize(oss.str(), font, sizeText, sizeLine, &baseLine);
-    cv::putText(disp, oss.str(), cv::Point(seg.rect.x + (seg.rect.width - textSize.width) / 2, seg.rect.y - textSize.height), font, sizeText, CV_RGB(255, 255, 255), sizeLine, CV_AA);
+    cv::putText(disp, oss.str(), cv::Point(seg.rect.x + (seg.rect.width - textSize.width) / 2, seg.rect.y - textSize.height), font, sizeText, CV_RGB(255, 255, 255), sizeLine, cv::LINE_AA);
   }
 }
 
@@ -344,7 +344,7 @@ void ImageSegmentation::drawSegment(cv::Mat &disp, const cv::Scalar &colorOut, c
   }
   else
   {
-    cv::polylines(disp, tmp, true, color, lineSize, CV_AA);
+    cv::polylines(disp, tmp, true, color, lineSize, cv::LINE_AA);
   }
 
   // Stop after first inner contour
