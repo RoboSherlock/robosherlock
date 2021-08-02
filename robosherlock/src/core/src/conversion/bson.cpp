@@ -22,7 +22,7 @@
 
 // UNICODE STRING
 #include <unicode/unistr.h>
-
+#include <string>
 // RS
 #include <robosherlock/conversion/bson.h>
 #include <robosherlock/utils/output.h>
@@ -458,7 +458,7 @@ uima::FeatureStructure toArrayFSString(uima::CAS &cas, const mongo::BSONElement 
   }
   uima::StringArrayFS arrayFS = cas.createStringArrayFS(data.size());
   for(size_t i = 0; i < data.size(); ++i) {
-    UnicodeString str = UnicodeString::fromUTF8(data[i]);
+    icu::UnicodeString str = icu::UnicodeString::fromUTF8(data[i]);
     arrayFS.set(i, uima::UnicodeStringRef(str));
   }
   return arrayFS;
@@ -645,7 +645,7 @@ uima::FeatureStructure toListFSString(uima::CAS &cas, const mongo::BSONElement &
   }
   uima::StringListFS listFS = cas.createStringListFS();
   for(int i = data.size() - 1; i >= 0; --i) {
-    UnicodeString str = UnicodeString::fromUTF8(data[i]);
+    icu::UnicodeString str = icu::UnicodeString::fromUTF8(data[i]);
     listFS.addFirst(uima::UnicodeStringRef(str));
   }
   return listFS;
@@ -729,7 +729,7 @@ uima::FeatureStructure toFeatureStructureAux(uima::CAS &cas, const mongo::BSONOb
     return uima::FeatureStructure();
   }
 
-  const UnicodeString type = UnicodeString::fromUTF8(object.getStringField(FIELD_TYPE));
+  const icu::UnicodeString type = icu::UnicodeString::fromUTF8(object.getStringField(FIELD_TYPE));
   const uima::TypeSystem &typeSys = cas.getTypeSystem();
   const uima::Type &fsType = typeSys.getType(type);
 

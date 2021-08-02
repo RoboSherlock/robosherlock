@@ -297,7 +297,7 @@ public:
 
   virtual void set(const T& value)
   {
-    this->fs().setFSValue(this->feature_, (uima::FeatureStructure)value);
+    this->fs().setFSValue(this->feature_, (T&)value);
   }
 };
 

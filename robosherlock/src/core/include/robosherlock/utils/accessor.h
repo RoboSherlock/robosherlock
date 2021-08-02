@@ -47,7 +47,7 @@ namespace accessor
 template<typename SourceT, typename TargetT>
 inline TargetT convert(const SourceT &value)
 {
-  return (TargetT) value;
+  return (const TargetT&)value;
 }
 
 template<>
