@@ -327,17 +327,17 @@ private:
     case BIN:
       if(cannyEdgeSegmentation)
       {
-        cv::cvtColor(dilatedCanny, disp, CV_GRAY2BGR);
+        cv::cvtColor(dilatedCanny, disp, cv::COLOR_BGR2GRAY);
       }
       else
       {
 
-        cv::cvtColor(bin, disp, CV_GRAY2BGR);
+        cv::cvtColor(bin, disp, cv::COLOR_BGR2GRAY);
       }
       break;
     case GREY:
       {
-        cv::cvtColor(grey, disp, CV_GRAY2BGR);
+        cv::cvtColor(grey, disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case POSE:
@@ -348,7 +348,7 @@ private:
       }
       break;
     case SEGMENTS:
-      cv::cvtColor(grey, disp, CV_GRAY2BGR);
+      cv::cvtColor(grey, disp, cv::COLOR_BGR2GRAY);
       ImageSegmentation::drawSegments2D(disp, segments, std::vector<std::string>());
       break;
 
@@ -360,19 +360,19 @@ private:
         disp = hBinned.clone();
         //std::vector<cv::Mat> channels;
         //cv::split(hsv, channels);
-        //cv::cvtColor(channels[0], disp, CV_GRAY2BGR);
+        //cv::cvtColor(channels[0], disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case SATURATION:
       {
         std::vector<cv::Mat> channels;
         cv::split(hsv, channels);
-        cv::cvtColor(channels[1], disp, CV_GRAY2BGR);
+        cv::cvtColor(channels[1], disp, cv::COLOR_BGR2GRAY);
         break;
       }
     case MASK:
       {
-        cv::cvtColor(maskPlane, disp, CV_GRAY2BGR);
+        cv::cvtColor(maskPlane, disp, cv::COLOR_BGR2GRAY);
         break;
       }
     }

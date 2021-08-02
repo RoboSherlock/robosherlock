@@ -379,7 +379,7 @@ public:
       combine(disp);
       break;
     case MASK:
-      mask.convertTo(disp, CV_GRAY2BGR);
+      mask.convertTo(disp, cv::COLOR_BGR2GRAY);
       break;
     }
   }
