@@ -943,7 +943,7 @@ public:
   void prepend(const std::string& value)
   {
     uima::StringListFS list = _get();
-    icu::UnicodeString ustr = UnicodeString::fromUTF8(value);
+    icu::UnicodeString ustr = icu::UnicodeString::fromUTF8(value);
     list.addFirst(ustr);
     _set(list);
   }
