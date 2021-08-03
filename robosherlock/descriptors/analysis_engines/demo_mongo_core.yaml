@@ -1,0 +1,8 @@
+ae:
+  name: demo
+fixedflow:
+  - CollectionReader
+  - ImagePreprocessor
+# works with only core pkg
+CollectionReader:
+  camera_config_files: ['config_mongodb_playback.ini']
