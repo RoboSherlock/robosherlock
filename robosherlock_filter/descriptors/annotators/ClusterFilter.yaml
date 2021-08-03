@@ -1,0 +1,12 @@
+annotator:
+  description: filters clusters that are touching the depth image borders or the robot
+    itself
+  implementation: rs_ClusterFilter
+  name: ClusterFilter
+capabilities:
+  inputs:
+  - rs.scene.ObjectHypothesis
+  outputs:
+  - rs.scene.MergedHypothesis
+parameters:
+  max_allowed_overlap: 0.055

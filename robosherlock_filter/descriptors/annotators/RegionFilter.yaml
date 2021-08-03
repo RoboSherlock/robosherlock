@@ -1,0 +1,22 @@
+annotator:
+  implementation: rs_RegionFilter
+  name: RegionFilter
+capabilities:
+  inputs:
+  - rs.pcl.PointCloud
+  outputs:
+  - rs.pcl.FilteredPointCloud
+  - rs.annotation.TFLocation
+parameters:
+  border: 0.02
+  change_timeout: 120
+  defaultRegions:
+  - kitchen_sink_block_counter_top
+  - kitchen_island_counter_top
+  depth_threshold: 0.01
+  enable_change_detection: true
+  enable_frustum_culling: false 
+  global_threshold: 0.12
+  pixel_threshold: 0.15
+  semantic_map_definition: "semantic_map_iai_kitchen.yaml"
+
