@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -18,7 +18,7 @@ def create_xml_def(pathToPackage,annotatorName):
     pathToXmlLocation = pathToPackage+XMLDEF_PATH
     xmlFileName = annotatorName+".yaml"
     if os.path.isfile(pathToXmlLocation+xmlFileName):
-        print "An Annotator with the name "+annotatorName+" already exists in "+pathToXmlLocation+".!"
+        print ("An Annotator with the name "+annotatorName+" already exists in "+pathToXmlLocation+".!")
         return()
     libName = "rs_"+annotatorName
     print ("Creating "+xmlFileName+" in "+ pathToXmlLocation)
@@ -38,7 +38,7 @@ def create_cpp_source(pathToPackage,annotatorName):
     pathToCppLocation = pathToPackage+SOURCE_PATH
     cppFileName = annotatorName+".cpp"
     if os.path.isfile(pathToCppLocation+cppFileName):
-        print "An Annotator with the name "+annotatorName+" already exists in "+pathToCppLocation+". Terminating!"
+        print ("An Annotator with the name "+annotatorName+" already exists in "+pathToCppLocation+". Terminating!")
         return
     print ("Creating "+cppFileName+" in "+ pathToCppLocation)
     f = open(pathToCppLocation+cppFileName, 'w')
