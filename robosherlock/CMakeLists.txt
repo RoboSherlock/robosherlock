@@ -29,14 +29,40 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 ################################################################################
 #configure_file(${PROJECT_SOURCE_DIR}/cmake/project_config.cmake.in ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
 
+
+
+################################################################################
+## Package dependencies of the robosherlock pkgs                                 ##
+################################################################################
+
+#robosherlock_annotations
+find_package(robosherlock_annotations QUIET)
+if(NOT robosherlock_annotations_FOUND)
+  message(Warning "robosherlock_annotations not found, that means only the demo_min is working")
+else()
+  message(STATUS "Found Package robosherlock_annotations.")
+endif()
+
+#robosherlock_filter
+find_package(robosherlock_filter QUIET)
+if(NOT robosherlock_filter_FOUND)
+  message(Warning "robosherlock_filter not found, that means only the demo_min is working")
+else()
+  message(STATUS "Found Package robosherlock_filter.")
+endif()
+
+#robosherlock_detection
+find_package(robosherlock_detection QUIET)
+if(NOT robosherlock_detection_FOUND)
+  message(Warning "robosherlock_detection not found, that means only the demo_min is working")
+else()
+  message(STATUS "Found Package robosherlock_detection.")
+endif()
+
 ################################################################################
 ## Find all include directories                                               ##
 ################################################################################
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
-
-################################################################################
-## Package dependencies                                                       ##
-################################################################################
 
 #mongo client
 find_package(libmongocxx_ros QUIET)
@@ -209,6 +235,7 @@ target_link_libraries(${PROJECT_NAME}-test
     rs_core
     rs_io
     rs_utils)
+
 
 
 ################################################################################
