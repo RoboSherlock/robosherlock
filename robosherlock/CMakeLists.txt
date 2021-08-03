@@ -147,7 +147,6 @@ set(RS_LIBS
   rs_queryanswering
   rs_segmentation
   rs_utils
-  ${RS_WEB_LIB}
 )
 
 catkin_package(
