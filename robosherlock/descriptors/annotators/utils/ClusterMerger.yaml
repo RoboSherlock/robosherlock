@@ -1,0 +1,10 @@
+annotator:
+  description: extracts clusters found on planes in point clouds
+  implementation: rs_ClusterMerger
+  name: ClusterMerger
+capabilities:
+  inputs:
+  - rs.scene.ObjectHypothesis
+  outputs:
+  - rs.scene.MergedHypothesis
+parameters: {}

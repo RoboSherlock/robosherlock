@@ -1,0 +1,16 @@
+annotator:
+  implementation: rs_PointCloudColorSegmentation
+  name: PointCloudColorSegmentation
+capabilities:
+  inputs: []
+  outputs: []
+parameters:
+  distanceThreshold: 5
+  minClusterSize: 20
+  persons: true
+  pointColorThreshold: 3
+  regionColorThreshold: 3
+  useSupervoxel: true
+  useThermal: true
+  voxelGridFiltering: true
+  voxelResolution: 0.025
