@@ -43,6 +43,14 @@ else()
   message(STATUS "Found Package robosherlock_annotations.")
 endif()
 
+#robosherlock_detection
+find_package(robosherlock_detection QUIET)
+if(NOT robosherlock_detection_FOUND)
+  message(Warning "robosherlock_detection not found, that means only the demo_min is working")
+else()
+  message(STATUS "Found Package robosherlock_detection.")
+endif()
+
 #robosherlock_filter
 find_package(robosherlock_filter QUIET)
 if(NOT robosherlock_filter_FOUND)
@@ -51,13 +59,22 @@ else()
   message(STATUS "Found Package robosherlock_filter.")
 endif()
 
-#robosherlock_detection
-find_package(robosherlock_detection QUIET)
-if(NOT robosherlock_detection_FOUND)
-  message(Warning "robosherlock_detection not found, that means only the demo_min is working")
+#robosherlock_recognition
+find_package(robosherlock_recognition QUIET)
+if(NOT robosherlock_recognition_FOUND)
+  message(Warning "robosherlock_recognition not found, that means only the demo_min is working")
 else()
-  message(STATUS "Found Package robosherlock_detection.")
+  message(STATUS "Found Package robosherlock_recognition.")
 endif()
+
+#robosherlock_tracking
+find_package(robosherlock_tracking QUIET)
+if(NOT robosherlock_tracking_FOUND)
+  message(Warning "robosherlock_tracking not found, that means only the demo_min is working")
+else()
+  message(STATUS "Found Package robosherlock_tracking.")
+endif()
+
 
 ################################################################################
 ## Find all include directories                                               ##
