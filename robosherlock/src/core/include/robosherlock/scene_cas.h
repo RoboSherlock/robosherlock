@@ -257,7 +257,7 @@ private:
 
     for (int i = 0; i < input.size(); ++i)
     {
-      array.set(i, (uima::FeatureStructure)input[i]);
+        array.set(i, input[i]);
     }
     setFS(name, array);
   }
