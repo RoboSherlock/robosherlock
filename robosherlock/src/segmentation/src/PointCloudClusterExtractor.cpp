@@ -408,6 +408,7 @@ private:
     pcl::EuclideanClusterComparator<PointT, pcl::Normal, pcl::Label>::Ptr ecc(new pcl::EuclideanClusterComparator<PointT, pcl::Normal, pcl::Label>());
     ecc->setInputCloud(cloud);
     ecc->setLabels(input_labels);
+    //TODO commented that out i think we have to fix the error 
     //ecc->setExcludeLabels(ignore_labels);
     ecc->setDistanceThreshold(cluster_tolerance, true);
     ecc->setInputNormals(normals);
