@@ -1,13 +1,17 @@
 import sys, os
 import pickle
 import hashlib
-from six import ensure_binary
+if os.environ['ROS_DISTRO'] == 'noetic':
+    from six import ensure_binary
 ################################################################################
 # check_modification
 ################################################################################
 
 def isModified(files):
-  ext = hashlib.sha256("".join(sys.argv).encode('utf-8')).hexdigest()
+  if os.environ['ROS_DISTRO'] == 'noetic':
+      ext = hashlib.sha256("".join(sys.argv).encode('utf-8')).hexdigest()
+  else:
+      ext = hashlib.md5("".join(sys.argv)).hexdigest()
   (path, script) = os.path.split(sys.argv[0])
   modFilename = ".{}_{}.modified".format(os.path.splitext(script)[0], ext)
   if os.path.exists(modFilename) and os.path.isfile(modFilename):
@@ -32,8 +36,12 @@ def isModified(files):
       modified = True
     modNew[filepath] = fs.st_mtime
 
-  for key in modOld:
-    modified = modified or not key in modNew
+  if os.environ['ROS_DISTRO'] == 'noetic':
+      for key in modOld:
+          modified = modified or not key in modNew
+  else:
+      for key in modOld.iterkeys():
+          modified = modified or not key in modNew
 
   if modified:
     try:
