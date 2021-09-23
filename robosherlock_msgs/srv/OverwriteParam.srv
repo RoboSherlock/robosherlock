@@ -1,0 +1,9 @@
+string annotatorName
+string parameterName
+string[] values
+
+---
+bool result
+
+
+
