@@ -373,12 +373,12 @@ private:
                                 std::vector<pcl::PointIndices> &cluster_indices,
                                 const pcl::PointIndices::Ptr &prism_inliers)
   {
-      //std::vector<bool> ignore_labels;
+    //std::vector<bool> ignore_labels;
     pcl::PointCloud<pcl::Label>::Ptr input_labels(new pcl::PointCloud<pcl::Label>);
 
     pcl::Label label;
     boost::shared_ptr<std::set<uint32_t> > exclude_labels = boost::make_shared<std::set<uint32_t> > ();
-    exclude_labels->insert (1);
+    exclude_labels->insert(1);
     //ignore_labels.resize(2);
     //ignore_labels[0] = true;
     //ignore_labels[1] = false;
