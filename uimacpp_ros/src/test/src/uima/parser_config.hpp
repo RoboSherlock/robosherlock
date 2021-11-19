@@ -43,7 +43,7 @@ namespace uima {
   /**
    * The class ParserConfiguration is used to instruct a parser that puts
    * tagged document into a CAS on how to map document information contained
-   * in tags to annotations and features of annotations.
+   * in tags to annotation and features of annotation.
    * This configuration is mainly intended to configure HTML and XML parsers
    * but could be used for any format that uses labeled tags and tag attributes
    *
@@ -201,7 +201,7 @@ namespace uima {
      *
      * Note that the parser does not necessarily have to create an annotation
      * of the returned type. This mapping can be used to set features of
-     * existing annotations: E.g. the attribute "name" of the "meta" tag
+     * existing annotation: E.g. the attribute "name" of the "meta" tag
      * in HTML could be mapped to the feature "DocumentName" of
      * type "Document"
      *
@@ -215,7 +215,7 @@ namespace uima {
      * the function <code>getTypeForTag()</code> and create a corresponding
      * annotation if <code>getTypeForTag()</code> returns a valid type.
      *
-     * Only after annotations are created for mapped tags the attributes are
+     * Only after annotation are created for mapped tags the attributes are
      * being mapped to features.
      * This execution order guarantees that for tags that are used in
      * <code>getTypeForTag()</code> and in <code>getFeatureForAttribute()</code>
@@ -332,7 +332,7 @@ namespace uima {
      * etc. are paragraph break and specify the appropriate paragraph
      * type as the value of getTypeForBreakProperty()
      * Note that you should not map &lt;p> to a type if you do that otherwise
-     * two annotations would be created for each &lt;p> tag.
+     * two annotation would be created for each &lt;p> tag.
      * If this is done then to ensure consistency <em>only</em> the parser
      * should create paragraph and no annotator should try to do this.
      */
@@ -342,12 +342,12 @@ namespace uima {
     // data structures to store mapping information between XML and UIMA
 
     // map holding information about XML Elements which are mapped to UIMA
-    // types (new annotations are created for each occurrence of such an element)
+    // types (new annotation are created for each occurrence of such an element)
     typedef map< icu::UnicodeString, Type, less<icu::UnicodeString> >
     TyXMLNameToTypeMap;
 
     // map holding information about XML Attributes which are mapped to UIMA
-    // attributes (UIMA Attributes of existing annotations are set to the values
+    // attributes (UIMA Attributes of existing annotation are set to the values
     // of the XML Attributes)
     // Since each attribute (XML or UIMA) occurs at a certain anchor
     // (XML Element or UIMA Type) we need to store 4 pieces of information

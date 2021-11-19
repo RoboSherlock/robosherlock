@@ -116,7 +116,7 @@ namespace uima {
 
     /**
      * Do the parsing add the tag free text to the CAS and potentially
-     * translate tag information to CAS annotations.
+     * translate tag information to CAS annotation.
      *
      * Called once per document.
      *

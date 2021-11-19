@@ -151,7 +151,7 @@ namespace uima {
 			break;
 										}
 		case FS_STATE: {
-			// ignore elements with XMI prefix (such as XMI annotations)  
+			// ignore elements with XMI prefix (such as XMI annotation)
 			if (qualifiedName.indexOf("xmi") > 0) {
 				this->iv_state = IGNORING_XMI_ELEMENTS_STATE;
 				this->ignoreDepth++;

@@ -361,11 +361,11 @@ namespace uima {
       /**
        * Use this function in connection with iterators over ordered indexes
        * of a non-leaf type.
-       * The problem is as follows: two annotations over the same begin and end position
+       * The problem is as follows: two annotation over the same begin and end position
        * and the same type are considered
        * equal by the comparator. It might
        * then happen that the order of a forward and backward iteration is
-       * equal except the order of annotations over different types with
+       * equal except the order of annotation over different types with
        * the same span. To resolve this, this function only returns 0 if
        * the two compared FSs are the same. Otherwise, the address (heap cell number)
        * of the FSs is used as a comparison criterion.

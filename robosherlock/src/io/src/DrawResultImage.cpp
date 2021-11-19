@@ -148,7 +148,7 @@ public:
         }
       }
       if(detections.size() > 0) {
-        outDebug("No. of Detection annotations :" << detections.size());
+        outDebug("No. of Detection annotation :" << detections.size());
         for(int i = 0; i < detections.size(); ++i) {
           //          atom << "instance(c" << index << "," << detections[i].name() << ")";
           atoms.push_back(generateAtom("detection", index, detections[i].name() , detections[i].confidence()));

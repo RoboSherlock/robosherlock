@@ -181,7 +181,7 @@ int main(int argc, char * argv[]) /*
 //   frTcas->setSofaDataString("cette biere est bonne", "text");
     frTcas->setSofaDataString(icu::UnicodeString("cette biere est bonne"), "text");
 
-    // Create standard annotations against one and cross annotations against the other
+    // Create standard annotation against one and cross annotation against the other
     AnnotationFS engAnnot = engTcas->createAnnotation(annotationType, 0, 4);
     engTcas->getIndexRepository().addFS(engAnnot);
 
@@ -196,7 +196,7 @@ int main(int argc, char * argv[]) /*
     gerDocAnn = cas->getView("GermanDocument")->getDocumentAnnotation();
     ASSERT_OR_THROWEXCEPTION(0==gerDocAnn.getCoveredText().compare("das bier ist gut"));   
 
-    // Test that the annotations are in separate index spaces, and that Sofas are indexed
+    // Test that the annotation are in separate index spaces, and that Sofas are indexed
     FSIterator sofaIter = cas->getSofaIterator();
     int numSofas = 0;
     while (sofaIter.isValid()) {
@@ -213,7 +213,7 @@ int main(int argc, char * argv[]) /*
     ASSERT_OR_THROWEXCEPTION(gerIndex.getSize() == 2);  // 1 annots plus documentAnnotation
     ASSERT_OR_THROWEXCEPTION(frIndex.getSize() == 2);  // 1 annots plus documentAnnotation
 
-    // Test that the annotations are of the correct types
+    // Test that the annotation are of the correct types
     FSIterator engIt = engIndex.iterator();
     FSIterator gerIt = gerIndex.iterator();
     FSIterator frIt = frIndex.iterator();
@@ -237,7 +237,7 @@ int main(int argc, char * argv[]) /*
     ASSERT_OR_THROWEXCEPTION(0==crossType.getName().compare(gerAnnot.getType().getName()));
     ASSERT_OR_THROWEXCEPTION(0==gerAnnot.getCoveredText().compare("das"));
 
-    // Test that the other annotation feature of cross annotations works
+    // Test that the other annotation feature of cross annotation works
     AnnotationFS crossAnnot = (AnnotationFS) gerAnnot.getFeatureValue(otherFeat);
     ASSERT_OR_THROWEXCEPTION(0==annotationType.getName().compare(crossAnnot.getType().getName()));
     ASSERT_OR_THROWEXCEPTION(0==crossAnnot.getCoveredText().compare("this"));
@@ -245,7 +245,7 @@ int main(int argc, char * argv[]) /*
 
 
     // --------------------------------------------------------
-    // Test that annotations accessed from a reference in the base CAS work correctly
+    // Test that annotation accessed from a reference in the base CAS work correctly
     // --------------------------------------------------------
 
     ArrayFS anArray = cas->createArrayFS(3);

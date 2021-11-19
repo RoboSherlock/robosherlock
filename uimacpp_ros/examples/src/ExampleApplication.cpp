@@ -27,7 +27,7 @@ using namespace std;
 using namespace uima;
 /**
  * An example application that reads documents from files, sends them
- * though a Text Analysis Engine, and prints all discovered annotations to
+ * though a Text Analysis Engine, and prints all discovered annotation to
  * the console.
  * <p>
  * The application takes two arguments:

@@ -29,95 +29,52 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${MY_CMAKE_CXX_FLAGS}")
 ################################################################################
 #configure_file(${PROJECT_SOURCE_DIR}/cmake/project_config.cmake.in ${PROJECT_SOURCE_DIR}/cmake/${PROJECT_NAME}_config.cmake @ONLY)
 
-
-
-################################################################################
-## Package dependencies of the robosherlock pkgs                                 ##
-################################################################################
-
-#robosherlock_annotations
-find_package(robosherlock_annotations QUIET)
-if(NOT robosherlock_annotations_FOUND)
-  message(Warning "robosherlock_annotations not found, that means only the demo_min is working")
-else()
-  message(STATUS "Found Package robosherlock_annotations.")
-endif()
-
-#robosherlock_detection
-find_package(robosherlock_detection QUIET)
-if(NOT robosherlock_detection_FOUND)
-  message(Warning "robosherlock_detection not found, that means only the demo_min is working")
-else()
-  message(STATUS "Found Package robosherlock_detection.")
-endif()
-
-#robosherlock_filter
-find_package(robosherlock_filter QUIET)
-if(NOT robosherlock_filter_FOUND)
-  message(Warning "robosherlock_filter not found, that means only the demo_min is working")
-else()
-  message(STATUS "Found Package robosherlock_filter.")
-endif()
-
-#robosherlock_recognition
-find_package(robosherlock_recognition QUIET)
-if(NOT robosherlock_recognition_FOUND)
-  message(Warning "robosherlock_recognition not found, that means only the demo_min is working")
-else()
-  message(STATUS "Found Package robosherlock_recognition.")
-endif()
-
-#robosherlock_tracking
-find_package(robosherlock_tracking QUIET)
-if(NOT robosherlock_tracking_FOUND)
-  message(Warning "robosherlock_tracking not found, that means only the demo_min is working")
-else()
-  message(STATUS "Found Package robosherlock_tracking.")
-endif()
-
-
 ################################################################################
 ## Find all include directories                                               ##
 ################################################################################
 find_include_dirs(RS_INCLUDE_DIRS_LIST)
 
+################################################################################
+## Package dependencies                                                       ##
+################################################################################
+
 #mongo client
 find_package(libmongocxx_ros QUIET)
 if(NOT libmongocxx_ros_FOUND)
-  find_package(MongoClientLibrary)
-  if(NOT MONGO_CLIENT_LIBRARY_FOUND)
-    message(FATAL_ERROR "Mongo not found. Search for libmongocxx_ros or MongoClientLibrary was not successful")
-  else()
-    message(STATUS "Found System mongo.")
-    set(MONGO_SYSTEM ${MongoClientLibrary})
-    set(mongoClient_LIBRARIES ${MONGO_CLIENT_LIBRARY})
-  endif()
+find_package(MongoClientLibrary)
+if(NOT MONGO_CLIENT_LIBRARY_FOUND)
+message(FATAL_ERROR "Mongo not found. Search for libmongocxx_ros or MongoClientLibrary was not successful")
 else()
-  message(STATUS "libmongocxx_ros package found") 
-  set(OPTIONAL_libmongocxx libmongocxx_ros)
-  include_directories(${libmongocxx_ros_INCLUDE_DIRS})
-endif() 
+message(STATUS "Found System mongo.")
+set(MONGO_SYSTEM ${MongoClientLibrary})
+set(mongoClient_LIBRARIES ${MONGO_CLIENT_LIBRARY})
+endif()
+else()
+message(STATUS "libmongocxx_ros package found")
+set(OPTIONAL_libmongocxx libmongocxx_ros)
+include_directories(${libmongocxx_ros_INCLUDE_DIRS})
+endif()
 
 find_package(catkin REQUIRED
- COMPONENTS
- roscpp roslib pcl_ros pcl_conversions pcl_msgs
- tf tf_conversions rostime sensor_msgs std_msgs
- visualization_msgs cv_bridge image_transport
- image_geometry message_filters resource_retriever
- robosherlock_msgs std_srvs
- uimacpp_ros rapidjson_ros
- ${OPTIONAL_libmongocxx})
+COMPONENTS
+roscpp roslib pcl_ros pcl_conversions pcl_msgs
+tf tf_conversions rostime sensor_msgs std_msgs
+visualization_msgs cv_bridge image_transport
+image_geometry message_filters resource_retriever
+robosherlock_msgs std_srvs
+uimacpp_ros rapidjson_ros
+${OPTIONAL_libmongocxx})
 
 
 find_package(Eigen3 QUIET)
 if(NOT EIGEN3_FOUND)
-  #Fallback to deprecated cmake_modules
-  find_package(cmake_modules REQUIRED)
-  find_package(Eigen REQUIRED)
-  set(EIGEN3_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS})
-  set(EIGEN3_LIBRARIES ${Eigen_LIBRAIES})
+#Fallback to deprecated cmake_modules
+find_package(cmake_modules REQUIRED)
+find_package(Eigen REQUIRED)
+set(EIGEN3_INCLUDE_DIRS ${Eigen_INCLUDE_DIRS})
+set(EIGEN3_LIBRARIES ${Eigen_LIBRAIES})
 else()
-  set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
+set(EIGEN3_INCLUDE_DIRS ${EIGEN3_INCLUDE_DIR})
 endif()
 
 
@@ -142,9 +99,9 @@ add_compile_options(-DSWIPL_VERSION=${SWIPL_VERSION_MAJOR})
 
 find_library(LIBPRACMLN pracmln QUIET)
 if(LIBPRACMLN)
-  message(STATUS "libpracmln FOUND = " ${LIBPRACMLN})
+message(STATUS "libpracmln FOUND = " ${LIBPRACMLN})
 else()
-  message(STATUS "libpracmln NOT FOUND. Related annotators will not be build!")
+message(STATUS "libpracmln NOT FOUND. Related annotators will not be build!")
 endif()
 
 #find_package(RapidJSON REQUIRED)
@@ -156,22 +113,20 @@ find_package(rosprolog QUIET)
 option(WITH_ROS_PROLOG "build using json prolog" False)
 
 if(rosprolog_FOUND OR ${WITH_ROS_PROLOG})
-    message(STATUS "rosprolog FOUND")
-    add_definitions(-DWITH_ROS_PROLOG)
-    include_directories(${rosprolog_INCLUDE_DIRS})
+message(STATUS "rosprolog FOUND")
+add_definitions(-DWITH_ROS_PROLOG)
+include_directories(${rosprolog_INCLUDE_DIRS})
 else()
-    message(STATUS "rosprolog NOT FOUND. using knowrob as the knowledge engine will not be possible")
+message(STATUS "rosprolog NOT FOUND. using knowrob as the knowledge engine will not be possible")
 endif()
 
 find_package(yaml-cpp REQUIRED)
 if(yaml-cpp_FOUND)
-  message(STATUS "yaml-cpp FOUND")
-  include_directories(${YAML_CPP_INCLUDE_DIR})
+message(STATUS "yaml-cpp FOUND")
+include_directories(${YAML_CPP_INCLUDE_DIR})
 else()
-  message(STATUS "libyaml_cpp not found.")
+message(STATUS "libyaml_cpp not found.")
 endif()
-
-find_package(Python3 COMPONENTS Interpreter Development)
 
 ################################################################################
 ## CMake variables                                                            ##
@@ -185,34 +140,39 @@ add_definitions(${PCL_DEFINITIONS})
 
 # libraries to export
 set(RS_LIBS
-  rs_core
-  rs_io
-  rs_queryanswering
-  rs_segmentation
-  rs_utils
+rs_core
+rs_flowcontrol
+rs_io
+rs_segmentation
+#rs_symmetrysegmentation
+rs_recognition
+rs_queryanswering
+rs_utils
+${RS_CAFFE_LIB}
+${RS_WEB_LIB}
 )
 
 catkin_package(
-  INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
-  LIBRARIES ${RS_LIBS}
-  CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
-  DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
-  CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
+INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST} ${SWIPL_INCLUDE_DIRS} ${LIBAPR_INCLUDE_DIRS} ${Caffe_INCLUDE_DIRS} ${EIGEN3_INCLUDE_DIRS} ${OpenCV_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${libmongocxx_ros_INCLUDE_DIRS}
+LIBRARIES ${RS_LIBS}
+CATKIN_DEPENDS pcl_ros cv_bridge robosherlock_msgs uimacpp_ros rapidjson_ros
+DEPENDS Boost OpenCV APR PCL ICUUC ${MONGO_SYSTEM}
+CFG_EXTRAS robosherlock.cmake ${PROJECT_NAME}_config.cmake project_config.cmake.in
 )
 ################################################################################
 ## Set include directories                                                    ##
 ################################################################################
 
 include_directories(
-  ${RS_INCLUDE_DIRS_LIST}
-  ${LIBAPR_INCLUDE_DIRS}
-  ${catkin_INCLUDE_DIRS}
-  ${OpenCV_INCLUDE_DIRS}
-  ${PCL_INCLUDE_DIRS}
-  ${Boost_INCLUDE_DIRS}
-  ${EIGEN3_INCLUDE_DIRS}
-  ${VTK_INCLUDE_DIRS}
-  ${CMAKE_CURRENT_BINARY_DIR}
+${RS_INCLUDE_DIRS_LIST}
+${LIBAPR_INCLUDE_DIRS}
+${catkin_INCLUDE_DIRS}
+${OpenCV_INCLUDE_DIRS}
+${PCL_INCLUDE_DIRS}
+${Boost_INCLUDE_DIRS}
+${EIGEN3_INCLUDE_DIRS}
+${VTK_INCLUDE_DIRS}
+${CMAKE_CURRENT_BINARY_DIR}
 )
 
 ## generate classes from the typesystem xml files
@@ -222,45 +182,59 @@ generate_type_system()
 ## Sub Projects                                                               ##
 ################################################################################
 
-
+add_subdirectory(src/annotation)
 add_subdirectory(src/core)
-add_subdirectory(src/flowcontrol)
+add_subdirectory(src/detection)
+add_subdirectory(src/filter)
 add_subdirectory(src/io)
-add_subdirectory(src/queryanswering)
+add_subdirectory(src/recognition)
 add_subdirectory(src/segmentation)
+#add_subdirectory(src/segmentation/symmetrysegmentation)
 add_subdirectory(src/utils)
-
+add_subdirectory(src/tracking)
+add_subdirectory(src/flowcontrol)
+add_subdirectory(src/queryanswering)
 
 ################################################################################
 ## Testing                                                                    ##
 ################################################################################
 
 catkin_add_gtest(${PROJECT_NAME}-test
-        test/main.cpp
-        test/robosherlock/test_casconsumercontext.cpp
-        test/robosherlock/test_scene_cas.cpp
-        test/robosherlock/test_swipl_interface.cpp
-        test/robosherlock/test_queryinterface.cpp
-        test/robosherlock/test_parallelism.cpp
-        test/robosherlock/test_visualizables.cpp
-        test/annotators_utest/test_storage.cpp
-        test/annotators_utest/ImagePreprocessor_utest.cpp
-
-        )
+test/main.cpp
+test/robosherlock/test_casconsumercontext.cpp
+test/robosherlock/test_scene_cas.cpp
+test/robosherlock/test_swipl_interface.cpp
+test/robosherlock/test_queryinterface.cpp
+test/robosherlock/test_parallelism.cpp
+test/robosherlock/test_visualizables.cpp
+test/annotators_utest/symmetry_segmentation_test.cpp
+test/annotators_utest/test_storage.cpp
+test/annotators_utest/ImagePreprocessor_utest.cpp
+test/annotators_utest/PlaneAnnotator_utest.cpp
+test/annotators_utest/PointCloudClusterExtractor_utest.cpp
+test/annotators_utest/ImageSegmentationAnnotator_utest.cpp
+test/annotators_utest/Cluster3DGeometry_utest.cpp
+test/annotators_utest/ClusterColorHistogramCalculator_utest.cpp
+test/annotators_utest/PrimitiveShapesAnnotator_utest.cpp
+test/annotators_utest/RegionFilter_utest.cpp
+test/annotators_utest/FeatureAnnotator_utest.cpp
+test/annotators_utest/SacModelAnnotator_utest.cpp
+#test/annotators_utest/MLNInferencer_utest.cpp
+test/annotators_utest/PCLDescriptorExtractor_utest.cpp
+test/annotators_utest/reconf_utest.cpp)
 target_link_libraries(${PROJECT_NAME}-test
-    rs_queryanswering
-    rs_flowcontrol
-    rs_core
-    rs_io
-    rs_utils)
-
+rs_queryanswering
+rs_flowcontrol
+rs_core
+rs_io
+rs_utils)
 
 
 ################################################################################
 ## Install                                                                    ##
 ################################################################################
 #append robosherlock to the path of the includes to make install path correct
-string(REPLACE ";" "robosherlock/\;" RS_INSTALL_INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST}) 
+string(REPLACE ";" "robosherlock/\;" RS_INSTALL_INCLUDE_DIRS ${RS_INCLUDE_DIRS_LIST})
 install(DIRECTORY ${RS_INSTALL_INCLUDE_DIRS} DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION})
 
 #copy to descriptors and config folders to their appropriate locations

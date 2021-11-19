@@ -135,7 +135,7 @@ public:
     ANIndex timeIndex = tcas.getAnnotationIndex(timeT);
 
     //store end position of last meeting we identified, to prevent multiple
-    //annotations over same span
+    //annotation over same span
     int lastMeetingEnd = -1;
 
     //iterate over all combinations
@@ -160,7 +160,7 @@ public:
           while (time2Iter.isValid()) {
             AnnotationFS time2 = time2Iter.get();
 
-            //times must be different annotations
+            //times must be different annotation
             if (time1 != time2) {
               //compute the begin and end of the span
               int minBegin = min(

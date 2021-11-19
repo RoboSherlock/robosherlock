@@ -1344,7 +1344,7 @@ namespace uima {
     size_t uiBegPosFrom = getBeginPosition();
     size_t uiEndPosFrom = getEndPosition();
 
-    /* Iterate over all annotations in the ofTypeIdx */
+    /* Iterate over all annotation in the ofTypeIdx */
     AnnotationFS fsOfTypeAn;
     for (itOfType.moveToFirst(); itOfType.isValid(); itOfType.moveToNext()) {
       fsOfTypeAn = itOfType.get();

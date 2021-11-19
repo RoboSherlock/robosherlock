@@ -895,7 +895,7 @@ void testLowLevelIndex() {
       };
   size_t SENTENCE_NUM = NUMBEROF(sentencesToBeCreated);
 
-  // define the orders of all annotations
+  // define the orders of all annotation
   int annotationOrder[] = {
                           //      int annotationOrder[TOKEN_NUM + SENTENCE_NUM] = {
                             // sentence 0, token 0, token 1, token 2
@@ -957,10 +957,10 @@ void testLowLevelIndex() {
     int fsix = annotationOrder[i];
     /*
     if (fsix < TOKEN_NUM) {
-       annotations.push_back(tokens[fsix]);
+       annotation.push_back(tokens[fsix]);
     }
     else if (fsix < (TOKEN_NUM + SENTENCE_NUM) ) {
-       annotations.push_back( sentences[fsix - TOKEN_NUM] );
+       annotation.push_back( sentences[fsix - TOKEN_NUM] );
     }
     */
     if (fsix < (int)SENTENCE_NUM) {
@@ -1802,12 +1802,12 @@ public:
     beginFeat = tcas.getHeap().getTypeSystem().getFeatureByBaseName( annotType, CAS::FEATURE_BASE_NAME_BEGIN);
   }
 
-  // filter those annotations whose begin position is less than 10
+  // filter those annotation whose begin position is less than 10
   bool isFiltered(lowlevel::TyFS fs) const {
     lowlevel::FSHeap const & crFSHeap = iv_tcas.getHeap();
     lowlevel::TypeSystem const & crTypeSystem = crFSHeap.getTypeSystem();
 
-    // filter only annotations
+    // filter only annotation
     if (! crTypeSystem.subsumes( annotType, crFSHeap.getType(fs)) ) {
       return false;
     }
