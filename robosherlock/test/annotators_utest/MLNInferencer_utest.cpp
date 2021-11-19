@@ -25,7 +25,7 @@ void MLNInferencerTest()
   for ( std::vector<rs::ObjectHypothesis>::iterator it = clusters.begin(); it!=clusters.end();++it)
   {
       std::vector<rs::MLNAtoms> mln_atoms;
-      it->annotation.filter(mln_atoms);
+      it->annotations.filter(mln_atoms);
       for (int i = 0; i<mln_atoms.size();i++)
       {
 	outError(mln_atoms.size());	

@@ -957,10 +957,10 @@ void testLowLevelIndex() {
     int fsix = annotationOrder[i];
     /*
     if (fsix < TOKEN_NUM) {
-       annotation.push_back(tokens[fsix]);
+       annotationa.push_back(tokens[fsix]);
     }
     else if (fsix < (TOKEN_NUM + SENTENCE_NUM) ) {
-       annotation.push_back( sentences[fsix - TOKEN_NUM] );
+       annotationa.push_back( sentences[fsix - TOKEN_NUM] );
     }
     */
     if (fsix < (int)SENTENCE_NUM) {

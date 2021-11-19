@@ -9,7 +9,7 @@ v1.0.0
 2019-06-26 - fix frame id in header of advertised result point cloud (#176) 
 
 2019-06-25 - plane models can be stored as part of the semantic map entry (#174) 
-* check if plane equation is defined as part of the semantic map and set as plane annotation
+* check if plane equation is defined as part of the semantic map and set as plane annotations
 * in plane annotator check if plane eq is already present and instead of estimation simply find inliers 
 
 2019-06-19 - Integration of an action server and client for queryanswering (#171) 
@@ -27,7 +27,7 @@ v1.0.0
 
 2019-03-25 - ros fixes (#167) 
 * async spinner in RSProcessManager; removed spin from cam interface; new proxy class for tf::TransformListener
-* when filtering for individuals or annotations look at direct subclasses as well.
+* when filtering for individuals or annotationss look at direct subclasses as well.
 * add view name for display image
 
 2019-03-22 - add missing getQuery to QueryInterface (#165) 
@@ -67,7 +67,7 @@ v1.0.0
 - so far only equals checks work (could be extended in future);
 *Modifications to typesystem:
 - rotations are now stored as quaternions
-- SemanticColorAnnotation is for single colors; Store multiple SemColorAnnotations instead of a single one;
+- SemanticColorannotations is for single colors; Store multiple SemColorAnnotations instead of a single one;
 
 2018-12-14 - Devel cleanup (#155) 
 - merged Yaml to XML converters into a single class
