@@ -55,11 +55,11 @@ add_library(rs_recognition SHARED src/LinemodInterface.cpp)
 target_link_libraries(rs_recognition ${OpenCV_LIBRARIES})
 
 rs_add_library(rs_LinemodAnnotator src/LinemodAnnotator.cpp)
-target_link_libraries(rs_LinemodAnnotator rs_core rs_recognition)
+target_link_libraries(rs_LinemodAnnotator  rs_recognition)
 
 if(LIBPRACMLN)
   rs_add_library(rs_MLNInferencer src/MLNInferencer.cpp)
-  target_link_libraries(rs_MLNInferencer rs_core ${LIBPRACMLN})
+  target_link_libraries(rs_MLNInferencer  ${LIBPRACMLN})
 endif(LIBPRACMLN)
 
 if(Caffe_FOUND)

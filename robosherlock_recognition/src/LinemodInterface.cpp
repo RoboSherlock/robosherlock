@@ -24,8 +24,9 @@
 #include <sstream>
 #include <map>
 
-#include <robosherlock/recognition/LinemodInterface.h>
+#include <robosherlock_recognition/LinemodInterface.h>
 #include <robosherlock/utils/output.h>
+
 
 LinemodInterface::LinemodInterface() : detector(), matches()
 {
@@ -221,14 +222,14 @@ void LinemodInterface::drawResult(cv::Mat &image, const Result &result)
       const cv::linemod::Feature
       &f = tmpl.features[i];
 
-      cv::circle(image, offset + cv::Point(f.x, f.y), radius, color, 1, CV_AA);
+      cv::circle(image, offset + cv::Point(f.x, f.y), radius, color, 1, cv::LINE_AA);
     }
   }
-  cv::rectangle(image, result.roi, colors[2], 1, CV_AA);
+  cv::rectangle(image, result.roi, colors[2], 1, cv::LINE_AA);
 
   std::ostringstream oss;
   oss << result.name << " (" << result.response << " R: " << result.rotation << " S:" << result.scale << ")";
-  cv::putText(image, oss.str(), offset + cv::Point(5, -10), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, colors[2], 1, CV_AA);
+  cv::putText(image, oss.str(), offset + cv::Point(5, -10), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, colors[2], 1, cv::LINE_AA);
 }
 
 /*

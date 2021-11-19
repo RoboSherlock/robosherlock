@@ -245,6 +245,7 @@ catkin_add_gtest(${PROJECT_NAME}-test
         test/robosherlock/test_visualizables.cpp
         test/annotators_utest/test_storage.cpp
         test/annotators_utest/ImagePreprocessor_utest.cpp
+
         )
 target_link_libraries(${PROJECT_NAME}-test
     rs_queryanswering

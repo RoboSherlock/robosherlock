@@ -53,10 +53,10 @@ find_additional_files()
 
 
 rs_add_library(rs_ObjectIdentityResolution src/ObjectIdentityResolution.cpp)
-target_link_libraries(rs_ObjectIdentityResolution rs_core)
+target_link_libraries(rs_ObjectIdentityResolution )
 
 rs_add_library(rs_ClusterTracker src/ClusterTracker.cpp)
-target_link_libraries(rs_ClusterTracker rs_core )
+target_link_libraries(rs_ClusterTracker  )
 
 if(OpenCV_VERSION VERSION_GREATER "3.3")
   rs_add_library(rs_KCFTrackingAnnotator src/KCFTrackingAnnotator.cpp)

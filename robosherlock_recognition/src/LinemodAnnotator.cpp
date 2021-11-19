@@ -27,7 +27,7 @@
 #include <robosherlock/scene_cas.h>
 #include <robosherlock/utils/time.h>
 #include <robosherlock/utils/output.h>
-#include <robosherlock/recognition/LinemodInterface.h>
+#include <robosherlock_recognition/LinemodInterface.h>
 #include <robosherlock/DrawingAnnotator.h>
 
 #include <ros/ros.h>
