@@ -4,8 +4,14 @@
 #include <uima/api.hpp>
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
 #include <robosherlock/scene_cas.h>
+#include <robosherlock/io/CamInterface.h>
 
+#include <pcl/point_types.h>
+#include <ros/ros.h>
+
+#include <iostream>
 
 class ParallelismTest : public testing::Test
 {
@@ -13,12 +19,15 @@ class ParallelismTest : public testing::Test
 protected:
     std::vector<std::string> engineList = {"CollectionReader",
                                            "ImagePreprocessor",
-                                           };
+                                           "PointCloudFilter",
+                                           "NormalEstimator",
+                                           "PlaneAnnotator"};
 
     RSAggregateAnalysisEngine::AnnotatorOrderings orderings = {{"CollectionReader"},
                                                                 {"ImagePreprocessor"},
-                                                                };
-    RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}};
+                                                                {"PointCloudFilter"},
+                                                                {"NormalEstimator", "PlaneAnnotator"}};
+    RSAggregateAnalysisEngine::AnnotatorOrderingIndices orderingIndices = {{0}, {1}, {2}, {3, 4}};
 
 
     virtual void SetUp()

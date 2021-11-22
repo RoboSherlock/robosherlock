@@ -4,7 +4,6 @@ fixedflow:
   - CollectionReader
   - ImagePreprocessor
   - StorageWriter
-# works with only core pkg
 StorageWriter:
   -storagedb: 'Scenes' 
   -enableViews: ['color_image_hd','depth_image_hd','camera_info','camera_info_hd','scene']

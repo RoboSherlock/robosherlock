@@ -17,9 +17,9 @@ target_link_libraries(rs_transparentSegmentationAnnotator rs_core rs_segmentatio
 
 
 install(
-  TARGETS rs_segmentation
-          rs_ImageSegmentationAnnotator
-          rs_PointCloudClusterExtractor
-          rs_PointCloudColorSegmentation
-  LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+        TARGETS rs_segmentation
+        rs_ImageSegmentationAnnotator
+        rs_PointCloudClusterExtractor
+        rs_PointCloudColorSegmentation
+        LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
 )
