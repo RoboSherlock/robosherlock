@@ -1,4 +1,11 @@
-
+set(ROS_FOUND FALSE)
+if(DEFINED ENV{ROS_DISTRO})
+    set(FOUND_ROS_DISTRO $ENV{ROS_DISTRO})
+    set(ROS_FOUND TRUE)
+    message("ROS distro found ${FOUND_ROS_DISTRO}")
+else()
+    message("ROS distro variable not found")
+endif()
 #############################################################################
 ## Check for c++14 support                                                 ##
 #############################################################################
@@ -97,7 +104,14 @@ macro(generate_type_system)
     set(projects ${projects} ${arg}:${${arg}_NAMESPACE}:${${arg}_TYPESYSTEM_XML_PATH}:${${arg}_TYPESYSTEM_CPP_PATH})
   endforeach()
   
-  execute_process(COMMAND python3 ${script} ${projects})
+  if("${FOUND_ROS_DISTRO}" STREQUAL "melodic")
+    find_package(PythonInterp 2 REQUIRED)
+    find_package(PythonLibs 2 REQUIRED)
+    execute_process(COMMAND python2 ${script} ${projects})
+  endif()
+  if("${FOUND_ROS_DISTRO}" STREQUAL "noetic")  
+    execute_process(COMMAND python3 ${script} ${projects})
+  endif()
 endmacro(generate_type_system)
 
 #############################################################################

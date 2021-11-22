@@ -128,6 +128,14 @@ else()
     message(STATUS "libyaml_cpp not found.")
 endif()
 
+
+if("${FOUND_ROS_DISTRO}" STREQUAL "melodic")
+  ##find_package(Python2.7 COMPONENTS Interpreter Development)
+endif()
+if("${FOUND_ROS_DISTRO}" STREQUAL "noetic")
+  find_package(Python3 COMPONENTS Interpreter Development)
+endif()
+
 ################################################################################
 ## CMake variables                                                            ##
 ################################################################################
