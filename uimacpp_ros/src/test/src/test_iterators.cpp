@@ -711,7 +711,7 @@ void testCaching(util::ConsoleUI * pConsole) {
   vector<Type> subTypes;
   annType.getSubTypes(subTypes);
   size_t i;
-  // now create some annotations and check they are in the index
+  // now create some annotation and check they are in the index
   for (i=0; i<subTypes.size(); ++i) {
     AnnotationFS an1 = tcas->createAnnotation(subTypes[i], i, i+10);
     AnnotationFS an2 = tcas->createAnnotation(subTypes[i], i+1, i+11);

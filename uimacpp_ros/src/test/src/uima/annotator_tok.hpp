@@ -217,21 +217,21 @@ private:
     AnnotatorContext          & rclConfig
   );
 
-  /// member functions for adding annotations
+  /// member functions for adding annotation
   void
   addNewTokenAnnotation(
     TyDocIndex           tyBeginPos,
     TyDocIndex           tyEndPos
   );
 
-  /// member functions for adding annotations
+  /// member functions for adding annotation
   void
   addNewSentenceAnnotation(
     TyDocIndex           tyBeginPos,
     TyDocIndex           tyEndPos
   );
 
-  /// member functions for adding annotations
+  /// member functions for adding annotation
   void
   addNewParagraphAnnotation(
     TyDocIndex           tyBeginPos,

@@ -1,0 +1,12 @@
+annotator:
+  description: Annotator for opencv features.
+  implementation: rs_FeatureAnnotator
+  name: FeatureAnnotator
+capabilities:
+  inputs:
+  - rs.scene.MergedHypothesis
+  outputs:
+  - rs.annotation.Features
+parameters:
+  featureExtractor: FREAK
+  keypointDetector: BRISK

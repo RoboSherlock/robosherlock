@@ -29,7 +29,7 @@
 
    Description: The CAS object provides access to the type system, to indexes,
        iterators and filters (constraints).
-       It also lets you create new annotations, Sofas and other data
+       It also lets you create new annotation, Sofas and other data
        structures.
 
              Use uima::AnalysisEngine::newCAS() to instantiate a CAS
@@ -127,7 +127,7 @@ namespace uima {
    * maintained.
    * The CAS object provides access to the type system, to indexes, 
    *   iterators and filters (constraints). 
-   *   It also lets you create new annotations, Sofas and other data 
+   *   It also lets you create new annotation, Sofas and other data
    *  structures.
    * <br>
    * Use uima::AnalysisEngine::newCAS() to instantiate a CAS.
@@ -529,7 +529,7 @@ namespace uima {
 
     /**
      * Get the view for a Sofa (subject of analysis). The view provides access to the Sofa data and
-     * the index repository that contains metadata (annotations and other feature structures)
+     * the index repository that contains metadata (annotation and other feature structures)
      * pertaining to that Sofa.
      * 
      * @param localViewName
@@ -544,7 +544,7 @@ namespace uima {
 
     /**
      * Get the view for a Sofa (subject of analysis). The view provides access to the Sofa data and
-     * the index repository that contains metadata (annotations and other feature structures)
+     * the index repository that contains metadata (annotation and other feature structures)
      * pertaining to that Sofa.
      * 
      * @param aSofa
@@ -556,7 +556,7 @@ namespace uima {
 
     /**
      * Create a view and its underlying Sofa (subject of analysis). The view provides access to the
-     * Sofa data and the index repository that contains metadata (annotations and other feature
+     * Sofa data and the index repository that contains metadata (annotation and other feature
      * structures) pertaining to that Sofa.
      * 
      * @param localViewName
@@ -713,7 +713,7 @@ namespace uima {
      *         begin position of the Annotation the iterator points to and
      *         the movement was successful, false otherwise.
      *         Note that both arguments, i.e. the index iterator and the
-     *         FeatureStructure must be annotations.
+     *         FeatureStructure must be annotation.
      */
     bool moveToBeginPosition (ANIterator & itOfType, AnnotationFS const & crFromAnn);
 	/** @}  defgroup */
@@ -727,7 +727,7 @@ namespace uima {
      * in the FSStore.
      *
      * For annotation feature structures this is the linear text order
-     * with some special sorting for annotations that start at the same
+     * with some special sorting for annotation that start at the same
      * position in the text.
      *
      * For vocabulary feature structures a sort order based on lemma string
@@ -736,7 +736,7 @@ namespace uima {
      * Those "natural" indexes are predefined in the CAS and can be
      * accessed using the functions described here.
      *
-     * For example to access tokens using the index over token annotations
+     * For example to access tokens using the index over token annotation
      * write:
      * <pre>
      * Type tokType = cas.getTypeSystem().getType(TT::TYPE_NAME_TOKEN_ANNOTATION);
@@ -755,7 +755,7 @@ namespace uima {
      * @{ */
 
     /**
-     * get the index over all annotations.
+     * get the index over all annotation.
      * The index is ordered where an annotation a1 is considered "less-than"
      * another annotation a2 if the begin position of a1 is less then the begin
      * position of a2, or, if they are equal, a1 is shorter than a2.
@@ -764,7 +764,7 @@ namespace uima {
      */
     virtual ANIndex getAnnotationIndex();
 	  /**
-     * get the index over annotations of type <code>crType</code>.
+     * get the index over annotation of type <code>crType</code>.
      * The index is ordered where an annotation a1 is considered "less-than"
      * another annotation a2 if the begin position of a1 is less then the begin
      * position of a2, or, if they are equal, a1 is shorter than a2.
@@ -1150,7 +1150,7 @@ namespace uima {
    * @see AnnotationFS
    */
   typedef enum EnIteratorAmbiguity_ {
-    enAmbiguous,   /// Default behaviour: return all annotations, even if several are available for a postion.
+    enAmbiguous,   /// Default behaviour: return all annotation, even if several are available for a postion.
     enUnambiguous, /// return only one annotation for a given position.
     enNumberOfIteratorAmbiguityElems // must be last in enum
   } EnIteratorAmbiguity;
@@ -1225,10 +1225,10 @@ namespace uima {
      * Note that the covering relation here is reflexive:
      * getFirstCoveringAnnotation(x, t) == x if t is the type of x
      *
-     * If several annotations fulfill these conditions, the one with the
+     * If several annotation fulfill these conditions, the one with the
      * starting position nearest begin position relative to this annotation is
      * returned.
-     * Of covering annotations with the same starting positions, the one
+     * Of covering annotation with the same starting positions, the one
      * with the biggest end position relative to to this annotation is chosen.
      *
      * @return The next covering features structure as defined above
@@ -1260,7 +1260,7 @@ namespace uima {
      *                    A unambibous iterator starting out with Name1 would return:
      *                    Name1, Name2
      *                    (This assumes that the types Name and Tok are subsumed
-     *                    by crType and no other subusumed annotations cover the
+     *                    by crType and no other subusumed annotation cover the
      *                    area.)
      *
      * @throws InvalidIndexObjectException
@@ -1386,7 +1386,7 @@ namespace uima {
      *                    Name1, Name2
      *                    (This assumes that the types Name and Tok are subsumed
      *                    by the type for this index and no other subusumed
-     *                    annotations cover the area.)
+     *                    annotation cover the area.)
      * @throws InvalidIndexObjectException
      */
     ANIterator subIterator( AnnotationFS const & an, EnIteratorAmbiguity enAmbiguous = enAmbiguous ) const;
@@ -1408,7 +1408,7 @@ namespace uima {
      * A unambibous iterator starting out with Name1 would return:
      * Name1, Name2
      * (This assumes that the types Name and Tok are subsumed
-     * by the type for this index and no other subusumed annotations cover the
+     * by the type for this index and no other subusumed annotation cover the
      * area.)
      * @throws InvalidIndexObjectException
      */

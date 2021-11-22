@@ -1,6 +1,20 @@
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
+  - RegionFilter
+  - PlaneAnnotator
+  - PointCloudFilter
+  - PointCloudClusterExtractor
+  - ImageSegmentationAnnotator
+  - ClusterMerger
+  - PointCloudFilter
+  - Cluster3DGeometryAnnotator
+  - ClusterColorHistogramCalculator
+  - PrimitiveShapeAnnotator
+  - NormalEstimator
+  - FeatureAnnotator
+  - SacModelAnnotator
+  - PCLDescriptorExtractor
   - StorageWriter
 ae:
   name: u_test

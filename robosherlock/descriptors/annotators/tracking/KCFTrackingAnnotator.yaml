@@ -1,0 +1,7 @@
+annotator:
+  name: KCFTrackingAnnotator
+  implementation: rs_KCFTrackingAnnotator
+capabilities:
+  inputs:
+  - rs.cv.Mat
+  - rs.scene.MergedCluster

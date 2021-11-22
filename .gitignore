@@ -6,3 +6,4 @@ robosherlock/src/core/include/robosherlock/types/*.h
 robosherlock/descriptors/typesystem/all_types.xml
 robosherlock/.idea
 robosherlock/cmake-build-debug
+*.idea

@@ -85,7 +85,7 @@ namespace uima {
         { CAS::FEATURE_BASE_NAME_BEGIN, CAS::TYPE_NAME_ANNOTATION, CAS::TYPE_NAME_INTEGER, false, "Predefined beginPosition feature for annotations"},
         { CAS::FEATURE_BASE_NAME_END,   CAS::TYPE_NAME_ANNOTATION, CAS::TYPE_NAME_INTEGER, false, "Predefined endPosition feature for annotations"},
 
-        { CAS::FEATURE_BASE_NAME_LANGUAGE, CAS::TYPE_NAME_DOCUMENT_ANNOTATION, CAS::TYPE_NAME_STRING, false, "Predefined language feature for document annotations"},
+        { CAS::FEATURE_BASE_NAME_LANGUAGE, CAS::TYPE_NAME_DOCUMENT_ANNOTATION, CAS::TYPE_NAME_STRING, false, "Predefined language feature for document annotation"},
       };
 }
 

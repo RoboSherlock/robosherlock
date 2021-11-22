@@ -21,7 +21,7 @@
  * A simple Multiple SOFA test application
  * Creates a text SOFA with English text,
  * calls an annotator that creates a text SOFA with German text,
- * then dumps all annotations found in both SOFAs
+ * then dumps all annotation found in both SOFAs
  *
  * The application takes no arguments.
 -------------------------------------------------------------------------- */
@@ -114,7 +114,7 @@ int main(int argc, char * argv[]) {
 
 
       if (!runQuiet)
-        cout << endl << "Retrieving all annotations for the English document:" << endl;
+        cout << endl << "Retrieving all annotation for the English document:" << endl;
       CAS* engTcas = aCas->getView("EnglishDocument");
 
       ANIndex anIdx = engTcas->getAnnotationIndex(
@@ -132,7 +132,7 @@ int main(int argc, char * argv[]) {
       }
 
       if (!runQuiet)
-        cout << endl << "Retrieving all annotations for the German document:" << endl;
+        cout << endl << "Retrieving all annotation for the German document:" << endl;
       CAS* germTcas = aCas->getView("GermanDocument");
 
       Type crossType  = engTcas->getTypeSystem().getType("sofa.test.CrossAnnotation");

@@ -68,7 +68,7 @@ def process(tcas, rs):
     index.addFS(fs)
     annotCount += 1
   if debug > 0:
-    print source + ": created " + str(annotCount) + " annotations"
+    print source + ": created " + str(annotCount) + " annotation"s
   if debug > 20:
     annots = 0
     iterator = tcas.getAnnotationIndex(keywordtype).iterator()

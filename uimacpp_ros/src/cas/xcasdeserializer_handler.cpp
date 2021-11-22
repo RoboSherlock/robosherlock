@@ -81,7 +81,7 @@ namespace uima {
 //       uima::lowlevel::FSHeap::TyFSHeap const & tyTempHeap = crHeap.iv_clTemporaryHeap;
     iv_typesystem = &crHeap.getTypeSystem();
 
-    // add entry for baseCAS ... point non-compliant annotations at first Sofa
+    // add entry for baseCAS ... point non-compliant annotation at first Sofa
     sofaRefMap.push_back(1);
     // add entry for baseCAS ... _indexed=0 stays in 0
     indexMap.push_back(0);
@@ -343,7 +343,7 @@ namespace uima {
     // Special handling for Sofas
     if (sofaTypeCode == heapValue) {
       // create some maps to handle v1 format XCAS ...
-      // ... where the sofa feature of annotations was an int not a ref
+      // ... where the sofa feature of annotation was an int not a ref
 
       // determine if this is the one and only initial view Sofa
       bool isInitialView = false;
@@ -703,7 +703,7 @@ namespace uima {
       bool lenient) {
     char charFeatVal[10];
 
-    // handle v1.x format annotations, mapping int to ref values
+    // handle v1.x format annotation, mapping int to ref values
     lowlevel::TyFSType fstype = iv_casimpl.getHeap().getType(addr);
     if (0==featName.compare("sofa") &&
         iv_typesystem->subsumes(internal::gs_tyAnnotationBaseType, fstype)) {

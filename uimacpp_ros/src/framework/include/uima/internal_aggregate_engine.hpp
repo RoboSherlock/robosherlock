@@ -72,7 +72,7 @@ namespace uima {
 
     /**
      * The class <TT>AggregateEngine</TT> is the main UIMACPP engine which processes
-     * document data, evaluates annotations, and other document-related data.
+     * document data, evaluates annotation, and other document-related data.
      * All results are stored the the uima::TCAS object.
      * @nosubgrouping
      * @see uima::TCAS

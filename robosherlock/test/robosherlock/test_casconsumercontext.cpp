@@ -1,11 +1,15 @@
 #include <string>
 #include <gtest/gtest.h>
 
-
+#include <robosherlock/utils/common.h>
+#include <robosherlock/types/all_types.h>
+#include <robosherlock/scene_cas.h>
 #include <robosherlock/CASConsumerContext.h>
 
+#include <pcl/point_types.h>
+#include <ros/ros.h>
 
-
+#include <iostream>
 
 #include <robosherlock/flowcontrol/RSAggregateAnalysisEngine.h>
 #include "../main.h"

@@ -104,7 +104,7 @@ public:
     UChar translation[400];
     translation[0]=0;
 
-    // get two IR handles for adding annotations to the appropriate view
+    // get two IR handles for adding annotation to the appropriate view
     FSIndexRepository & engIndexRep = engTcas->getIndexRepository();
     FSIndexRepository & germIndexRep = germTcas->getIndexRepository();
 

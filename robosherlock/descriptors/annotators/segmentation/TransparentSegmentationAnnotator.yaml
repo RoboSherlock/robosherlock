@@ -1,0 +1,19 @@
+annotator:
+  implementation: rs_transparentSegmentationAnnotator
+  name: TransparentSegmentationAnnotator
+capabilities:
+  inputs:
+  - rs.pcl.PointCloud
+  - rs.annotation.Plane
+  - rs.pcl.FilteredPointCloud
+  outputs:
+  - rs.scene.ObjectHypothesis
+parameters:
+  close_iterations: 12
+  convex_hull_segments: true
+  gc_dilate_iterations: 12
+  gc_erode_iterations: 6
+  grabcut_iterations: 2
+  min_contour_area: 1500
+  morph_kernel_size: 3
+  open_iterations: 6

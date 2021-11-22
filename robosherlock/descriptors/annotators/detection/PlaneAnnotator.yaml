@@ -1,0 +1,15 @@
+annotator:
+  name: PlaneAnnotator
+  implementation: rs_PlaneAnnotator
+  description: 'Annotator for the plane given by a board (chessboard, circleboard) or the main plane found by pcl.'
+parameters:
+  plane_estimation_mode: PCL
+  use_non_nan_cloud: false
+  min_plane_inliers: 5000
+  max_iterations: 50
+  max_curvature: 0.1
+  distance_threshold: 0.02
+  angular_threshold_deg: 5.0
+capabilities:
+  inputs: ['rs.pcl.FilteredPointCloud']
+  outputs: ['rs.annotation.Plane']

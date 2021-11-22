@@ -117,7 +117,7 @@ double compare(ColorHistogram &a, ColorHistogram &b)
   rs::conversion::from(a.hist(), histA);
   rs::conversion::from(b.hist(), histB);
 
-  return cv::compareHist(histA, histB, CV_COMP_HELLINGER);;
+  return cv::compareHist(histA, histB, cv::HISTCMP_HELLINGER   );;
 }
 
 template<>
