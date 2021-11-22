@@ -40,7 +40,7 @@ std::vector<std::string *> testVec;
 void processReconfig()
 {
 
-  UnicodeString ustrInputText;
+  icu_66::UnicodeString ustrInputText;
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   
   std::vector<std::string> engineList = {"CollectionReader","NormalEstimator"};
@@ -54,7 +54,7 @@ void processReconfig()
   engine->overwriteParam("CollectionReader","camera_config_files",overWriteVector);
   engine->reconfigure();
 
-  UnicodeString ucs_delegate("NormalEstimator");
+  icu_66::UnicodeString ucs_delegate("NormalEstimator");
   uima::AnnotatorContext &annotContext = engine->getAnnotatorContext();
   uima::AnnotatorContext *cr_context = annotContext.getDelegate(ucs_delegate);
   if(cr_context->isParameterDefined("radiusSearch"))

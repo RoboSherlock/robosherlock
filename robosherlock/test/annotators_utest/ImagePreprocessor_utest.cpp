@@ -32,7 +32,7 @@
 int preprocessingTest()
 {
 
-  UnicodeString ustrInputText;
+  icu_66::UnicodeString ustrInputText;
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
 
@@ -95,7 +95,7 @@ int preprocessingTest()
     {
       outError("There is an error in the rs");
     }
-  //UnicodeString ucs_delegate("CollectionReader");
+  //icu_66::UnicodeString ucs_delegate("CollectionReader");
   //uima::AnnotatorContext *cr_context =  annotContext.extractDelegate(ucs_delegate);
 
  /* if(cr_context->isParameterDefined("camera_config_files"))
@@ -109,10 +109,10 @@ int preprocessingTest()
     }
   }
   
-  std::vector<UnicodeString> new_configs;
-  new_configs.push_back(UnicodeString("config_mongodb_playback_utest.ini"));
+  std::vector<icu_66::UnicodeString> new_configs;
+  new_configs.push_back(icu_66::UnicodeString("config_mongodb_playback_utest.ini"));
    
-  cr_context->assignValue(UnicodeString("camera_config_files"),new_configs); */
+  cr_context->assignValue(icu_66::UnicodeString("camera_config_files"),new_configs); */
   engine->reconfigure();
 
   engine->collectionProcessComplete();

@@ -42,7 +42,7 @@ int db_image_height = 0;
 
 int processEngine()
 {
-  UnicodeString ustrInputText;
+  icu_66::UnicodeString ustrInputText;
 
   cas->setDocumentText(uima::UnicodeStringRef(ustrInputText));
   std::cerr<<"processing CAS"<<std::endl;
