@@ -85,7 +85,7 @@ public:
     {
       ctx.extractValue("caffe_annotator_normalize", caffe_normalize);
     }
-
+    outInfo("  resourcePath: " FG_YELLOW << resourcesPath);
     outInfo("  model: " FG_YELLOW << caffe_model_file);
     outInfo("trained: " FG_YELLOW << caffe_trained_file);
     outInfo("   mean: " FG_YELLOW << caffe_mean_file);

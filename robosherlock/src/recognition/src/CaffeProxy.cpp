@@ -216,19 +216,19 @@ void CaffeProxy::Preprocess(const cv::Mat &img, std::vector<cv::Mat> *input_chan
   cv::Mat sample;
   if(img.channels() == 3 && num_channels_ == 1)
   {
-    cv::cvtColor(img, sample, CV_BGR2GRAY);
+    cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
   }
   else if(img.channels() == 4 && num_channels_ == 1)
   {
-    cv::cvtColor(img, sample, CV_BGRA2GRAY);
+    cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
   }
   else if(img.channels() == 4 && num_channels_ == 3)
   {
-    cv::cvtColor(img, sample, CV_BGRA2BGR);
+    cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
   }
   else if(img.channels() == 1 && num_channels_ == 3)
   {
-    cv::cvtColor(img, sample, CV_GRAY2BGR);
+    cv::cvtColor(img, sample, cv::COLOR_BGR2GRAY);
   }
   else
   {
