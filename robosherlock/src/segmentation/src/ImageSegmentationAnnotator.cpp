@@ -259,7 +259,7 @@ private:
       std::vector<std::vector<cv::Point>> contours;
       std::vector<cv::Vec4i> hierarchy;
 
-      cv::findContours(planeMask, contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_NONE);
+      cv::findContours(planeMask, contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_NONE);
       int biggest = 0;
       for(size_t i = 1; i < contours.size(); ++i)
       {

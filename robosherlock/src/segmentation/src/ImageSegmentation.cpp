@@ -50,7 +50,7 @@ void ImageSegmentation::segment(const cv::Mat &bin, std::vector<Segment> &segmen
 
   segments.clear();
 
-  cv::findContours(bin.clone(), contours, hierarchy, cv::RETR_EXTERNAL, cv::CHAIN_APPROX_SIMPLE);
+  cv::findContours(bin.clone(), contours, hierarchy, cv::RETR_TREE, cv::CHAIN_APPROX_SIMPLE);
 
   for(int32_t i = 0; i < contours.size(); ++i)
   {
