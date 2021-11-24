@@ -8,7 +8,7 @@ parameters:
   cluster_tolerance: 0.08
   cluster_min_size: 500
   cluster_max_size: 30000
-  mode: OEC_prism
+  mode: OEC
 capabilities:
   inputs: ['rs.pcl.PointCloud','rs.annotation.Plane','rs.pcl.FilteredPointCloud']
   outputs: ['rs.scene.ObjectHypothesis']
