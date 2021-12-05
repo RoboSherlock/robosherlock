@@ -51,7 +51,7 @@ public:
 
   ~SWIPLInterface()
   {
-    for(void *a : engine_pool_)
+    for(auto *a : engine_pool_)
     {
       PL_destroy_engine(a);
     }
