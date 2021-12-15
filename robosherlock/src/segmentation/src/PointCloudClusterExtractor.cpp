@@ -377,8 +377,6 @@ private:
     pcl::PointCloud<pcl::Label>::Ptr input_labels(new pcl::PointCloud<pcl::Label>);
 
     pcl::Label label;
-    boost::shared_ptr<std::set<uint32_t>> exclude_labels = boost::make_shared<std::set<uint32_t>>();
-    exclude_labels->insert(1);
 
     input_labels->height = cloud->height;
     input_labels->width = cloud->width;
