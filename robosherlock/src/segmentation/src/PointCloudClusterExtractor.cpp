@@ -411,9 +411,9 @@ private:
         ignore_labels[1] = false;
         ecc->setExcludeLabels(ignore_labels);
     #else
-        boost::shared_ptr<std::set<uint32_t>> exclude_labels=boost::make_shared<std::set<uint32_t>>();
-        exclude_labels->insert(1);
-        ecc->setExcludeLabels(exclude_labels);
+        boost::shared_ptr<std::set<uint32_t>> ignore_labels=boost::make_shared<std::set<uint32_t>>();
+        ignore_labels->insert(1);
+        ecc->setExcludeLabels(ignore_labels);
     #endif
     ecc->setDistanceThreshold(cluster_tolerance, true);
     ecc->setInputNormals(normals);
