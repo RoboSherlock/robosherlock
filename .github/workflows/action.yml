@@ -69,4 +69,5 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           roscore &
-          catkin_make run_tests
+          locate rs_CollectionReader
+          #catkin_make run_tests
