@@ -1,5 +1,5 @@
 fixedflow:
-  #- CollectionReader
+  - CollectionReader
   - ImagePreprocessor
   - RegionFilter
   - PlaneAnnotator
