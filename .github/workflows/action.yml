@@ -71,5 +71,6 @@ jobs:
           roscore &
           catkin_make
           source devel/setup.bash
-          rosrun robosherlock robosherlock-test
+          ls
+          #rosrun robosherlock robosherlock-test
           #catkin_make run_tests
