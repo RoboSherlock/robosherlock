@@ -69,5 +69,6 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           catkin_make
+          mongo
           roscore &
-          catkin_make run_tests
+          #catkin_make run_tests
