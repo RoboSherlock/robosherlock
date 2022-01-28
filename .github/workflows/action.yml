@@ -57,11 +57,7 @@ jobs:
             # Prepare rosdep to install dependencies.
             sudo rosdep init
             rosdep update --include-eol-distros  # Support EOL distros.
-      - name: Start MongoDB
-        uses: supercharge/mongodb-github-action@1.7.0
-        with:
-          mongodb-version: ${{ matrix.mongodb-version }}
-          mongodb-port: 27017
+
       
       - name: script
         run: |
@@ -74,6 +70,6 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           catkin_make
-          mongo
+          sudo service mongodb start
           roscore &
           catkin_make run_tests
