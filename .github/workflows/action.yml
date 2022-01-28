@@ -69,8 +69,4 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           roscore &
-          catkin_make
-          source devel/setup.bash
-          ls
-          #rosrun robosherlock robosherlock-test
-          #catkin_make run_tests
+          catkin_make run_tests
