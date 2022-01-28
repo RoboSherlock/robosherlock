@@ -69,6 +69,6 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           roscore &
-          sudo apt-get install mlocate
-          locate rs_CollectionReader
+          cd src/robosherlock/robosherlock
+          ls
           #catkin_make run_tests
