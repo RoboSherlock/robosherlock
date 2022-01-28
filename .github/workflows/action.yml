@@ -69,5 +69,6 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           roscore &
+          sudo apt-get install mlocate
           locate rs_CollectionReader
           #catkin_make run_tests
