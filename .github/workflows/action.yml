@@ -14,6 +14,9 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        mongodb-version: ['4.0', '4.2', '4.4']
     env:
       ROS_CI_DESKTOP: "`lsb_release -cs`"  # e.g. [trusty|xenial|...]
       CI_SOURCE_PATH: $(pwd)
@@ -58,7 +61,11 @@ jobs:
             sudo rosdep init
             rosdep update --include-eol-distros  # Support EOL distros.
 
-      
+      - name: Start MongoDB
+        uses: supercharge/mongodb-github-action@1.6.0
+        with:
+          mongodb-version: ${{ matrix.mongodb-version }}
+          
       - name: script
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
@@ -70,6 +77,6 @@ jobs:
           ln -s ~/work #$CI_SOURCE_PATH
           cd ..
           catkin_make
-          sudo service mongodb start
+          #sudo service mongodb start
           roscore &
           catkin_make run_tests
