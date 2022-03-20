@@ -10,7 +10,9 @@
   <arg name="save_path"        default=""/>
   <arg name="withIDRes"        default="false"/>
   <arg name="wait"             default="false"/>
-
+  <arg name="ts"               default="0"/>
+  <arg name="time_stamp"    default="$(arg ts)"/>
+  
   <arg name="parallel"         default="false"/>
   <arg name="pervasive"        default="false"/>
   <arg name="enableQnA"        default="false"/>
@@ -30,6 +32,7 @@
         launch-prefix="$(arg launch-prefix)">
     <param name="ae"               type="str"  value="$(arg ae)"/>
     <param name="vis"              type="bool" value="$(arg vis)"/>
+    <param name="ts"               type="double" value="$(arg ts)"/>
     <param name="parallel"         type="bool" value="$(arg parallel)"/>
     <param name="save_path"        type="str"  value="$(arg save_path)"/>
     <param name="withIDRes"        type="bool" value="$(arg withIDRes)"/>
