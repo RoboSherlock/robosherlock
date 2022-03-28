@@ -1,5 +1,5 @@
 ae:
-  name: demo
+  name: demo_addons
 fixedflow:
   - CollectionReader
   - ImagePreprocessor
