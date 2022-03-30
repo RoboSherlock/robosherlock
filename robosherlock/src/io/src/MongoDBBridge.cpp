@@ -35,7 +35,7 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
   storage = rs::Storage(host, db);
 
   actualFrame = 0;
-
+  index=0;
   storage.getScenes(frames);
 
   if(continual) {
@@ -81,79 +81,114 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
 
 bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 {
-  MEASURE_TIME;
-  const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
+	MEASURE_TIME;
+  ros::NodeHandle n_("~");
+  
+  double_t time_stamp; // Variable which store the value of queued time stamp 
+  if(n_.getParam("ts",time_stamp) ){
+  	n_.deleteParam("ts"); // deleting the "ts" variable.
+  	auto it= std::find(frames.begin(), frames.end(), time_stamp);
+  	if(it== frames.end()){
+  		if(!continual && !loop) {
+				_newData = false;
+			}
+			outWarn("Required Timestamp is not in the frame.");
+  		return false;
+		}
+		else{
+			index= it- frames.begin();  // getting index value where time_stamp present
+			outInfo("index is="<<index);
+			timestamp = frames[index];
+		  if(!storage.loadScene(*tcas.getBaseCas(), timestamp)) {
+				if(timestamp == 0) {
+				  outInfo("loading frame failed. shuting down.");
+				  ros::shutdown();
+				  return false;
+				}
+				else {
+				  outInfo("No frame with that timestamp");
+				  return false;
+				}
+	  	
+		}
+		}
+		if(!continual && !loop) {
+				_newData = false;
+			}
+		}
+  else{
+  	const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
+		if(actualFrame >= frames.size()) {
+		  if(continual) {
+		    storage.getScenes(frames);
+		    if(actualFrame >= frames.size()) {
+		      return false;
+		    }
+		  }
+		  else if(loop) {
+		    actualFrame = 0;
+		  }
+		  else {
+		    outInfo("last frame. shuting down.");
+		    cv::waitKey();
+		    ros::shutdown();
+		    return false;
+		  }
+		}
+		if(isNextFrame) {
+		  outInfo("default behaviour");
+		  timestamp = frames[actualFrame];
+		  outInfo("setting data from frame: " << actualFrame << " (" << timestamp << ")");
+		}
+		else if(timestamp < frames.size()) {
+		  timestamp = frames[timestamp];
+		  outInfo("setting data from frame with timestamp: (" << timestamp << ")");
+		}
+		else if(timestamp >= frames.size()) {
+		  if(std::find(frames.begin(), frames.end(), timestamp) == frames.end()) {
+		    outWarn("timestamp asked for is not in database");
+		    return false;
+		  }
+		}
 
-  if(actualFrame >= frames.size()) {
-    if(continual) {
-      storage.getScenes(frames);
-      if(actualFrame >= frames.size()) {
-        return false;
-      }
-    }
-    else if(loop) {
-      actualFrame = 0;
-    }
-    else {
-      outInfo("last frame. shuting down.");
-      cv::waitKey();
-      ros::shutdown();
-      return false;
-    }
-  }
-  if(isNextFrame) {
-    outInfo("default behaviour");
-    timestamp = frames[actualFrame];
-    outInfo("setting data from frame: " << actualFrame << " (" << timestamp << ")");
-  }
-  else if(timestamp < frames.size()) {
-    timestamp = frames[timestamp];
-    outInfo("setting data from frame with timestamp: (" << timestamp << ")");
-  }
-  else if(timestamp >= frames.size()) {
-    if(std::find(frames.begin(), frames.end(), timestamp) == frames.end()) {
-      outWarn("timestamp asked for is not in database");
-      return false;
-    }
-  }
-
-  if(!storage.loadScene(*tcas.getBaseCas(), timestamp)) {
-    if(timestamp == 0) {
-      outInfo("loading frame failed. shuting down.");
-      ros::shutdown();
-      return false;
-    }
-    else {
-      outInfo("No frame with that timestamp");
-      return false;
-    }
-  }
+		if(!storage.loadScene(*tcas.getBaseCas(), timestamp)) {
+		  if(timestamp == 0) {
+		    outInfo("loading frame failed. shuting down.");
+		    ros::shutdown();
+		    return false;
+		  }
+		  else {
+		    outInfo("No frame with that timestamp");
+		    return false;
+		  }
+		}
 
 
-  if(playbackSpeed > 0.0 && isNextFrame) {
-    if(lastTimestamp > timestamp) {
-      lastTimestamp = timestamp;
-      simTimeLast = frames[actualFrame];
-      lastRun = ros::Time::now().toNSec();
-    }
+		if(playbackSpeed > 0.0 && isNextFrame) {
+		  if(lastTimestamp > timestamp) {
+		    lastTimestamp = timestamp;
+		    simTimeLast = frames[actualFrame];
+		    lastRun = ros::Time::now().toNSec();
+		  }
 
-    uint64_t now = ros::Time::now().toNSec();
-    uint64_t simTime = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
-    if(simTime <= timestamp) {
-      uint64_t sleepTime = (timestamp - simTime) / playbackSpeed;
-      outDebug("waiting for " << sleepTime / 1000000.0 << " ms.");
-      std::this_thread::sleep_for(std::chrono::nanoseconds(sleepTime));
-    }
+		  uint64_t now = ros::Time::now().toNSec();
+		  uint64_t simTime = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
+		  if(simTime <= timestamp) {
+		    uint64_t sleepTime = (timestamp - simTime) / playbackSpeed;
+		    outDebug("waiting for " << sleepTime / 1000000.0 << " ms.");
+		    std::this_thread::sleep_for(std::chrono::nanoseconds(sleepTime));
+		  }
 
-    now = ros::Time::now().toNSec();
-    simTimeLast = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
-    lastRun = now;
-  }
+		  now = ros::Time::now().toNSec();
+		  simTimeLast = (uint64_t)((now - lastRun) * playbackSpeed) + simTimeLast;
+		  lastRun = now;
+		}
 
 
-  ++actualFrame;
-  if(!continual && !loop && actualFrame == frames.size()) {
-    _newData = false;
-  }
+		++actualFrame;
+		if(!continual && !loop && actualFrame == frames.size()) {
+		  _newData = false;
+		}
+  }  
   return true;
 }
