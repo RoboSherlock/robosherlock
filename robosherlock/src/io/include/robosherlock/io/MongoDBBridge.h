@@ -33,6 +33,7 @@ private:
 
   std::vector<uint64_t> frames;
   size_t actualFrame;
+  size_t index;
   bool continual;
   bool loop;
   double playbackSpeed;
