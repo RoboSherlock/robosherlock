@@ -35,13 +35,7 @@ MongoDBBridge::MongoDBBridge(const boost::property_tree::ptree &pt) : CamInterfa
   storage = rs::Storage(host, db);
 
   actualFrame = 0;
-<<<<<<< HEAD
   index=0;
-=======
-  
-  index=-1;
-  
->>>>>>> b6252250697031bbf4dcac515e465c45ebbbc78d
   storage.getScenes(frames);
 
   if(continual) {
@@ -87,7 +81,6 @@ void MongoDBBridge::readConfig(const boost::property_tree::ptree &pt)
 
 bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 {
-<<<<<<< HEAD
 	MEASURE_TIME;
   ros::NodeHandle n_("~");
   
@@ -125,44 +118,6 @@ bool MongoDBBridge::setData(uima::CAS &tcas, uint64_t timestamp)
 		}
   else{
   	const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
-=======
-  ros::NodeHandle n_("~");
-  double_t time_stamp; // Variable which store the value of queued time stamp 
-  
-  n_.getParam("ts",time_stamp); // getting the value of "ts" from the command arg and store in time_stamp.
-  n_.deleteParam("ts"); // deleting the "ts" variable.
-  
-  MEASURE_TIME;
-  const bool isNextFrame = timestamp == std::numeric_limits<uint64_t>::max();
-  
-  auto it= std::find(frames.begin(), frames.end(), time_stamp); // finding if the queued timestamp is in the frames vector
-  
-  if(it== frames.end()){
-      outWarn("Timestamp Queried is not in the frame or Timestamp Query not enabled");
-  }
-  else{
-      index= it- frames.begin(); // getting index value where time_stamp present
-  }
-  if(index!=-1){
-    timestamp = frames[index];
-    if(!storage.loadScene(*tcas.getBaseCas(), timestamp)) {
-		  if(timestamp == 0) {
-		    outInfo("loading frame failed. shuting down.");
-		    ros::shutdown();
-		    return false;
-		  }
-		  else {
-		    outInfo("No frame with that timestamp");
-		    return false;
-		  }
-		}
-		if(!continual && !loop) {
-		  _newData = false;
-		}
-    
-  }
-  else{
->>>>>>> b6252250697031bbf4dcac515e465c45ebbbc78d
 		if(actualFrame >= frames.size()) {
 		  if(continual) {
 		    storage.getScenes(frames);
