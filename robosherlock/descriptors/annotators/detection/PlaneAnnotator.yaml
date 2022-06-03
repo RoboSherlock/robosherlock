@@ -10,6 +10,7 @@ parameters:
   max_curvature: 0.1
   distance_threshold: 0.02
   angular_threshold_deg: 5.0
+  plane_direction: "all"
 capabilities:
   inputs: ['rs.pcl.FilteredPointCloud']
   outputs: ['rs.annotation.Plane']
