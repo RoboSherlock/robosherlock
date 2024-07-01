@@ -12,5 +12,5 @@ RoboSherlock
 ------------
 
 Core implementation for the RoboSherlock robotic perception framework based on the principles of unstructured information management.
-For installation instructions and getting started see the project web page:  http://www.robosherlock.org
+For installation instructions and getting started see the project web page:  [http://www.robosherlock.org](https://pr2-looking-at-things.com/)
 
