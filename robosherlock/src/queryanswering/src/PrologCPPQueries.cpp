@@ -5,6 +5,8 @@
 
 #include "robosherlock_msgs/RSQueryService.h"
 #include "robosherlock_msgs/ExecutePipeline.h"
+#include "robosherlock_msgs/ReconfigureAnnotator.h"
+#include "robosherlock_msgs/OverwriteParam.h"
 
 #include <ros/package.h>
 
@@ -199,4 +201,57 @@ PREDICATE(write_list, 1)
     std::cout << (char *)e << std::endl;
   }
   return TRUE;
+}
+
+
+PREDICATE(cpp_reconfigure_annotator, 2)
+{
+  std::string annotatorName, setupName;
+  annotatorName = (std::string) PL_A1;
+  setupName = (std::string) PL_A2;
+
+  ros::NodeHandle n;
+  // TODO: Change to nodename String name
+  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::ReconfigureAnnotator>("RoboSherlock/reconfigure_annotator");
+  robosherlock_msgs::ReconfigureAnnotator srv;
+
+  srv.request.annotatorName = annotatorName;
+  srv.request.setupName = setupName;
+
+  if(client.call(srv)) {
+    std::cout << "Calling reconfigure_annotator was successful" << std::endl;
+    return TRUE;
+  }
+  else {
+    std::cerr << "Service call reconfigure_annotator failed!" << std::endl;
+    return FALSE;
+  }
+}
+
+
+PREDICATE(cpp_overwrite_param, 3)
+{
+  std::string annotatorName, paramName;
+  std::vector<std::string> values;
+  annotatorName = (std::string) PL_A1;
+  paramName = (std::string) PL_A2;
+  values = (std::vector<std::string>) PL_A3;
+
+  ros::NodeHandle n;
+  // TODO: Change to nodename String name
+  ros::ServiceClient client = n.serviceClient<robosherlock_msgs::OverwriteParam>("RoboSherlock/overwrite_param");
+  robosherlock_msgs::OverwriteParam srv;
+
+  srv.request.annotatorName = annotatorName;
+  srv.request.parameterName = paramName;
+  srv.request.values = values;
+
+  if(client.call(srv)) {
+    std::cout << "Calling overwrite_param was successful" << std::endl;
+    return TRUE;
+  }
+  else {
+    std::cerr << "Service call overwrite_param failed!" << std::endl;
+    return FALSE;
+  }
 }

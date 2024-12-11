@@ -366,6 +366,21 @@ void RSAggregateAnalysisEngine::setPipelineOrdering(std::vector<std::string> ann
   }
 }
 
+bool RSAggregateAnalysisEngine::reconfigureAnnotator(int annotatorIdx) {
+  if(annotatorIdx >= 0 && annotatorIdx < iv_annotatorMgr.iv_vecEntries.size()) {
+    return iv_annotatorMgr.iv_vecEntries[annotatorIdx].iv_pEngine->reconfigure() == UIMA_ERR_NONE;
+  }
+  else {
+    outError("Annotator index is invalid.");
+  }
+
+  return false;
+}
+
+bool RSAggregateAnalysisEngine::reconfigureAnnotator(std::string &annotatorName) {
+  return reconfigureAnnotator(getIndexOfAnnotator(std::move(annotatorName)));
+}
+
 namespace rs
 {
 std::string convertAnnotatorYamlToXML(std::string annotator_name,
@@ -394,6 +409,9 @@ std::string convertAnnotatorYamlToXML(std::string annotator_name,
         if (delegate_capabilities[annotator_name].iTypeValueRestrictions.empty())
           delegate_capabilities[annotator_name].iTypeValueRestrictions =
               converter.getAnnotatorCapabilities().iTypeValueRestrictions;
+
+        delegate_capabilities[annotator_name].defaultSetup = converter.getAnnotatorCapabilities().defaultSetup;
+        delegate_capabilities[annotator_name].reconfigurationSetups = converter.getAnnotatorCapabilities().reconfigurationSetups;
       }
     }
     catch (YAML::ParserException e)

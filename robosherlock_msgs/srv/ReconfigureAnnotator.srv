@@ -1,0 +1,4 @@
+string annotatorName
+string setupName
+---
+bool result

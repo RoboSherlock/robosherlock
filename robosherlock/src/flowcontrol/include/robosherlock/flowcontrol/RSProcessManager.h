@@ -12,6 +12,8 @@
 #include <robosherlock_msgs/RSObjectDescriptions.h>
 #include <robosherlock_msgs/RSVisControl.h>
 #include <robosherlock_msgs/ExecutePipeline.h>
+#include <robosherlock_msgs/ReconfigureAnnotator.h>
+#include <robosherlock_msgs/OverwriteParam.h>
 
 #include <mongo/client/dbclient.h>
 
@@ -58,7 +60,7 @@ public:
 
   ros::AsyncSpinner spinner_;
 
-  ros::ServiceServer setContextService_, queryService_, setFlowService_;
+  ros::ServiceServer setContextService_, queryService_, setFlowService_, reconfigureService_, overwriteParamService_;
   ros::Publisher result_pub_;
   ros::Publisher pc_pub_;
   image_transport::Publisher image_pub_;
@@ -144,6 +146,12 @@ public:
    * @return true/false
    */
   bool resetAE(std::string);
+
+  bool handleReconfigureAnnotator(robosherlock_msgs::ReconfigureAnnotator::Request &req,
+          robosherlock_msgs::ReconfigureAnnotator::Response &res);
+
+  bool handleOverwriteParam(robosherlock_msgs::OverwriteParam::Request &req,
+          robosherlock_msgs::OverwriteParam::Response &res);
 
   /**
    * @brief setUseIdentityResolution run identiy resolution for tracking objects over multiple scenes

@@ -42,7 +42,14 @@
   retract_query_lang/0,
   assert_test_case/0,
   retract_all_annotators/0,
-  retract_query_assertions/0
+  retract_query_assertions/0,
+  set_annotator_setup_names/2,
+  assert_reconfiguration_pipeline/0,
+  load_sphere_setup/0,
+  find_sphere_setup/2,
+  test_overwrite_param/0,
+  load_knn_one/0,
+  load_knn_two/0
 ]).
 
 :- rdf_meta
@@ -56,8 +63,21 @@
    set_annotator_output_type_domain(r,t,r),
    set_annotator_input_type_constraint(r,t,r),
    compute_annotator_output_type_domain(r,r,t),
-   compute_annotator_input_type_restriction(r,r,t).
+   compute_annotator_input_type_restriction(r,r,t),
+   % reconfiguration:
+   set_annotator_setup_names(r,t),
+   set_annotator_setup_output_type_domain(r,t,t,t),
+   set_annotator_setup_input_type_constraint(r,t,t,t),
+   set_annotator_setup_parameter(r,t,t,t),
+   load_annotator_setup(r,t),
+   load_annotator_setup_input(r,t),
+   load_annotator_setup_output(r,t),
+   load_annotator_setup_parameter(r,t,t,t),
+   find_annotator_setup_for_output_type_domain(r,t,t,t),
+   find_annotator_setup_for_input_type_constraint(r,t,t,t).
 
+
+:- use_foreign_library('librs_prologQueries.so').
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -68,12 +88,12 @@
 
 compute_annotators(A) :- 
 	owl_subclass_of(A,rs_components:'RoboSherlockComponent'),
-        not(A = 'http://knowrob.org/kb/rs_components.owl#RoboSherlockComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#AnnotationComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#DetectionComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#IoComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#PeopleComponent'), 
-        not(A = 'http://knowrob.org/kb/rs_components.owl#SegmentationComponent').
+        not(A = rs_components:'RoboSherlockComponent'), 
+        not(A = rs_components:'AnnotationComponent'), 
+        not(A = rs_components:'DetectionComponent'), 
+        not(A = rs_components:'IoComponent'), 
+        not(A = rs_components:'PeopleComponent'), 
+        not(A = rs_components:'SegmentationComponent').
                 
         
 % cache the annotators
@@ -369,7 +389,7 @@ assert_test_pipeline:-
     kb_create(rs_components:'CaffeAnnotator',_),
     kb_create(rs_components:'KnnAnnotator',KNNI),set_annotator_output_type_domain(KNNI,[kitchen:'WhiteCeramicIkeaBowl', kitchen:'KoellnMuesliKnusperHonigNuss'], rs_components:'RsAnnotationClassification'),
     kb_create(rs_components:'HandleAnnotator',HI),set_annotator_output_type_domain(HI,[rs_components:'Handle'], rs_components:'RsAnnotationDetection').
-   
+
 assert_query:-
     assert(requestedValueForKey(shape,rs_components:'Box')).
  
@@ -422,3 +442,92 @@ retract_all_annotators:-
 retract_query_assertions:-
     retract(requestedValueForKey(_,_)).
     
+%% Reconfiguration Rules
+
+assert_reconfiguration_pipeline:-
+    assert_test_pipeline,
+    owl_individual_of(I, rs_components:'SacModelAnnotator'),
+    set_annotator_setup_names(I, ['SetupCylinder', 'SetupSphere']),
+    set_annotator_setup_output_type_domain(I, 'SetupCylinder', rs_components:'RsAnnotationShape', [rs_components:'Cylinder']),
+    set_annotator_setup_output_type_domain(I, 'SetupSphere', rs_components:'RsAnnotationShape', [rs_components:'Sphere']),
+    set_annotator_setup_input_type_constraint(I, 'SetupSphere', rs_components:'perceptualInputRequired', [rs_components:'RsSceneMergedhypothesis'] ).
+
+
+set_annotator_setup_names(AnnotatorI, Setups) :-
+    foreach(member(Setup, Setups),
+        assert(annotator_setup_names(AnnotatorI, Setup))).
+
+set_annotator_setup_output_type_domain(AnnotatorI, Setup, Type, Domain) :-
+    annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
+    assert(annotator_setup_output_type((AnnotatorI, Setup), Type)),
+    assert(annotator_setup_output_domain((AnnotatorI, Setup), Domain)).
+
+set_annotator_setup_input_type_constraint(AnnotatorI, Setup, Type, Constraint) :-
+    annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
+    assert(annotator_setup_input_type((AnnotatorI, Setup), Type)),
+    assert(annotator_setup_input_constraint((AnnotatorI, Setup), Constraint)).
+
+set_annotator_setup_parameter(AnnotatorI, Setup, Parameter, Value) :-
+    annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
+    assert(annotator_setup_parameter((AnnotatorI, Setup), [Parameter, Value])).
+
+
+load_annotator_setup(AnnotatorI, Setup) :-
+    annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
+    %% Update output and input
+    load_annotator_setup_input(AnnotatorI, Setup),
+    load_annotator_setup_output(AnnotatorI, Setup),
+    write('Loading new setup: '), nl, write(AnnotatorI), nl, write(Setup),
+    cpp_reconfigure_annotator(AnnotatorI, Setup).
+
+load_annotator_setup_input(AnnotatorI, Setup) :-
+    annotator_setup_input_type((AnnotatorI, Setup), Type),
+    annotator_setup_input_constraint((AnnotatorI, Setup), Constraint),
+    write(Type),nl,write(Constraint),nl,
+    %% TODO: retract old input
+    set_annotator_input_type_constraint(AnnotatorI, Constraint, Type).
+
+load_annotator_setup_output(AnnotatorI, Setup) :-
+    annotator_setup_output_type((AnnotatorI, Setup), Type),
+    annotator_setup_output_domain((AnnotatorI, Setup), Domain),
+    write('Annotator: '),writeln(AnnotatorI),
+    write('Domain: '),writeln(Domain),
+    write('Type: '),writeln(Type),
+    %% TODO: retract old output
+    set_annotator_output_type_domain(AnnotatorI, Domain, Type).
+
+load_annotator_setup_parameter(AnnotatorI, Setup, Parameter, Value) :-
+    annotator_setup_names(AnnotatorI, Setup), %% check if setup exists
+    annotator_setup_parameter((AnnotatorI, Setup), Parameter, Value),
+    write('Overwriting param now'), nl, write(AnnotatorI), nl,
+    cpp_overwrite_param(AnnotatorI, Parameter, 2, Value).
+
+
+find_annotator_setup_for_output_type_domain(AnnotatorI, Setup, Type, Domain) :-
+    annotator_setup_output_type((AnnotatorI, Setup), Type),
+    annotator_setup_output_domain((AnnotatorI, Setup), Domain).
+
+find_annotator_setup_for_input_type_constraint(AnnotatorI, Setup, Type, Constraint) :-
+    annotator_setup_input_type((AnnotatorI, Setup), Type),
+    annotator_setup_input_constraint((AnnotatorI, Setup), Constraint).
+
+
+%% TEST TODO: REMOVE
+find_sphere_setup(A, S) :-
+    find_annotator_setup_for_output_type_domain(A, S, rs_components:'RsAnnotationShape', [rs_components:'Sphere']).
+
+load_sphere_setup:-
+    cpp_reconfigure_annotator('SacModelAnnotator', 'setup_spheres').
+
+load_cylinder_setup:-
+    owl_individual_of(I,rs_components:'SacModelAnnotator'),
+    load_annotator_setup(I, 'SetupCylinder').
+
+test_overwrite_param:-
+    cpp_overwrite_param('SacModelAnnotator', 'sacModel', ['CYLINDER']).
+
+load_knn_one:-
+    cpp_reconfigure_annotator('KnnAnnotator', 'setup_one').
+
+load_knn_two:-
+    cpp_reconfigure_annotator('KnnAnnotator', 'setup_two').

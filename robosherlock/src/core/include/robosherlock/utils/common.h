@@ -37,11 +37,32 @@
 
 #include <tf/tf.h>
 
+
 namespace rs
 {
 
 #define AE_SEARCHPATH "/descriptors/analysis_engines/"
 #define ANNOT_SEARCHPATH "/descriptors/annotators/"
+
+struct AnnotatorSetup
+{
+  /**
+   * @brief Holds the type name for each parameter:
+   */
+  std::map<std::string, std::string> paramTypes;
+  /**
+   * @brief Holds the value for each parameter in this setup:
+   */
+  std::map<std::string, std::vector<std::string>> paramValues;
+  /**
+   * @brief rOutputTypeValueDomains mapping of output domain values after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rOutputTypeValueDomains;
+  /**
+   * @brief rInputTypeValueRestrictions mapping of input restrictions after reconfiguring
+   */
+  std::map<std::string, std::vector<std::string>> rInputTypeValueRestrictions;
+};
 
 struct AnnotatorCapabilities
 {
@@ -57,8 +78,15 @@ struct AnnotatorCapabilities
    * @brief iTypeValueRestrictions mapping between input type and possible values (if no restrictions on values vector is empty)
    */
   std::map<std::string, std::vector<std::string>> iTypeValueRestrictions;
+  /**
+   * @brief The default setup
+   */
+  AnnotatorSetup defaultSetup;
+  /**
+   * @brief Contains all setups for this annotator
+   */
+  std::map<std::string, AnnotatorSetup> reconfigurationSetups;
 };
-
 
 namespace common
 {

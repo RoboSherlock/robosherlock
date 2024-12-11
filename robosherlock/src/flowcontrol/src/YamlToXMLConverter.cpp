@@ -17,6 +17,7 @@ static const string AE_NODE_NAME = "ae";
 static const string ANNOTATOR_NODE_NAME = "annotator";
 static const string CONFIG_PARAM_NODE_NAME = "parameters";
 static const string CAPAB_NODE_NAME = "capabilities";
+static const string RECONFIG_NODE_NAME = "reconfiguration";
 
 static const string FIXED_FLOW_NODE_NAME = "fixedflow";
 
@@ -72,9 +73,13 @@ void YamlToXMLConverter::parseYamlFile()
         {
           parseCapabInfo(value);
         }
+        else if(nodeName == RECONFIG_NODE_NAME)
+        {
+          parseReconfigurationInfo(value);
+        }
         else
         {
-          std::string msg = "Node's name is unknow to us.";
+          std::string msg = "Node's name is unknown to us.";
           YAML::ParserException e(YAML::Mark::null_mark(), msg);
           throw e;
         }
@@ -102,7 +107,8 @@ void YamlToXMLConverter::parseYamlFile()
         string nodeName = key.as<string>();
         if(nodeName == AE_NODE_NAME)
         {
-          genAEInfo(value);
+          parseAnnotatorInfo(value);
+          //genAEInfo(value);
         }
         else if(rs::common::getAnnotatorPath(nodeName) != "")
         {
@@ -182,37 +188,6 @@ string YamlToXMLConverter::getType(const YAML::Node &node)
     else
       return STR_TYPE;
   }
-}
-
-
-bool YamlToXMLConverter::genAEInfo(const YAML::Node &node)
-{
-  if(node.Type() == YAML::NodeType::Map)
-  {
-    for(YAML::const_iterator mit = node.begin(); mit != node.end(); ++mit)
-    {
-      string name = mit->first.as<string>();
-
-      if(name == "name")
-        AEName = mit->second.as<string>();
-      else if(name == "implementation")
-        AEImpl = mit->second.as<string>();
-      else if(name == "description")
-        AEDescription = mit->second.as<string>();
-      else
-      {
-        cerr << mit->second.as<string>() << " is an unknown annotator info to us." << endl;
-        return false;
-      }
-    }
-  }
-  else
-  {
-    cerr << "Please use map structure under annotator node." << endl;
-    return false;
-  }
-
-  return true;
 }
 
 bool YamlToXMLConverter::parseAnnotatorInfo(const YAML::Node &node)
@@ -491,6 +466,9 @@ bool YamlToXMLConverter::generateAnnotatorConfigParamInfo(const YAML::Node &node
         configParamSettings.append("</value>\n");
         configParamSettings.append("</nameValuePair>\n");
 
+        // Save parameter info into default setup:
+        annotCap.defaultSetup.paramTypes[configName] = type;
+        annotCap.defaultSetup.paramValues[configName] = { mit->second.as<string>() };
       }
       else if(mit->second.Type() == YAML::NodeType::Sequence)      // list
       {
@@ -549,6 +527,8 @@ bool YamlToXMLConverter::generateAnnotatorConfigParamInfo(const YAML::Node &node
         configParamSettings.append("</value>\n");
         configParamSettings.append("</nameValuePair>\n");
 
+        annotCap.defaultSetup.paramTypes[configName] = type;
+        annotCap.defaultSetup.paramValues[configName] = listValue;
       }
       else
       {
@@ -638,10 +618,9 @@ bool YamlToXMLConverter::genCapabInfo(const YAML::Node &node)
   return true;
 }
 
-bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string annotator_name)
-{
 
-  rs::AnnotatorCapabilities annotCap;
+bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string annotator_name, std::string setup_name)
+{
   annotCap.annotatorName = annotator_name;
   if(node.Type() == YAML::NodeType::Map)
   {
@@ -663,7 +642,14 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
             if(sit->Type() == YAML::NodeType::Scalar)
             {
               std::string val = sit->as<std::string>();
-              annotCap.iTypeValueRestrictions[val] = std::vector<std::string>();
+              if(setup_name.empty())
+              {
+                annotCap.iTypeValueRestrictions[val] = std::vector<std::string>();
+              }
+              else
+              {
+                annotCap.reconfigurationSetups[setup_name].rInputTypeValueRestrictions[val] = std::vector<std::string>();
+              }
             }
             if(sit->Type() == YAML::NodeType::Map)
             {
@@ -674,13 +660,21 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
                 {
                   if(e.second.Type() == YAML::NodeType::Sequence)
                   {
-                    annotCap.iTypeValueRestrictions[e.first.as<std::string>()] = e.second.as<std::vector<std::string>>();
+                    string val = e.first.as<std::string>();
+                    if(setup_name.empty())
+                    {
+                      annotCap.iTypeValueRestrictions[val] = e.second.as<std::vector<std::string>>();
+                    }
+                    else
+                    {
+                      annotCap.reconfigurationSetups[setup_name].rInputTypeValueRestrictions[val] = e.second.as<std::vector<std::string>>();
+                    }
                   }
                 }
               }
               else
               {
-                outError("Inpute Type value restriction needs to be a single map entry;");
+                outError("Input Type value restriction needs to be a single map entry;");
                 return false;
               }
             }
@@ -702,7 +696,13 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
             if(n.Type() == YAML::NodeType::Scalar)
             {
               std::string val = n.as<std::string>();
-              annotCap.oTypeValueDomains[val] = std::vector<std::string>();
+              if(setup_name.empty()){
+                annotCap.oTypeValueDomains[val] = std::vector<std::string>();
+              }
+              else
+              {
+                annotCap.reconfigurationSetups[setup_name].rOutputTypeValueDomains[val] = std::vector<std::string>();
+              }
             }
             if(n.Type() == YAML::NodeType::Map)
             {
@@ -713,8 +713,14 @@ bool YamlToXMLConverter::parseCapabInfo(const YAML::Node &node, std::string anno
                 {
                   if(e.second.Type() == YAML::NodeType::Sequence)
                   {
-                    std::vector<string> listValue = e.second.as<std::vector<string>>();
-                    annotCap.oTypeValueDomains[e.first.as<std::string>()] = e.second.as<std::vector<std::string>>();
+                    string val = e.first.as<std::string>();
+                    if(setup_name.empty()){
+                      annotCap.oTypeValueDomains[val] = e.second.as<std::vector<std::string>>();
+                    }
+                    else
+                    {
+                      annotCap.reconfigurationSetups[setup_name].rOutputTypeValueDomains[val] = e.second.as<std::vector<std::string>>();
+                    }
                   }
                 }
               }
@@ -784,3 +790,86 @@ std::vector<rs::AnnotatorCapabilities> YamlToXMLConverter::getOverwrittenAnnotat
 {
   return overwrittenAnnotCaps;
 }
+
+bool YamlToXMLConverter::parseReconfigurationInfo(const YAML::Node &node)
+{
+  for(YAML::const_iterator it = node.begin(); it != node.end(); ++it)
+  {
+    string setup_name = it->first.as<string>();
+
+    if(setup_name.empty()){
+      continue;
+    }
+
+    outInfo("Reconfiguration: Found setup " << setup_name);
+
+    for(YAML::const_iterator sit = it->second.begin(); sit != it->second.end(); ++sit)
+    {
+      if(sit->first.Type() == YAML::NodeType::Scalar)
+      {
+        string node_name = sit->first.as<string>();
+
+        if(node_name == CAPAB_NODE_NAME)
+        {
+          outInfo("Reconfiguration: Found capabilities for setup " << setup_name);
+          parseCapabInfo(sit->second, "", setup_name);
+        }
+        else if(node_name == CONFIG_PARAM_NODE_NAME)
+        {
+          outInfo("Reconfiguration: Found parameter definition for " << setup_name);
+
+          if(sit->second.Type() == YAML::NodeType::Map)
+          {
+            for(YAML::const_iterator mit = sit->second.begin(); mit != sit->second.end(); ++mit)
+            {
+              string configName = mit->first.as<string>();
+              outInfo("Reconfiguration: Saving parameter " << configName);
+
+              if(mit->second.Type() == YAML::NodeType::Scalar)
+              {
+                // Single values:
+                outInfo("Saving " << setup_name << " - " << configName << " : " << getType(mit->second) << " value:" << mit->second.as<string>());
+                annotCap.reconfigurationSetups[setup_name].paramTypes[configName] = getType(mit->second);
+                annotCap.reconfigurationSetups[setup_name].paramValues[configName] = { mit->second.as<string>() };
+              }
+              else if(mit->second.Type() == YAML::NodeType::Sequence)
+              {
+                // Lists:
+                YAML::const_iterator listIt = mit->second.begin();
+                string type = getType(*listIt);
+                vector<string> listValue = mit->second.as<std::vector<string>>();
+
+                outInfo("Saving " << setup_name << " - " << configName << " : " << getType(mit->second) << " value:" << mit->second.as<string>());
+                annotCap.reconfigurationSetups[setup_name].paramTypes[configName] = "List" + getType(mit->second);
+                annotCap.reconfigurationSetups[setup_name].paramValues[configName] = listValue;
+              }
+              else {
+                // ERROR: Invalid type
+                outError("Reconfiguration: Invalid data type");
+              }
+            }
+          }
+          else {
+            // ERROR: use map structure
+            outError("Reconfiguration: Please use map structure");
+          }
+        }
+        else
+        {
+          string msg = "Node's name is unknown to us.";
+          YAML::ParserException e(YAML::Mark::null_mark(), msg);
+          throw e;
+        }
+      }
+      else
+      {
+        std::string msg = "Node's key should be scalar.";
+        YAML::ParserException e(YAML::Mark::null_mark(), msg);
+        throw e;
+      }
+    }
+  }
+
+  return true;
+}
+
